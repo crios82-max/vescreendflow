@@ -17,6 +17,15 @@ dist-ssr
 .env.development
 .env.*.local
 
+# Android release signing (never commit)
+android/keystore.properties
+android/release/
+*.jks
+*.keystore
+
+# Built APK downloads
+android/dist/
+
 # Local / agent tooling
 .agents/
 .cursor/

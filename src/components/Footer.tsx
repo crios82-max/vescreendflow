@@ -20,7 +20,7 @@ export function Footer() {
             <li><a href="/#about">Sobre nosotros</a></li>
             <li><Link to="/pricing">Precios</Link></li>
             <li><a href="/#contact">Contacto</a></li>
-            <li><a href="#privacy">Política de privacidad</a></li>
+            <li><Link to="/privacy">Política de privacidad</Link></li>
             <li><a href="#terms">Términos y condiciones</a></li>
           </ul>
         </div>

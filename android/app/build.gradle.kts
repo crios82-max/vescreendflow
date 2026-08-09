@@ -3,6 +3,19 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+import java.util.Properties
+import java.io.FileInputStream
+
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
+fun envOrProp(envName: String, propName: String): String? =
+    System.getenv(envName)?.takeIf { it.isNotBlank() }
+        ?: keystoreProperties.getProperty(propName)?.takeIf { it.isNotBlank() }
+
 android {
     namespace = "com.vescreenflow.player"
     compileSdk = 35
@@ -16,6 +29,27 @@ android {
         buildConfigField("String", "PLAYER_URL", "\"https://vescreenflow.com/play\"")
     }
 
+    signingConfigs {
+        create("release") {
+            val storeFilePath = envOrProp("ANDROID_KEYSTORE_PATH", "storeFile")
+            val storePasswordValue = envOrProp("ANDROID_KEYSTORE_PASSWORD", "storePassword")
+            val keyAliasValue = envOrProp("ANDROID_KEY_ALIAS", "keyAlias")
+            val keyPasswordValue = envOrProp("ANDROID_KEY_PASSWORD", "keyPassword")
+
+            if (
+                storeFilePath != null &&
+                storePasswordValue != null &&
+                keyAliasValue != null &&
+                keyPasswordValue != null
+            ) {
+                storeFile = rootProject.file(storeFilePath)
+                storePassword = storePasswordValue
+                keyAlias = keyAliasValue
+                keyPassword = keyPasswordValue
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -23,6 +57,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            val releaseSigning = signingConfigs.getByName("release")
+            if (releaseSigning.storeFile != null) {
+                signingConfig = releaseSigning
+            }
         }
         debug {
             applicationIdSuffix = ".debug"
