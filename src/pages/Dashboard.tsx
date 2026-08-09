@@ -807,7 +807,7 @@ export function Dashboard() {
                   </Link>
                   <a
                     className="btn btn-play"
-                    href="https://github.com/vescreenflow/vescreenflow/actions"
+                    href="https://github.com/crios82-max/vescreendflow/actions"
                     target="_blank"
                     rel="noreferrer"
                   >
