@@ -1,0 +1,84 @@
+.hardware {
+  background: #fff;
+}
+
+.hardware__lead {
+  margin: 0 auto 1rem;
+  max-width: 40rem;
+  text-align: center;
+  color: var(--navy);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.hardware__intro {
+  margin: 0 auto 2rem;
+  max-width: 42rem;
+  text-align: center;
+  color: var(--gray-text);
+}
+
+.hardware__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.hardware-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.35rem 1.2rem;
+  text-align: center;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.hardware-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-3px);
+}
+
+.hardware-card__icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 0.75rem;
+  border-radius: 12px;
+  background: var(--yellow);
+  color: var(--navy);
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.hardware-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  color: var(--navy);
+}
+
+.hardware-card p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--gray-muted);
+}
+
+.hardware__os {
+  margin: 2rem 0 0.75rem;
+  text-align: center;
+  color: var(--navy);
+  font-size: 1rem;
+}
+
+.hardware__note {
+  margin: 0;
+  text-align: center;
+  color: var(--gray-text);
+  font-size: 0.9rem;
+}
+
+@media (min-width: 700px) {
+  .hardware__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

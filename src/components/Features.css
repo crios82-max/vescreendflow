@@ -1,0 +1,28 @@
+.features {
+  background: #fff;
+}
+
+.features__grid {
+  display: grid;
+  gap: 1.75rem 3rem;
+}
+
+.feature-item h3 {
+  margin: 0 0 0.4rem;
+  color: var(--navy);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.feature-item p {
+  margin: 0;
+  color: var(--gray-text);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+@media (min-width: 800px) {
+  .features__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

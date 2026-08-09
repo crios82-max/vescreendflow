@@ -1,0 +1,85 @@
+.social-proof {
+  background: #fff;
+  padding-top: 3rem;
+}
+
+.social-proof__badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.store-badge {
+  background: #1a1a1a;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.55rem 0.95rem;
+  min-width: 130px;
+  line-height: 1.15;
+}
+
+.store-badge small {
+  display: block;
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.store-badge strong {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.social-proof__headline {
+  margin: 0 auto 1.75rem;
+  max-width: 52rem;
+  text-align: center;
+  color: var(--navy);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.social-proof__logos {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.social-proof__logo {
+  display: grid;
+  place-items: center;
+  min-height: 72px;
+  font-weight: 700;
+  color: var(--navy);
+  opacity: 0.7;
+  font-size: 0.95rem;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.social-proof__logo:nth-child(2n) {
+  border-right: none;
+}
+
+@media (min-width: 800px) {
+  .social-proof__logos {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .social-proof__logo {
+    border-bottom: none;
+  }
+
+  .social-proof__logo:nth-child(2n) {
+    border-right: 1px solid var(--border);
+  }
+
+  .social-proof__logo:last-child {
+    border-right: none;
+  }
+}

@@ -1,0 +1,32 @@
+.clients {
+  background: var(--gray-bg);
+}
+
+.clients__lead {
+  margin: -0.5rem auto 2rem;
+  max-width: 40rem;
+  text-align: center;
+  color: var(--gray-text);
+}
+
+.clients__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.85rem;
+}
+
+.clients__item {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.4rem 1rem;
+  text-align: center;
+  font-weight: 600;
+  color: var(--navy);
+  border: 1px solid var(--border);
+}
+
+@media (min-width: 800px) {
+  .clients__grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}

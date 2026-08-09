@@ -1,0 +1,8 @@
+tunnel: 55818726-7a1f-459c-a904-00f5487e6aad
+credentials-file: /Users/server/.cloudflared/55818726-7a1f-459c-a904-00f5487e6aad.json
+protocol: http2
+
+ingress:
+  - hostname: api.vescreenflow.com
+    service: http://127.0.0.1:4000
+  - service: http_status:404

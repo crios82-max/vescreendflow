@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: screenflow-db
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-screenflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-screenflow}
+      POSTGRES_DB: ${POSTGRES_DB:-screenflow}
+    volumes:
+      - screenflow_pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-screenflow} -d ${POSTGRES_DB:-screenflow}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  screenflow_pgdata:

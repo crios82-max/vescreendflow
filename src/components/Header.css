@@ -1,0 +1,139 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 0.85rem 0;
+}
+
+.site-header--yellow {
+  background: var(--yellow);
+}
+
+.site-header--white {
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.site-header__logo {
+  font-weight: 800;
+  font-size: 1.55rem;
+  letter-spacing: -0.03em;
+  color: var(--navy);
+  flex-shrink: 0;
+}
+
+.site-header--yellow .site-header__logo {
+  color: var(--navy);
+}
+
+.site-header__nav {
+  display: none;
+  align-items: center;
+  gap: 1.1rem;
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.site-header--yellow .site-header__nav a {
+  color: #fff;
+}
+
+.site-header--white .site-header__nav a {
+  color: var(--navy);
+}
+
+.site-header__nav a:hover {
+  opacity: 0.85;
+}
+
+.site-header__actions {
+  display: none;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.site-header__create {
+  white-space: nowrap;
+}
+
+.site-header__create-link {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+
+.site-header__talk {
+  display: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.site-header__mobile {
+  margin-left: auto;
+}
+
+.site-header__mobile summary {
+  list-style: none;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: var(--navy);
+  padding: 0.2rem 0.4rem;
+}
+
+.site-header__mobile summary::-webkit-details-marker {
+  display: none;
+}
+
+.site-header__mobile-panel {
+  position: absolute;
+  right: 1rem;
+  top: 3.4rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  padding: 0.5rem;
+  z-index: 60;
+}
+
+.site-header__mobile-panel a {
+  padding: 0.7rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--navy);
+  border-radius: 6px;
+}
+
+.site-header__mobile-panel a:hover {
+  background: var(--gray-bg);
+}
+
+@media (min-width: 980px) {
+  .site-header__nav,
+  .site-header__actions {
+    display: flex;
+  }
+
+  .site-header__mobile {
+    display: none;
+  }
+
+  .site-header--yellow .site-header__talk {
+    display: inline;
+  }
+}

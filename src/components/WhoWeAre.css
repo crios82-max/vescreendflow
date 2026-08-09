@@ -1,0 +1,16 @@
+.who {
+  background: var(--gray-bg);
+}
+
+.who__inner {
+  max-width: 720px;
+}
+
+.who h5 {
+  margin: 0;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--gray-text);
+  line-height: 1.65;
+}
