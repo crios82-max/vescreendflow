@@ -117,6 +117,15 @@ class RemoteCommandExecutor(
                         onStatus("Cmd apply_kiosk")
                         com.veplayer.app.kiosk.KioskController.applyOwnerPolicies(context)
                     }
+                    "run_diag" -> {
+                        onStatus("Cmd run_diag")
+                        val report = com.veplayer.app.field.FieldDiagnostics.collect(context)
+                        prefs.lastFieldDiag = report.asText()
+                        RemoteCommandBus.publish("Diag campo listo")
+                        notify("Diagnóstico campo", report.lines.take(3).joinToString(" · "))
+                        onStatus(report.lines.take(4).joinToString(" | "))
+                        Log.i(TAG, report.asText())
+                    }
                     "set_source" -> {
                         val src = cmd.payload?.optString("source")?.lowercase().orEmpty()
                         if (src in setOf("gps", "mock", "can", "obd")) {

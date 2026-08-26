@@ -77,6 +77,7 @@ fun SettingsScreen() {
     var pairCode by remember { mutableStateOf(prefs.pairCodeCached() ?: "—") }
     var otaText by remember { mutableStateOf("OTA: sin chequear") }
     var autoOta by remember { mutableStateOf(prefs.autoOtaEnabled) }
+    var diagText by remember { mutableStateOf(prefs.lastFieldDiag.ifBlank { "Sin diagnóstico aún" }) }
     val live by VehicleState.state.collectAsState()
 
     Column(
@@ -160,6 +161,40 @@ fun SettingsScreen() {
                         status = "Lock Task solicitado"
                     },
                 ) { Text("Lock Task") }
+            }
+        }
+
+        PanelBlock("Campo (HW)") {
+            Text(diagText, color = Mute)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = {
+                        scope.launch {
+                            status = "Diagnosticando…"
+                            val report =
+                                withContext(Dispatchers.IO) {
+                                    com.veplayer.app.field.FieldDiagnostics.collect(context)
+                                }
+                            prefs.lastFieldDiag = report.asText()
+                            diagText = report.asText()
+                            status = "Diag OK"
+                        }
+                    },
+                ) { Text("Diagnóstico") }
+                OutlinedButton(
+                    onClick = {
+                        runCatching {
+                            val send =
+                                Intent(Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(Intent.EXTRA_TEXT, prefs.lastFieldDiag.ifBlank { diagText })
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                            context.startActivity(Intent.createChooser(send, "Diag VePlayer"))
+                        }
+                        status = "Compartir diag"
+                    },
+                ) { Text("Compartir") }
             }
         }
 

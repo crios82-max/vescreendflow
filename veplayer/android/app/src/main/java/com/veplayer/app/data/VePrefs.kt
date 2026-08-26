@@ -116,6 +116,10 @@ class VePrefs(context: Context) {
         get() = sp.getLong("watchdog_last_tick_at", 0L)
         set(value) = sp.edit().putLong("watchdog_last_tick_at", value).apply()
 
+    var lastFieldDiag: String
+        get() = sp.getString("last_field_diag", "") ?: ""
+        set(value) = sp.edit().putString("last_field_diag", value.take(4000)).apply()
+
     fun deviceId(): String {
         var id = sp.getString("device_id", null)
         if (id.isNullOrBlank()) {

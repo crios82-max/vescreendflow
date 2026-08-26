@@ -1,5 +1,6 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
+import fs from 'fs'
 import express from 'express'
 import cors from 'cors'
 import { apiRouter } from './routes.js'
@@ -9,7 +10,10 @@ import { db } from './db.js'
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const webDir = path.join(rootDir, 'web')
+const otaDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../ota')
 const port = Number(process.env.PORT || 4100)
+
+fs.mkdirSync(otaDir, { recursive: true })
 
 const app = express()
 
@@ -28,6 +32,10 @@ app.get('/api/health', (_req, res) => {
 app.use('/api', apiRouter)
 app.use('/api/fleet', fleetRouter)
 app.use('/api/nav', navRouter)
+
+// Fleet OTA APK hosting (publish-ota.sh drops files here)
+app.use('/ota', express.static(otaDir, { fallthrough: true, index: false }))
+
 app.use(express.static(webDir))
 
 app.get('/', (_req, res) => {
@@ -48,4 +56,5 @@ app.use(
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`SenseFlow API + mapa → http://127.0.0.1:${port}`)
+  console.log(`OTA files → http://127.0.0.1:${port}/ota/  (${otaDir})`)
 })

@@ -246,6 +246,15 @@ fleetRouter.get('/ota/latest', (_req, res) => {
   res.json({ release: latest ?? null })
 })
 
+fleetRouter.get('/ota/releases', (_req, res) => {
+  const rows = db
+    .prepare(
+      `SELECT version_name, version_code, apk_url, notes, created_at FROM ota_releases ORDER BY version_code DESC LIMIT 50`,
+    )
+    .all()
+  res.json({ releases: rows })
+})
+
 const otaSchema = z.object({
   version_name: z.string().min(1),
   version_code: z.number().int().positive(),
@@ -275,6 +284,90 @@ fleetRouter.post('/ota', (req, res) => {
   res.status(201).json({ ok: true })
 })
 
+/** Queue silent OTA to devices below a version_code (default: latest release). */
+const rolloutSchema = z.object({
+  version_code: z.number().int().positive().optional(),
+  device_ids: z.array(z.string().min(8).max(64)).optional(),
+  silent: z.boolean().optional().default(true),
+})
+
+fleetRouter.post('/ota/rollout', (req, res) => {
+  const parsed = rolloutSchema.safeParse(req.body ?? {})
+  if (!parsed.success) {
+    res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
+    return
+  }
+  const targetCode =
+    parsed.data.version_code ??
+    (
+      db
+        .prepare(`SELECT version_code FROM ota_releases ORDER BY version_code DESC LIMIT 1`)
+        .get() as { version_code: number } | undefined
+    )?.version_code
+  if (!targetCode) {
+    res.status(404).json({ error: 'no hay releases OTA' })
+    return
+  }
+  const release = db
+    .prepare(
+      `SELECT version_name, version_code, apk_url FROM ota_releases WHERE version_code = ?`,
+    )
+    .get(targetCode) as
+    | { version_name: string; version_code: number; apk_url: string }
+    | undefined
+  if (!release) {
+    res.status(404).json({ error: 'release no encontrado' })
+    return
+  }
+
+  let devices: Array<{ device_id: string; version_code: number | null }>
+  if (parsed.data.device_ids?.length) {
+    devices = parsed.data.device_ids.map((id) => {
+      const row = db
+        .prepare(`SELECT device_id, version_code FROM fleet_devices WHERE device_id = ?`)
+        .get(id) as { device_id: string; version_code: number | null } | undefined
+      return row ?? { device_id: id, version_code: null }
+    })
+  } else {
+    devices = db
+      .prepare(
+        `SELECT device_id, version_code FROM fleet_devices
+         WHERE version_code IS NULL OR version_code < ?`,
+      )
+      .all(targetCode) as Array<{ device_id: string; version_code: number | null }>
+  }
+
+  const payload = JSON.stringify({
+    apk_url: release.apk_url,
+    silent: parsed.data.silent !== false,
+    version_code: release.version_code,
+    version_name: release.version_name,
+  })
+  const ins = db.prepare(
+    `INSERT INTO fleet_commands (device_id, command, payload, status)
+     VALUES (?, 'ota', ?, 'pending')`,
+  )
+  const queued: string[] = []
+  const tx = db.transaction(() => {
+    for (const d of devices) {
+      // skip unknown device_ids that were explicitly listed but not registered
+      const exists = db.prepare(`SELECT 1 FROM fleet_devices WHERE device_id = ?`).get(d.device_id)
+      if (!exists) continue
+      ins.run(d.device_id, payload)
+      queued.push(d.device_id)
+    }
+  })
+  tx()
+  res.status(201).json({
+    ok: true,
+    version_code: release.version_code,
+    version_name: release.version_name,
+    apk_url: release.apk_url,
+    queued: queued.length,
+    device_ids: queued,
+  })
+})
+
 const commandSchema = z.object({
   device_id: z.string().min(8).max(64),
   command: z.enum([
@@ -288,6 +381,7 @@ const commandSchema = z.object({
     'nav_dest',
     'lock_task',
     'apply_kiosk',
+    'run_diag',
   ]),
   payload: z.record(z.string(), z.unknown()).optional(),
 })

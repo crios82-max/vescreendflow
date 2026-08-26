@@ -38,9 +38,10 @@
     <h1 style="margin:0">Flota VePlayer Pro</h1>
     <a href="/">← Mapa</a>
     <button id="refresh">Actualizar</button>
+    <button class="btn warn" id="ota-rollout">OTA rollout</button>
     <span id="meta"></span>
   </div>
-  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · message · wipe · ota(silent) · set_source · reboot_obd · nav_dest</p>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · message · wipe · ota(silent) · set_source · reboot_obd · nav_dest</p>
   <div id="toast"></div>
 
   <div class="grid">
@@ -170,6 +171,7 @@
         mk('Restart', 'restart')
         mk('Lock', 'lock')
         mk('Kiosk', 'lock_task', 'ghost')
+        mk('Diag', 'run_diag', 'ghost')
         mk('Msg', 'message', '', { text: 'Hola desde flota' })
         mk('OTA', 'ota', 'warn', ota.release ? { apk_url: ota.release.apk_url, silent: true, version_code: ota.release.version_code } : null)
         mk('CAN', 'set_source', 'ghost', { source: 'can' })
@@ -181,6 +183,16 @@
       await Promise.all([loadAlerts(), loadGeofences()])
     }
     document.getElementById('refresh').onclick = load
+    document.getElementById('ota-rollout').onclick = async () => {
+      const r = await fetch('/api/fleet/ota/rollout', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ silent: true }),
+      })
+      const j = await r.json()
+      toast(r.ok ? `OTA rollout ${j.version_name} → ${j.queued} unidades` : (j.error || 'rollout fail'))
+      load()
+    }
     document.getElementById('gf-add').onclick = async () => {
       const body = {
         name: document.getElementById('gf-name').value || 'Fence',

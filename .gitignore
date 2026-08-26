@@ -19,12 +19,17 @@ dist-ssr
 
 # Android release signing (never commit)
 android/keystore.properties
+veplayer/android/keystore.properties
+veplayer/android/keystore/
 android/release/
 *.jks
 *.keystore
 
 # Built APK downloads
 android/dist/
+veplayer/android/app/build/
+senseflow/ota/
+senseflow/server/ota/
 
 # Local / agent tooling
 .agents/
