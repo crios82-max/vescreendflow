@@ -114,8 +114,8 @@
       </section>
       <section class="mapwrap">
         <iframe src="http://127.0.0.1:4100/" title="map"></iframe>
-        <div class="nav-card"><div class="m">80 m</div><div class="s">↗ Continuar por la vía</div></div>
-        <div class="trip-card"><div>14:42 · 12 min · 4,8 km</div><div class="s">Destino · SenseFlow</div></div>
+        <div class="nav-card"><div class="m" id="nav-m">—</div><div class="s" id="nav-s">Calculando ruta…</div></div>
+        <div class="trip-card"><div id="trip-m">—</div><div class="s" id="trip-s">Destino · SenseFlow</div></div>
       </section>
     </div>
 
@@ -234,6 +234,29 @@
     }
     refreshSurround()
     setInterval(refreshSurround, 2000)
+
+    // Live nav (SenseFlow OSRM proxy)
+    async function refreshNav() {
+      try {
+        const url = 'http://127.0.0.1:4100/api/nav/route?from_lat=10.496&from_lng=-66.898&to_lat=10.4965&to_lng=-66.8492&dest_name=Altamira'
+        const j = await fetch(url).then(r => r.json())
+        const step = (j.steps && j.steps[0]) || {}
+        const dm = step.distance_m || j.distance_m || 0
+        document.getElementById('nav-m').textContent = dm >= 1000 ? (dm/1000).toFixed(1)+' km' : Math.round(dm)+' m'
+        document.getElementById('nav-s').textContent = step.instruction || 'Continuar'
+        const mins = Math.max(1, Math.round((j.duration_s||0)/60))
+        const eta = new Date(Date.now() + (j.duration_s||0)*1000)
+        const hh = String(eta.getHours()).padStart(2,'0')
+        const mm = String(eta.getMinutes()).padStart(2,'0')
+        const dist = j.distance_m >= 1000 ? (j.distance_m/1000).toFixed(1).replace('.',',')+' km' : Math.round(j.distance_m)+' m'
+        document.getElementById('trip-m').textContent = `${hh}:${mm} · ${mins} min · ${dist}`
+        document.getElementById('trip-s').textContent = `Destino · ${j.dest_name||'Altamira'} · ${j.source||'osrm'}`
+      } catch (e) {
+        document.getElementById('nav-s').textContent = 'Nav offline'
+      }
+    }
+    refreshNav()
+    setInterval(refreshNav, 20000)
 
     // Populate bird-eye demo actors when cameras overlay opens
     const origShow = show

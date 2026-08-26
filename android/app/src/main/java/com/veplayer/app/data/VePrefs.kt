@@ -59,6 +59,30 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("bird_eye_max_lat_m", 18f)
         set(value) = sp.edit().putFloat("bird_eye_max_lat_m", value.coerceIn(6f, 30f)).apply()
 
+    var navEnabled: Boolean
+        get() = sp.getBoolean("nav_enabled", true)
+        set(value) = sp.edit().putBoolean("nav_enabled", value).apply()
+
+    var navFromLat: Double
+        get() = Double.fromBits(sp.getLong("nav_from_lat", java.lang.Double.doubleToRawLongBits(10.496)))
+        set(value) = sp.edit().putLong("nav_from_lat", value.toRawBits()).apply()
+
+    var navFromLng: Double
+        get() = Double.fromBits(sp.getLong("nav_from_lng", java.lang.Double.doubleToRawLongBits(-66.898)))
+        set(value) = sp.edit().putLong("nav_from_lng", value.toRawBits()).apply()
+
+    var navToLat: Double
+        get() = Double.fromBits(sp.getLong("nav_to_lat", java.lang.Double.doubleToRawLongBits(10.4965)))
+        set(value) = sp.edit().putLong("nav_to_lat", value.toRawBits()).apply()
+
+    var navToLng: Double
+        get() = Double.fromBits(sp.getLong("nav_to_lng", java.lang.Double.doubleToRawLongBits(-66.8492)))
+        set(value) = sp.edit().putLong("nav_to_lng", value.toRawBits()).apply()
+
+    var navDestName: String
+        get() = sp.getString("nav_dest_name", "Altamira") ?: "Altamira"
+        set(value) = sp.edit().putString("nav_dest_name", value.trim()).apply()
+
     var deviceName: String
         get() = sp.getString("device_name", "VePlayer") ?: "VePlayer"
         set(value) = sp.edit().putString("device_name", value).apply()
