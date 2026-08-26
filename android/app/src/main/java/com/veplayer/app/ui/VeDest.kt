@@ -11,4 +11,5 @@ enum class VeDest(
     Store("store", "Tienda"),
     Player("player", "Pantalla"),
     Map("map", "Mapa"),
+    Settings("settings", "Ajustes"),
 }

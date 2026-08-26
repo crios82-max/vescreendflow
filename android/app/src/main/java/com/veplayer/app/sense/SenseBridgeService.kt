@@ -16,9 +16,11 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.veplayer.app.BuildConfig
 import com.veplayer.app.MainActivity
 import com.veplayer.app.R
+import com.veplayer.app.data.VePrefs
+import com.veplayer.app.fleet.FleetClient
+import com.veplayer.app.vehicle.VehicleState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,11 +32,9 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
-import java.security.MessageDigest
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-/** Lightweight SenseFlow bridge — anonymous pings while VePlayer runs. */
+/** SenseFlow pings + fleet heartbeat while VePlayer runs. */
 class SenseBridgeService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val client =
@@ -43,13 +43,17 @@ class SenseBridgeService : Service() {
             .readTimeout(12, TimeUnit.SECONDS)
             .build()
     private val fused by lazy { LocationServices.getFusedLocationProviderClient(this) }
-    private lateinit var bucket: String
+    private lateinit var prefs: VePrefs
+    private lateinit var fleet: FleetClient
 
     private val callback =
         object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 val loc = result.lastLocation ?: return
                 val speed = if (loc.hasSpeed()) loc.speed else null
+                if (!prefs.mockReverse && prefs.mockSpeedKmh <= 0f) {
+                    VehicleState.updateSpeed(speed, "gps")
+                }
                 val activity =
                     when {
                         speed == null -> "UNKNOWN"
@@ -57,14 +61,28 @@ class SenseBridgeService : Service() {
                         speed >= 0.5f -> "ON_FOOT"
                         else -> "STILL"
                     }
-                scope.launch { postPing(loc.latitude, loc.longitude, loc.accuracy, speed, activity) }
+                val reverse = VehicleState.state.value.reverse
+                scope.launch {
+                    postPing(loc.latitude, loc.longitude, loc.accuracy, speed, activity)
+                    runCatching {
+                        if (prefs.pairCodeCached() == null) fleet.register()
+                        fleet.heartbeat(
+                            lat = loc.latitude,
+                            lng = loc.longitude,
+                            speedMps = speed ?: VehicleState.state.value.speedMps,
+                            reverse = reverse,
+                        )
+                    }
+                }
             }
         }
 
     override fun onCreate() {
         super.onCreate()
-        bucket = dailyBucket()
+        prefs = VePrefs(this)
+        fleet = FleetClient(prefs)
         startFg()
+        scope.launch { runCatching { fleet.register() } }
         try {
             val req =
                 LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 15_000L)
@@ -99,7 +117,7 @@ class SenseBridgeService : Service() {
         val n: Notification =
             NotificationCompat.Builder(this, id)
                 .setContentTitle("VePlayer")
-                .setContentText("Sensores de flota activos")
+                .setContentText("Sensores + flota activos")
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentIntent(open)
                 .setOngoing(true)
@@ -126,7 +144,7 @@ class SenseBridgeService : Service() {
                     .put("accuracy_m", accuracy.toDouble())
                     .put("speed_mps", speed?.toDouble())
                     .put("activity", activity)
-                    .put("device_bucket", bucket)
+                    .put("device_bucket", prefs.dailyBucket())
                     .put("ts", System.currentTimeMillis() / 1000),
             )
         val body =
@@ -136,23 +154,9 @@ class SenseBridgeService : Service() {
                 .toRequestBody("application/json".toMediaType())
         val req =
             Request.Builder()
-                .url(BuildConfig.SENSEFLOW_URL.trimEnd('/') + "/api/pings")
+                .url(prefs.senseflowUrl.trimEnd('/') + "/api/pings")
                 .post(body)
                 .build()
         runCatching { client.newCall(req).execute().close() }
-    }
-
-    private fun dailyBucket(): String {
-        val sp = getSharedPreferences("veplayer", MODE_PRIVATE)
-        var install = sp.getString("install_id", null)
-        if (install.isNullOrBlank()) {
-            install = UUID.randomUUID().toString()
-            sp.edit().putString("install_id", install).apply()
-        }
-        val raw = "$install|${java.time.LocalDate.now()}"
-        return MessageDigest.getInstance("SHA-256")
-            .digest(raw.toByteArray())
-            .joinToString("") { "%02x".format(it) }
-            .take(32)
     }
 }

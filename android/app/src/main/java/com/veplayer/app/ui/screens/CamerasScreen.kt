@@ -47,14 +47,22 @@ import com.veplayer.app.ui.theme.Panel
 import com.veplayer.app.ui.theme.Teal
 
 @Composable
-fun CamerasScreen() {
+fun CamerasScreen(preferRear: Boolean = false) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val devices = remember { CameraCatalog.list(context) }
     val (a0, b0) = remember(devices) { CameraCatalog.pickDual(devices) }
-    var camA by remember(devices) { mutableStateOf(a0) }
+    val initialA =
+        remember(devices, preferRear) {
+            if (preferRear) {
+                devices.firstOrNull { it.facing == CameraCharacteristics.LENS_FACING_BACK } ?: a0
+            } else {
+                a0
+            }
+        }
+    var camA by remember(devices, preferRear) { mutableStateOf(initialA) }
     var camB by remember(devices) { mutableStateOf(b0) }
-    var dual by remember { mutableStateOf(b0 != null) }
+    var dual by remember { mutableStateOf(b0 != null && !preferRear) }
     var status by remember { mutableStateOf("Listo") }
     var previewA by remember { mutableStateOf<PreviewView?>(null) }
     var previewB by remember { mutableStateOf<PreviewView?>(null) }

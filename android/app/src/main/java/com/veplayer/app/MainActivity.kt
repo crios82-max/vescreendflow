@@ -1,6 +1,7 @@
 package com.veplayer.app
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -23,6 +24,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +39,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.veplayer.app.data.VePrefs
 import com.veplayer.app.kiosk.KioskController
 import com.veplayer.app.sense.SenseBridgeService
 import com.veplayer.app.ui.VeDest
@@ -44,6 +48,7 @@ import com.veplayer.app.ui.screens.HomeScreen
 import com.veplayer.app.ui.screens.MapScreen
 import com.veplayer.app.ui.screens.PlayerScreen
 import com.veplayer.app.ui.screens.RadioScreen
+import com.veplayer.app.ui.screens.SettingsScreen
 import com.veplayer.app.ui.screens.StoreScreen
 import com.veplayer.app.ui.screens.YouTubeScreen
 import com.veplayer.app.ui.theme.Mute
@@ -51,7 +56,7 @@ import com.veplayer.app.ui.theme.Night
 import com.veplayer.app.ui.theme.Panel
 import com.veplayer.app.ui.theme.Teal
 import com.veplayer.app.ui.theme.VePlayerTheme
-import android.content.Intent
+import com.veplayer.app.vehicle.VehicleState
 
 class MainActivity : ComponentActivity() {
     private val permissionLauncher =
@@ -63,11 +68,23 @@ class MainActivity : ComponentActivity() {
         enterImmersive()
         requestRuntimePermissions()
         KioskController.tryStartLockTask(this)
+
+        val prefs = VePrefs(this)
+        if (prefs.mockReverse || prefs.mockSpeedKmh > 0f) {
+            VehicleState.applyMock(prefs.mockSpeedKmh, prefs.mockReverse)
+        }
         ContextCompat.startForegroundService(this, Intent(this, SenseBridgeService::class.java))
 
         setContent {
             VePlayerTheme {
                 var dest by remember { mutableStateOf(VeDest.Home) }
+                val vehicle by VehicleState.state.collectAsState()
+
+                // Marcha atrás → forzar cámaras (retrovisor/trasera)
+                LaunchedEffect(vehicle.reverse) {
+                    if (vehicle.reverse) dest = VeDest.Cameras
+                }
+
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
@@ -76,6 +93,8 @@ class MainActivity : ComponentActivity() {
                     Rail(
                         current = dest,
                         onSelect = { dest = it },
+                        speedKmh = vehicle.speedKmh,
+                        reverse = vehicle.reverse,
                         modifier = Modifier
                             .fillMaxHeight()
                             .width(148.dp)
@@ -90,12 +109,13 @@ class MainActivity : ComponentActivity() {
                     ) {
                         when (dest) {
                             VeDest.Home -> HomeScreen(onOpen = { dest = it })
-                            VeDest.Cameras -> CamerasScreen()
+                            VeDest.Cameras -> CamerasScreen(preferRear = vehicle.reverse)
                             VeDest.Radio -> RadioScreen()
                             VeDest.YouTube -> YouTubeScreen()
                             VeDest.Store -> StoreScreen()
                             VeDest.Player -> PlayerScreen()
                             VeDest.Map -> MapScreen()
+                            VeDest.Settings -> SettingsScreen()
                         }
                     }
                 }
@@ -147,6 +167,8 @@ class MainActivity : ComponentActivity() {
 private fun Rail(
     current: VeDest,
     onSelect: (VeDest) -> Unit,
+    speedKmh: Float,
+    reverse: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -161,9 +183,9 @@ private fun Rail(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
         )
         Text(
-            "OS reproductor",
+            if (reverse) "⏪ REVERSE" else "${speedKmh.toInt()} km/h",
             style = MaterialTheme.typography.labelMedium,
-            color = Mute,
+            color = if (reverse) Teal else Mute,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
         )
         VeDest.entries.forEach { item ->
