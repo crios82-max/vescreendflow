@@ -4,6 +4,7 @@ import express from 'express'
 import cors from 'cors'
 import { apiRouter } from './routes.js'
 import { fleetRouter } from './fleet.js'
+import { navRouter } from './nav.js'
 import { db } from './db.js'
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
@@ -26,6 +27,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api', apiRouter)
 app.use('/api/fleet', fleetRouter)
+app.use('/api/nav', navRouter)
 app.use(express.static(webDir))
 
 app.get('/', (_req, res) => {

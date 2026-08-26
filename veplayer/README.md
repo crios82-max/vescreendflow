@@ -53,7 +53,18 @@ AARs oficiales en `app/libs/` (no redistribuimos el cliente Spotify).
 Si el kernel expone UVC como Camera2 `LENS_FACING_EXTERNAL`, aparecen en el selector Dual A/B.  
 ConcurrentCamera requiere SoC compatible; si no, cae a cámara simple.
 
-## Cámaras 360 (v0.9)
+## Navegación (v0.10)
+
+SenseFlow proxy OSRM:
+
+```bash
+curl "http://127.0.0.1:4100/api/nav/route?from_lat=10.496&from_lng=-66.898&to_lat=10.4965&to_lng=-66.8492&dest_name=Altamira"
+curl http://127.0.0.1:4100/api/nav/destinations
+```
+
+- Mapa: selector de destino · polyline · cards ETA / próximo giro
+- VePlayer: `NavEngine` + chrome cockpit live · prefs destino
+- Fallback haversine si OSRM no responde (`OSRM_URL` opcional)
 
 Modo **360** en Cámaras:
 - Grid front / rear (ConcurrentCamera) + placeholders left/right (USB UVC)

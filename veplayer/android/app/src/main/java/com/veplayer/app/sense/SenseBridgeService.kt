@@ -63,6 +63,10 @@ class SenseBridgeService : Service() {
                     headingDeg = heading,
                     reverseOverride = prefs.mockReverse && prefs.signalSource == "gps",
                 )
+                if (prefs.navEnabled) {
+                    prefs.navFromLat = loc.latitude
+                    prefs.navFromLng = loc.longitude
+                }
                 val snap = VehicleState.state.value
                 val activity =
                     when {

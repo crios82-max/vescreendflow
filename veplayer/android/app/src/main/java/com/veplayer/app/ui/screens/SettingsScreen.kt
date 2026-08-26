@@ -366,6 +366,53 @@ fun SettingsScreen() {
             }
         }
 
+        PanelBlock("Navegación") {
+            var navOn by remember { mutableStateOf(prefs.navEnabled) }
+            var destName by remember { mutableStateOf(prefs.navDestName) }
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Nav activa", color = Mist)
+                Switch(
+                    checked = navOn,
+                    onCheckedChange = {
+                        navOn = it
+                        prefs.navEnabled = it
+                        com.veplayer.app.nav.NavEngine.refreshAsync(scope)
+                        status = if (it) "Nav ON" else "Nav OFF"
+                    },
+                )
+            }
+            Text("Destino rápido (Caracas demo)", color = Mute)
+            val presets =
+                listOf(
+                    Triple("Altamira", 10.4965, -66.8492),
+                    Triple("Chacao", 10.4958, -66.8756),
+                    Triple("Bellas Artes", 10.4989, -66.8986),
+                    Triple("Aeropuerto", 10.6013, -66.9912),
+                )
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                presets.forEach { (name, lat, lng) ->
+                    val selected = destName == name
+                    val click = {
+                        destName = name
+                        prefs.navDestName = name
+                        prefs.navToLat = lat
+                        prefs.navToLng = lng
+                        com.veplayer.app.nav.NavEngine.refreshAsync(scope)
+                        status = "Destino → $name"
+                    }
+                    if (selected) Button(onClick = click) { Text(name) }
+                    else OutlinedButton(onClick = click) { Text(name) }
+                }
+            }
+            Text("Actual: $destName (${prefs.navToLat}, ${prefs.navToLng})", color = Mute)
+            OutlinedButton(
+                onClick = {
+                    com.veplayer.app.nav.NavEngine.refreshAsync(scope)
+                    status = "Ruta refrescada"
+                },
+            ) { Text("Recalcular ruta") }
+        }
+
         PanelBlock("Mock vehículo (demo)") {
             Text("Aplica sobre mock / can_stub / obd_sim (no pisa GPS real).", color = Mute)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {

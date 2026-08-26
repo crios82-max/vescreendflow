@@ -232,6 +232,16 @@ class MainActivity : ComponentActivity() {
 private fun MapPane() {
     val context = LocalContext.current
     val prefs = remember { VePrefs(context) }
+    val url =
+        remember(prefs.senseflowUrl, prefs.navToLat, prefs.navDestName) {
+            buildString {
+                append(prefs.senseflowUrl.trimEnd('/'))
+                append("/?auto=1")
+                append("&from_lat=${prefs.navFromLat}&from_lng=${prefs.navFromLng}")
+                append("&to_lat=${prefs.navToLat}&to_lng=${prefs.navToLng}")
+                append("&dest_name=${java.net.URLEncoder.encode(prefs.navDestName, "UTF-8")}")
+            }
+        }
     AndroidView(
         factory = { ctx ->
             WebView(ctx).apply {
@@ -240,15 +250,17 @@ private fun MapPane() {
                 settings.domStorageEnabled = true
                 webViewClient = WebViewClient()
                 webChromeClient = WebChromeClient()
-                loadUrl(prefs.senseflowUrl.trimEnd('/') + "/")
+                loadUrl(url)
             }
         },
+        update = { it.loadUrl(url) },
         modifier = Modifier.fillMaxSize(),
     )
 }
 
 @androidx.compose.runtime.Composable
 private fun NavChrome() {
+    val nav by com.veplayer.app.nav.NavEngine.route.collectAsState()
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -258,8 +270,8 @@ private fun NavChrome() {
                 .background(Color(0xCC111111))
                 .padding(horizontal = 14.dp, vertical = 12.dp),
         ) {
-            Text("80 m", color = Mist, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-            Text("↗ Continuar por la vía", color = Mute, fontSize = 14.sp)
+            Text(nav.nextDistanceShort, color = Mist, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(nav.nextInstruction, color = Mute, fontSize = 14.sp)
         }
         Column(
             modifier = Modifier
@@ -269,8 +281,17 @@ private fun NavChrome() {
                 .background(Color(0xCC111111))
                 .padding(horizontal = 14.dp, vertical = 12.dp),
         ) {
-            Text("14:42 · 12 min · 4,8 km", color = Mist, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Text("Destino · flota SenseFlow", color = Mute, fontSize = 12.sp)
+            Text(
+                "${nav.etaLabel} · ${nav.durationLabel} · ${nav.distanceLabel}",
+                color = Mist,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+            )
+            Text(
+                "Destino · ${nav.destinationName.ifBlank { "—" }} · ${nav.source}",
+                color = Mute,
+                fontSize = 12.sp,
+            )
         }
     }
 }
