@@ -143,15 +143,16 @@ fun SettingsScreen() {
                     onClick = {
                         scope.launch {
                             val r = withContext(Dispatchers.IO) { fleet.heartbeat() }
-                            r.onSuccess { ota ->
+                            r.onSuccess { hb ->
+                                val ota = hb.ota
                                 if (ota == null) {
-                                    otaText = "Heartbeat OK · sin OTA"
+                                    otaText = "Heartbeat OK · sin OTA · cmds ${hb.commands.size}"
                                 } else {
                                     otaText =
                                         if (ota.updateAvailable) {
-                                            "Update ${ota.latestVersionName} disponible"
+                                            "Update ${ota.latestVersionName} disponible · cmds ${hb.commands.size}"
                                         } else {
-                                            "Al día (${ota.latestVersionName})"
+                                            "Al día (${ota.latestVersionName}) · cmds ${hb.commands.size}"
                                         }
                                     status = otaText
                                 }
@@ -169,17 +170,26 @@ fun SettingsScreen() {
                     onClick = {
                         scope.launch {
                             val r = withContext(Dispatchers.IO) { fleet.heartbeat() }
-                            r.onSuccess { ota ->
+                            r.onSuccess { hb ->
+                                val ota = hb.ota
                                 if (ota?.updateAvailable == true && !ota.apkUrl.isNullOrBlank()) {
                                     otaText = "Descargando ${ota.latestVersionName}…"
-                                    try {
-                                        context.startActivity(
-                                            Intent(Intent.ACTION_VIEW, Uri.parse(ota.apkUrl)),
-                                        )
-                                        status = "Abriendo APK OTA"
-                                    } catch (e: Exception) {
-                                        status = e.message ?: "No se pudo abrir URL OTA"
-                                    }
+                                    val install =
+                                        withContext(Dispatchers.IO) {
+                                            com.veplayer.app.ota.OtaInstaller(context)
+                                                .downloadAndInstall(ota.apkUrl!!) { otaText = it }
+                                        }
+                                    install
+                                        .onSuccess { status = "OTA enviada a PackageInstaller" }
+                                        .onFailure {
+                                            status = it.message ?: "OTA fail"
+                                            // Fallback: open URL
+                                            runCatching {
+                                                context.startActivity(
+                                                    Intent(Intent.ACTION_VIEW, Uri.parse(ota.apkUrl)),
+                                                )
+                                            }
+                                        }
                                 } else {
                                     status = "Sin update pendiente"
                                     otaText = "Sin update"

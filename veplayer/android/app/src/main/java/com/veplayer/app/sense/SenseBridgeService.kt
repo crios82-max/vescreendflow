@@ -20,6 +20,7 @@ import com.veplayer.app.MainActivity
 import com.veplayer.app.R
 import com.veplayer.app.data.VePrefs
 import com.veplayer.app.fleet.FleetClient
+import com.veplayer.app.fleet.RemoteCommandExecutor
 import com.veplayer.app.vehicle.VehicleState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,7 +35,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
-/** SenseFlow pings + fleet heartbeat while VePlayer runs. */
+/** SenseFlow pings + fleet heartbeat + remote commands. */
 class SenseBridgeService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val client =
@@ -45,6 +46,7 @@ class SenseBridgeService : Service() {
     private val fused by lazy { LocationServices.getFusedLocationProviderClient(this) }
     private lateinit var prefs: VePrefs
     private lateinit var fleet: FleetClient
+    private lateinit var remote: RemoteCommandExecutor
 
     private val callback =
         object : LocationCallback() {
@@ -66,12 +68,14 @@ class SenseBridgeService : Service() {
                     postPing(loc.latitude, loc.longitude, loc.accuracy, speed, activity)
                     runCatching {
                         if (prefs.pairCodeCached() == null) fleet.register()
-                        fleet.heartbeat(
-                            lat = loc.latitude,
-                            lng = loc.longitude,
-                            speedMps = speed ?: VehicleState.state.value.speedMps,
-                            reverse = reverse,
-                        )
+                        val hb =
+                            fleet.heartbeat(
+                                lat = loc.latitude,
+                                lng = loc.longitude,
+                                speedMps = speed ?: VehicleState.state.value.speedMps,
+                                reverse = reverse,
+                            ).getOrThrow()
+                        remote.handle(hb.commands)
                     }
                 }
             }
@@ -81,8 +85,15 @@ class SenseBridgeService : Service() {
         super.onCreate()
         prefs = VePrefs(this)
         fleet = FleetClient(prefs)
+        remote = RemoteCommandExecutor(this, fleet)
         startFg()
-        scope.launch { runCatching { fleet.register() } }
+        scope.launch {
+            runCatching {
+                fleet.register()
+                val hb = fleet.heartbeat().getOrThrow()
+                remote.handle(hb.commands)
+            }
+        }
         try {
             val req =
                 LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 15_000L)

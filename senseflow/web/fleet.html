@@ -5,15 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SenseFlow Flota</title>
   <style>
-    :root { --ink:#0f1c18; --mist:#e8f2ee; --teal:#0d9488; --panel:#15201c; }
+    :root { --ink:#0f1c18; --mist:#e8f2ee; --teal:#0d9488; --panel:#15201c; --amber:#d97706; }
     body { margin:0; font-family:system-ui,sans-serif; background:var(--ink); color:var(--mist); padding:20px; }
     a { color:var(--teal); }
     table { width:100%; border-collapse:collapse; background:var(--panel); border-radius:12px; overflow:hidden; }
-    th, td { text-align:left; padding:10px 12px; border-bottom:1px solid #24332e; font-size:.92rem; }
+    th, td { text-align:left; padding:10px 12px; border-bottom:1px solid #24332e; font-size:.92rem; vertical-align:top; }
     th { color:var(--teal); }
     .bar { display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
-    button { background:var(--teal); color:#042f2e; border:0; border-radius:8px; padding:8px 12px; font-weight:700; cursor:pointer; }
+    button, .btn {
+      background:var(--teal); color:#042f2e; border:0; border-radius:8px; padding:6px 10px;
+      font-weight:700; cursor:pointer; font-size:.8rem; margin:2px;
+    }
+    .btn.warn { background:var(--amber); color:#1a1205; }
+    .btn.danger { background:#e11d48; color:#fff; }
     code { background:#0b1411; padding:2px 6px; border-radius:6px; }
+    #toast { margin-top:10px; color:var(--teal); min-height:1.2em; }
   </style>
 </head>
 <body>
@@ -23,14 +29,28 @@
     <button id="refresh">Actualizar</button>
     <span id="meta"></span>
   </div>
-  <p>API: <code>POST /api/fleet/register</code> · <code>POST /api/fleet/heartbeat</code> · <code>GET /api/fleet/devices</code> · <code>GET /api/fleet/ota/latest</code></p>
+  <p>API: <code>POST /api/fleet/command</code> · restart · lock · message · wipe · ota</p>
+  <div id="toast"></div>
   <table>
     <thead>
-      <tr><th>Nombre</th><th>Pair</th><th>Versión</th><th>Seen</th><th>Speed</th><th>Rev</th><th>Device</th></tr>
+      <tr><th>Nombre</th><th>Pair</th><th>Versión</th><th>Seen</th><th>Speed</th><th>Rev</th><th>Comandos</th></tr>
     </thead>
     <tbody id="rows"></tbody>
   </table>
   <script>
+    const toast = (t) => { document.getElementById('toast').textContent = t }
+    async function sendCmd(deviceId, command, payload) {
+      const body = { device_id: deviceId, command }
+      if (payload) body.payload = payload
+      const r = await fetch('/api/fleet/command', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const j = await r.json()
+      if (!r.ok) { toast(j.error || 'error'); return }
+      toast(`OK cmd #${j.id} → ${command}`)
+    }
     async function load() {
       const [dev, ota] = await Promise.all([
         fetch('/api/fleet/devices').then(r => r.json()),
@@ -44,12 +64,26 @@
       for (const d of dev.devices) {
         const tr = document.createElement('tr')
         const seen = d.last_seen_at ? new Date(d.last_seen_at * 1000).toLocaleString() : '—'
+        const id = d.device_id
         tr.innerHTML = `<td>${d.name || '—'}</td><td>${d.pair_code || '—'}</td>
           <td>${d.app_version || '—'} (${d.version_code ?? '—'})</td>
           <td>${seen}</td>
           <td>${d.last_speed_mps != null ? (d.last_speed_mps*3.6).toFixed(0)+' km/h' : '—'}</td>
           <td>${d.reverse ? '⏪' : '—'}</td>
-          <td><code>${(d.device_id||'').slice(0,12)}…</code></td>`
+          <td class="cmds"></td>`
+        const cell = tr.querySelector('.cmds')
+        const mk = (label, cmd, cls, payload) => {
+          const b = document.createElement('button')
+          b.className = 'btn ' + (cls || '')
+          b.textContent = label
+          b.onclick = () => sendCmd(id, cmd, payload)
+          cell.appendChild(b)
+        }
+        mk('Restart', 'restart')
+        mk('Lock', 'lock')
+        mk('Msg', 'message', '', { text: 'Hola desde flota' })
+        mk('OTA', 'ota', 'warn', ota.release ? { apk_url: ota.release.apk_url } : null)
+        mk('Wipe', 'wipe', 'danger')
         tb.appendChild(tr)
       }
     }

@@ -57,6 +57,19 @@ db.exec(`
     notes TEXT,
     created_at INTEGER NOT NULL DEFAULT (unixepoch())
   );
+
+  CREATE TABLE IF NOT EXISTS fleet_commands (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    device_id TEXT NOT NULL,
+    command TEXT NOT NULL CHECK (command IN ('restart','lock','message','wipe','ota')),
+    payload TEXT,
+    status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','acked','done','failed')),
+    created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+    acked_at INTEGER,
+    FOREIGN KEY (device_id) REFERENCES fleet_devices(device_id)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_fleet_cmd_pending ON fleet_commands(device_id, status);
 `)
 
 // Seed a placeholder OTA row if empty

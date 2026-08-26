@@ -56,7 +56,9 @@ import com.veplayer.app.ui.theme.Night
 import com.veplayer.app.ui.theme.Panel
 import com.veplayer.app.ui.theme.Teal
 import com.veplayer.app.ui.theme.VePlayerTheme
-import com.veplayer.app.vehicle.VehicleState
+import com.veplayer.app.fleet.RemoteCommandBus
+import com.veplayer.app.watchdog.WatchdogService
+import kotlinx.coroutines.flow.collectLatest
 
 class MainActivity : ComponentActivity() {
     private val permissionLauncher =
@@ -74,22 +76,40 @@ class MainActivity : ComponentActivity() {
             VehicleState.applyMock(prefs.mockSpeedKmh, prefs.mockReverse)
         }
         ContextCompat.startForegroundService(this, Intent(this, SenseBridgeService::class.java))
+        WatchdogService.start(this)
 
         setContent {
             VePlayerTheme {
                 var dest by remember { mutableStateOf(VeDest.Home) }
                 val vehicle by VehicleState.state.collectAsState()
+                var fleetMsg by remember { mutableStateOf<String?>(null) }
+
+                LaunchedEffect(Unit) {
+                    WatchdogService.touchUi(this@MainActivity)
+                    RemoteCommandBus.messages.collectLatest { fleetMsg = it }
+                }
+                LaunchedEffect(dest) {
+                    WatchdogService.touchUi(this@MainActivity)
+                }
 
                 // Marcha atrás → forzar cámaras (retrovisor/trasera)
                 LaunchedEffect(vehicle.reverse) {
                     if (vehicle.reverse) dest = VeDest.Cameras
                 }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Night),
-                ) {
+                Column(modifier = Modifier.fillMaxSize().background(Night)) {
+                    if (fleetMsg != null) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Teal)
+                                .clickable { fleetMsg = null }
+                                .padding(12.dp),
+                        ) {
+                            Text("Flota: $fleetMsg", color = Night, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     Rail(
                         current = dest,
                         onSelect = { dest = it },
@@ -118,6 +138,7 @@ class MainActivity : ComponentActivity() {
                             VeDest.Settings -> SettingsScreen()
                         }
                     }
+                    }
                 }
             }
         }
@@ -126,6 +147,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         enterImmersive()
+        WatchdogService.touchUi(this)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

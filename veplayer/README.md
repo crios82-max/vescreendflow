@@ -53,18 +53,19 @@ AARs oficiales en `app/libs/` (no redistribuimos el cliente Spotify).
 Si el kernel expone UVC como Camera2 `LENS_FACING_EXTERNAL`, aparecen en el selector Dual A/B.  
 ConcurrentCamera requiere SoC compatible; si no, cae a cámara simple.
 
-## VePlayer OS MVP (v0.3)
+## VePlayer OS MVP (v0.4)
 
 - **Ajustes + PIN** (default `1234`)
-- **Flota**: register / heartbeat / pair / devices
-- **OTA**: latest release via heartbeat
-- **Reverse mock** → fuerza Cámaras
-- **Bloqueo video** YouTube/Player si velocidad ≥ umbral o reverse
+- **Flota**: register / heartbeat / pair / devices / **commands**
+- **OTA**: PackageInstaller (+ heartbeat `update_available`)
+- **Watchdog** auto-recover Sense + UI
+- **Audio focus** en Radio
+- **Reverse mock** → Cámaras · **video lock** en movimiento
 
 ```bash
-# API flota
-curl -s -X POST http://127.0.0.1:4100/api/fleet/register \
+# Comando remoto
+curl -s -X POST http://127.0.0.1:4100/api/fleet/command \
   -H 'content-type: application/json' \
-  -d '{"device_id":"testdevice001","name":"Unidad 1","version_code":3,"app_version":"0.3.0"}'
-# Dashboard flota: http://127.0.0.1:4100/fleet.html
+  -d '{"device_id":"…","command":"message","payload":{"text":"Hola"}}'
+# Dashboard: http://127.0.0.1:4100/fleet.html
 ```

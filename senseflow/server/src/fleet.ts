@@ -109,6 +109,14 @@ fleetRouter.post('/heartbeat', (req, res) => {
     d.version_code != null &&
     latest.version_code > d.version_code
 
+  const pending = db
+    .prepare(
+      `SELECT id, command, payload, created_at FROM fleet_commands
+       WHERE device_id = ? AND status = 'pending'
+       ORDER BY id ASC LIMIT 20`,
+    )
+    .all(d.device_id) as Array<{ id: number; command: string; payload: string | null; created_at: number }>
+
   res.json({
     ok: true,
     server_time: now,
@@ -121,8 +129,22 @@ fleetRouter.post('/heartbeat', (req, res) => {
           notes: latest.notes,
         }
       : null,
+    commands: pending.map((c) => ({
+      id: c.id,
+      command: c.command,
+      payload: c.payload ? safeJson(c.payload) : null,
+      created_at: c.created_at,
+    })),
   })
 })
+
+function safeJson(raw: string): unknown {
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return { text: raw }
+  }
+}
 
 const pairSchema = z.object({
   pair_code: z.string().min(6).max(12),
@@ -196,4 +218,62 @@ fleetRouter.post('/ota', (req, res) => {
     notes: parsed.data.notes ?? null,
   })
   res.status(201).json({ ok: true })
+})
+
+const commandSchema = z.object({
+  device_id: z.string().min(8).max(64),
+  command: z.enum(['restart', 'lock', 'message', 'wipe', 'ota']),
+  payload: z.record(z.string(), z.unknown()).optional(),
+})
+
+fleetRouter.post('/command', (req, res) => {
+  const parsed = commandSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
+    return
+  }
+  const exists = db
+    .prepare(`SELECT device_id FROM fleet_devices WHERE device_id = ?`)
+    .get(parsed.data.device_id)
+  if (!exists) {
+    res.status(404).json({ error: 'dispositivo no encontrado' })
+    return
+  }
+  const info = db
+    .prepare(
+      `INSERT INTO fleet_commands (device_id, command, payload, status)
+       VALUES (?, ?, ?, 'pending')`,
+    )
+    .run(
+      parsed.data.device_id,
+      parsed.data.command,
+      parsed.data.payload ? JSON.stringify(parsed.data.payload) : null,
+    )
+  res.status(201).json({ ok: true, id: Number(info.lastInsertRowid) })
+})
+
+const ackSchema = z.object({
+  device_id: z.string().min(8).max(64),
+  command_ids: z.array(z.number().int().positive()).min(1).max(50),
+  status: z.enum(['acked', 'done', 'failed']).default('acked'),
+})
+
+fleetRouter.post('/command/ack', (req, res) => {
+  const parsed = ackSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
+    return
+  }
+  const now = Math.floor(Date.now() / 1000)
+  const upd = db.prepare(
+    `UPDATE fleet_commands SET status = ?, acked_at = ? WHERE id = ? AND device_id = ?`,
+  )
+  const tx = db.transaction(() => {
+    let n = 0
+    for (const id of parsed.data.command_ids) {
+      n += upd.run(parsed.data.status, now, id, parsed.data.device_id).changes
+    }
+    return n
+  })
+  res.json({ ok: true, updated: tx() })
 })
