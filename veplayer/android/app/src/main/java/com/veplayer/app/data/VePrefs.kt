@@ -144,6 +144,26 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("reverse_guide_track", 0.46f)
         set(value) = sp.edit().putFloat("reverse_guide_track", value.coerceIn(0.30f, 0.60f)).apply()
 
+    /** Collect fleet alerts into inbox. */
+    var fleetAlertsEnabled: Boolean
+        get() = sp.getBoolean("fleet_alerts", true)
+        set(value) = sp.edit().putBoolean("fleet_alerts", value).apply()
+
+    /** Speak new fleet alerts (geofence, ABS, TPMS…). */
+    var fleetTtsAlerts: Boolean
+        get() = sp.getBoolean("fleet_tts_alerts", true)
+        set(value) = sp.edit().putBoolean("fleet_tts_alerts", value).apply()
+
+    /** Speak dispatcher message commands. */
+    var fleetTtsMessages: Boolean
+        get() = sp.getBoolean("fleet_tts_messages", true)
+        set(value) = sp.edit().putBoolean("fleet_tts_messages", value).apply()
+
+    /** JSON array ring of inbox items. */
+    var fleetInboxJson: String
+        get() = sp.getString("fleet_inbox_json", "[]") ?: "[]"
+        set(value) = sp.edit().putString("fleet_inbox_json", value).apply()
+
     var driverId: Int
         get() = sp.getInt("driver_id", 0)
         set(value) = sp.edit().putInt("driver_id", value).apply()

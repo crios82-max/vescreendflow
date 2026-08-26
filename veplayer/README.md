@@ -247,6 +247,21 @@ Conductores de flota con PIN + destino preferido:
 npm run veplayer:driver-smoke
 ```
 
+## Fase 4 — Alertas voz + inbox (v0.24)
+
+Primer hito fase 4: flota hablada.
+
+- Inbox persistente (ring 40) · TTS en alertas nuevas + cmd `message`
+- Frases: geofence / ABS / TPMS / SOC / mensaje
+- Ajustes → Flota voz / inbox · DriveViz muestra último aviso
+- Prefs `fleet_tts_alerts`, `fleet_tts_messages`, `fleet_alerts`
+
+```bash
+npm run veplayer:fleet-inbox-smoke
+```
+
+**Fase 4 (siguiente):** trip/shift log · speed HUD · crowd en mapa nativo · mantenimiento odómetro.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

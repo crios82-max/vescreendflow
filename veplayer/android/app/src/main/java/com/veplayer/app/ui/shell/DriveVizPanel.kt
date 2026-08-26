@@ -106,6 +106,14 @@ fun DriveVizPanel(
                 if (driverLabel.isNotBlank()) {
                     Text("Conductor · $driverLabel", color = Mute, fontSize = 11.sp)
                 }
+                val inboxLast by com.veplayer.app.fleet.FleetInbox.last.collectAsState()
+                inboxLast?.let { item ->
+                    Text(
+                        "Flota · ${item.text.take(48)}",
+                        color = Mute,
+                        fontSize = 11.sp,
+                    )
+                }
             }
         }
         vehicle.batterySocPct?.let { soc ->

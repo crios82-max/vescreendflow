@@ -22,6 +22,7 @@
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",
     "veplayer:driver-smoke": "node veplayer/scripts/driver-smoke.mjs",
+    "veplayer:fleet-inbox-smoke": "node veplayer/scripts/fleet-inbox-smoke.mjs",
     "veplayer:fleet-ops-smoke": "node veplayer/scripts/fleet-ops-smoke.mjs",
     "veplayer:fleet-auth-smoke": "node veplayer/scripts/fleet-auth-smoke.mjs",
     "db:up": "docker compose up -d",
