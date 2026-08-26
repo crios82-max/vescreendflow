@@ -1,0 +1,200 @@
+package com.veplayer.app.ui.map
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.veplayer.app.data.VePrefs
+import com.veplayer.app.nav.GeoProjection
+import com.veplayer.app.nav.LatLng
+import com.veplayer.app.nav.MapBounds
+import com.veplayer.app.nav.NavEngine
+import com.veplayer.app.ui.theme.Mist
+import com.veplayer.app.ui.theme.Mute
+import com.veplayer.app.ui.theme.Night
+import com.veplayer.app.ui.theme.Teal
+import com.veplayer.app.vehicle.VehicleState
+
+/**
+ * Native Compose map: route polyline from [NavEngine], ego, destination, dest chips.
+ * No WebView — cockpit-first projection.
+ */
+@Composable
+fun NativeMapPane() {
+    val context = LocalContext.current
+    val prefs = remember { VePrefs(context) }
+    val scope = rememberCoroutineScope()
+    val route by NavEngine.route.collectAsState()
+    val destinations by NavEngine.destinations.collectAsState()
+    val vehicle by VehicleState.state.collectAsState()
+
+    val ego = LatLng(prefs.navFromLat, prefs.navFromLng)
+    val dest = LatLng(prefs.navToLat, prefs.navToLng)
+    val pathPts =
+        remember(route.geometry, ego, dest) {
+            val g = route.geometry.map { LatLng(it.first, it.second) }
+            if (g.size >= 2) g else listOf(ego, dest)
+        }
+    val bounds =
+        remember(pathPts) {
+            MapBounds.fromPoints(pathPts)?.padded(0.18)
+                ?: MapBounds(ego.lat - 0.02, ego.lat + 0.02, ego.lng - 0.02, ego.lng + 0.02)
+        }
+    val progress = remember(pathPts, ego) { GeoProjection.progressAlong(pathPts, ego) }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Destino", color = Mute, fontSize = 12.sp)
+            val chips =
+                destinations.ifEmpty {
+                    listOf(
+                        com.veplayer.app.nav.NavDestination("altamira", "Altamira", 10.4965, -66.8492),
+                        com.veplayer.app.nav.NavDestination("chacao", "Chacao", 10.4958, -66.8756),
+                        com.veplayer.app.nav.NavDestination("bellas-artes", "Bellas Artes", 10.4989, -66.8986),
+                    )
+                }
+            chips.forEach { d ->
+                val selected = prefs.navDestName == d.name
+                if (selected) {
+                    Button(
+                        onClick = { NavEngine.setDestination(d, scope) },
+                    ) { Text(d.name, fontSize = 12.sp) }
+                } else {
+                    OutlinedButton(
+                        onClick = { NavEngine.setDestination(d, scope) },
+                    ) { Text(d.name, fontSize = 12.sp) }
+                }
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .background(Night),
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val w = size.width
+                val h = size.height
+                // Atmosphere
+                drawRect(
+                    brush =
+                        Brush.verticalGradient(
+                            listOf(Color(0xFF0B1220), Color(0xFF0F1C18), Color(0xFF0A1018)),
+                        ),
+                )
+                // Grid
+                val grid = Color(0xFF1A2A24)
+                for (i in 1 until 8) {
+                    val x = w * i / 8f
+                    val y = h * i / 8f
+                    drawLine(grid, Offset(x, 0f), Offset(x, h), strokeWidth = 1f)
+                    drawLine(grid, Offset(0f, y), Offset(w, y), strokeWidth = 1f)
+                }
+
+                fun xy(p: LatLng): Offset {
+                    val (x, y) = GeoProjection.project(p.lat, p.lng, bounds, w, h)
+                    return Offset(x, y)
+                }
+
+                // Route glow + stroke
+                if (pathPts.size >= 2) {
+                    val path = Path()
+                    val first = xy(pathPts.first())
+                    path.moveTo(first.x, first.y)
+                    for (i in 1 until pathPts.size) {
+                        val o = xy(pathPts[i])
+                        path.lineTo(o.x, o.y)
+                    }
+                    drawPath(path, Color(0x553E9EFD), style = Stroke(width = 14f, cap = StrokeCap.Round))
+                    drawPath(path, Color(0xFF3E9EFD), style = Stroke(width = 5f, cap = StrokeCap.Round))
+
+                    // Progress tip
+                    val tipIdx =
+                        ((pathPts.size - 1) * progress).toInt().coerceIn(0, pathPts.lastIndex)
+                    val tip = xy(pathPts[tipIdx])
+                    drawCircle(Teal.copy(alpha = 0.35f), radius = 18f, center = tip)
+                }
+
+                // Destination
+                val dxy = xy(dest)
+                drawCircle(Color(0xFFE11D48), radius = 10f, center = dxy)
+                drawCircle(Color(0xFFFFF1F2), radius = 4f, center = dxy)
+
+                // Ego chevron
+                val exy = xy(ego)
+                val heading = vehicle.headingDeg ?: 0f
+                rotate(degrees = heading, pivot = exy) {
+                    val chevron =
+                        Path().apply {
+                            moveTo(exy.x, exy.y - 16f)
+                            lineTo(exy.x - 11f, exy.y + 12f)
+                            lineTo(exy.x, exy.y + 4f)
+                            lineTo(exy.x + 11f, exy.y + 12f)
+                            close()
+                        }
+                    drawPath(chevron, Color(0xFF18C964))
+                    drawPath(chevron, Color(0xFF042F2E), style = Stroke(width = 2f))
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(12.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xCC0B1411))
+                    .padding(horizontal = 10.dp, vertical = 8.dp),
+            ) {
+                Text(
+                    "Mapa nativo · ${route.source} · ${(progress * 100).toInt()}%",
+                    color = Mist,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                )
+                Text(
+                    "${pathPts.size} pts · ${route.destinationName.ifBlank { "—" }}",
+                    color = Mute,
+                    fontSize = 11.sp,
+                )
+            }
+        }
+    }
+}

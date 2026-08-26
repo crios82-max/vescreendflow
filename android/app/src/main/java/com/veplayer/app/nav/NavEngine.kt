@@ -17,14 +17,24 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
+data class NavDestination(
+    val id: String,
+    val name: String,
+    val lat: Double,
+    val lng: Double,
+)
+
 /**
- * Polls SenseFlow `/api/nav/route` (OSRM proxy) and publishes [NavRoute] for cockpit chrome.
+ * Polls SenseFlow `/api/nav/route` (OSRM proxy) + destinations for native map.
  */
 object NavEngine {
     private const val TAG = "NavEngine"
 
     private val _route = MutableStateFlow(NavRoute())
     val route: StateFlow<NavRoute> = _route.asStateFlow()
+
+    private val _destinations = MutableStateFlow<List<NavDestination>>(emptyList())
+    val destinations: StateFlow<List<NavDestination>> = _destinations.asStateFlow()
 
     private var prefs: VePrefs? = null
     private var job: Job? = null
@@ -42,9 +52,10 @@ object NavEngine {
         if (job?.isActive == true) return
         job =
             scope.launch(Dispatchers.IO) {
+                refreshDestinations()
                 while (isActive) {
                     refresh()
-                    delay(20_000)
+                    delay(15_000)
                 }
             }
     }
@@ -55,7 +66,47 @@ object NavEngine {
     }
 
     fun refreshAsync(scope: CoroutineScope) {
-        scope.launch(Dispatchers.IO) { refresh() }
+        scope.launch(Dispatchers.IO) {
+            refreshDestinations()
+            refresh()
+        }
+    }
+
+    fun setDestination(
+        dest: NavDestination,
+        scope: CoroutineScope? = null,
+    ) {
+        val p = prefs ?: return
+        p.navEnabled = true
+        p.navDestName = dest.name
+        p.navToLat = dest.lat
+        p.navToLng = dest.lng
+        if (scope != null) refreshAsync(scope) else refresh()
+    }
+
+    fun refreshDestinations() {
+        val p = prefs ?: return
+        val url = p.senseflowUrl.trimEnd('/') + "/api/nav/destinations"
+        runCatching {
+            val req = Request.Builder().url(url).get().build()
+            client.newCall(req).execute().use { resp ->
+                val text = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) error("dest HTTP ${resp.code}")
+                val arr = JSONObject(text).optJSONArray("destinations") ?: JSONArray()
+                val list = mutableListOf<NavDestination>()
+                for (i in 0 until arr.length()) {
+                    val o = arr.getJSONObject(i)
+                    list +=
+                        NavDestination(
+                            id = o.optString("id"),
+                            name = o.optString("name"),
+                            lat = o.optDouble("lat"),
+                            lng = o.optDouble("lng"),
+                        )
+                }
+                if (list.isNotEmpty()) _destinations.value = list
+            }
+        }.onFailure { Log.w(TAG, "destinations fail", it) }
     }
 
     fun refresh() {
@@ -114,7 +165,6 @@ object NavEngine {
         if (coords != null) {
             for (i in 0 until coords.length()) {
                 val c = coords.getJSONArray(i)
-                // GeoJSON lon,lat → lat,lng
                 geom += c.getDouble(1) to c.getDouble(0)
             }
         }

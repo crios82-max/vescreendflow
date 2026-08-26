@@ -115,6 +115,19 @@ npm run veplayer:fm-smoke
 
 En HU con chip FM real, `listModules()` no vacío → HAL; si no, sim con RDS fake.
 
+## Mapa nativo (v0.16)
+
+Cockpit **Compose** (sin WebView por defecto):
+
+- Polyline desde `NavEngine.geometry` · ego chevron (heading) · destino
+- Chips de destinos SenseFlow `/api/nav/destinations`
+- Chrome ETA / próximo giro
+- Fallback WebView: Ajustes → Mapa → WebView (`map_mode=web`)
+
+```bash
+npm run veplayer:nav-map-smoke
+```
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

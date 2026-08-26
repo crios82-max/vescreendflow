@@ -112,6 +112,11 @@ class VePrefs(context: Context) {
         get() = sp.getString("nav_dest_name", "Altamira") ?: "Altamira"
         set(value) = sp.edit().putString("nav_dest_name", value.trim()).apply()
 
+    /** native | web — cockpit map renderer. */
+    var mapMode: String
+        get() = sp.getString("map_mode", "native") ?: "native"
+        set(value) = sp.edit().putString("map_mode", value.trim().lowercase()).apply()
+
     var deviceName: String
         get() = sp.getString("device_name", "VePlayer") ?: "VePlayer"
         set(value) = sp.edit().putString("device_name", value).apply()

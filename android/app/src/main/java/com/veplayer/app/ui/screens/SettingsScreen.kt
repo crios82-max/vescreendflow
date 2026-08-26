@@ -510,6 +510,7 @@ fun SettingsScreen() {
         PanelBlock("Navegación") {
             var navOn by remember { mutableStateOf(prefs.navEnabled) }
             var destName by remember { mutableStateOf(prefs.navDestName) }
+            var mapMode by remember { mutableStateOf(prefs.mapMode) }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("Nav activa", color = Mist)
                 Switch(
@@ -521,6 +522,28 @@ fun SettingsScreen() {
                         status = if (it) "Nav ON" else "Nav OFF"
                     },
                 )
+            }
+            Text("Mapa cockpit:", color = Mist)
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                listOf("native" to "Nativo", "web" to "WebView").forEach { (id, label) ->
+                    if (mapMode == id) {
+                        Button(
+                            onClick = {
+                                mapMode = id
+                                prefs.mapMode = id
+                                status = "Mapa → $label"
+                            },
+                        ) { Text(label) }
+                    } else {
+                        OutlinedButton(
+                            onClick = {
+                                mapMode = id
+                                prefs.mapMode = id
+                                status = "Mapa → $label"
+                            },
+                        ) { Text(label) }
+                    }
+                }
             }
             Text("Destino rápido (Caracas demo)", color = Mute)
             val presets =
