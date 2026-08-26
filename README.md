@@ -4,7 +4,7 @@ Launcher kiosk Android para head-units / tablets de flota.
 
 | Módulo | Qué hace |
 |--------|----------|
-| **Cámaras** | Dual ConcurrentCamera · front/back/USB EXTERNAL (Camera2) |
+| **Cámaras** | Dual ConcurrentCamera · front/back/USB EXTERNAL (Camera2) · **360 bird’s-eye** |
 | **Radio** | Streaming IP (ExoPlayer); UI listo para FM hardware |
 | **YouTube** | WebView oficial |
 | **Tienda** | Play Store + **Spotify App Remote SDK** (enlazar dispositivo) |
@@ -53,7 +53,14 @@ AARs oficiales en `app/libs/` (no redistribuimos el cliente Spotify).
 Si el kernel expone UVC como Camera2 `LENS_FACING_EXTERNAL`, aparecen en el selector Dual A/B.  
 ConcurrentCamera requiere SoC compatible; si no, cae a cámara simple.
 
-## Audio + media unificada (v0.8)
+## Cámaras 360 (v0.9)
+
+Modo **360** en Cámaras:
+- Grid front / rear (ConcurrentCamera) + placeholders left/right (USB UVC)
+- Panel central **bird’s-eye** con FOV wedges (pseudo-stitch) + actores SenseFlow/visión
+- Calibración `maxAheadM` / `maxLatM` (prefs) — mismos metros que DriveViz
+
+Simple y Dual siguen disponibles. Al abrir Cámaras se pausa SurroundVision para liberar CameraX.
 
 `VeMediaHub` — una sola sesión Now Playing para:
 - **Radio** (ExoPlayer compartido + audio focus)
