@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,9 +34,11 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.veplayer.app.data.VePrefs
 import com.veplayer.app.media.MediaSource
 import com.veplayer.app.media.VeMediaHub
 import com.veplayer.app.surround.ActorKind
@@ -58,6 +61,13 @@ fun DriveVizPanel(
 ) {
     val surround by SurroundEngine.snapshot.collectAsState()
     val media by VeMediaHub.nowPlaying.collectAsState()
+    val prefs = remember { VePrefs(LocalContext.current) }
+    val driverLabel =
+        if (prefs.driverId > 0) {
+            prefs.driverName.ifBlank { prefs.driverCode }
+        } else {
+            ""
+        }
 
     Column(
         modifier = modifier
@@ -92,6 +102,9 @@ fun DriveVizPanel(
                     TurnChip("◀", vehicle.turn == TurnSignal.LEFT || vehicle.turn == TurnSignal.HAZARD)
                     TurnChip("▶", vehicle.turn == TurnSignal.RIGHT || vehicle.turn == TurnSignal.HAZARD)
                     Text(vehicle.source, color = Mute, fontSize = 11.sp)
+                }
+                if (driverLabel.isNotBlank()) {
+                    Text("Conductor · $driverLabel", color = Mute, fontSize = 11.sp)
                 }
             }
         }

@@ -220,6 +220,34 @@ class RemoteCommandExecutor(
                             onStatus("nav_dest sin lat/lng")
                         }
                     }
+                    "set_driver" -> {
+                        val clear = cmd.payload?.optBoolean("clear", false) == true
+                        if (clear) {
+                            DriverSession.clear(prefs)
+                            onStatus("Cmd set_driver → clear")
+                            RemoteCommandBus.publish("Conductor: sin asignar")
+                        } else {
+                            val parsed = cmd.payload?.let { DriverSession.parse(it) }
+                            val code = cmd.payload?.optString("code").orEmpty()
+                            when {
+                                parsed != null -> {
+                                    DriverSession.apply(prefs, parsed)
+                                    onStatus("Cmd set_driver → ${parsed.code}")
+                                    RemoteCommandBus.publish("Conductor → ${parsed.name}")
+                                }
+                                code.isNotBlank() -> {
+                                    val r = DriverSession.login(prefs, code, null)
+                                    r.onSuccess {
+                                        onStatus("Cmd set_driver → ${it.code}")
+                                        RemoteCommandBus.publish("Conductor → ${it.name}")
+                                    }.onFailure {
+                                        onStatus("set_driver fail: ${it.message}")
+                                    }
+                                }
+                                else -> onStatus("set_driver sin code/id")
+                            }
+                        }
+                    }
                     else -> onStatus("Cmd desconocido ${cmd.command}")
                 }
                 done += cmd.id

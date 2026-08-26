@@ -617,6 +617,68 @@ fun SettingsScreen() {
             ) { Text("Recalcular ruta") }
         }
 
+        PanelBlock("Conductor") {
+            var driverCode by remember { mutableStateOf(prefs.driverCode) }
+            var driverPin by remember { mutableStateOf("") }
+            var driverLabel by remember {
+                mutableStateOf(
+                    if (prefs.driverId > 0) "${prefs.driverCode} · ${prefs.driverName}" else "Sin conductor",
+                )
+            }
+            Text(driverLabel, color = Mist, fontWeight = FontWeight.Bold)
+            OutlinedTextField(
+                value = driverCode,
+                onValueChange = { driverCode = it.take(16) },
+                label = { Text("Código (D001)") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                value = driverPin,
+                onValueChange = { driverPin = it.filter { c -> c.isDigit() }.take(8) },
+                label = { Text("PIN (si aplica)") },
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = {
+                        scope.launch {
+                            val r =
+                                withContext(Dispatchers.IO) {
+                                    com.veplayer.app.fleet.DriverSession.login(
+                                        prefs,
+                                        driverCode,
+                                        driverPin.ifBlank { null },
+                                        scope,
+                                    )
+                                }
+                            r.onSuccess {
+                                driverLabel = "${it.code} · ${it.name}"
+                                status = "Conductor → ${it.name}"
+                            }.onFailure {
+                                status = "Login conductor: ${it.message}"
+                            }
+                        }
+                    },
+                ) { Text("Entrar") }
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            withContext(Dispatchers.IO) {
+                                com.veplayer.app.fleet.DriverSession.logout(prefs)
+                            }
+                            driverLabel = "Sin conductor"
+                            driverCode = ""
+                            driverPin = ""
+                            status = "Conductor cerrado"
+                        }
+                    },
+                ) { Text("Salir") }
+            }
+            Text("Demo: D001 / 1234 · D002 / 5678 · D003 sin PIN", color = Mute)
+        }
+
         PanelBlock("Mock vehículo (demo)") {
             Text("Aplica sobre mock / can_stub / obd_sim (no pisa GPS real).", color = Mute)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
