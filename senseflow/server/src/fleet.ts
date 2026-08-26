@@ -383,6 +383,7 @@ const commandSchema = z.object({
     'apply_kiosk',
     'run_diag',
     'set_dbc',
+    'fm_tune',
   ]),
   payload: z.record(z.string(), z.unknown()).optional(),
 })

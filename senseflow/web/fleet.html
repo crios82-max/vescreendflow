@@ -41,7 +41,7 @@
     <button class="btn warn" id="ota-rollout">OTA rollout</button>
     <span id="meta"></span>
   </div>
-  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · message · wipe · ota(silent) · set_source · reboot_obd · nav_dest</p>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe · ota(silent) · set_source · reboot_obd · nav_dest</p>
   <div id="toast"></div>
 
   <div class="grid">
@@ -173,6 +173,7 @@
         mk('Kiosk', 'lock_task', 'ghost')
         mk('Diag', 'run_diag', 'ghost')
         mk('DBC', 'set_dbc', 'ghost', { url: location.origin + '/dbc/veplayer_demo.dbc' })
+        mk('FM', 'fm_tune', 'ghost', { mhz: 95.5 })
         mk('Msg', 'message', '', { text: 'Hola desde flota' })
         mk('OTA', 'ota', 'warn', ota.release ? { apk_url: ota.release.apk_url, silent: true, version_code: ota.release.version_code } : null)
         mk('CAN', 'set_source', 'ghost', { source: 'can' })

@@ -126,6 +126,31 @@ class RemoteCommandExecutor(
                         onStatus(report.lines.take(4).joinToString(" | "))
                         Log.i(TAG, report.asText())
                     }
+                    "fm_tune" -> {
+                        val mhz = cmd.payload?.optDouble("mhz")
+                        val khzPayload =
+                            if (cmd.payload?.has("khz") == true) cmd.payload.optInt("khz") else null
+                        val khz =
+                            khzPayload
+                                ?: mhz?.let { (it * 1000).toInt() }
+                        if (khz != null) {
+                            onStatus("Cmd fm_tune $khz")
+                            main.post {
+                                com.veplayer.app.media.VeMediaHub.playFm(freqKhz = khz)
+                            }
+                        } else {
+                            val preset = cmd.payload?.optString("preset").orEmpty()
+                            val st = com.veplayer.app.radio.fm.FmPresets.byId(preset)
+                            if (st != null) {
+                                onStatus("Cmd fm_tune preset $preset")
+                                main.post {
+                                    com.veplayer.app.media.VeMediaHub.playFm(station = st)
+                                }
+                            } else {
+                                onStatus("fm_tune sin mhz/khz/preset")
+                            }
+                        }
+                    }
                     "set_dbc" -> {
                         val url = cmd.payload?.optString("url").orEmpty()
                         val text = cmd.payload?.optString("text").orEmpty()

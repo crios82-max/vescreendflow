@@ -61,6 +61,25 @@ class VePrefs(context: Context) {
         get() = sp.getString("dbc_source", "builtin") ?: "builtin"
         set(value) = sp.edit().putString("dbc_source", value.trim()).apply()
 
+    /** stream | fm — default band on Radio screen. */
+    var radioMode: String
+        get() = sp.getString("radio_mode", "stream") ?: "stream"
+        set(value) = sp.edit().putString("radio_mode", value.trim().lowercase()).apply()
+
+    /** auto | hal | sim */
+    var fmBackend: String
+        get() = sp.getString("fm_backend", "auto") ?: "auto"
+        set(value) = sp.edit().putString("fm_backend", value.trim().lowercase()).apply()
+
+    /** itu2 | itu1 */
+    var fmRegion: String
+        get() = sp.getString("fm_region", "itu2") ?: "itu2"
+        set(value) = sp.edit().putString("fm_region", value.trim().lowercase()).apply()
+
+    var fmLastFreqKhz: Int
+        get() = sp.getInt("fm_last_freq_khz", 95_500)
+        set(value) = sp.edit().putInt("fm_last_freq_khz", value).apply()
+
     var birdEyeMaxAheadM: Float
         get() = sp.getFloat("bird_eye_max_ahead_m", 50f)
         set(value) = sp.edit().putFloat("bird_eye_max_ahead_m", value.coerceIn(15f, 80f)).apply()

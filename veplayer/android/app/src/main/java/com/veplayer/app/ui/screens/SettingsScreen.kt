@@ -74,6 +74,7 @@ fun SettingsScreen() {
     var obdAddr by remember { mutableStateOf(prefs.obdDeviceAddress) }
     var canBackend by remember { mutableStateOf(prefs.canBackend) }
     var canIface by remember { mutableStateOf(prefs.canSocketIface) }
+    var fmBackend by remember { mutableStateOf(prefs.fmBackend) }
     var pairCode by remember { mutableStateOf(prefs.pairCodeCached() ?: "—") }
     var otaText by remember { mutableStateOf("OTA: sin chequear") }
     var autoOta by remember { mutableStateOf(prefs.autoOtaEnabled) }
@@ -432,6 +433,30 @@ fun SettingsScreen() {
             )
             val obdLink by ObdLinkBus.state.collectAsState()
             Text("OBD link: ${obdLink.state} · ${obdLink.text}", color = Mute)
+            Text("FM radio:", color = Mist)
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                com.veplayer.app.radio.fm.FmBackend.entries.forEach { b ->
+                    val selected = fmBackend == b.id
+                    if (selected) {
+                        Button(
+                            onClick = {
+                                fmBackend = b.id
+                                prefs.fmBackend = b.id
+                                status = "FM → ${b.label}"
+                            },
+                        ) { Text(b.id) }
+                    } else {
+                        OutlinedButton(
+                            onClick = {
+                                fmBackend = b.id
+                                prefs.fmBackend = b.id
+                                status = "FM → ${b.label}"
+                            },
+                        ) { Text(b.id) }
+                    }
+                }
+            }
+            Text("Última freq ${com.veplayer.app.radio.fm.FmFreq.formatMhz(prefs.fmLastFreqKhz)}", color = Mute)
             var bonded by remember { mutableStateOf(CanBusManager.bondedObdDevices()) }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("Emparejados (Bluetooth Classic):", color = Mist)
@@ -590,9 +615,10 @@ fun SettingsScreen() {
                 prefs.obdDeviceAddress = obdAddr
                 prefs.canBackend = canBackend
                 prefs.canSocketIface = canIface
+                prefs.fmBackend = fmBackend
                 if (newPin.length >= 4) prefs.pin = newPin
                 CanBusManager.rebind()
-                status = "Guardado · fuente ${prefs.signalSource} · can ${prefs.canBackend}"
+                status = "Guardado · fuente ${prefs.signalSource} · can ${prefs.canBackend} · fm ${prefs.fmBackend}"
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text("Guardar ajustes") }

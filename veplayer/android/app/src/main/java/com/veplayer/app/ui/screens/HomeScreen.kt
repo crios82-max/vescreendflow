@@ -61,7 +61,7 @@ fun HomeScreen(onOpen: (VeDest) -> Unit) {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
             HomeCard("Cámaras", "Frontal + trasera/USB", Teal, Modifier.weight(1f)) { onOpen(VeDest.Cameras) }
-            HomeCard("Radio", "Emisoras en vivo", Amber, Modifier.weight(1f)) { onOpen(VeDest.Radio) }
+            HomeCard("Radio", "FM + stream IP", Amber, Modifier.weight(1f)) { onOpen(VeDest.Radio) }
             HomeCard("YouTube", "Video a bordo", Teal, Modifier.weight(1f)) { onOpen(VeDest.YouTube) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
