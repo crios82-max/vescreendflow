@@ -44,3 +44,7 @@ android/dist/
 *.sln
 *.sw?
 uploads/
+
+# SenseFlow
+senseflow/data/
+senseflow/server/node_modules/
