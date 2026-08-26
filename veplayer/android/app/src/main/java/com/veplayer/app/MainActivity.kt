@@ -99,7 +99,14 @@ class MainActivity : ComponentActivity() {
                     WatchdogService.touchUi(this@MainActivity)
                     RemoteCommandBus.messages.collectLatest { fleetMsg = it }
                 }
-                LaunchedEffect(dest) { WatchdogService.touchUi(this@MainActivity) }
+                LaunchedEffect(dest) {
+                    WatchdogService.touchUi(this@MainActivity)
+                    if (dest == VeDest.Cameras) {
+                        surroundVision?.stop()
+                    } else {
+                        surroundVision?.start(this@MainActivity)
+                    }
+                }
                 LaunchedEffect(vehicle.reverse) {
                     if (vehicle.reverse) dest = VeDest.Cameras
                 }

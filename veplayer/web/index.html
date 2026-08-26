@@ -84,6 +84,10 @@
     .overlay-app.show { display:block; }
     .overlay-app h2 { margin:0 0 8px; }
     .muted { color:var(--mute); }
+    .cam-slot {
+      flex:1; background:#151515; border-radius:12px; display:flex; align-items:center; justify-content:center;
+      color:#9a9a9a; font-size:13px; font-weight:600; min-height:80px;
+    }
   </style>
 </head>
 <body>
@@ -115,7 +119,25 @@
       </section>
     </div>
 
-    <div id="app-cameras" class="overlay-app"><h2>Cámaras</h2><p class="muted">Delantera / trasera · abre desde el dock en la app Android</p></div>
+    <div id="app-cameras" class="overlay-app">
+      <h2>Cámaras 360</h2>
+      <p class="muted">Simple · Dual · bird’s-eye con overlay surround</p>
+      <div id="cam360" style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:8px;height:70%;margin-top:12px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="cam-slot">FRONT</div>
+          <div class="cam-slot">REAR</div>
+        </div>
+        <div id="birdeye" class="cam-slot" style="position:relative;background:#0a0a0a">
+          <div style="position:absolute;inset:18% 12%;border:1px dashed #333;border-radius:12px"></div>
+          <div style="position:absolute;left:42%;top:55%;width:16%;height:18%;background:#e8e8e8;border-radius:10px"></div>
+          <div style="position:absolute;left:10px;top:10px;color:#9a9a9a;font-size:12px">360 · bird’s-eye</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="cam-slot">LEFT · USB</div>
+          <div class="cam-slot">RIGHT · USB</div>
+        </div>
+      </div>
+    </div>
     <div id="app-radio" class="overlay-app"><h2>Radio</h2><p class="muted">Streaming + audio focus</p></div>
     <div id="app-store" class="overlay-app"><h2>Spotify / Tienda</h2><p class="muted">App Remote · Play Store</p></div>
     <div id="app-youtube" class="overlay-app"><h2>YouTube</h2><p class="muted">Bloqueado en movimiento</p></div>
@@ -212,6 +234,28 @@
     }
     refreshSurround()
     setInterval(refreshSurround, 2000)
+
+    // Populate bird-eye demo actors when cameras overlay opens
+    const origShow = show
+    show = function(id) {
+      origShow(id)
+      if (id === 'cameras') {
+        const be = document.getElementById('birdeye')
+        ;[...be.querySelectorAll('.actor')].forEach(n => n.remove())
+        fetch(`http://127.0.0.1:4100/api/surround?lat=${EGO.lat}&lng=${EGO.lng}&radius_m=120`)
+          .then(r => r.json()).then(j => {
+            for (const a of (j.actors || []).slice(0, 12)) {
+              const el = document.createElement('div')
+              el.className = 'actor ' + (a.kind === 'person' ? 'person' : a.kind === 'motorcycle' || a.kind === 'bicycle' ? 'moto' : a.kind === 'truck' || a.kind === 'bus' ? 'truck' : 'car')
+              const nx = Math.min(0.9, Math.max(0.1, a.x_m / 18 * 0.5 + 0.5))
+              const ny = Math.min(0.85, Math.max(0.1, 1 - a.y_m / 50))
+              el.style.left = (nx * 100) + '%'
+              el.style.top = (ny * 100) + '%'
+              be.appendChild(el)
+            }
+          }).catch(() => {})
+      }
+    }
   </script>
 </body>
 </html>

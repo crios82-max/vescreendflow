@@ -51,6 +51,14 @@ class VePrefs(context: Context) {
         get() = sp.getString("can_socket_iface", "can0") ?: "can0"
         set(value) = sp.edit().putString("can_socket_iface", value.trim().ifBlank { "can0" }).apply()
 
+    var birdEyeMaxAheadM: Float
+        get() = sp.getFloat("bird_eye_max_ahead_m", 50f)
+        set(value) = sp.edit().putFloat("bird_eye_max_ahead_m", value.coerceIn(15f, 80f)).apply()
+
+    var birdEyeMaxLatM: Float
+        get() = sp.getFloat("bird_eye_max_lat_m", 18f)
+        set(value) = sp.edit().putFloat("bird_eye_max_lat_m", value.coerceIn(6f, 30f)).apply()
+
     var deviceName: String
         get() = sp.getString("device_name", "VePlayer") ?: "VePlayer"
         set(value) = sp.edit().putString("device_name", value).apply()
