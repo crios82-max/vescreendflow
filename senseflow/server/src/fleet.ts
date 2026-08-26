@@ -443,6 +443,7 @@ const commandSchema = z.object({
     'set_dbc',
     'fm_tune',
     'set_driver',
+    'set_speed_limit',
   ]),
   payload: z.record(z.string(), z.unknown()).optional(),
 })

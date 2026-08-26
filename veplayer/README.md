@@ -273,7 +273,19 @@ Turnos de conductor con distancia (odómetro o integración):
 npm run veplayer:shift-smoke
 ```
 
-**Fase 4 (siguiente):** speed HUD · crowd en mapa nativo · mantenimiento odómetro.
+## Speed HUD (v0.26)
+
+Badge de límite + color por banda (ok / cerca / exceso):
+
+- DriveViz: dígitos de velocidad colorean · badge circular · TTS exceso sostenido
+- Prefs `speed_limit_kmh` (default 50) · Ajustes presets 40/50/60/80
+- Cmd flota `set_speed_limit` `{ "kmh": 60 }`
+
+```bash
+npm run veplayer:speed-hud-smoke
+```
+
+**Fase 4 (siguiente):** crowd en mapa nativo · mantenimiento odómetro.
 
 ## Device Owner (kiosk duro · v0.12)
 

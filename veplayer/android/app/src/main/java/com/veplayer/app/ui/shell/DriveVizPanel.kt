@@ -24,6 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -51,8 +52,11 @@ import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Night
 import com.veplayer.app.ui.theme.Road
 import com.veplayer.app.vehicle.Gear
+import com.veplayer.app.vehicle.SpeedHud
+import com.veplayer.app.vehicle.SpeedHudMonitor
 import com.veplayer.app.vehicle.TurnSignal
 import com.veplayer.app.vehicle.VehicleSnapshot
+import kotlinx.coroutines.delay
 
 @Composable
 fun DriveVizPanel(
@@ -62,19 +66,33 @@ fun DriveVizPanel(
     val surround by SurroundEngine.snapshot.collectAsState()
     val media by VeMediaHub.nowPlaying.collectAsState()
     val prefs = remember { VePrefs(LocalContext.current) }
+    val hud by SpeedHudMonitor.state.collectAsState()
+    LaunchedEffect(Unit) {
+        while (true) {
+            SpeedHudMonitor.tick(
+                prefs,
+                com.veplayer.app.vehicle.VehicleState.state.value.speedKmh,
+            )
+            delay(500)
+        }
+    }
     val driverLabel =
         if (prefs.driverId > 0) {
             prefs.driverName.ifBlank { prefs.driverCode }
         } else {
             ""
         }
+    val speedColor = Color(SpeedHud.accentArgb(hud.band))
 
     Column(
         modifier = modifier
             .background(Night)
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        Row(verticalAlignment = Alignment.Bottom) {
+        Row(
+            verticalAlignment = Alignment.Bottom,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             Text(
                 when {
                     vehicle.reverse -> "R"
@@ -82,20 +100,21 @@ fun DriveVizPanel(
                     vehicle.gear == Gear.N -> "N"
                     else -> vehicle.speedKmh.toInt().toString()
                 },
-                color = Mist,
+                color = if (vehicle.reverse || vehicle.gear == Gear.P || vehicle.gear == Gear.N) Mist else speedColor,
                 fontSize = 64.sp,
                 fontWeight = FontWeight.Light,
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column(modifier = Modifier.padding(bottom = 10.dp)) {
+            Spacer(modifier = Modifier.width(4.dp))
+            Column(modifier = Modifier.padding(bottom = 10.dp).weight(1f)) {
                 Text(
                     when {
                         vehicle.reverse -> "REVERSE"
                         vehicle.gear == Gear.P -> "PARK"
                         vehicle.gear == Gear.N -> "NEUTRAL"
+                        hud.showWarn -> "OVER · +${hud.overBy.toInt()}"
                         else -> "km/h"
                     },
-                    color = Mute,
+                    color = if (hud.showWarn) speedColor else Mute,
                     fontSize = 18.sp,
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -122,6 +141,13 @@ fun DriveVizPanel(
                         fontSize = 11.sp,
                     )
                 }
+            }
+            if (prefs.speedHudEnabled) {
+                SpeedLimitBadge(
+                    limitKmh = hud.limitKmh,
+                    band = hud.band,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
             }
         }
         vehicle.batterySocPct?.let { soc ->
@@ -150,7 +176,13 @@ fun DriveVizPanel(
             surround.actors.groupingBy { it.kind }.eachCount()
         Text(
             buildString {
-                append("Límite 50")
+                if (prefs.speedHudEnabled) {
+                    append("Límite ${hud.limitKmh}")
+                    if (hud.band == "near") append(" · cerca")
+                    if (hud.showWarn) append(" · exceso")
+                } else {
+                    append("HUD off")
+                }
                 if (surround.actors.isNotEmpty()) {
                     append(" · ")
                     append(counts[ActorKind.PERSON] ?: 0)
@@ -165,7 +197,7 @@ fun DriveVizPanel(
                     append(" vehículos")
                 }
             },
-            color = Mute,
+            color = if (hud.showWarn) speedColor else Mute,
             fontSize = 13.sp,
         )
 

@@ -36,6 +36,7 @@ const DISPATCH_CMDS = new Set([
   'set_dbc',
   'fm_tune',
   'set_driver',
+  'set_speed_limit',
 ])
 
 const SESSION_TTL_S = 12 * 3600
