@@ -21,6 +21,8 @@ import com.veplayer.app.R
 import com.veplayer.app.data.VePrefs
 import com.veplayer.app.fleet.FleetClient
 import com.veplayer.app.fleet.RemoteCommandExecutor
+import com.veplayer.app.surround.SenseflowSurroundClient
+import com.veplayer.app.surround.SurroundEngine
 import com.veplayer.app.vehicle.VehicleState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,6 +49,7 @@ class SenseBridgeService : Service() {
     private lateinit var prefs: VePrefs
     private lateinit var fleet: FleetClient
     private lateinit var remote: RemoteCommandExecutor
+    private lateinit var surroundClient: SenseflowSurroundClient
 
     private val callback =
         object : LocationCallback() {
@@ -77,6 +80,11 @@ class SenseBridgeService : Service() {
                             ).getOrThrow()
                         remote.handle(hb.commands)
                     }
+                    runCatching {
+                        val actors =
+                            surroundClient.fetch(loc.latitude, loc.longitude).getOrThrow()
+                        SurroundEngine.publishSenseflow(actors)
+                    }
                 }
             }
         }
@@ -86,6 +94,7 @@ class SenseBridgeService : Service() {
         prefs = VePrefs(this)
         fleet = FleetClient(prefs)
         remote = RemoteCommandExecutor(this, fleet)
+        surroundClient = SenseflowSurroundClient(prefs)
         startFg()
         scope.launch {
             runCatching {

@@ -95,5 +95,8 @@ dependencies {
     implementation(files("libs/spotify-auth-release-2.1.0.aar"))
     implementation("com.google.code.gson:gson:2.11.0")
 
+    // Vision: MediaPipe Object Detector (person / bicycle / car / motorcycle / bus / truck)
+    implementation("com.google.mediapipe:tasks-vision:0.10.14")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
