@@ -79,6 +79,81 @@ try {
   // column already exists
 }
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS fleet_geofences (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    lat REAL NOT NULL,
+    lng REAL NOT NULL,
+    radius_m REAL NOT NULL DEFAULT 250,
+    active INTEGER NOT NULL DEFAULT 1,
+    created_at INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS fleet_alerts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    device_id TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    severity TEXT NOT NULL DEFAULT 'info',
+    message TEXT NOT NULL,
+    payload TEXT,
+    created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+    acked_at INTEGER,
+    FOREIGN KEY (device_id) REFERENCES fleet_devices(device_id)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_fleet_alerts_open ON fleet_alerts(device_id, acked_at);
+  CREATE INDEX IF NOT EXISTS idx_fleet_alerts_kind ON fleet_alerts(kind, created_at);
+
+  CREATE TABLE IF NOT EXISTS fleet_telemetry (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    device_id TEXT NOT NULL,
+    ts INTEGER NOT NULL,
+    lat REAL,
+    lng REAL,
+    speed_mps REAL,
+    telemetry_json TEXT,
+    FOREIGN KEY (device_id) REFERENCES fleet_devices(device_id)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_fleet_telem_dev_ts ON fleet_telemetry(device_id, ts DESC);
+`)
+
+// Widen fleet_commands.command CHECK to allow new remote ops (SQLite: rebuild table)
+const cmdTable = db
+  .prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='fleet_commands'`)
+  .get() as { sql: string } | undefined
+if (cmdTable?.sql && !cmdTable.sql.includes('set_source')) {
+  db.exec(`
+    BEGIN;
+    CREATE TABLE fleet_commands_v2 (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      device_id TEXT NOT NULL,
+      command TEXT NOT NULL,
+      payload TEXT,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','acked','done','failed')),
+      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      acked_at INTEGER,
+      FOREIGN KEY (device_id) REFERENCES fleet_devices(device_id)
+    );
+    INSERT INTO fleet_commands_v2 (id, device_id, command, payload, status, created_at, acked_at)
+      SELECT id, device_id, command, payload, status, created_at, acked_at FROM fleet_commands;
+    DROP TABLE fleet_commands;
+    ALTER TABLE fleet_commands_v2 RENAME TO fleet_commands;
+    CREATE INDEX IF NOT EXISTS idx_fleet_cmd_pending ON fleet_commands(device_id, status);
+    COMMIT;
+  `)
+}
+
+const geoCount = db.prepare('SELECT COUNT(*) AS n FROM fleet_geofences').get() as { n: number }
+if (geoCount.n === 0) {
+  db.prepare(
+    `INSERT INTO fleet_geofences (name, lat, lng, radius_m, active)
+     VALUES ('Base Caracas ego', 10.496, -66.898, 400, 1),
+            ('Altamira hub', 10.4965, -66.8492, 350, 1)`,
+  ).run()
+}
+
 // Seed a placeholder OTA row if empty
 const otaCount = db.prepare('SELECT COUNT(*) AS n FROM ota_releases').get() as { n: number }
 if (otaCount.n === 0) {

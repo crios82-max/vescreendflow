@@ -53,7 +53,20 @@ AARs oficiales en `app/libs/` (no redistribuimos el cliente Spotify).
 Si el kernel expone UVC como Camera2 `LENS_FACING_EXTERNAL`, aparecen en el selector Dual A/B.  
 ConcurrentCamera requiere SoC compatible; si no, cae a cámara simple.
 
-## Navegación (v0.10)
+## Flota pro (v0.11)
+
+- Geofences (`GET/POST /api/fleet/geofences`)
+- Alertas ABS / TPMS / SOC / geofence enter (`GET /api/fleet/alerts`, ack)
+- Historial telemetría (`GET /api/fleet/telemetry/:deviceId`)
+- Comandos nuevos: `set_source` · `reboot_obd` · `nav_dest`
+- Dashboard `/fleet.html` con alertas, fences y spark de velocidad
+
+```bash
+curl -s http://127.0.0.1:4100/api/fleet/alerts
+curl -s -X POST http://127.0.0.1:4100/api/fleet/command \
+  -H 'content-type: application/json' \
+  -d '{"device_id":"…","command":"set_source","payload":{"source":"can"}}'
+```
 
 SenseFlow proxy OSRM:
 

@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SenseFlow Flota</title>
+  <title>SenseFlow Flota Pro</title>
   <style>
-    :root { --ink:#0f1c18; --mist:#e8f2ee; --teal:#0d9488; --panel:#15201c; --amber:#d97706; }
+    :root { --ink:#0f1c18; --mist:#e8f2ee; --teal:#0d9488; --panel:#15201c; --amber:#d97706; --rose:#e11d48; }
     body { margin:0; font-family:system-ui,sans-serif; background:var(--ink); color:var(--mist); padding:20px; }
     a { color:var(--teal); }
     table { width:100%; border-collapse:collapse; background:var(--panel); border-radius:12px; overflow:hidden; }
@@ -17,23 +17,53 @@
       font-weight:700; cursor:pointer; font-size:.8rem; margin:2px;
     }
     .btn.warn { background:var(--amber); color:#1a1205; }
-    .btn.danger { background:#e11d48; color:#fff; }
+    .btn.danger { background:var(--rose); color:#fff; }
+    .btn.ghost { background:#24332e; color:var(--mist); }
     code { background:#0b1411; padding:2px 6px; border-radius:6px; }
     #toast { margin-top:10px; color:var(--teal); min-height:1.2em; }
+    .grid { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-bottom:18px; }
+    @media (max-width: 960px) { .grid { grid-template-columns:1fr; } }
+    .card { background:var(--panel); border-radius:12px; padding:14px; }
+    .card h2 { margin:0 0 10px; font-size:1.05rem; color:var(--teal); }
+    .alert { padding:8px 10px; border-radius:8px; margin:6px 0; background:#0b1411; font-size:.88rem; }
+    .alert.warn { border-left:3px solid var(--amber); }
+    .alert.info { border-left:3px solid var(--teal); }
+    .muted { color:#8aa399; font-size:.85rem; }
+    .spark { display:flex; align-items:flex-end; gap:2px; height:36px; margin-top:8px; }
+    .spark i { display:block; width:4px; background:var(--teal); border-radius:2px 2px 0 0; min-height:2px; }
   </style>
 </head>
 <body>
   <div class="bar">
-    <h1 style="margin:0">Flota VePlayer</h1>
+    <h1 style="margin:0">Flota VePlayer Pro</h1>
     <a href="/">← Mapa</a>
     <button id="refresh">Actualizar</button>
     <span id="meta"></span>
   </div>
-  <p>API: <code>POST /api/fleet/command</code> · restart · lock · message · wipe · ota</p>
+  <p class="muted">Cmds: restart · lock · message · wipe · ota · <b>set_source</b> · <b>reboot_obd</b> · <b>nav_dest</b></p>
   <div id="toast"></div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Alertas abiertas</h2>
+      <div id="alerts" class="muted">cargando…</div>
+    </div>
+    <div class="card">
+      <h2>Geofences</h2>
+      <div id="geofences" class="muted">cargando…</div>
+      <div style="margin-top:10px">
+        <input id="gf-name" placeholder="Nombre" style="padding:6px;border-radius:6px;border:0;background:#0b1411;color:var(--mist);width:120px" />
+        <input id="gf-lat" placeholder="lat" value="10.496" style="padding:6px;border-radius:6px;border:0;background:#0b1411;color:var(--mist);width:90px" />
+        <input id="gf-lng" placeholder="lng" value="-66.898" style="padding:6px;border-radius:6px;border:0;background:#0b1411;color:var(--mist);width:90px" />
+        <input id="gf-r" placeholder="m" value="300" style="padding:6px;border-radius:6px;border:0;background:#0b1411;color:var(--mist);width:70px" />
+        <button id="gf-add">Add fence</button>
+      </div>
+    </div>
+  </div>
+
   <table>
     <thead>
-      <tr><th>Nombre</th><th>Pair</th><th>Versión</th><th>Seen</th><th>Speed</th><th>Señales</th><th>Comandos</th></tr>
+      <tr><th>Nombre</th><th>Pair</th><th>Versión</th><th>Seen</th><th>Speed</th><th>Señales</th><th>Hist</th><th>Comandos</th></tr>
     </thead>
     <tbody id="rows"></tbody>
   </table>
@@ -50,6 +80,50 @@
       const j = await r.json()
       if (!r.ok) { toast(j.error || 'error'); return }
       toast(`OK cmd #${j.id} → ${command}`)
+    }
+    async function ackAlert(id) {
+      await fetch('/api/fleet/alerts/' + id + '/ack', { method: 'POST' })
+      load()
+    }
+    async function loadAlerts() {
+      const j = await fetch('/api/fleet/alerts?open=1').then(r => r.json())
+      const el = document.getElementById('alerts')
+      if (!j.alerts.length) { el.innerHTML = '<span class="muted">Sin alertas abiertas</span>'; return }
+      el.innerHTML = ''
+      for (const a of j.alerts.slice(0, 30)) {
+        const d = document.createElement('div')
+        d.className = 'alert ' + (a.severity === 'warn' ? 'warn' : 'info')
+        d.innerHTML = `<b>${a.kind}</b> · ${a.message}<br><span class="muted">${a.device_id.slice(0,12)}… · ${new Date(a.created_at*1000).toLocaleString()}</span>
+          <button class="btn ghost" style="float:right">Ack</button>`
+        d.querySelector('button').onclick = () => ackAlert(a.id)
+        el.appendChild(d)
+      }
+    }
+    async function loadGeofences() {
+      const j = await fetch('/api/fleet/geofences').then(r => r.json())
+      const el = document.getElementById('geofences')
+      el.innerHTML = (j.geofences || []).map(g =>
+        `<div>· <b>${g.name}</b> ${g.lat.toFixed(3)},${g.lng.toFixed(3)} · r=${g.radius_m}m ${g.active ? '' : '(off)'}</div>`
+      ).join('') || '<span class="muted">Sin geofences</span>'
+    }
+    async function spark(deviceId, cell) {
+      try {
+        const j = await fetch('/api/fleet/telemetry/' + deviceId + '?limit=40').then(r => r.json())
+        const samples = j.samples || []
+        if (!samples.length) { cell.textContent = '—'; return }
+        const speeds = samples.map(s => (s.speed_mps || 0) * 3.6)
+        const max = Math.max(1, ...speeds)
+        const wrap = document.createElement('div')
+        wrap.className = 'spark'
+        wrap.title = samples.length + ' samples'
+        for (const v of speeds) {
+          const i = document.createElement('i')
+          i.style.height = Math.max(2, Math.round((v / max) * 34)) + 'px'
+          wrap.appendChild(i)
+        }
+        cell.innerHTML = ''
+        cell.appendChild(wrap)
+      } catch { cell.textContent = '—' }
     }
     async function load() {
       const [dev, ota] = await Promise.all([
@@ -82,7 +156,9 @@
           <td>${seen}</td>
           <td>${d.last_speed_mps != null ? (d.last_speed_mps*3.6).toFixed(0)+' km/h' : '—'}</td>
           <td>${sig}</td>
+          <td class="hist"></td>
           <td class="cmds"></td>`
+        spark(id, tr.querySelector('.hist'))
         const cell = tr.querySelector('.cmds')
         const mk = (label, cmd, cls, payload) => {
           const b = document.createElement('button')
@@ -95,11 +171,29 @@
         mk('Lock', 'lock')
         mk('Msg', 'message', '', { text: 'Hola desde flota' })
         mk('OTA', 'ota', 'warn', ota.release ? { apk_url: ota.release.apk_url } : null)
+        mk('CAN', 'set_source', 'ghost', { source: 'can' })
+        mk('OBD', 'reboot_obd', 'ghost')
+        mk('Nav', 'nav_dest', 'ghost', { name: 'Altamira', lat: 10.4965, lng: -66.8492 })
         mk('Wipe', 'wipe', 'danger')
         tb.appendChild(tr)
       }
+      await Promise.all([loadAlerts(), loadGeofences()])
     }
     document.getElementById('refresh').onclick = load
+    document.getElementById('gf-add').onclick = async () => {
+      const body = {
+        name: document.getElementById('gf-name').value || 'Fence',
+        lat: Number(document.getElementById('gf-lat').value),
+        lng: Number(document.getElementById('gf-lng').value),
+        radius_m: Number(document.getElementById('gf-r').value) || 250,
+      }
+      const r = await fetch('/api/fleet/geofences', {
+        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+      })
+      const j = await r.json()
+      toast(r.ok ? `Geofence #${j.id}` : (j.error || 'fail'))
+      loadGeofences()
+    }
     load()
     setInterval(load, 15000)
   </script>

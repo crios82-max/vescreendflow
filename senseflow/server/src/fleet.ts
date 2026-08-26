@@ -1,6 +1,11 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { db } from './db.js'
+import {
+  evaluateFleetAlerts,
+  openAlertsForDevice,
+  recordTelemetrySample,
+} from './fleetPro.js'
 
 export const fleetRouter = Router()
 
@@ -111,6 +116,21 @@ fleetRouter.post('/heartbeat', (req, res) => {
     telemetry_json: telemetryJson,
   })
 
+  recordTelemetrySample(
+    d.device_id,
+    d.lat,
+    d.lng,
+    speed,
+    signals as Record<string, unknown> | undefined,
+  )
+  const raised = evaluateFleetAlerts(
+    d.device_id,
+    d.lat,
+    d.lng,
+    signals as Record<string, unknown> | undefined,
+  )
+  const openAlerts = openAlertsForDevice(d.device_id)
+
   const latest = db
     .prepare(`SELECT version_name, version_code, apk_url, notes FROM ota_releases ORDER BY version_code DESC LIMIT 1`)
     .get() as
@@ -133,6 +153,14 @@ fleetRouter.post('/heartbeat', (req, res) => {
   res.json({
     ok: true,
     server_time: now,
+    alerts_raised: raised,
+    alerts: openAlerts.map((a) => ({
+      id: a.id,
+      kind: a.kind,
+      severity: a.severity,
+      message: a.message,
+      created_at: a.created_at,
+    })),
     ota: latest
       ? {
           update_available: updateAvailable,
@@ -249,7 +277,16 @@ fleetRouter.post('/ota', (req, res) => {
 
 const commandSchema = z.object({
   device_id: z.string().min(8).max(64),
-  command: z.enum(['restart', 'lock', 'message', 'wipe', 'ota']),
+  command: z.enum([
+    'restart',
+    'lock',
+    'message',
+    'wipe',
+    'ota',
+    'set_source',
+    'reboot_obd',
+    'nav_dest',
+  ]),
   payload: z.record(z.string(), z.unknown()).optional(),
 })
 
@@ -303,4 +340,100 @@ fleetRouter.post('/command/ack', (req, res) => {
     return n
   })
   res.json({ ok: true, updated: tx() })
+})
+
+// —— Flota pro: geofences / alerts / telemetry ——
+
+fleetRouter.get('/geofences', (_req, res) => {
+  const rows = db
+    .prepare(`SELECT id, name, lat, lng, radius_m, active, created_at FROM fleet_geofences ORDER BY id`)
+    .all()
+  res.json({ geofences: rows })
+})
+
+const geofenceSchema = z.object({
+  name: z.string().min(1).max(80),
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+  radius_m: z.number().positive().max(50_000).default(250),
+  active: z.boolean().optional(),
+})
+
+fleetRouter.post('/geofences', (req, res) => {
+  const parsed = geofenceSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
+    return
+  }
+  const info = db
+    .prepare(
+      `INSERT INTO fleet_geofences (name, lat, lng, radius_m, active)
+       VALUES (?, ?, ?, ?, ?)`,
+    )
+    .run(
+      parsed.data.name,
+      parsed.data.lat,
+      parsed.data.lng,
+      parsed.data.radius_m,
+      parsed.data.active === false ? 0 : 1,
+    )
+  res.status(201).json({ ok: true, id: Number(info.lastInsertRowid) })
+})
+
+fleetRouter.get('/alerts', (req, res) => {
+  const deviceId = typeof req.query.device_id === 'string' ? req.query.device_id : null
+  const openOnly = req.query.open !== '0'
+  let sql = `SELECT id, device_id, kind, severity, message, payload, created_at, acked_at
+             FROM fleet_alerts`
+  const params: unknown[] = []
+  const where: string[] = []
+  if (deviceId) {
+    where.push('device_id = ?')
+    params.push(deviceId)
+  }
+  if (openOnly) where.push('acked_at IS NULL')
+  if (where.length) sql += ` WHERE ${where.join(' AND ')}`
+  sql += ' ORDER BY id DESC LIMIT 100'
+  const rows = db.prepare(sql).all(...params) as Array<Record<string, unknown>>
+  res.json({
+    alerts: rows.map((r) => ({
+      ...r,
+      payload: typeof r.payload === 'string' ? safeJson(r.payload) : r.payload,
+    })),
+  })
+})
+
+fleetRouter.post('/alerts/:id/ack', (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: 'id inválido' })
+    return
+  }
+  const now = Math.floor(Date.now() / 1000)
+  const info = db.prepare(`UPDATE fleet_alerts SET acked_at = ? WHERE id = ?`).run(now, id)
+  res.json({ ok: true, updated: info.changes })
+})
+
+fleetRouter.get('/telemetry/:deviceId', (req, res) => {
+  const deviceId = req.params.deviceId
+  const limit = Math.min(500, Math.max(1, Number(req.query.limit) || 100))
+  const rows = db
+    .prepare(
+      `SELECT id, ts, lat, lng, speed_mps, telemetry_json
+       FROM fleet_telemetry WHERE device_id = ? ORDER BY ts DESC LIMIT ?`,
+    )
+    .all(deviceId, limit) as Array<Record<string, unknown>>
+  res.json({
+    samples: rows
+      .map((r) => ({
+        id: r.id,
+        ts: r.ts,
+        lat: r.lat,
+        lng: r.lng,
+        speed_mps: r.speed_mps,
+        vehicle_signals:
+          typeof r.telemetry_json === 'string' ? safeJson(r.telemetry_json as string) : null,
+      }))
+      .reverse(),
+  })
 })

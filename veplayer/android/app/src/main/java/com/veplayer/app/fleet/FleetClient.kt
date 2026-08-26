@@ -27,6 +27,14 @@ data class FleetCommand(
 data class HeartbeatResult(
     val ota: OtaInfo?,
     val commands: List<FleetCommand>,
+    val alerts: List<FleetAlert> = emptyList(),
+)
+
+data class FleetAlert(
+    val id: Long,
+    val kind: String,
+    val severity: String,
+    val message: String,
 )
 
 class FleetClient(private val prefs: VePrefs) {
@@ -116,7 +124,19 @@ class FleetClient(private val prefs: VePrefs) {
                             payload = p as? JSONObject ?: (p as? String)?.let { runCatching { JSONObject(it) }.getOrNull() },
                         )
                 }
-                HeartbeatResult(ota = ota, commands = cmds)
+                val alerts = mutableListOf<FleetAlert>()
+                val alertArr = json.optJSONArray("alerts") ?: JSONArray()
+                for (i in 0 until alertArr.length()) {
+                    val a = alertArr.getJSONObject(i)
+                    alerts +=
+                        FleetAlert(
+                            id = a.optLong("id"),
+                            kind = a.optString("kind"),
+                            severity = a.optString("severity", "info"),
+                            message = a.optString("message"),
+                        )
+                }
+                HeartbeatResult(ota = ota, commands = cmds, alerts = alerts)
             }
         }
 
