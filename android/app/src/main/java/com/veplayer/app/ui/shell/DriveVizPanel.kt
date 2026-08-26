@@ -52,6 +52,7 @@ import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Night
 import com.veplayer.app.ui.theme.Road
 import com.veplayer.app.vehicle.Gear
+import com.veplayer.app.vehicle.MaintenanceMonitor
 import com.veplayer.app.vehicle.SpeedHud
 import com.veplayer.app.vehicle.SpeedHudMonitor
 import com.veplayer.app.vehicle.TurnSignal
@@ -67,12 +68,12 @@ fun DriveVizPanel(
     val media by VeMediaHub.nowPlaying.collectAsState()
     val prefs = remember { VePrefs(LocalContext.current) }
     val hud by SpeedHudMonitor.state.collectAsState()
+    val maint by MaintenanceMonitor.state.collectAsState()
     LaunchedEffect(Unit) {
         while (true) {
-            SpeedHudMonitor.tick(
-                prefs,
-                com.veplayer.app.vehicle.VehicleState.state.value.speedKmh,
-            )
+            val snap = com.veplayer.app.vehicle.VehicleState.state.value
+            SpeedHudMonitor.tick(prefs, snap.speedKmh)
+            MaintenanceMonitor.tick(prefs, snap.odometerKm)
             delay(500)
         }
     }
@@ -129,6 +130,20 @@ fun DriveVizPanel(
                 if (shift.status == "open") {
                     Text(
                         "Turno · ${"%.1f".format(shift.distanceKm)} km",
+                        color = Mute,
+                        fontSize = 11.sp,
+                    )
+                }
+                if (prefs.maintenanceEnabled && (maint.due > 0 || maint.warn > 0)) {
+                    val tip =
+                        maint.items.firstOrNull { it.band == "due" || it.band == "warn" }
+                    Text(
+                        when {
+                            tip?.band == "due" -> "Mant · ${tip.item.label} vencido"
+                            tip != null ->
+                                "Mant · ${tip.item.label} ${tip.remainingKm?.toInt() ?: "?"} km"
+                            else -> "Mant · ${maint.due + maint.warn}"
+                        },
                         color = Mute,
                         fontSize = 11.sp,
                     )
