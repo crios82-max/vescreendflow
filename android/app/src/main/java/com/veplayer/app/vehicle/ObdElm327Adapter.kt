@@ -1,5 +1,6 @@
 package com.veplayer.app.vehicle
 
+import android.content.Context
 import android.util.Log
 import com.veplayer.app.data.VePrefs
 import kotlin.math.sin
@@ -15,22 +16,18 @@ import kotlinx.coroutines.launch
 /**
  * OBD-II / ELM327 adapter.
  *
- * Production path: Bluetooth Classic RFCOMM to an ELM327 dongle, ATZ / 010D / 010C / 0111 …
- * This build ships a **PID simulator** so UI + fleet work without hardware; when
- * [VePrefs.obdDeviceAddress] is set we log the target and keep simulated PIDs
- * (real BT stack can be wired without changing [CanBusManager]).
+ * 1. If [VePrefs.obdDeviceAddress] is set → Bluetooth Classic RFCOMM + Mode 01 PIDs
+ * 2. On failure / no MAC → PID simulator (`obd_sim`) so UI/fleet keep working
  *
- * Common PIDs mapped conceptually:
- * - 010D vehicle speed
- * - 010C RPM
- * - 0111 throttle
- * - 0105 coolant
- * - 012F fuel level
+ * PIDs: 010D speed · 010C RPM · 0105 coolant · 012F fuel · 0146 ambient · 0111 throttle
  */
 class ObdElm327Adapter(
+    context: Context,
     private val prefs: VePrefs,
     private val scope: CoroutineScope,
 ) : VehicleSignalAdapter {
+    private val app = context.applicationContext
+    private val bt = ObdBluetoothClient(app)
     private val _signals = MutableStateFlow(VehicleSignals(source = "obd"))
     override val signals: StateFlow<VehicleSignals> = _signals.asStateFlow()
     override val name: String = "obd"
@@ -38,20 +35,68 @@ class ObdElm327Adapter(
     private var job: Job? = null
     private var t = 0.0
 
+    @Volatile
+    var linkState: ObdLinkState = ObdLinkState.IDLE
+        private set
+
+    @Volatile
+    var statusText: String = "idle"
+        private set
+
     override fun start() {
         if (job?.isActive == true) return
-        val addr = prefs.obdDeviceAddress
-        if (addr.isNotBlank()) {
-            Log.i(TAG, "OBD target $addr — using PID simulator until RFCOMM is linked")
-        } else {
-            Log.i(TAG, "OBD adapter started without MAC — PID simulator")
-        }
         job =
             scope.launch {
+                val addr = prefs.obdDeviceAddress.trim()
+                var live = false
+                if (addr.isNotBlank()) {
+                    linkState = ObdLinkState.CONNECTING
+                    statusText = "Conectando $addr…"
+                    ObdLinkBus.publish(linkState, statusText)
+                    live = bt.connect(addr)
+                    if (live) {
+                        linkState = ObdLinkState.READY
+                        statusText = "ELM327 OK · $addr"
+                        ObdLinkBus.publish(linkState, statusText)
+                        Log.i(TAG, statusText)
+                    } else {
+                        linkState = ObdLinkState.FALLBACK_SIM
+                        statusText = "BT fail: ${bt.lastError} · sim"
+                        ObdLinkBus.publish(linkState, statusText)
+                        Log.w(TAG, statusText)
+                    }
+                } else {
+                    linkState = ObdLinkState.FALLBACK_SIM
+                    statusText = "Sin MAC · obd_sim"
+                    ObdLinkBus.publish(linkState, statusText)
+                }
+
                 while (isActive) {
                     t += 0.5
-                    _signals.value = simulatePids()
-                    delay(500)
+                    if (live && bt.isConnected()) {
+                        linkState = ObdLinkState.POLLING
+                        val pids = bt.pollPids()
+                        if (pids.speedKmh == null && pids.rpm == null) {
+                            // empty frame streak → maybe dropped
+                            if (!bt.isConnected()) {
+                                live = false
+                                linkState = ObdLinkState.FALLBACK_SIM
+                                statusText = "Link caído · sim"
+                                ObdLinkBus.publish(linkState, statusText)
+                            } else {
+                                _signals.value = fromPids(pids, live = true)
+                            }
+                        } else {
+                            _signals.value = fromPids(pids, live = true)
+                            statusText =
+                                "OBD live · ${pids.speedKmh?.toInt() ?: "—"} km/h · ${pids.rpm?.toInt() ?: "—"} rpm"
+                            ObdLinkBus.publish(linkState, statusText)
+                        }
+                        delay(400)
+                    } else {
+                        _signals.value = simulatePids()
+                        delay(500)
+                    }
                 }
             }
     }
@@ -59,6 +104,48 @@ class ObdElm327Adapter(
     override fun stop() {
         job?.cancel()
         job = null
+        bt.disconnect()
+        linkState = ObdLinkState.IDLE
+        statusText = "idle"
+        ObdLinkBus.publish(linkState, statusText)
+    }
+
+    private fun fromPids(
+        p: ObdPidParser.PidValues,
+        live: Boolean,
+    ): VehicleSignals {
+        val prev = _signals.value
+        val kmh = p.speedKmh ?: (prev.speedKmh)
+        val gear =
+            when {
+                prefs.mockReverse -> Gear.R
+                kmh < 0.5f -> Gear.N
+                else -> Gear.D
+            }
+        return VehicleSignals(
+            speedMps = kmh / 3.6f,
+            gear = gear,
+            turn = TurnSignal.OFF,
+            parkingBrake = gear == Gear.N && kmh < 0.5f,
+            seatbeltDriver = true,
+            fuelPct = p.fuelPct ?: prev.fuelPct,
+            rpm = p.rpm ?: prev.rpm,
+            coolantC = p.coolantC ?: prev.coolantC,
+            outdoorTempC = p.outdoorTempC ?: prev.outdoorTempC,
+            ignition = IgnitionState.ON,
+            absActive = false,
+            tpmsFlPsi = prev.tpmsFlPsi,
+            tpmsFrPsi = prev.tpmsFrPsi,
+            tpmsRlPsi = prev.tpmsRlPsi,
+            tpmsRrPsi = prev.tpmsRrPsi,
+            hvacCabinC = prev.hvacCabinC ?: p.outdoorTempC,
+            hvacTargetC = prev.hvacTargetC,
+            hvacAcOn = prev.hvacAcOn,
+            hvacFanLevel = prev.hvacFanLevel,
+            throttlePct = p.throttlePct ?: prev.throttlePct,
+            source = if (live) "obd" else "obd_sim",
+            updatedAtMs = System.currentTimeMillis(),
+        )
     }
 
     private fun simulatePids(): VehicleSignals {
@@ -77,6 +164,7 @@ class ObdElm327Adapter(
                 kmh < 0.5f -> Gear.N
                 else -> Gear.D
             }
+        val absPulse = ((t * 2).toInt() % 40) == 0 && kmh > 20f
         return VehicleSignals(
             speedMps = kmh / 3.6f,
             gear = gear,
@@ -91,14 +179,40 @@ class ObdElm327Adapter(
             coolantC = 90f,
             outdoorTempC = 27f,
             ignition = IgnitionState.ON,
-            headingDeg = null,
-            odometerKm = null,
-            source = if (prefs.obdDeviceAddress.isNotBlank()) "obd" else "obd_sim",
+            absActive = absPulse,
+            tpmsFlPsi = 32.5f,
+            tpmsFrPsi = 32.2f,
+            tpmsRlPsi = 33.0f,
+            tpmsRrPsi = 32.8f,
+            hvacCabinC = 24f + sin(t / 30.0).toFloat(),
+            hvacTargetC = 22f,
+            hvacAcOn = true,
+            hvacFanLevel = 2,
+            throttlePct = (kmh / 90f * 100f).coerceIn(0f, 100f),
+            source = "obd_sim",
             updatedAtMs = System.currentTimeMillis(),
         )
     }
 
     companion object {
         private const val TAG = "ObdElm327"
+    }
+}
+
+/** UI-facing OBD link status. */
+object ObdLinkBus {
+    data class Snapshot(
+        val state: ObdLinkState = ObdLinkState.IDLE,
+        val text: String = "idle",
+    )
+
+    private val _state = MutableStateFlow(Snapshot())
+    val state: StateFlow<Snapshot> = _state.asStateFlow()
+
+    fun publish(
+        link: ObdLinkState,
+        text: String,
+    ) {
+        _state.value = Snapshot(link, text)
     }
 }

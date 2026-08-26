@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 object CanBusManager {
     private const val TAG = "CanBusManager"
 
+    private var appContext: Context? = null
     private var appScope: CoroutineScope? = null
     private var prefs: VePrefs? = null
     private var adapter: VehicleSignalAdapter? = null
@@ -30,6 +31,7 @@ object CanBusManager {
             return
         }
         val app = context.applicationContext
+        appContext = app
         prefs = VePrefs(app)
         appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         rebind()
@@ -39,6 +41,7 @@ object CanBusManager {
     fun rebind() {
         val p = prefs ?: return
         val scope = appScope ?: return
+        val ctx = appContext ?: return
         collectJob?.cancel()
         adapter?.stop()
         gpsAdapter = null
@@ -49,7 +52,7 @@ object CanBusManager {
                 SignalSourceKind.GPS -> GpsSpeedAdapter().also { gpsAdapter = it }
                 SignalSourceKind.MOCK -> MockCanAdapter(p, scope)
                 SignalSourceKind.CAN -> CanBusStubAdapter(p, scope)
-                SignalSourceKind.OBD -> ObdElm327Adapter(p, scope)
+                SignalSourceKind.OBD -> ObdElm327Adapter(ctx, p, scope)
             }
         adapter = next
         next.start()
@@ -88,5 +91,11 @@ object CanBusManager {
         appScope?.cancel()
         appScope = null
         prefs = null
+        appContext = null
+    }
+
+    fun bondedObdDevices(): List<ObdBondedDevice> {
+        val ctx = appContext ?: return emptyList()
+        return ObdBluetoothClient(ctx).bondedDevices()
     }
 }

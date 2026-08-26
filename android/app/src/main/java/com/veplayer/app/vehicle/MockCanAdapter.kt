@@ -76,6 +76,7 @@ class MockCanAdapter(
                 else -> (sin(t / 5.0) * 6.0).toFloat()
             }
         val soc = (72f + 4f * sin(t / 40.0).toFloat()).coerceIn(5f, 100f)
+        val absPulse = phase == 2 && kmh > 40f
         return VehicleSignals(
             speedMps = kmh / 3.6f,
             gear = gear,
@@ -99,6 +100,16 @@ class MockCanAdapter(
             headingDeg = ((t * 3.0) % 360.0).toFloat(),
             yawRateDegS = steer * 0.15f,
             odometerKm = 12450f + (t / 3600.0).toFloat(),
+            absActive = absPulse,
+            tpmsFlPsi = 32.4f + Random.nextFloat() * 0.4f,
+            tpmsFrPsi = 32.1f + Random.nextFloat() * 0.4f,
+            tpmsRlPsi = 33.0f,
+            tpmsRrPsi = 32.7f,
+            hvacCabinC = 23.5f + sin(t / 25.0).toFloat(),
+            hvacTargetC = 22f,
+            hvacAcOn = true,
+            hvacFanLevel = if (kmh > 30f) 2 else 1,
+            throttlePct = (kmh / 90f * 80f).coerceIn(0f, 100f),
             source = sourceTag,
             updatedAtMs = System.currentTimeMillis(),
         )

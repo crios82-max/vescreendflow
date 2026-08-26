@@ -60,9 +60,18 @@ ConcurrentCamera requiere SoC compatible; si no, cae a cámara simple.
 | **gps** | Fused Location → velocidad (+ heading) |
 | **mock** | Ciclo CAN sintético (velocidad, gear, turn, SOC, RPM…) |
 | **can** | Stub SocketCAN/USB-CAN / CarPropertyManager → hoy `can_stub` demo |
-| **obd** | ELM327 (PIDs 010D/010C/…) — simulado hasta RFCOMM real |
+| **obd** | ELM327 Bluetooth Classic RFCOMM (SPP) · fallback `obd_sim` |
 
-Señales en `VehicleSignals`: speed, gear P/R/N/D, turn, puertas, parking brake, SOC/fuel, RPM, steering, coolant, outdoor temp, ignition, heading, yaw, odometer, range.
+Señales en `VehicleSignals`: speed, gear P/R/N/D, turn, puertas, parking brake, SOC/fuel, RPM, steering, coolant, outdoor temp, ignition, heading, yaw, odometer, range, **ABS**, **TPMS** (4 ruedas), **HVAC** (cabin/target/AC/fan), throttle.
+
+### OBD ELM327
+
+1. Emparejá el dongle en Ajustes del sistema Android (Bluetooth Classic).
+2. En VePlayer → Ajustes (PIN) → fuente **OBD** → tocá el dispositivo emparejado (o pegá la MAC).
+3. PIDs: `010D` speed · `010C` RPM · `0105` coolant · `012F` fuel · `0146` ambient · `0111` throttle.
+4. Sin dongle / fallo BT → simula PIDs + ABS/TPMS/HVAC demo (`obd_sim`).
+
+Permisos: `BLUETOOTH_CONNECT` / `BLUETOOTH_SCAN` (API 31+).
 
 Heartbeat flota manda `vehicle_signals` → dashboard `/fleet.html`.
 

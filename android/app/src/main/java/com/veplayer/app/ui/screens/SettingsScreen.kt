@@ -42,6 +42,7 @@ import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Panel
 import com.veplayer.app.ui.theme.Teal
 import com.veplayer.app.vehicle.CanBusManager
+import com.veplayer.app.vehicle.ObdLinkBus
 import com.veplayer.app.vehicle.SignalSourceKind
 import com.veplayer.app.vehicle.VehicleState
 import kotlinx.coroutines.Dispatchers
@@ -260,10 +261,36 @@ fun SettingsScreen() {
             OutlinedTextField(
                 value = obdAddr,
                 onValueChange = { obdAddr = it },
-                label = { Text("OBD ELM327 MAC (opcional)") },
+                label = { Text("OBD ELM327 MAC") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
+            val obdLink by ObdLinkBus.state.collectAsState()
+            Text("OBD link: ${obdLink.state} · ${obdLink.text}", color = Mute)
+            var bonded by remember { mutableStateOf(CanBusManager.bondedObdDevices()) }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Emparejados (Bluetooth Classic):", color = Mist)
+                OutlinedButton(onClick = { bonded = CanBusManager.bondedObdDevices() }) {
+                    Text("Refresh BT")
+                }
+            }
+            if (bonded.isEmpty()) {
+                Text("Ninguno · emparejá el ELM327 en Ajustes del sistema", color = Mute)
+            } else {
+                bonded.forEach { d ->
+                    OutlinedButton(
+                        onClick = {
+                            obdAddr = d.address
+                            prefs.obdDeviceAddress = d.address
+                            prefs.signalSource = "obd"
+                            signalSource = "obd"
+                            CanBusManager.rebind()
+                            status = "OBD → ${d.name} (${d.address})"
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("${d.name} · ${d.address}") }
+                }
+            }
             Text(
                 buildString {
                     append("Live · ${live.speedKmh.toInt()} km/h · gear ${live.gear}")
@@ -271,12 +298,23 @@ fun SettingsScreen() {
                     append(" · src ${live.source}")
                     live.batterySocPct?.let { append(" · SOC ${it.toInt()}%") }
                     live.rpm?.let { append(" · ${it.toInt()} rpm") }
+                    live.fuelPct?.let { append(" · fuel ${it.toInt()}%") }
                     live.headingDeg?.let { append(" · hdg ${it.toInt()}°") }
+                    if (live.absActive) append(" · ABS")
+                    if (live.tpmsLow) append(" · TPMS low")
+                    live.hvacCabinC?.let { append(" · cabin ${"%.0f".format(it)}°C") }
+                    if (live.hvacAcOn) append(" · AC")
                     if (live.anyDoorOpen) append(" · puerta abierta")
                     if (live.parkingBrake) append(" · freno parking")
                 },
                 color = Mute,
             )
+            live.tpmsFlPsi?.let {
+                Text(
+                    "TPMS psi FL/FR/RL/RR: ${fmtPsi(live.tpmsFlPsi)} / ${fmtPsi(live.tpmsFrPsi)} / ${fmtPsi(live.tpmsRlPsi)} / ${fmtPsi(live.tpmsRrPsi)}",
+                    color = Mute,
+                )
+            }
         }
 
         PanelBlock("Mock vehículo (demo)") {
@@ -363,3 +401,5 @@ private fun PanelBlock(title: String, content: @Composable () -> Unit) {
         content()
     }
 }
+
+private fun fmtPsi(v: Float?): String = v?.let { "%.1f".format(it) } ?: "—"
