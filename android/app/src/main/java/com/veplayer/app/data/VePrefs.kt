@@ -87,6 +87,35 @@ class VePrefs(context: Context) {
         get() = sp.getString("device_name", "VePlayer") ?: "VePlayer"
         set(value) = sp.edit().putString("device_name", value).apply()
 
+    /** Auto-apply fleet OTA when heartbeat reports update_available (Device Owner = silent). */
+    var autoOtaEnabled: Boolean
+        get() = sp.getBoolean("auto_ota_enabled", true)
+        set(value) = sp.edit().putBoolean("auto_ota_enabled", value).apply()
+
+    var lastOtaStatus: String
+        get() = sp.getString("last_ota_status", "—") ?: "—"
+        set(value) = sp.edit().putString("last_ota_status", value.take(120)).apply()
+
+    var lastOtaVersionCode: Int
+        get() = sp.getInt("last_ota_version_code", 0)
+        set(value) = sp.edit().putInt("last_ota_version_code", value).apply()
+
+    var kioskPoliciesAppliedAt: Long
+        get() = sp.getLong("kiosk_policies_at", 0L)
+        set(value) = sp.edit().putLong("kiosk_policies_at", value).apply()
+
+    var watchdogRelaunchCount: Int
+        get() = sp.getInt("watchdog_relaunch_count", 0)
+        set(value) = sp.edit().putInt("watchdog_relaunch_count", value).apply()
+
+    var watchdogLastKickAt: Long
+        get() = sp.getLong("watchdog_last_kick_at", 0L)
+        set(value) = sp.edit().putLong("watchdog_last_kick_at", value).apply()
+
+    var watchdogLastTickAt: Long
+        get() = sp.getLong("watchdog_last_tick_at", 0L)
+        set(value) = sp.edit().putLong("watchdog_last_tick_at", value).apply()
+
     fun deviceId(): String {
         var id = sp.getString("device_id", null)
         if (id.isNullOrBlank()) {

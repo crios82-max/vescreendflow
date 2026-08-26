@@ -79,6 +79,9 @@ class MainActivity : ComponentActivity() {
         enterImmersive()
         requestRuntimePermissions()
         KioskController.tryStartLockTask(this)
+        if (intent?.getBooleanExtra(WatchdogService.EXTRA_FORCE_LOCK, false) == true) {
+            KioskController.tryStartLockTask(this)
+        }
 
         val prefs = VePrefs(this)
         CanBusManager.start(this)
@@ -173,6 +176,14 @@ class MainActivity : ComponentActivity() {
                     BottomDock(current = dest, onSelect = { dest = it })
                 }
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra(WatchdogService.EXTRA_FORCE_LOCK, false)) {
+            KioskController.tryStartLockTask(this)
         }
     }
 

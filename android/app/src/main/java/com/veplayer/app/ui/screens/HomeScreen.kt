@@ -54,7 +54,7 @@ fun HomeScreen(onOpen: (VeDest) -> Unit) {
                 Text("Kiosk", color = Teal, fontWeight = FontWeight.Bold)
                 Text(kiosk, color = Mist)
                 Text(
-                    "Device Owner: adb shell dpm set-device-owner …/VeDeviceAdminReceiver",
+                    "Device Owner: veplayer/scripts/enable-device-owner.sh",
                     color = Mute,
                 )
             }

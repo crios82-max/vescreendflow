@@ -9,9 +9,13 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.UserManager
+import android.util.Log
 import com.veplayer.app.MainActivity
+import com.veplayer.app.data.VePrefs
 
 object KioskController {
+    private const val TAG = "KioskController"
+
     fun adminComponent(context: Context): ComponentName =
         ComponentName(context, VeDeviceAdminReceiver::class.java)
 
@@ -25,12 +29,15 @@ object KioskController {
         return am.lockTaskModeState != ActivityManager.LOCK_TASK_MODE_NONE
     }
 
+    /**
+     * Hard kiosk policies when we are Device Owner.
+     * Safe no-op if the app is not owner.
+     */
     fun applyOwnerPolicies(context: Context) {
         val dpm = context.getSystemService(DevicePolicyManager::class.java) ?: return
         if (!dpm.isDeviceOwnerApp(context.packageName)) return
         val admin = adminComponent(context)
 
-        // Whitelist this package (+ Spotify / YouTube) for lock-task.
         dpm.setLockTaskPackages(
             admin,
             arrayOf(
@@ -40,31 +47,47 @@ object KioskController {
             ),
         )
 
+        // Hard lock-task: no Home / Overview escape (SYSTEM_INFO only for clock/battery).
         if (Build.VERSION.SDK_INT >= 28) {
-            dpm.setLockTaskFeatures(
-                admin,
-                DevicePolicyManager.LOCK_TASK_FEATURE_SYSTEM_INFO or
-                    DevicePolicyManager.LOCK_TASK_FEATURE_HOME or
-                    DevicePolicyManager.LOCK_TASK_FEATURE_OVERVIEW,
-            )
+            runCatching {
+                dpm.setLockTaskFeatures(
+                    admin,
+                    DevicePolicyManager.LOCK_TASK_FEATURE_SYSTEM_INFO,
+                )
+            }
         }
 
-        // Keep vehicle player focused: block status-bar expansion / safe boot noise.
         runCatching {
             dpm.addUserRestriction(admin, UserManager.DISALLOW_SAFE_BOOT)
             dpm.addUserRestriction(admin, UserManager.DISALLOW_ADD_USER)
+            dpm.addUserRestriction(admin, UserManager.DISALLOW_FACTORY_RESET)
+            // Keep unknown-sources open for fleet PackageInstaller OTA.
+            if (Build.VERSION.SDK_INT >= 26) {
+                dpm.addUserRestriction(admin, UserManager.DISALLOW_BLUETOOTH_SHARING)
+            }
         }
 
-        // Stay as preferred home (best-effort).
+        runCatching { dpm.setUninstallBlocked(admin, context.packageName, true) }
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            runCatching { dpm.setKeyguardDisabled(admin, true) }
+        }
+        if (Build.VERSION.SDK_INT >= 28) {
+            runCatching { dpm.setStatusBarDisabled(admin, true) }
+        }
+
+        // Prefer VePlayer as Home.
         runCatching {
-            val filter =
-                IntentFilterHome()
+            val filter = IntentFilterHome()
             dpm.addPersistentPreferredActivity(
                 admin,
                 filter.intentFilter,
                 ComponentName(context, MainActivity::class.java),
             )
         }
+
+        Log.i(TAG, "Owner policies applied")
+        VePrefs(context).kioskPoliciesAppliedAt = System.currentTimeMillis()
     }
 
     fun tryStartLockTask(activity: Activity) {
@@ -83,6 +106,14 @@ object KioskController {
         }
     }
 
+    /** Exit lock-task only after PIN check (Settings / remote unlock). */
+    fun exitWithPin(activity: Activity, pin: String): Boolean {
+        val prefs = VePrefs(activity)
+        if (!prefs.checkPin(pin)) return false
+        stopLockTask(activity)
+        return true
+    }
+
     fun statusLabel(context: Context): String {
         val owner = isDeviceOwner(context)
         val lock = isLockTaskActive(context)
@@ -92,6 +123,32 @@ object KioskController {
             lock -> "Lock Task (soft) · sin Device Owner"
             else -> "Modo normal · activa Device Owner para kiosk duro"
         }
+    }
+
+    /** Checklist for Settings / fleet telemetry. */
+    fun playbookLines(context: Context): List<String> {
+        val owner = isDeviceOwner(context)
+        val lock = isLockTaskActive(context)
+        val pkg = context.packageName
+        return listOf(
+            if (owner) "✓ Device Owner ($pkg)" else "○ Device Owner — adb dpm set-device-owner …/VeDeviceAdminReceiver",
+            if (lock) "✓ Lock Task activo" else "○ Lock Task — abrir VePlayer o cmd lock",
+            "○ Boot auto — BootReceiver + Watchdog",
+            if (VePrefs(context).autoOtaEnabled) "✓ OTA silenciosa (flota)" else "○ OTA auto desactivada",
+        )
+    }
+
+    fun healthSnapshot(context: Context): Map<String, Any?> {
+        val prefs = VePrefs(context)
+        return mapOf(
+            "device_owner" to isDeviceOwner(context),
+            "lock_task" to isLockTaskActive(context),
+            "auto_ota" to prefs.autoOtaEnabled,
+            "last_ota_status" to prefs.lastOtaStatus,
+            "last_ota_version_code" to prefs.lastOtaVersionCode,
+            "watchdog_relaunches" to prefs.watchdogRelaunchCount,
+            "policies_at" to prefs.kioskPoliciesAppliedAt,
+        )
     }
 }
 

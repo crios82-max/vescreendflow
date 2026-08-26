@@ -85,12 +85,37 @@ class RemoteCommandExecutor(
                     }
                     "ota" -> {
                         val url = cmd.payload?.optString("apk_url").orEmpty()
+                        val silent = cmd.payload?.optBoolean("silent", true) != false
+                        val code =
+                            if (cmd.payload?.has("version_code") == true) {
+                                cmd.payload.optInt("version_code")
+                            } else {
+                                null
+                            }
                         if (url.isNotBlank()) {
-                            onStatus("Cmd OTA $url")
-                            OtaInstaller(context).downloadAndInstall(url) { onStatus(it) }
+                            onStatus("Cmd OTA silent=$silent $url")
+                            OtaInstaller(context).downloadAndInstall(
+                                apkUrl = url,
+                                targetVersionCode = code,
+                                silent = silent,
+                            ) { onStatus(it) }
                         } else {
                             onStatus("Cmd OTA sin apk_url")
                         }
+                    }
+                    "lock_task" -> {
+                        onStatus("Cmd lock_task")
+                        main.post {
+                            context.startActivity(
+                                Intent(context, MainActivity::class.java)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    .putExtra(com.veplayer.app.watchdog.WatchdogService.EXTRA_FORCE_LOCK, true),
+                            )
+                        }
+                    }
+                    "apply_kiosk" -> {
+                        onStatus("Cmd apply_kiosk")
+                        com.veplayer.app.kiosk.KioskController.applyOwnerPolicies(context)
                     }
                     "set_source" -> {
                         val src = cmd.payload?.optString("source")?.lowercase().orEmpty()

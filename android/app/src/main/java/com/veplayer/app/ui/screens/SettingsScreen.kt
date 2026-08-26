@@ -76,6 +76,7 @@ fun SettingsScreen() {
     var canIface by remember { mutableStateOf(prefs.canSocketIface) }
     var pairCode by remember { mutableStateOf(prefs.pairCodeCached() ?: "—") }
     var otaText by remember { mutableStateOf("OTA: sin chequear") }
+    var autoOta by remember { mutableStateOf(prefs.autoOtaEnabled) }
     val live by VehicleState.state.collectAsState()
 
     Column(
@@ -126,6 +127,40 @@ fun SettingsScreen() {
             Text(KioskController.statusLabel(context), color = Mist)
             Text("Device: ${prefs.deviceId().take(12)}…", color = Mute)
             Text("App ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})", color = Mute)
+            KioskController.playbookLines(context).forEach { Text(it, color = Mute) }
+            Text(
+                "Watchdog relaunches: ${prefs.watchdogRelaunchCount} · OTA: ${prefs.lastOtaStatus}",
+                color = Mute,
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("OTA auto (flota)", color = Mist)
+                Switch(
+                    checked = autoOta,
+                    onCheckedChange = {
+                        autoOta = it
+                        prefs.autoOtaEnabled = it
+                        status = if (it) "OTA auto ON" else "OTA auto OFF"
+                    },
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = {
+                        KioskController.applyOwnerPolicies(context)
+                        status = "Políticas kiosk aplicadas"
+                    },
+                ) { Text("Aplicar políticas") }
+                OutlinedButton(
+                    onClick = {
+                        val act = context as? android.app.Activity
+                        if (act != null) KioskController.tryStartLockTask(act)
+                        status = "Lock Task solicitado"
+                    },
+                ) { Text("Lock Task") }
+            }
         }
 
         PanelBlock("Flota / pairing") {

@@ -3,5 +3,11 @@
     <uses-policies>
         <force-lock />
         <lock-task />
+        <wipe-data />
+        <reset-password />
+        <limit-password />
+        <watch-login />
+        <disable-camera />
+        <disable-keyguard-features />
     </uses-policies>
 </device-admin>
