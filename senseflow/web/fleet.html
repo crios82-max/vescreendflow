@@ -74,13 +74,14 @@
       <option value="telemetry">CSV telemetry</option>
       <option value="drivers">CSV drivers</option>
       <option value="shifts">CSV shifts</option>
+      <option value="maintenance">CSV maintenance</option>
     </select>
     <button class="btn ghost" id="csv-export">Export CSV</button>
     <button class="btn ghost" id="logout-btn">Logout</button>
     <span id="me" class="muted"></span>
     <span id="meta"></span>
   </div>
-  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · nav_dest · set_driver · set_speed_limit</p>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · nav_dest · set_driver · set_speed_limit · service_done · set_maintenance</p>
   <div id="toast"></div>
 
   <div class="grid" id="report-cards">
@@ -129,6 +130,10 @@
         <button id="drv-assign" class="btn ghost">Asignar</button>
         <button id="drv-clear" class="btn ghost">Quitar</button>
       </div>
+    </div>
+    <div class="card">
+      <h2>Mantenimiento</h2>
+      <div id="maint" class="muted">cargando…</div>
     </div>
     <div class="card">
       <h2>Alertas 24h (reporte)</h2>
@@ -410,11 +415,25 @@
         mk('Nav', 'nav_dest', 'ghost', { name: 'Altamira', lat: 10.4965, lng: -66.8492 })
         mk('Drv', 'set_driver', 'ghost', { code: 'D001' })
         mk('Lim', 'set_speed_limit', 'ghost', { kmh: 50 })
+        mk('Svc', 'service_done', 'ghost', { kind: 'oil', odo_km: 12500 })
         mk('Wipe', 'wipe', 'danger')
         if (!me.can_dispatch) cell.textContent = 'viewer · read-only'
         tb.appendChild(tr)
       }
-      await Promise.all([loadAlerts(), loadGeofences(), loadReports(), loadHistory(), loadDrivers(), loadShifts()])
+      await Promise.all([loadAlerts(), loadGeofences(), loadReports(), loadHistory(), loadDrivers(), loadShifts(), loadMaint()])
+    }
+    async function loadMaint() {
+      const j = await fetch('/api/fleet/ops/maintenance?limit=40', { headers: hdrs() }).then(r => r.json())
+      const el = document.getElementById('maint')
+      if (!el) return
+      const due = j.due || 0
+      const warn = j.warn || 0
+      const head = `<div class="muted">due ${due} · warn ${warn}</div>`
+      el.innerHTML = head + (j.items || []).slice(0, 24).map(i => {
+        const rem = i.remaining_km != null ? Math.round(i.remaining_km) + ' km' : '—'
+        return `<div class="hist-row"><b>${i.band}</b> · ${i.label || i.kind} · ${rem}
+          <span class="muted">${(i.device_id || '').slice(0,10)}…</span></div>`
+      }).join('') || '<span class="muted">Sin intervalos</span>'
     }
     async function loadShifts() {
       const j = await fetch('/api/fleet/ops/shifts?limit=30', { headers: hdrs() }).then(r => r.json())

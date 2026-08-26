@@ -6,6 +6,12 @@ import {
   openAlertsForDevice,
   recordTelemetrySample,
 } from './fleetPro.js'
+import {
+  evaluateMaintenanceAlerts,
+  maintenanceSummary,
+  recordService,
+  upsertMaintenance,
+} from './fleetMaintenance.js'
 import { assertCanMutate, logOtaEvent } from './fleetOps.js'
 import {
   assignDriverToDevice,
@@ -171,7 +177,10 @@ fleetRouter.post('/heartbeat', (req, res) => {
     d.lng,
     signals as Record<string, unknown> | undefined,
   )
+  const maintRaised = evaluateMaintenanceAlerts(d.device_id, odoKm)
+  raised.push(...maintRaised)
   const openAlerts = openAlertsForDevice(d.device_id)
+  const maintenance = maintenanceSummary(d.device_id, odoKm)
 
   const latest = db
     .prepare(`SELECT version_name, version_code, apk_url, notes FROM ota_releases ORDER BY version_code DESC LIMIT 1`)
@@ -203,6 +212,20 @@ fleetRouter.post('/heartbeat', (req, res) => {
       message: a.message,
       created_at: a.created_at,
     })),
+    maintenance: {
+      due: maintenance.due,
+      warn: maintenance.warn,
+      items: maintenance.items.map((i) => ({
+        kind: i.kind,
+        label: i.label,
+        band: i.band,
+        remaining_km: i.remaining_km,
+        due_at_km: i.due_at_km,
+        interval_km: i.interval_km,
+        last_service_odo_km: i.last_service_odo_km,
+        enabled: i.enabled === 1,
+      })),
+    },
     ota: latest
       ? {
           update_available: updateAvailable,
@@ -444,6 +467,8 @@ const commandSchema = z.object({
     'fm_tune',
     'set_driver',
     'set_speed_limit',
+    'service_done',
+    'set_maintenance',
   ]),
   payload: z.record(z.string(), z.unknown()).optional(),
 })
@@ -476,6 +501,42 @@ fleetRouter.post('/command', (req, res) => {
       res.status(400).json({ error: 'set_driver requiere code, driver_id o clear' })
       return
     }
+  }
+  if (parsed.data.command === 'service_done') {
+    const p = parsed.data.payload ?? {}
+    const kind = typeof p.kind === 'string' ? p.kind : ''
+    const odo = typeof p.odo_km === 'number' ? p.odo_km : null
+    if (!kind || odo == null) {
+      res.status(400).json({ error: 'service_done requiere kind + odo_km' })
+      return
+    }
+    const item = recordService(parsed.data.device_id, kind, odo)
+    if (!item) {
+      res.status(404).json({ error: 'ítem mantenimiento no encontrado' })
+      return
+    }
+  }
+  if (parsed.data.command === 'set_maintenance') {
+    const p = parsed.data.payload ?? {}
+    const kind = typeof p.kind === 'string' ? p.kind : ''
+    if (!kind) {
+      res.status(400).json({ error: 'set_maintenance requiere kind' })
+      return
+    }
+    upsertMaintenance({
+      deviceId: parsed.data.device_id,
+      kind,
+      label: typeof p.label === 'string' ? p.label : undefined,
+      intervalKm: typeof p.interval_km === 'number' ? p.interval_km : undefined,
+      lastServiceOdoKm:
+        typeof p.last_service_odo_km === 'number'
+          ? p.last_service_odo_km
+          : typeof p.last_odo_km === 'number'
+            ? p.last_odo_km
+            : undefined,
+      warnKm: typeof p.warn_km === 'number' ? p.warn_km : undefined,
+      enabled: typeof p.enabled === 'boolean' ? p.enabled : undefined,
+    })
   }
   const info = db
     .prepare(

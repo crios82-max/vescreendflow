@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.veplayer.app.BuildConfig
 import com.veplayer.app.data.VePrefs
 import com.veplayer.app.fleet.FleetClient
@@ -688,6 +689,88 @@ fun SettingsScreen() {
                     ) { Text("$v") }
                 }
             }
+        }
+
+        PanelBlock("Mantenimiento odómetro") {
+            var maintOn by remember { mutableStateOf(prefs.maintenanceEnabled) }
+            var maintTts by remember { mutableStateOf(prefs.maintenanceTts) }
+            val odo = VehicleState.state.collectAsState().value.odometerKm
+            var items by remember {
+                mutableStateOf(com.veplayer.app.vehicle.Maintenance.parseJson(prefs.maintenanceJson))
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Recordatorios", color = Mist)
+                Switch(
+                    checked = maintOn,
+                    onCheckedChange = {
+                        maintOn = it
+                        prefs.maintenanceEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS servicio", color = Mist)
+                Switch(
+                    checked = maintTts,
+                    onCheckedChange = {
+                        maintTts = it
+                        prefs.maintenanceTts = it
+                    },
+                )
+            }
+            Text(
+                "Odómetro ${odo?.toInt()?.toString() ?: "—"} km",
+                color = Mute,
+            )
+            items.forEach { item ->
+                val st = com.veplayer.app.vehicle.Maintenance.evaluate(item, odo)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("${item.label} · cada ${item.intervalKm.toInt()} km", color = Mist)
+                        Text(
+                            when (st.band) {
+                                "due" -> "Vencido (${st.remainingKm?.toInt()?.let { kotlin.math.abs(it) } ?: "—"} km)"
+                                "warn" -> "En ${st.remainingKm?.toInt() ?: "—"} km"
+                                "off" -> "Off"
+                                else -> "OK · vence ${st.dueAtKm.toInt()}"
+                            },
+                            color = Mute,
+                            fontSize = 12.sp,
+                        )
+                    }
+                    OutlinedButton(
+                        onClick = {
+                            val at = odo ?: item.lastServiceOdoKm
+                            items =
+                                com.veplayer.app.vehicle.Maintenance.recordService(items, item.kind, at)
+                            prefs.maintenanceJson =
+                                com.veplayer.app.vehicle.Maintenance.toJson(items)
+                            status = "Servicio ${item.label} @ ${at.toInt()} km"
+                        },
+                    ) { Text("Hecho") }
+                }
+            }
+            OutlinedButton(
+                onClick = {
+                    val base = odo ?: 0f
+                    items = com.veplayer.app.vehicle.Maintenance.defaults(base)
+                    prefs.maintenanceJson =
+                        com.veplayer.app.vehicle.Maintenance.toJson(items)
+                    status = "Intervalos por defecto @ ${base.toInt()} km"
+                },
+            ) { Text("Restablecer intervalos") }
         }
 
         PanelBlock("Flota voz / inbox") {

@@ -187,6 +187,21 @@ class VePrefs(context: Context) {
         get() = sp.getString("fleet_inbox_json", "[]") ?: "[]"
         set(value) = sp.edit().putString("fleet_inbox_json", value).apply()
 
+    /** Odometer maintenance reminders. */
+    var maintenanceEnabled: Boolean
+        get() = sp.getBoolean("maint_enabled", true)
+        set(value) = sp.edit().putBoolean("maint_enabled", value).apply()
+
+    /** Speak maintenance due/warn. */
+    var maintenanceTts: Boolean
+        get() = sp.getBoolean("maint_tts", true)
+        set(value) = sp.edit().putBoolean("maint_tts", value).apply()
+
+    /** JSON schedule of service intervals. */
+    var maintenanceJson: String
+        get() = sp.getString("maint_json", "") ?: ""
+        set(value) = sp.edit().putString("maint_json", value).apply()
+
     var driverId: Int
         get() = sp.getInt("driver_id", 0)
         set(value) = sp.edit().putInt("driver_id", value).apply()

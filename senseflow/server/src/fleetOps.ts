@@ -37,6 +37,8 @@ const DISPATCH_CMDS = new Set([
   'fm_tune',
   'set_driver',
   'set_speed_limit',
+  'service_done',
+  'set_maintenance',
 ])
 
 const SESSION_TTL_S = 12 * 3600
@@ -903,9 +905,83 @@ fleetOpsRouter.get('/reports/export', (req, res) => {
     return
   }
 
+  if (kind === 'maintenance') {
+    const rows = db
+      .prepare(
+        `SELECT m.id, m.device_id, m.kind, m.label, m.interval_km, m.last_service_odo_km,
+                m.warn_km, m.enabled, m.updated_at, fd.telemetry_json
+         FROM fleet_maintenance m
+         LEFT JOIN fleet_devices fd ON fd.device_id = m.device_id
+         ORDER BY m.device_id, m.kind LIMIT ?`,
+      )
+      .all(limit) as Array<Record<string, unknown>>
+    sendCsv(
+      res,
+      `fleet-maintenance-${stamp}.csv`,
+      [
+        'id',
+        'device_id',
+        'kind',
+        'label',
+        'interval_km',
+        'last_service_odo_km',
+        'warn_km',
+        'enabled',
+        'odo_km',
+        'remaining_km',
+        'band',
+        'updated_at',
+      ],
+      rows.map((r) => {
+        let odo: number | null = null
+        if (typeof r.telemetry_json === 'string' && r.telemetry_json) {
+          try {
+            const j = JSON.parse(r.telemetry_json) as Record<string, unknown>
+            if (typeof j.odometer_km === 'number') odo = j.odometer_km
+          } catch {
+            /* ignore */
+          }
+        }
+        const last = Number(r.last_service_odo_km ?? 0)
+        const interval = Number(r.interval_km ?? 0)
+        const warn = Number(r.warn_km ?? 500)
+        const dueAt = last + interval
+        const remaining = odo != null ? dueAt - odo : null
+        let band = 'ok'
+        if (!Number(r.enabled)) band = 'off'
+        else if (remaining != null && remaining <= 0) band = 'due'
+        else if (remaining != null && remaining <= warn) band = 'warn'
+        return [
+          r.id,
+          r.device_id,
+          r.kind,
+          r.label,
+          r.interval_km,
+          r.last_service_odo_km,
+          r.warn_km,
+          r.enabled,
+          odo,
+          remaining,
+          band,
+          r.updated_at,
+        ]
+      }),
+    )
+    return
+  }
+
   res.status(400).json({
     error: 'kind inválido',
-    kinds: ['devices', 'commands', 'alerts', 'telemetry', 'summary', 'drivers', 'shifts'],
+    kinds: [
+      'devices',
+      'commands',
+      'alerts',
+      'telemetry',
+      'summary',
+      'drivers',
+      'shifts',
+      'maintenance',
+    ],
   })
 })
 

@@ -269,6 +269,92 @@ class RemoteCommandExecutor(
                             onStatus("set_speed_limit inválido")
                         }
                     }
+                    "service_done" -> {
+                        val kind = cmd.payload?.optString("kind").orEmpty().trim().lowercase()
+                        val odo =
+                            when {
+                                cmd.payload?.has("odo_km") == true ->
+                                    cmd.payload.optDouble("odo_km").toFloat()
+                                else ->
+                                    com.veplayer.app.vehicle.VehicleState.state.value.odometerKm
+                            }
+                        if (kind.isBlank() || odo == null) {
+                            onStatus("service_done inválido")
+                        } else {
+                            val items =
+                                com.veplayer.app.vehicle.Maintenance.parseJson(prefs.maintenanceJson)
+                            prefs.maintenanceJson =
+                                com.veplayer.app.vehicle.Maintenance.toJson(
+                                    com.veplayer.app.vehicle.Maintenance.recordService(items, kind, odo),
+                                )
+                            prefs.maintenanceEnabled = true
+                            onStatus("Cmd service_done → $kind @ ${odo.toInt()} km")
+                            RemoteCommandBus.publish("Servicio $kind registrado")
+                            com.veplayer.app.nav.NavTts.speakNow(
+                                "Servicio de $kind registrado a ${odo.toInt()} kilómetros.",
+                            )
+                        }
+                    }
+                    "set_maintenance" -> {
+                        val kind = cmd.payload?.optString("kind").orEmpty().trim().lowercase()
+                        if (kind.isBlank()) {
+                            onStatus("set_maintenance sin kind")
+                        } else {
+                            val items =
+                                com.veplayer.app.vehicle.Maintenance.parseJson(prefs.maintenanceJson)
+                                    .toMutableList()
+                            val idx = items.indexOfFirst { it.kind == kind }
+                            val cur =
+                                if (idx >= 0) {
+                                    items[idx]
+                                } else {
+                                    com.veplayer.app.vehicle.Maintenance.Item(
+                                        kind = kind,
+                                        label = cmd.payload?.optString("label")?.ifBlank { kind } ?: kind,
+                                        intervalKm = 10000f,
+                                        lastServiceOdoKm = 0f,
+                                    )
+                                }
+                            val next =
+                                cur.copy(
+                                    label =
+                                        cmd.payload?.optString("label")?.takeIf { it.isNotBlank() }
+                                            ?: cur.label,
+                                    intervalKm =
+                                        if (cmd.payload?.has("interval_km") == true) {
+                                            cmd.payload.optDouble("interval_km").toFloat()
+                                        } else {
+                                            cur.intervalKm
+                                        },
+                                    lastServiceOdoKm =
+                                        when {
+                                            cmd.payload?.has("last_service_odo_km") == true ->
+                                                cmd.payload.optDouble("last_service_odo_km").toFloat()
+                                            cmd.payload?.has("last_odo_km") == true ->
+                                                cmd.payload.optDouble("last_odo_km").toFloat()
+                                            else -> cur.lastServiceOdoKm
+                                        },
+                                    warnKm =
+                                        if (cmd.payload?.has("warn_km") == true) {
+                                            cmd.payload.optDouble("warn_km").toFloat()
+                                        } else {
+                                            cur.warnKm
+                                        },
+                                    enabled =
+                                        if (cmd.payload?.has("enabled") == true) {
+                                            cmd.payload.optBoolean("enabled")
+                                        } else {
+                                            cur.enabled
+                                        },
+                                )
+                            if (idx >= 0) items[idx] = next else items.add(next)
+                            prefs.maintenanceJson =
+                                com.veplayer.app.vehicle.Maintenance.toJson(items)
+                            prefs.maintenanceEnabled = true
+                            onStatus("Cmd set_maintenance → $kind")
+                            RemoteCommandBus.publish("Mantenimiento $kind actualizado")
+                        }
+                    }
                     else -> onStatus("Cmd desconocido ${cmd.command}")
                 }
                 done += cmd.id

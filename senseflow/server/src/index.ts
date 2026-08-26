@@ -16,14 +16,21 @@ import {
   fleetShiftsRouter,
   mountShiftOpsRoutes,
 } from './fleetTrips.js'
+import {
+  ensureFleetMaintenanceTables,
+  fleetMaintenanceRouter,
+  mountMaintenanceOpsRoutes,
+} from './fleetMaintenance.js'
 import { navRouter } from './nav.js'
 import { db } from './db.js'
 
 ensureFleetOpsTables()
 ensureFleetDriversTables()
 ensureFleetShiftsTables()
+ensureFleetMaintenanceTables()
 mountDriverOpsRoutes(fleetOpsRouter)
 mountShiftOpsRoutes(fleetOpsRouter)
+mountMaintenanceOpsRoutes(fleetOpsRouter)
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const webDir = path.join(rootDir, 'web')
@@ -50,6 +57,7 @@ app.use('/api', apiRouter)
 app.use('/api/fleet', fleetRouter)
 app.use('/api/fleet/drivers', fleetDriversRouter)
 app.use('/api/fleet/shifts', fleetShiftsRouter)
+app.use('/api/fleet/maintenance', fleetMaintenanceRouter)
 app.use('/api/fleet/ops', fleetOpsRouter)
 app.use('/api/nav', navRouter)
 
