@@ -98,10 +98,14 @@
           <div class="car"></div>
         </div>
         <div class="media">
-          <div class="title">Euphoria - Single Version</div>
-          <div class="artist">Loreen</div>
-          <div class="bar"><i></i></div>
-          <div class="controls"><span>⏮</span><span>▶</span><span>⏭</span></div>
+          <div class="title" id="media-title">Sin reproducción</div>
+          <div class="artist" id="media-artist">VePlayer · MEDIA</div>
+          <div class="bar"><i id="media-bar"></i></div>
+          <div class="controls">
+            <span id="btn-prev" style="cursor:pointer">⏮</span>
+            <span id="btn-play" style="cursor:pointer">▶</span>
+            <span id="btn-next" style="cursor:pointer">⏭</span>
+          </div>
         </div>
       </section>
       <section class="mapwrap">
@@ -144,6 +148,25 @@
       if (el) el.classList.add('show')
     }
     btns.forEach(b => b.onclick = () => show(b.dataset.go))
+
+    // Demo media hub (mirrors VeMediaHub radio cycle)
+    const stations = [
+      { title: 'SomaFM Groove Salad', artist: 'Global · Ambient' },
+      { title: 'SomaFM Beat Blender', artist: 'Global · Electronic' },
+      { title: 'Radio Paradise', artist: 'Global · Eclectic' },
+    ]
+    let mediaIdx = 0, mediaPlaying = false
+    function renderMedia() {
+      const s = stations[mediaIdx]
+      document.getElementById('media-title').textContent = s.title
+      document.getElementById('media-artist').textContent = s.artist + (mediaPlaying ? ' · RADIO ▶' : ' · RADIO')
+      document.getElementById('btn-play').textContent = mediaPlaying ? '⏸' : '▶'
+      document.getElementById('media-bar').style.width = mediaPlaying ? '62%' : '12%'
+    }
+    document.getElementById('btn-play').onclick = () => { mediaPlaying = !mediaPlaying; renderMedia() }
+    document.getElementById('btn-next').onclick = () => { mediaIdx = (mediaIdx + 1) % stations.length; mediaPlaying = true; renderMedia() }
+    document.getElementById('btn-prev').onclick = () => { mediaIdx = (mediaIdx - 1 + stations.length) % stations.length; mediaPlaying = true; renderMedia() }
+    renderMedia()
 
     // Demo CAN-ish signal ticker
     let t = 0

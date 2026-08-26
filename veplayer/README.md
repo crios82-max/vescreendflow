@@ -53,7 +53,15 @@ AARs oficiales en `app/libs/` (no redistribuimos el cliente Spotify).
 Si el kernel expone UVC como Camera2 `LENS_FACING_EXTERNAL`, aparecen en el selector Dual A/B.  
 ConcurrentCamera requiere SoC compatible; si no, cae a cámara simple.
 
-## Señales vehículo (CAN / OBD / GPS)
+## Audio + media unificada (v0.8)
+
+`VeMediaHub` — una sola sesión Now Playing para:
+- **Radio** (ExoPlayer compartido + audio focus)
+- **Spotify** App Remote (play/pause/skip + player state)
+- **DriveViz** widget (título / artista / play / skip)
+- **Dock** play/pause · next · mute · temp HVAC
+
+Radio y Spotify se ceden el foco: al reproducir radio se pausa Spotify y viceversa.
 
 | Fuente (`Ajustes`) | Qué usa |
 |--------------------|---------|

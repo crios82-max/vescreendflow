@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
@@ -35,6 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.veplayer.app.media.MediaSource
+import com.veplayer.app.media.VeMediaHub
 import com.veplayer.app.surround.ActorKind
 import com.veplayer.app.surround.SurroundActor
 import com.veplayer.app.surround.SurroundEngine
@@ -54,6 +57,7 @@ fun DriveVizPanel(
     modifier: Modifier = Modifier,
 ) {
     val surround by SurroundEngine.snapshot.collectAsState()
+    val media by VeMediaHub.nowPlaying.collectAsState()
 
     Column(
         modifier = modifier
@@ -160,31 +164,61 @@ fun DriveVizPanel(
                 .background(Card)
                 .padding(14.dp),
         ) {
-            Text("Euphoria - Single Version", color = Mist, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-            Text("Loreen", color = Mute, fontSize = 13.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-            LinearProgressIndicator(
-                progress = { 0.42f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(3.dp)
-                    .clip(RoundedCornerShape(2.dp)),
-                color = Mist,
-                trackColor = Color(0xFF333333),
+            val srcLabel =
+                when (media.source) {
+                    MediaSource.RADIO -> "RADIO"
+                    MediaSource.SPOTIFY -> "SPOTIFY"
+                    MediaSource.NONE -> "MEDIA"
+                }
+            Text(media.title, color = Mist, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
+            Text(
+                buildString {
+                    append(media.artist)
+                    if (media.subtitle.isNotBlank()) append(" · ${media.subtitle}")
+                    append(" · $srcLabel")
+                },
+                color = Mute,
+                fontSize = 13.sp,
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            if (media.progress >= 0f) {
+                LinearProgressIndicator(
+                    progress = { media.progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(3.dp)
+                        .clip(RoundedCornerShape(2.dp)),
+                    color = Mist,
+                    trackColor = Color(0xFF333333),
+                )
+            } else {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(3.dp)
+                        .clip(RoundedCornerShape(2.dp)),
+                    color = Mist,
+                    trackColor = Color(0xFF333333),
+                )
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IconButton(onClick = { }) {
-                    Icon(Icons.Default.SkipPrevious, contentDescription = null, tint = Mist)
+                IconButton(onClick = { VeMediaHub.skipPrevious() }) {
+                    Icon(Icons.Default.SkipPrevious, contentDescription = "Prev", tint = Mist)
                 }
-                IconButton(onClick = { }) {
-                    Icon(Icons.Default.PlayArrow, contentDescription = null, tint = Mist, modifier = Modifier.size(36.dp))
+                IconButton(onClick = { VeMediaHub.togglePlayPause() }) {
+                    Icon(
+                        if (media.playing) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        contentDescription = "Play/Pause",
+                        tint = Mist,
+                        modifier = Modifier.size(36.dp),
+                    )
                 }
-                IconButton(onClick = { }) {
-                    Icon(Icons.Default.SkipNext, contentDescription = null, tint = Mist)
+                IconButton(onClick = { VeMediaHub.skipNext() }) {
+                    Icon(Icons.Default.SkipNext, contentDescription = "Next", tint = Mist)
                 }
             }
         }

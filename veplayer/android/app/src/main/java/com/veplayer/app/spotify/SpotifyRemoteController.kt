@@ -5,6 +5,7 @@ import android.util.Log
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
+import com.spotify.protocol.types.PlayerState
 import com.veplayer.app.BuildConfig
 
 class SpotifyRemoteController(
@@ -74,6 +75,25 @@ class SpotifyRemoteController(
         remote?.playerApi?.pause()
             ?.setResultCallback { onStatus("⏸ Pause") }
             ?: onStatus("Sin conexión App Remote")
+    }
+
+    fun skipNext(onStatus: (String) -> Unit) {
+        remote?.playerApi?.skipNext()
+            ?.setResultCallback { onStatus("⏭ Next") }
+            ?: onStatus("Sin conexión App Remote")
+    }
+
+    fun skipPrevious(onStatus: (String) -> Unit) {
+        remote?.playerApi?.skipPrevious()
+            ?.setResultCallback { onStatus("⏮ Prev") }
+            ?: onStatus("Sin conexión App Remote")
+    }
+
+    fun subscribePlayerState(onState: (PlayerState) -> Unit) {
+        val r = remote ?: return
+        r.playerApi.subscribeToPlayerState()
+            .setEventCallback { state -> onState(state) }
+            .setErrorCallback { Log.w(TAG, "player state err: ${it.message}") }
     }
 
     fun disconnect() {

@@ -18,19 +18,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.veplayer.app.media.MediaSource
+import com.veplayer.app.media.VeMediaHub
 import com.veplayer.app.store.StoreApp
 import com.veplayer.app.store.StoreCatalog
-import com.veplayer.app.spotify.SpotifyRemoteController
 import com.veplayer.app.ui.theme.Mist
 import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Panel
@@ -39,11 +40,9 @@ import com.veplayer.app.ui.theme.Teal
 @Composable
 fun StoreScreen() {
     val context = LocalContext.current
-    val spotify = remember { SpotifyRemoteController(context.applicationContext) }
-    var spotifyStatus by remember { mutableStateOf("Spotify App Remote: desconectado") }
-
-    DisposableEffect(Unit) {
-        onDispose { spotify.disconnect() }
+    val now by VeMediaHub.nowPlaying.collectAsState()
+    var spotifyStatus by remember {
+        mutableStateOf("Spotify App Remote: usa Enlazar (sesión compartida)")
     }
 
     fun openUrl(url: String) {
@@ -71,7 +70,7 @@ fun StoreScreen() {
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Tienda VePlayer", style = MaterialTheme.typography.headlineMedium, color = Mist, fontWeight = FontWeight.Bold)
         Text(
-            "Instala apps oficiales y enlaza Spotify con App Remote SDK (sin APKs pirateados).",
+            "Instala apps oficiales y enlaza Spotify (VeMediaHub compartido con dock / DriveViz).",
             color = Mute,
         )
 
@@ -85,20 +84,33 @@ fun StoreScreen() {
         ) {
             Text("Spotify App Remote", color = Teal, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
             Text(
-                "Enlaza la app Spotify instalada en este head-unit. Requiere Client ID del Spotify Developer Dashboard.",
+                "Enlaza la app Spotify instalada. Requiere Client ID del Spotify Developer Dashboard.",
                 color = Mute,
             )
             Text(spotifyStatus, color = Mist)
+            if (now.source == MediaSource.SPOTIFY) {
+                Text("Now: ${now.title} — ${now.artist}", color = Mute)
+            }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { spotify.connect(onStatus = { spotifyStatus = it }) }) {
+                Button(
+                    onClick = {
+                        VeMediaHub.connectSpotify { spotifyStatus = it }
+                    },
+                ) {
                     Text("Enlazar dispositivo")
                 }
-                OutlinedButton(onClick = { spotify.resume { spotifyStatus = it } }) { Text("Play") }
-                OutlinedButton(onClick = { spotify.pause { spotifyStatus = it } }) { Text("Pause") }
+                OutlinedButton(
+                    onClick = { VeMediaHub.resumeSpotify { spotifyStatus = it } },
+                ) { Text("Play") }
+                OutlinedButton(
+                    onClick = { VeMediaHub.pauseSpotify { spotifyStatus = it } },
+                ) { Text("Pause") }
             }
             OutlinedButton(
                 onClick = {
-                    spotify.playUri("spotify:playlist:37i9dQZF1DXcBWIGoYBM5M") { spotifyStatus = it }
+                    VeMediaHub.playSpotifyUri("spotify:playlist:37i9dQZF1DXcBWIGoYBM5M") {
+                        spotifyStatus = it
+                    }
                 },
             ) {
                 Text("Probar playlist Today’s Top Hits")

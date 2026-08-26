@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,30 +16,36 @@ import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.veplayer.app.media.VeMediaHub
 import com.veplayer.app.ui.VeDest
 import com.veplayer.app.ui.theme.Accent
 import com.veplayer.app.ui.theme.Mist
 import com.veplayer.app.ui.theme.Mute
-import com.veplayer.app.ui.theme.Night
-import com.veplayer.app.ui.theme.Panel
 import com.veplayer.app.ui.theme.Teal
+import com.veplayer.app.vehicle.VehicleState
 
 private data class DockItem(
     val dest: VeDest,
@@ -54,6 +59,11 @@ fun BottomDock(
     onSelect: (VeDest) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val media by VeMediaHub.nowPlaying.collectAsState()
+    val muted by VeMediaHub.muted.collectAsState()
+    val vehicle by VehicleState.state.collectAsState()
+    val cabin = vehicle.hvacCabinC?.let { "%.1f°".format(it) } ?: "—"
+
     val items =
         listOf(
             DockItem(VeDest.Home, Icons.Default.DirectionsCar, Mist),
@@ -71,21 +81,40 @@ fun BottomDock(
             .fillMaxWidth()
             .height(72.dp)
             .background(Color(0xFF0A0A0A))
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-            Icon(Icons.Default.DirectionsCar, contentDescription = null, tint = Mist, modifier = Modifier.size(26.dp))
-            Text("19.0°", color = Mist, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Icon(Icons.Default.DirectionsCar, contentDescription = null, tint = Mist, modifier = Modifier.size(22.dp))
+            Text(cabin, color = Mist, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+            Icon(
+                if (media.playing) Icons.Default.Pause else Icons.Default.PlayArrow,
+                contentDescription = "Play/Pause",
+                tint = Mist,
+                modifier = Modifier
+                    .size(26.dp)
+                    .clickable { VeMediaHub.togglePlayPause() },
+            )
+            Icon(
+                Icons.Default.SkipNext,
+                contentDescription = "Next",
+                tint = Mute,
+                modifier = Modifier
+                    .size(22.dp)
+                    .clickable { VeMediaHub.skipNext() },
+            )
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             items.forEach { item ->
                 val selected = item.dest == current
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(46.dp)
                         .clip(RoundedCornerShape(14.dp))
                         .background(if (selected) Color(0xFF222222) else Color.Transparent)
                         .clickable { onSelect(item.dest) },
@@ -95,20 +124,27 @@ fun BottomDock(
                         item.icon,
                         contentDescription = item.dest.label,
                         tint = if (selected) Mist else item.tint.copy(alpha = 0.85f),
-                        modifier = Modifier.size(26.dp),
+                        modifier = Modifier.size(24.dp),
                     )
                 }
             }
         }
 
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Icon(Icons.Default.Apps, contentDescription = null, tint = Mute, modifier = Modifier.size(22.dp))
-            Icon(Icons.Default.VolumeUp, contentDescription = null, tint = Mist, modifier = Modifier.size(24.dp))
+            Icon(Icons.Default.Apps, contentDescription = null, tint = Mute, modifier = Modifier.size(20.dp))
+            Icon(
+                if (muted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                contentDescription = "Mute",
+                tint = Mist,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable { VeMediaHub.toggleMute() },
+            )
             Box(
                 modifier = Modifier
                     .size(10.dp)
                     .clip(CircleShape)
-                    .background(Accent),
+                    .background(if (media.playing) Accent else Mute),
             )
         }
     }
