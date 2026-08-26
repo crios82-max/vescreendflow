@@ -53,7 +53,17 @@ AARs oficiales en `app/libs/` (no redistribuimos el cliente Spotify).
 Si el kernel expone UVC como Camera2 `LENS_FACING_EXTERNAL`, aparecen en el selector Dual A/B.  
 ConcurrentCamera requiere SoC compatible; si no, cae a cámara simple.
 
-## VePlayer OS MVP (v0.4)
+## Surround live (panel izquierdo)
+
+Pipeline:
+1. **Cámara** (MediaPipe EfficientDet) → personas / motos / autos / buses / trucks  
+2. **SenseFlow** `GET /api/surround?lat=&lng=` → pings cercanos en metros relativos  
+3. **SurroundEngine** fusiona visión (cerca) + SenseFlow (lejos)  
+4. **DriveVizPanel** dibuja actores en bird’s-eye
+
+```bash
+curl "http://127.0.0.1:4100/api/surround?lat=10.496&lng=-66.898&radius_m=120"
+```
 
 - **Ajustes + PIN** (default `1234`)
 - **Flota**: register / heartbeat / pair / devices / **commands**
