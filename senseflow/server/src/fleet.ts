@@ -6,7 +6,7 @@ import {
   openAlertsForDevice,
   recordTelemetrySample,
 } from './fleetPro.js'
-import { canIssueCommand, logOtaEvent, resolveOperator } from './fleetOps.js'
+import { assertCanMutate, logOtaEvent } from './fleetOps.js'
 
 export const fleetRouter = Router()
 
@@ -298,11 +298,8 @@ fleetRouter.post('/ota/rollout', (req, res) => {
     res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
     return
   }
-  const op = resolveOperator(req)
-  if (!canIssueCommand(op.role, 'ota')) {
-    res.status(403).json({ error: 'rol insuficiente para OTA rollout', role: op.role })
-    return
-  }
+  const op = assertCanMutate(req, res, 'ota')
+  if (!op) return
   const targetCode =
     parsed.data.version_code ??
     (
@@ -409,15 +406,8 @@ fleetRouter.post('/command', (req, res) => {
     res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
     return
   }
-  const op = resolveOperator(req)
-  if (!canIssueCommand(op.role, parsed.data.command)) {
-    res.status(403).json({
-      error: 'rol insuficiente para este comando',
-      role: op.role,
-      command: parsed.data.command,
-    })
-    return
-  }
+  const op = assertCanMutate(req, res, parsed.data.command)
+  if (!op) return
   const exists = db
     .prepare(`SELECT device_id FROM fleet_devices WHERE device_id = ?`)
     .get(parsed.data.device_id)
@@ -425,7 +415,7 @@ fleetRouter.post('/command', (req, res) => {
     res.status(404).json({ error: 'dispositivo no encontrado' })
     return
   }
-  const actor = op.token ? `${op.name}<${op.role}>` : `${op.name}<${op.role}>`
+  const actor = `${op.name}<${op.role}>`
   const info = db
     .prepare(
       `INSERT INTO fleet_commands (device_id, command, payload, status, issued_by)

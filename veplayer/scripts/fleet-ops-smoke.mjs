@@ -27,10 +27,12 @@ async function main() {
 
   const meV = await j('/api/fleet/ops/me', {}, 'fleet-viewer-demo')
   assert(meV.body.role === 'viewer', 'viewer role')
+  assert(meV.body.authenticated === true, 'viewer authed via token')
   assert(meV.body.can_dispatch === false, 'viewer no dispatch')
 
   const meA = await j('/api/fleet/ops/me', {}, 'fleet-admin-demo')
   assert(meA.body.role === 'admin' && meA.body.can_wipe, 'admin wipe')
+  assert(meA.body.authenticated === true, 'admin authed')
 
   const deviceId = `ops-smoke-${Date.now().toString(36)}`
   await j('/api/fleet/register', {

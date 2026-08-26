@@ -18,6 +18,7 @@
     "veplayer:fm-smoke": "node veplayer/scripts/fm-smoke.mjs",
     "veplayer:nav-map-smoke": "node veplayer/scripts/nav-map-smoke.mjs",
     "veplayer:fleet-ops-smoke": "node veplayer/scripts/fleet-ops-smoke.mjs",
+    "veplayer:fleet-auth-smoke": "node veplayer/scripts/fleet-auth-smoke.mjs",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "build": "tsc -b && vite build",

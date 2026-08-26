@@ -34,25 +34,39 @@
     .spark i { display:block; width:4px; background:var(--teal); border-radius:2px 2px 0 0; min-height:2px; }
     .stat { font-size:1.6rem; font-weight:800; color:var(--mist); }
     .stat span { font-size:.85rem; color:#8aa399; font-weight:500; }
-    select, input[type=text] {
+    select, input[type=text], input[type=password] {
       padding:6px 8px; border-radius:6px; border:0; background:#0b1411; color:var(--mist);
     }
     .hist-row { font-size:.82rem; padding:4px 0; border-bottom:1px solid #24332e; }
+    #login-gate {
+      position:fixed; inset:0; background:rgba(8,14,12,.92); display:flex; align-items:center; justify-content:center; z-index:50;
+    }
+    #login-gate .card { width:min(380px, 92vw); }
+    #app { display:none; }
+    #app.ready { display:block; }
   </style>
 </head>
 <body>
+  <div id="login-gate">
+    <div class="card">
+      <h2>Login flota</h2>
+      <p class="muted">Usuario + clave (o token API). Prod: <code>FLEET_OPEN_MODE=0</code></p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+        <input id="login-user" type="text" placeholder="usuario (admin)" autocomplete="username" />
+        <input id="login-pass" type="password" placeholder="clave" autocomplete="current-password" />
+        <input id="login-token" type="text" placeholder="o token API (opcional)" />
+        <button id="login-btn" class="btn" style="width:100%">Entrar</button>
+        <div id="login-err" class="muted" style="color:var(--rose)"></div>
+      </div>
+    </div>
+  </div>
+  <div id="app">
   <div class="bar">
     <h1 style="margin:0">Flota VePlayer Ops</h1>
     <a href="/">← Mapa</a>
     <button id="refresh">Actualizar</button>
     <button class="btn warn" id="ota-rollout">OTA rollout</button>
-    <label class="muted">Rol
-      <select id="role-token">
-        <option value="fleet-admin-demo">admin</option>
-        <option value="fleet-dispatch-demo">dispatcher</option>
-        <option value="fleet-viewer-demo">viewer</option>
-      </select>
-    </label>
+    <button class="btn ghost" id="logout-btn">Logout</button>
     <span id="me" class="muted"></span>
     <span id="meta"></span>
   </div>
@@ -105,15 +119,91 @@
     <tbody id="rows"></tbody>
   </table>
   <script>
+    const sessionKey = 'veplayer_fleet_session'
     const tokenKey = 'veplayer_fleet_token'
-    const sel = document.getElementById('role-token')
-    sel.value = localStorage.getItem(tokenKey) || 'fleet-admin-demo'
-    sel.onchange = () => { localStorage.setItem(tokenKey, sel.value); load() }
-    const token = () => localStorage.getItem(tokenKey) || sel.value
-    const hdrs = () => ({ 'content-type': 'application/json', 'x-fleet-token': token() })
     const toast = (t) => { document.getElementById('toast').textContent = t }
 
-    let me = { role: 'dispatcher', can_wipe: false, can_dispatch: true }
+    function session() { return localStorage.getItem(sessionKey) || '' }
+    function apiToken() { return localStorage.getItem(tokenKey) || '' }
+
+    function hdrs() {
+      const h = { 'content-type': 'application/json' }
+      if (session()) h['x-fleet-session'] = session()
+      else if (apiToken()) h['x-fleet-token'] = apiToken()
+      return h
+    }
+
+    let me = { role: 'viewer', can_wipe: false, can_dispatch: false, authenticated: false, open_mode: true }
+
+    function showApp() {
+      document.getElementById('login-gate').style.display = 'none'
+      document.getElementById('app').classList.add('ready')
+    }
+    function showLogin(msg) {
+      document.getElementById('login-gate').style.display = 'flex'
+      document.getElementById('app').classList.remove('ready')
+      if (msg) document.getElementById('login-err').textContent = msg
+    }
+
+    async function boot() {
+      const cfg = await fetch('/api/fleet/ops/auth/config').then(r => r.json()).catch(() => ({ open_mode: true }))
+      if (session() || apiToken()) {
+        const j = await fetch('/api/fleet/ops/me', { headers: hdrs() }).then(r => r.json())
+        if (j.authenticated || cfg.open_mode) {
+          me = j
+          showApp()
+          load()
+          return
+        }
+      }
+      if (cfg.open_mode) {
+        // auto-login optional: still show login but allow skip via empty enter? Force login UI always for ops dashboard.
+        document.getElementById('login-err').textContent = 'Demo: admin/admin123 · despacho/dispatch123 · viewer/viewer123'
+      }
+      showLogin()
+    }
+
+    document.getElementById('login-btn').onclick = async () => {
+      const user = document.getElementById('login-user').value.trim()
+      const pass = document.getElementById('login-pass').value
+      const tok = document.getElementById('login-token').value.trim()
+      document.getElementById('login-err').textContent = ''
+      if (tok) {
+        localStorage.setItem(tokenKey, tok)
+        localStorage.removeItem(sessionKey)
+        const j = await fetch('/api/fleet/ops/me', { headers: hdrs() }).then(r => r.json())
+        if (!j.authenticated) {
+          document.getElementById('login-err').textContent = 'Token inválido'
+          return
+        }
+        me = j
+        showApp()
+        load()
+        return
+      }
+      const r = await fetch('/api/fleet/ops/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: user, password: pass }),
+      })
+      const j = await r.json()
+      if (!r.ok) {
+        document.getElementById('login-err').textContent = j.error || 'login fail'
+        return
+      }
+      localStorage.setItem(sessionKey, j.session)
+      localStorage.removeItem(tokenKey)
+      me = { ...j, authenticated: true, can_dispatch: j.role !== 'viewer', can_wipe: j.role === 'admin' }
+      showApp()
+      load()
+    }
+
+    document.getElementById('logout-btn').onclick = async () => {
+      await fetch('/api/fleet/ops/logout', { method: 'POST', headers: hdrs() })
+      localStorage.removeItem(sessionKey)
+      localStorage.removeItem(tokenKey)
+      showLogin('Sesión cerrada')
+    }
 
     async function sendCmd(deviceId, command, payload) {
       if (command === 'wipe' && !me.can_wipe) { toast('Wipe solo admin'); return }
@@ -135,7 +225,8 @@
     async function loadMe() {
       const j = await fetch('/api/fleet/ops/me', { headers: hdrs() }).then(r => r.json())
       me = j
-      document.getElementById('me').textContent = `${j.name} · ${j.role}`
+      document.getElementById('me').textContent =
+        `${j.name} · ${j.role}` + (j.authenticated ? '' : ' · open')
     }
     async function loadReports() {
       const j = await fetch('/api/fleet/ops/reports/summary', { headers: hdrs() }).then(r => r.json())
@@ -294,8 +385,11 @@
       toast(r.ok ? `Geofence #${j.id}` : (j.error || 'fail'))
       loadGeofences()
     }
-    load()
-    setInterval(load, 15000)
+    boot()
+    setInterval(() => {
+      if (document.getElementById('app').classList.contains('ready')) load()
+    }, 15000)
   </script>
+  </div>
 </body>
 </html>

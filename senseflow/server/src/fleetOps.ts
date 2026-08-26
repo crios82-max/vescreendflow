@@ -1,15 +1,16 @@
+import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'crypto'
 import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod'
 import { db } from './db.js'
 
 export type FleetRole = 'viewer' | 'dispatcher' | 'admin'
 
-export type OperatorRow = {
-  id: number
+export type FleetOp = {
+  id?: number
   name: string
   role: FleetRole
   token: string
-  created_at: number
+  authenticated: boolean
 }
 
 const ROLE_RANK: Record<FleetRole, number> = {
@@ -18,10 +19,8 @@ const ROLE_RANK: Record<FleetRole, number> = {
   admin: 3,
 }
 
-/** Commands restricted to admin only. */
 const ADMIN_ONLY = new Set(['wipe'])
 
-/** Commands that mutate devices — dispatcher+. */
 const DISPATCH_CMDS = new Set([
   'restart',
   'lock',
@@ -38,13 +37,47 @@ const DISPATCH_CMDS = new Set([
   'fm_tune',
 ])
 
+const SESSION_TTL_S = 12 * 3600
+
+/** Local/dev default: anon dispatcher. Prod: FLEET_OPEN_MODE=0 */
+export function isOpenMode(): boolean {
+  return process.env.FLEET_OPEN_MODE !== '0'
+}
+
+export function hashToken(raw: string): string {
+  return createHash('sha256').update(raw).digest('hex')
+}
+
+export function hashPassword(password: string, saltHex?: string): string {
+  const salt = saltHex ?? randomBytes(16).toString('hex')
+  const hash = scryptSync(password, salt, 32).toString('hex')
+  return `${salt}:${hash}`
+}
+
+export function verifyPassword(password: string, stored: string): boolean {
+  const [salt, hash] = stored.split(':')
+  if (!salt || !hash) return false
+  const got = scryptSync(password, salt, 32)
+  const want = Buffer.from(hash, 'hex')
+  if (got.length !== want.length) return false
+  return timingSafeEqual(got, want)
+}
+
+function newApiToken(role: string): string {
+  return `fleet-${role}-${randomBytes(12).toString('hex')}`
+}
+
+function newSessionId(): string {
+  return randomBytes(24).toString('hex')
+}
+
 export function ensureFleetOpsTables() {
   db.exec(`
     CREATE TABLE IF NOT EXISTS fleet_operators (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       role TEXT NOT NULL CHECK (role IN ('viewer','dispatcher','admin')),
-      token TEXT NOT NULL UNIQUE,
+      token TEXT UNIQUE,
       created_at INTEGER NOT NULL DEFAULT (unixepoch())
     );
 
@@ -59,51 +92,214 @@ export function ensureFleetOpsTables() {
       created_at INTEGER NOT NULL DEFAULT (unixepoch())
     );
 
+    CREATE TABLE IF NOT EXISTS fleet_sessions (
+      session_id TEXT PRIMARY KEY,
+      operator_id INTEGER NOT NULL,
+      expires_at INTEGER NOT NULL,
+      created_at INTEGER NOT NULL DEFAULT (unixepoch()),
+      FOREIGN KEY (operator_id) REFERENCES fleet_operators(id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_fleet_ota_events_ts ON fleet_ota_events(created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_fleet_cmd_created ON fleet_commands(created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_fleet_sessions_exp ON fleet_sessions(expires_at);
   `)
 
-  // issued_by / actor on commands
   try {
     db.exec(`ALTER TABLE fleet_commands ADD COLUMN issued_by TEXT`)
   } catch {
     /* exists */
   }
+  try {
+    db.exec(`ALTER TABLE fleet_operators ADD COLUMN username TEXT`)
+  } catch {
+    /* exists */
+  }
+  try {
+    db.exec(`ALTER TABLE fleet_operators ADD COLUMN password_hash TEXT`)
+  } catch {
+    /* exists */
+  }
+  try {
+    db.exec(`ALTER TABLE fleet_operators ADD COLUMN token_hash TEXT`)
+  } catch {
+    /* exists */
+  }
 
-  const n = db.prepare(`SELECT COUNT(*) AS n FROM fleet_operators`).get() as { n: number }
-  if (n.n === 0) {
-    const ins = db.prepare(
-      `INSERT INTO fleet_operators (name, role, token) VALUES (?, ?, ?)`,
+  // Make token nullable (legacy NOT NULL blocks hashing-at-rest)
+  const opSql = (
+    db.prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='fleet_operators'`).get() as
+      | { sql: string }
+      | undefined
+  )?.sql
+  if (opSql && /token TEXT NOT NULL UNIQUE/i.test(opSql)) {
+    db.exec(`
+      BEGIN;
+      CREATE TABLE fleet_operators_v3 (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL CHECK (role IN ('viewer','dispatcher','admin')),
+        username TEXT,
+        password_hash TEXT,
+        token_hash TEXT,
+        token TEXT UNIQUE,
+        created_at INTEGER NOT NULL DEFAULT (unixepoch())
+      );
+      INSERT INTO fleet_operators_v3 (id, name, role, username, password_hash, token_hash, token, created_at)
+        SELECT id, name, role,
+          COALESCE(username, NULL),
+          password_hash,
+          token_hash,
+          token,
+          created_at
+        FROM fleet_operators;
+      DROP TABLE fleet_operators;
+      ALTER TABLE fleet_operators_v3 RENAME TO fleet_operators;
+      COMMIT;
+    `)
+  }
+
+  // Migrate plaintext tokens → hashed; seed passwords if missing
+  const rows = db
+    .prepare(
+      `SELECT id, name, role, token, username, password_hash, token_hash FROM fleet_operators`,
     )
-    ins.run('Admin flota', 'admin', 'fleet-admin-demo')
-    ins.run('Despacho', 'dispatcher', 'fleet-dispatch-demo')
-    ins.run('Solo lectura', 'viewer', 'fleet-viewer-demo')
+    .all() as Array<{
+    id: number
+    name: string
+    role: FleetRole
+    token: string | null
+    username: string | null
+    password_hash: string | null
+    token_hash: string | null
+  }>
+
+  const upd = db.prepare(
+    `UPDATE fleet_operators SET username = ?, password_hash = ?, token_hash = ?, token = NULL WHERE id = ?`,
+  )
+
+  if (rows.length === 0) {
+    const ins = db.prepare(
+      `INSERT INTO fleet_operators (name, role, username, password_hash, token_hash, token)
+       VALUES (?, ?, ?, ?, ?, NULL)`,
+    )
+    const seeds: Array<[string, FleetRole, string, string, string]> = [
+      ['Admin flota', 'admin', 'admin', 'admin123', 'fleet-admin-demo'],
+      ['Despacho', 'dispatcher', 'despacho', 'dispatch123', 'fleet-dispatch-demo'],
+      ['Solo lectura', 'viewer', 'viewer', 'viewer123', 'fleet-viewer-demo'],
+    ]
+    for (const [name, role, user, pw, apiTok] of seeds) {
+      ins.run(name, role, user, hashPassword(pw), hashToken(apiTok))
+    }
+  } else {
+    for (const r of rows) {
+      let username = r.username
+      let passwordHash = r.password_hash
+      let tokenHash = r.token_hash
+      if (!username) {
+        username =
+          r.role === 'admin' ? 'admin' : r.role === 'dispatcher' ? 'despacho' : 'viewer'
+      }
+      if (!passwordHash) {
+        const pw =
+          r.role === 'admin' ? 'admin123' : r.role === 'dispatcher' ? 'dispatch123' : 'viewer123'
+        passwordHash = hashPassword(pw)
+      }
+      if (!tokenHash && r.token) {
+        tokenHash = hashToken(r.token)
+      }
+      if (!tokenHash) {
+        // preserve known demo API tokens by role
+        const demo =
+          r.role === 'admin'
+            ? 'fleet-admin-demo'
+            : r.role === 'dispatcher'
+              ? 'fleet-dispatch-demo'
+              : 'fleet-viewer-demo'
+        tokenHash = hashToken(demo)
+      }
+      if (
+        r.username !== username ||
+        r.password_hash !== passwordHash ||
+        r.token_hash !== tokenHash ||
+        r.token != null
+      ) {
+        upd.run(username, passwordHash, tokenHash, r.id)
+      }
+    }
   }
 }
 
-export function resolveOperator(req: Request): {
-  name: string
-  role: FleetRole
-  token: string
-} {
-  const header =
+function extractBearer(req: Request): string {
+  const auth = req.headers.authorization
+  if (typeof auth === 'string' && auth.toLowerCase().startsWith('bearer ')) {
+    return auth.slice(7).trim()
+  }
+  return ''
+}
+
+export function resolveOperator(req: Request): FleetOp {
+  const sessionId =
+    (typeof req.headers['x-fleet-session'] === 'string' && req.headers['x-fleet-session']) ||
+    extractBearer(req) ||
+    (typeof req.query.session === 'string' && req.query.session) ||
+    ''
+
+  if (sessionId) {
+    const now = Math.floor(Date.now() / 1000)
+    const row = db
+      .prepare(
+        `SELECT o.id, o.name, o.role, s.session_id
+         FROM fleet_sessions s
+         JOIN fleet_operators o ON o.id = s.operator_id
+         WHERE s.session_id = ? AND s.expires_at > ?`,
+      )
+      .get(sessionId, now) as { id: number; name: string; role: FleetRole; session_id: string } | undefined
+    if (row) {
+      return {
+        id: row.id,
+        name: row.name,
+        role: row.role,
+        token: sessionId,
+        authenticated: true,
+      }
+    }
+  }
+
+  const apiTok =
     (typeof req.headers['x-fleet-token'] === 'string' && req.headers['x-fleet-token']) ||
     (typeof req.query.token === 'string' && req.query.token) ||
     ''
-  if (header) {
+  if (apiTok) {
+    const th = hashToken(apiTok)
     const row = db
-      .prepare(`SELECT name, role, token FROM fleet_operators WHERE token = ?`)
-      .get(header) as { name: string; role: FleetRole; token: string } | undefined
-    if (row) return row
+      .prepare(`SELECT id, name, role FROM fleet_operators WHERE token_hash = ?`)
+      .get(th) as { id: number; name: string; role: FleetRole } | undefined
+    if (row) {
+      return {
+        id: row.id,
+        name: row.name,
+        role: row.role,
+        token: apiTok,
+        authenticated: true,
+      }
+    }
   }
-  // Default open mode for local demos: dispatcher (can cmd, no wipe)
-  return { name: 'anon', role: 'dispatcher', token: '' }
+
+  if (isOpenMode()) {
+    return { name: 'anon', role: 'dispatcher', token: '', authenticated: false }
+  }
+  return { name: 'unauth', role: 'viewer', token: '', authenticated: false }
 }
 
 export function requireRole(min: FleetRole) {
   return (req: Request, res: Response, next: NextFunction) => {
     const op = resolveOperator(req)
-    ;(req as Request & { fleetOp?: typeof op }).fleetOp = op
+    ;(req as Request & { fleetOp?: FleetOp }).fleetOp = op
+    if (!op.authenticated && !isOpenMode()) {
+      res.status(401).json({ error: 'auth requerida', hint: 'POST /api/fleet/ops/login' })
+      return
+    }
     if (ROLE_RANK[op.role] < ROLE_RANK[min]) {
       res.status(403).json({ error: 'rol insuficiente', role: op.role, need: min })
       return
@@ -114,12 +310,24 @@ export function requireRole(min: FleetRole) {
 
 export function canIssueCommand(role: FleetRole, command: string): boolean {
   if (!DISPATCH_CMDS.has(command) && command !== 'wipe') {
-    // unknown — admin only
     return role === 'admin'
   }
   if (ADMIN_ONLY.has(command)) return role === 'admin'
   if (ROLE_RANK[role] < ROLE_RANK.dispatcher) return false
   return true
+}
+
+export function assertCanMutate(req: Request, res: Response, command?: string): FleetOp | null {
+  const op = resolveOperator(req)
+  if (!op.authenticated && !isOpenMode()) {
+    res.status(401).json({ error: 'auth requerida', hint: 'login or x-fleet-token' })
+    return null
+  }
+  if (command && !canIssueCommand(op.role, command)) {
+    res.status(403).json({ error: 'rol insuficiente para este comando', role: op.role, command })
+    return null
+  }
+  return op
 }
 
 export function logOtaEvent(input: {
@@ -145,9 +353,66 @@ export function logOtaEvent(input: {
 
 export const fleetOpsRouter = Router()
 
+const loginSchema = z.object({
+  username: z.string().min(1).max(64),
+  password: z.string().min(1).max(128),
+})
+
+fleetOpsRouter.post('/login', (req, res) => {
+  const parsed = loginSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'usuario/clave requeridos' })
+    return
+  }
+  const row = db
+    .prepare(
+      `SELECT id, name, role, password_hash FROM fleet_operators WHERE username = ? COLLATE NOCASE`,
+    )
+    .get(parsed.data.username) as
+    | { id: number; name: string; role: FleetRole; password_hash: string | null }
+    | undefined
+  if (!row?.password_hash || !verifyPassword(parsed.data.password, row.password_hash)) {
+    res.status(401).json({ error: 'credenciales inválidas' })
+    return
+  }
+  const sessionId = newSessionId()
+  const expires = Math.floor(Date.now() / 1000) + SESSION_TTL_S
+  db.prepare(
+    `INSERT INTO fleet_sessions (session_id, operator_id, expires_at) VALUES (?, ?, ?)`,
+  ).run(sessionId, row.id, expires)
+  res.json({
+    ok: true,
+    session: sessionId,
+    expires_at: expires,
+    name: row.name,
+    role: row.role,
+    username: parsed.data.username,
+  })
+})
+
+fleetOpsRouter.post('/logout', (req, res) => {
+  const op = resolveOperator(req)
+  if (op.authenticated && op.token) {
+    db.prepare(`DELETE FROM fleet_sessions WHERE session_id = ?`).run(op.token)
+  }
+  res.json({ ok: true })
+})
+
+fleetOpsRouter.get('/auth/config', (_req, res) => {
+  res.json({
+    open_mode: isOpenMode(),
+    login_required: !isOpenMode(),
+    session_ttl_s: SESSION_TTL_S,
+  })
+})
+
 fleetOpsRouter.get('/operators', requireRole('admin'), (_req, res) => {
   const rows = db
-    .prepare(`SELECT id, name, role, token, created_at FROM fleet_operators ORDER BY id`)
+    .prepare(
+      `SELECT id, name, username, role, created_at,
+              CASE WHEN token_hash IS NOT NULL THEN 1 ELSE 0 END AS has_api_token
+       FROM fleet_operators ORDER BY id`,
+    )
     .all()
   res.json({ operators: rows })
 })
@@ -157,15 +422,19 @@ fleetOpsRouter.get('/me', (req, res) => {
   res.json({
     name: op.name,
     role: op.role,
-    can_dispatch: ROLE_RANK[op.role] >= ROLE_RANK.dispatcher,
-    can_wipe: op.role === 'admin',
-    can_manage_ops: op.role === 'admin',
+    authenticated: op.authenticated,
+    open_mode: isOpenMode(),
+    can_dispatch: ROLE_RANK[op.role] >= ROLE_RANK.dispatcher && (op.authenticated || isOpenMode()),
+    can_wipe: op.role === 'admin' && (op.authenticated || isOpenMode()),
+    can_manage_ops: op.role === 'admin' && op.authenticated,
   })
 })
 
 const opSchema = z.object({
   name: z.string().min(1).max(80),
+  username: z.string().min(2).max(64),
   role: z.enum(['viewer', 'dispatcher', 'admin']),
+  password: z.string().min(6).max(128),
   token: z.string().min(8).max(64).optional(),
 })
 
@@ -175,13 +444,47 @@ fleetOpsRouter.post('/operators', requireRole('admin'), (req, res) => {
     res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
     return
   }
-  const token =
-    parsed.data.token ||
-    `fleet-${parsed.data.role}-${Math.random().toString(36).slice(2, 10)}`
+  const apiToken = parsed.data.token || newApiToken(parsed.data.role)
   const info = db
-    .prepare(`INSERT INTO fleet_operators (name, role, token) VALUES (?, ?, ?)`)
-    .run(parsed.data.name, parsed.data.role, token)
-  res.status(201).json({ ok: true, id: Number(info.lastInsertRowid), token })
+    .prepare(
+      `INSERT INTO fleet_operators (name, role, username, password_hash, token_hash, token)
+       VALUES (?, ?, ?, ?, ?, NULL)`,
+    )
+    .run(
+      parsed.data.name,
+      parsed.data.role,
+      parsed.data.username,
+      hashPassword(parsed.data.password),
+      hashToken(apiToken),
+    )
+  res.status(201).json({
+    ok: true,
+    id: Number(info.lastInsertRowid),
+    token: apiToken,
+    username: parsed.data.username,
+  })
+})
+
+const pwSchema = z.object({
+  password: z.string().min(6).max(128),
+})
+
+fleetOpsRouter.post('/password', (req, res) => {
+  const op = resolveOperator(req)
+  if (!op.authenticated || !op.id) {
+    res.status(401).json({ error: 'auth requerida' })
+    return
+  }
+  const parsed = pwSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'password inválido' })
+    return
+  }
+  db.prepare(`UPDATE fleet_operators SET password_hash = ? WHERE id = ?`).run(
+    hashPassword(parsed.data.password),
+    op.id,
+  )
+  res.json({ ok: true })
 })
 
 fleetOpsRouter.get('/commands/history', (req, res) => {

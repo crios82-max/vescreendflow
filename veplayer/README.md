@@ -150,6 +150,32 @@ npm run veplayer:fleet-ops-smoke
 
 Dashboard: selector de rol · cards reporte 24h · historial cmds/OTA · wipe oculto si no admin.
 
+## Auth flota real (v0.18)
+
+Passwords **scrypt**, API tokens **SHA-256** at rest, sesiones 12h.
+
+| Usuario | Clave | Rol |
+|---------|-------|-----|
+| `admin` | `admin123` | admin |
+| `despacho` | `dispatch123` | dispatcher |
+| `viewer` | `viewer123` | viewer |
+
+Tokens API demo (hasheados en DB): `fleet-admin-demo` · `fleet-dispatch-demo` · `fleet-viewer-demo`
+
+```bash
+curl -X POST http://127.0.0.1:4100/api/fleet/ops/login \
+  -H 'content-type: application/json' \
+  -d '{"username":"admin","password":"admin123"}'
+# → { session }  → header x-fleet-session
+
+# Prod estricto (sin anon):
+FLEET_OPEN_MODE=0 npm run start --prefix senseflow/server
+
+npm run veplayer:fleet-auth-smoke
+```
+
+`/fleet.html` pide login (usuario/clave o token).
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
