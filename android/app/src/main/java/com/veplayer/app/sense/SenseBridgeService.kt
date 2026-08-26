@@ -23,6 +23,7 @@ import com.veplayer.app.fleet.FleetClient
 import com.veplayer.app.fleet.RemoteCommandExecutor
 import com.veplayer.app.surround.SenseflowSurroundClient
 import com.veplayer.app.surround.SurroundEngine
+import com.veplayer.app.vehicle.CanBusManager
 import com.veplayer.app.vehicle.VehicleState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,33 +57,45 @@ class SenseBridgeService : Service() {
             override fun onLocationResult(result: LocationResult) {
                 val loc = result.lastLocation ?: return
                 val speed = if (loc.hasSpeed()) loc.speed else null
-                if (!prefs.mockReverse && prefs.mockSpeedKmh <= 0f) {
-                    VehicleState.updateSpeed(speed, "gps")
-                }
+                val heading = if (loc.hasBearing()) loc.bearing else null
+                CanBusManager.ingestGps(
+                    speedMps = speed,
+                    headingDeg = heading,
+                    reverseOverride = prefs.mockReverse && prefs.signalSource == "gps",
+                )
+                val snap = VehicleState.state.value
                 val activity =
                     when {
-                        speed == null -> "UNKNOWN"
-                        speed >= 4f -> "IN_VEHICLE"
-                        speed >= 0.5f -> "ON_FOOT"
+                        snap.speedMps >= 4f || (speed != null && speed >= 4f) -> "IN_VEHICLE"
+                        snap.speedMps >= 0.5f || (speed != null && speed >= 0.5f) -> "ON_FOOT"
+                        speed == null && snap.source == "idle" -> "UNKNOWN"
                         else -> "STILL"
                     }
-                val reverse = VehicleState.state.value.reverse
                 scope.launch {
-                    postPing(loc.latitude, loc.longitude, loc.accuracy, speed, activity)
+                    postPing(
+                        loc.latitude,
+                        loc.longitude,
+                        loc.accuracy,
+                        snap.speedMps.takeIf { it > 0f } ?: speed,
+                        activity,
+                    )
                     runCatching {
                         if (prefs.pairCodeCached() == null) fleet.register()
                         val hb =
                             fleet.heartbeat(
                                 lat = loc.latitude,
                                 lng = loc.longitude,
-                                speedMps = speed ?: VehicleState.state.value.speedMps,
-                                reverse = reverse,
+                                speedMps = snap.speedMps,
+                                reverse = snap.reverse,
+                                vehicleSignals = snap.toJsonMap(),
                             ).getOrThrow()
                         remote.handle(hb.commands)
                     }
                     runCatching {
                         val actors =
-                            surroundClient.fetch(loc.latitude, loc.longitude).getOrThrow()
+                            surroundClient
+                                .fetch(loc.latitude, loc.longitude, headingDeg = snap.headingDeg)
+                                .getOrThrow()
                         SurroundEngine.publishSenseflow(actors)
                     }
                 }
@@ -95,11 +108,18 @@ class SenseBridgeService : Service() {
         fleet = FleetClient(prefs)
         remote = RemoteCommandExecutor(this, fleet)
         surroundClient = SenseflowSurroundClient(prefs)
+        CanBusManager.start(this)
         startFg()
         scope.launch {
             runCatching {
                 fleet.register()
-                val hb = fleet.heartbeat().getOrThrow()
+                val snap = VehicleState.state.value
+                val hb =
+                    fleet.heartbeat(
+                        speedMps = snap.speedMps,
+                        reverse = snap.reverse,
+                        vehicleSignals = snap.toJsonMap(),
+                    ).getOrThrow()
                 remote.handle(hb.commands)
             }
         }

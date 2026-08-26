@@ -1,0 +1,106 @@
+package com.veplayer.app.vehicle
+
+import com.veplayer.app.data.VePrefs
+import kotlin.math.sin
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlin.random.Random
+
+/**
+ * Synthetic CAN stream for bench / UI demos.
+ * Honours prefs mock speed & reverse when set; otherwise animates a drive cycle.
+ */
+class MockCanAdapter(
+    private val prefs: VePrefs,
+    private val scope: CoroutineScope,
+    private val sourceTag: String = "mock",
+) : VehicleSignalAdapter {
+    private val _signals = MutableStateFlow(VehicleSignals(source = sourceTag))
+    override val signals: StateFlow<VehicleSignals> = _signals.asStateFlow()
+    override val name: String = sourceTag
+
+    private var job: Job? = null
+    private var t = 0.0
+
+    override fun start() {
+        if (job?.isActive == true) return
+        job =
+            scope.launch {
+                while (isActive) {
+                    t += 0.25
+                    _signals.value = tick()
+                    delay(250)
+                }
+            }
+    }
+
+    override fun stop() {
+        job?.cancel()
+        job = null
+    }
+
+    private fun tick(): VehicleSignals {
+        val forcedKmh = prefs.mockSpeedKmh
+        val forceReverse = prefs.mockReverse
+        val kmh =
+            if (forcedKmh > 0f || forceReverse) {
+                forcedKmh.coerceAtLeast(0f)
+            } else {
+                // gentle sine cruise 18–52 km/h
+                (35.0 + 17.0 * sin(t / 8.0)).toFloat().coerceIn(0f, 90f)
+            }
+        val gear =
+            when {
+                forceReverse -> Gear.R
+                kmh < 0.5f -> Gear.P
+                else -> Gear.D
+            }
+        val phase = ((t / 12.0) % 4).toInt()
+        val turn =
+            when {
+                forceReverse -> TurnSignal.OFF
+                phase == 1 -> TurnSignal.LEFT
+                phase == 3 -> TurnSignal.RIGHT
+                else -> TurnSignal.OFF
+            }
+        val steer =
+            when (turn) {
+                TurnSignal.LEFT -> -18f + Random.nextFloat() * 4f
+                TurnSignal.RIGHT -> 18f + Random.nextFloat() * 4f
+                else -> (sin(t / 5.0) * 6.0).toFloat()
+            }
+        val soc = (72f + 4f * sin(t / 40.0).toFloat()).coerceIn(5f, 100f)
+        return VehicleSignals(
+            speedMps = kmh / 3.6f,
+            gear = gear,
+            turn = turn,
+            doorFl = false,
+            doorFr = false,
+            doorRl = false,
+            doorRr = false,
+            trunkOpen = false,
+            hoodOpen = false,
+            parkingBrake = gear == Gear.P,
+            seatbeltDriver = true,
+            batterySocPct = soc,
+            fuelPct = null,
+            rangeKm = soc * 3.2f,
+            rpm = if (gear == Gear.D) 1400f + kmh * 28f else 0f,
+            steeringAngleDeg = steer,
+            coolantC = 86f + Random.nextFloat(),
+            outdoorTempC = 28f,
+            ignition = IgnitionState.ON,
+            headingDeg = ((t * 3.0) % 360.0).toFloat(),
+            yawRateDegS = steer * 0.15f,
+            odometerKm = 12450f + (t / 3600.0).toFloat(),
+            source = sourceTag,
+            updatedAtMs = System.currentTimeMillis(),
+        )
+    }
+}

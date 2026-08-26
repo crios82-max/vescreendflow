@@ -5,37 +5,58 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-data class VehicleSnapshot(
-    val speedMps: Float = 0f,
-    val reverse: Boolean = false,
-    val source: String = "idle",
-) {
-    val speedKmh: Float get() = speedMps * 3.6f
-}
+/** @deprecated Prefer [VehicleSignals]; kept as typealias for call sites. */
+typealias VehicleSnapshot = VehicleSignals
 
 /**
- * Shared vehicle motion state — GPS / mock / future CAN.
+ * Shared vehicle motion + CAN telemetry.
+ * Prefer [CanBusManager] as the writer; UI reads [state].
  */
 object VehicleState {
-    private val _state = MutableStateFlow(VehicleSnapshot())
-    val state: StateFlow<VehicleSnapshot> = _state.asStateFlow()
+    private val _state = MutableStateFlow(VehicleSignals())
+    val state: StateFlow<VehicleSignals> = _state.asStateFlow()
+
+    fun applySignals(signals: VehicleSignals) {
+        _state.value = signals
+    }
 
     fun updateSpeed(speedMps: Float?, source: String = "gps") {
         if (speedMps == null) return
-        _state.update { it.copy(speedMps = speedMps.coerceAtLeast(0f), source = source) }
+        _state.update {
+            it.copy(
+                speedMps = speedMps.coerceAtLeast(0f),
+                gear = if (it.gear == Gear.R) Gear.R else if (speedMps < 0.3f) Gear.P else Gear.D,
+                source = source,
+                updatedAtMs = System.currentTimeMillis(),
+            )
+        }
     }
 
     fun setReverse(reverse: Boolean, source: String = "mock") {
-        _state.update { it.copy(reverse = reverse, source = source) }
+        _state.update {
+            it.copy(
+                gear = if (reverse) Gear.R else if (it.speedMps < 0.3f) Gear.P else Gear.D,
+                source = source,
+                updatedAtMs = System.currentTimeMillis(),
+            )
+        }
     }
 
     fun applyMock(speedKmh: Float, reverse: Boolean) {
         _state.update {
             it.copy(
                 speedMps = (speedKmh / 3.6f).coerceAtLeast(0f),
-                reverse = reverse,
+                gear = if (reverse) Gear.R else if (speedKmh < 0.5f) Gear.P else Gear.D,
+                parkingBrake = reverse.not() && speedKmh < 0.5f,
                 source = "mock",
+                updatedAtMs = System.currentTimeMillis(),
             )
+        }
+    }
+
+    fun patchHeading(headingDeg: Float) {
+        _state.update {
+            it.copy(headingDeg = headingDeg, updatedAtMs = System.currentTimeMillis())
         }
     }
 

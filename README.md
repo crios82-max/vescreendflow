@@ -53,6 +53,25 @@ AARs oficiales en `app/libs/` (no redistribuimos el cliente Spotify).
 Si el kernel expone UVC como Camera2 `LENS_FACING_EXTERNAL`, aparecen en el selector Dual A/B.  
 ConcurrentCamera requiere SoC compatible; si no, cae a cámara simple.
 
+## Señales vehículo (CAN / OBD / GPS)
+
+| Fuente (`Ajustes`) | Qué usa |
+|--------------------|---------|
+| **gps** | Fused Location → velocidad (+ heading) |
+| **mock** | Ciclo CAN sintético (velocidad, gear, turn, SOC, RPM…) |
+| **can** | Stub SocketCAN/USB-CAN / CarPropertyManager → hoy `can_stub` demo |
+| **obd** | ELM327 (PIDs 010D/010C/…) — simulado hasta RFCOMM real |
+
+Señales en `VehicleSignals`: speed, gear P/R/N/D, turn, puertas, parking brake, SOC/fuel, RPM, steering, coolant, outdoor temp, ignition, heading, yaw, odometer, range.
+
+Heartbeat flota manda `vehicle_signals` → dashboard `/fleet.html`.
+
+```bash
+curl -s -X POST http://127.0.0.1:4100/api/fleet/heartbeat \
+  -H 'content-type: application/json' \
+  -d '{"device_id":"…","vehicle_signals":{"speed_mps":12.5,"gear":"D","turn":"left","battery_soc_pct":71,"source":"mock"}}'
+```
+
 ## Surround live (panel izquierdo)
 
 Pipeline:

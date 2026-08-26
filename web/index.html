@@ -90,7 +90,8 @@
   <div class="cockpit">
     <div class="stage" id="stage">
       <section class="drive">
-        <div class="speed"><div class="n" id="spd">17</div><div class="u">km/h</div></div>
+        <div class="speed"><div class="n" id="spd">17</div><div class="u" id="spd-u">km/h</div></div>
+        <div class="sig muted" id="sig" style="font-size:12px;margin:2px 0 6px">src mock · gear D · SOC —</div>
         <div class="limit">Límite 50</div>
         <div class="viz" id="viz">
           <div class="lane"></div>
@@ -115,7 +116,7 @@
     <div id="app-store" class="overlay-app"><h2>Spotify / Tienda</h2><p class="muted">App Remote · Play Store</p></div>
     <div id="app-youtube" class="overlay-app"><h2>YouTube</h2><p class="muted">Bloqueado en movimiento</p></div>
     <div id="app-player" class="overlay-app"><h2>Pantalla</h2><p class="muted">vescreenflow</p></div>
-    <div id="app-settings" class="overlay-app"><h2>Ajustes</h2><p class="muted">PIN 1234 · flota · OTA · mock</p></div>
+    <div id="app-settings" class="overlay-app"><h2>Ajustes</h2><p class="muted">PIN 1234 · flota · OTA · CAN/GPS/OBD</p></div>
 
     <nav class="dock">
       <div class="left"><span>🚗</span><strong>19.0°</strong></div>
@@ -143,6 +144,21 @@
       if (el) el.classList.add('show')
     }
     btns.forEach(b => b.onclick = () => show(b.dataset.go))
+
+    // Demo CAN-ish signal ticker
+    let t = 0
+    setInterval(() => {
+      t += 0.25
+      const kmh = Math.round(35 + 17 * Math.sin(t / 8))
+      const gear = kmh < 1 ? 'P' : 'D'
+      const turn = Math.floor((t / 12) % 4)
+      const turnLabel = turn === 1 ? '◀ left' : turn === 3 ? 'right ▶' : '—'
+      const soc = Math.round(72 + 4 * Math.sin(t / 40))
+      document.getElementById('spd').textContent = String(kmh)
+      document.getElementById('spd-u').textContent = 'km/h'
+      document.getElementById('sig').textContent =
+        `src mock · gear ${gear} · turn ${turnLabel} · SOC ${soc}%`
+    }, 250)
 
     // Live surround actors (SenseFlow) → left viz
     const EGO = { lat: 10.496, lng: -66.898 }

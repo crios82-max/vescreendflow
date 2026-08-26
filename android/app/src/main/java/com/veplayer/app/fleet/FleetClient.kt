@@ -68,6 +68,7 @@ class FleetClient(private val prefs: VePrefs) {
         lng: Double? = null,
         speedMps: Float? = null,
         reverse: Boolean? = null,
+        vehicleSignals: Map<String, Any?>? = null,
     ): Result<HeartbeatResult> =
         runCatching {
             val payload =
@@ -79,6 +80,9 @@ class FleetClient(private val prefs: VePrefs) {
             if (lng != null) payload.put("lng", lng)
             if (speedMps != null) payload.put("speed_mps", speedMps.toDouble())
             if (reverse != null) payload.put("reverse", reverse)
+            if (vehicleSignals != null) {
+                payload.put("vehicle_signals", mapToJson(vehicleSignals))
+            }
             val req =
                 Request.Builder()
                     .url(base() + "/api/fleet/heartbeat")
@@ -140,5 +144,21 @@ class FleetClient(private val prefs: VePrefs) {
 
     companion object {
         private val JSON = "application/json".toMediaType()
+
+        private fun mapToJson(map: Map<String, Any?>): JSONObject {
+            val o = JSONObject()
+            for ((k, v) in map) {
+                when (v) {
+                    null -> o.put(k, JSONObject.NULL)
+                    is Map<*, *> -> {
+                        @Suppress("UNCHECKED_CAST")
+                        o.put(k, mapToJson(v as Map<String, Any?>))
+                    }
+                    is Boolean, is Number, is String -> o.put(k, v)
+                    else -> o.put(k, v.toString())
+                }
+            }
+            return o
+        }
     }
 }
