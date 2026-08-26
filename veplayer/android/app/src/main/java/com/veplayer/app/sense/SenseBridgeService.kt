@@ -108,6 +108,8 @@ class SenseBridgeService : Service() {
                             ).getOrThrow()
                         remote.handle(hb.commands)
                         remote.handleAlerts(hb.alerts)
+                        com.veplayer.app.fleet.ShiftTracker.tickLocal(prefs)
+                        com.veplayer.app.fleet.ShiftTracker.applyFromHeartbeat(hb.shiftJson)
                         SilentOtaCoordinator.maybeApply(this@SenseBridgeService, hb.ota)
                     }
                     runCatching {
@@ -153,6 +155,8 @@ class SenseBridgeService : Service() {
                     ).getOrThrow()
                 remote.handle(hb.commands)
                 remote.handleAlerts(hb.alerts)
+                com.veplayer.app.fleet.ShiftTracker.tickLocal(prefs)
+                com.veplayer.app.fleet.ShiftTracker.applyFromHeartbeat(hb.shiftJson)
                 SilentOtaCoordinator.maybeApply(this@SenseBridgeService, hb.ota)
             }
         }

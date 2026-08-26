@@ -224,7 +224,9 @@ class RemoteCommandExecutor(
                     "set_driver" -> {
                         val clear = cmd.payload?.optBoolean("clear", false) == true
                         if (clear) {
+                            runCatching { ShiftTracker.end(prefs) }
                             DriverSession.clear(prefs)
+                            ShiftTracker.clearLocal()
                             onStatus("Cmd set_driver → clear")
                             RemoteCommandBus.publish("Conductor: sin asignar")
                         } else {
@@ -233,6 +235,7 @@ class RemoteCommandExecutor(
                             when {
                                 parsed != null -> {
                                     DriverSession.apply(prefs, parsed)
+                                    runCatching { ShiftTracker.start(prefs, parsed.id) }
                                     onStatus("Cmd set_driver → ${parsed.code}")
                                     RemoteCommandBus.publish("Conductor → ${parsed.name}")
                                 }

@@ -28,6 +28,7 @@ data class HeartbeatResult(
     val ota: OtaInfo?,
     val commands: List<FleetCommand>,
     val alerts: List<FleetAlert> = emptyList(),
+    val shiftJson: JSONObject? = null,
 )
 
 data class FleetAlert(
@@ -95,6 +96,8 @@ class FleetClient(private val prefs: VePrefs) {
                 payload.put("driver_id", prefs.driverId)
                 if (prefs.driverCode.isNotBlank()) payload.put("driver_code", prefs.driverCode)
             }
+            val odo = vehicleSignals?.get("odometer_km") as? Number
+            if (odo != null) payload.put("odo_km", odo.toDouble())
             val req =
                 Request.Builder()
                     .url(base() + "/api/fleet/heartbeat")
@@ -140,7 +143,12 @@ class FleetClient(private val prefs: VePrefs) {
                             message = a.optString("message"),
                         )
                 }
-                HeartbeatResult(ota = ota, commands = cmds, alerts = alerts)
+                HeartbeatResult(
+                    ota = ota,
+                    commands = cmds,
+                    alerts = alerts,
+                    shiftJson = json.optJSONObject("shift"),
+                )
             }
         }
 

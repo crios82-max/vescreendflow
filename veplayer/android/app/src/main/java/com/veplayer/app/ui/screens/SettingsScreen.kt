@@ -744,6 +744,43 @@ fun SettingsScreen() {
                 ) { Text("Salir") }
             }
             Text("Demo: D001 / 1234 · D002 / 5678 · D003 sin PIN", color = Mute)
+            val shift by com.veplayer.app.fleet.ShiftTracker.shift.collectAsState()
+            Text(
+                if (shift.status == "open") {
+                    "Turno #${shift.id} · ${"%.1f".format(shift.distanceKm)} km"
+                } else if (shift.status == "closed") {
+                    "Último turno cerrado · ${"%.1f".format(shift.distanceKm)} km"
+                } else {
+                    "Turno: —"
+                },
+                color = Mute,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            val r =
+                                withContext(Dispatchers.IO) {
+                                    com.veplayer.app.fleet.ShiftTracker.start(prefs)
+                                }
+                            r.onSuccess { status = "Turno #${it.id} abierto" }
+                                .onFailure { status = "Turno start: ${it.message}" }
+                        }
+                    },
+                ) { Text("Abrir turno") }
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            val r =
+                                withContext(Dispatchers.IO) {
+                                    com.veplayer.app.fleet.ShiftTracker.end(prefs)
+                                }
+                            r.onSuccess { status = "Turno cerrado · ${"%.1f".format(it.distanceKm)} km" }
+                                .onFailure { status = "Turno end: ${it.message}" }
+                        }
+                    },
+                ) { Text("Cerrar turno") }
+            }
         }
 
         PanelBlock("Mock vehículo (demo)") {

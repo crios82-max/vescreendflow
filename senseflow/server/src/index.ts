@@ -11,12 +11,19 @@ import {
   fleetDriversRouter,
   mountDriverOpsRoutes,
 } from './fleetDrivers.js'
+import {
+  ensureFleetShiftsTables,
+  fleetShiftsRouter,
+  mountShiftOpsRoutes,
+} from './fleetTrips.js'
 import { navRouter } from './nav.js'
 import { db } from './db.js'
 
 ensureFleetOpsTables()
 ensureFleetDriversTables()
+ensureFleetShiftsTables()
 mountDriverOpsRoutes(fleetOpsRouter)
+mountShiftOpsRoutes(fleetOpsRouter)
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const webDir = path.join(rootDir, 'web')
@@ -42,6 +49,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api', apiRouter)
 app.use('/api/fleet', fleetRouter)
 app.use('/api/fleet/drivers', fleetDriversRouter)
+app.use('/api/fleet/shifts', fleetShiftsRouter)
 app.use('/api/fleet/ops', fleetOpsRouter)
 app.use('/api/nav', navRouter)
 

@@ -859,9 +859,52 @@ fleetOpsRouter.get('/reports/export', (req, res) => {
     return
   }
 
+  if (kind === 'shifts') {
+    const rows = db
+      .prepare(
+        `SELECT s.id, s.device_id, s.driver_id, d.code AS driver_code, d.name AS driver_name,
+                s.started_at, s.ended_at, s.start_odo_km, s.end_odo_km, s.distance_km, s.status
+         FROM fleet_shifts s
+         LEFT JOIN fleet_drivers d ON d.id = s.driver_id
+         ORDER BY s.id DESC LIMIT ?`,
+      )
+      .all(limit) as Array<Record<string, unknown>>
+    sendCsv(
+      res,
+      `fleet-shifts-${stamp}.csv`,
+      [
+        'id',
+        'device_id',
+        'driver_id',
+        'driver_code',
+        'driver_name',
+        'started_at',
+        'ended_at',
+        'start_odo_km',
+        'end_odo_km',
+        'distance_km',
+        'status',
+      ],
+      rows.map((r) => [
+        r.id,
+        r.device_id,
+        r.driver_id,
+        r.driver_code,
+        r.driver_name,
+        r.started_at,
+        r.ended_at,
+        r.start_odo_km,
+        r.end_odo_km,
+        r.distance_km,
+        r.status,
+      ]),
+    )
+    return
+  }
+
   res.status(400).json({
     error: 'kind inválido',
-    kinds: ['devices', 'commands', 'alerts', 'telemetry', 'summary', 'drivers'],
+    kinds: ['devices', 'commands', 'alerts', 'telemetry', 'summary', 'drivers', 'shifts'],
   })
 })
 

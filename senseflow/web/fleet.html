@@ -73,6 +73,7 @@
       <option value="alerts">CSV alerts</option>
       <option value="telemetry">CSV telemetry</option>
       <option value="drivers">CSV drivers</option>
+      <option value="shifts">CSV shifts</option>
     </select>
     <button class="btn ghost" id="csv-export">Export CSV</button>
     <button class="btn ghost" id="logout-btn">Logout</button>
@@ -114,6 +115,10 @@
     <div class="card">
       <h2>Historial OTA</h2>
       <div id="ota-hist" class="muted" style="max-height:180px;overflow:auto">…</div>
+    </div>
+    <div class="card">
+      <h2>Turnos (shifts)</h2>
+      <div id="shifts" class="muted" style="max-height:180px;overflow:auto">…</div>
     </div>
     <div class="card">
       <h2>Conductores</h2>
@@ -408,7 +413,19 @@
         if (!me.can_dispatch) cell.textContent = 'viewer · read-only'
         tb.appendChild(tr)
       }
-      await Promise.all([loadAlerts(), loadGeofences(), loadReports(), loadHistory(), loadDrivers()])
+      await Promise.all([loadAlerts(), loadGeofences(), loadReports(), loadHistory(), loadDrivers(), loadShifts()])
+    }
+    async function loadShifts() {
+      const j = await fetch('/api/fleet/ops/shifts?limit=30', { headers: hdrs() }).then(r => r.json())
+      const el = document.getElementById('shifts')
+      if (!el) return
+      el.innerHTML = (j.shifts || []).map(s => {
+        const who = s.driver_code ? `${s.driver_code} · ${s.driver_name || ''}` : '—'
+        const dist = (s.distance_km != null ? Number(s.distance_km).toFixed(1) : '0') + ' km'
+        const when = new Date(s.started_at * 1000).toLocaleString()
+        return `<div class="hist-row"><b>${s.status}</b> · ${who} · ${dist}
+          <span class="muted">${s.device_id.slice(0,10)}… · ${when}</span></div>`
+      }).join('') || '<span class="muted">Sin turnos</span>'
     }
     async function loadDrivers() {
       const j = await fetch('/api/fleet/ops/drivers', { headers: hdrs() }).then(r => r.json())

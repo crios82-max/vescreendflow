@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { db } from './db.js'
 import { hashPassword, requireRole, verifyPassword } from './fleetOps.js'
+import { endShift, startShift } from './fleetTrips.js'
 
 export type FleetDriver = {
   id: number
@@ -172,7 +173,11 @@ fleetDriversRouter.post('/login', (req, res) => {
     }
   }
   assignDriverToDevice(parsed.data.device_id, driver.id)
-  res.json({ ok: true, driver: publicDriver(driver) })
+  const shift = startShift({
+    deviceId: parsed.data.device_id,
+    driverId: driver.id,
+  })
+  res.json({ ok: true, driver: publicDriver(driver), shift })
 })
 
 fleetDriversRouter.post('/logout', (req, res) => {
@@ -181,8 +186,9 @@ fleetDriversRouter.post('/logout', (req, res) => {
     res.status(400).json({ error: 'device_id requerido' })
     return
   }
+  const shift = endShift({ deviceId })
   assignDriverToDevice(deviceId, null)
-  res.json({ ok: true })
+  res.json({ ok: true, shift })
 })
 
 fleetDriversRouter.get('/current', (req, res) => {

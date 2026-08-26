@@ -12,6 +12,7 @@ import {
   driverForDevice,
   resolveDriverPayload,
 } from './fleetDrivers.js'
+import { openShiftForDevice, startShift, touchShift, endShift } from './fleetTrips.js'
 
 export const fleetRouter = Router()
 
@@ -73,6 +74,8 @@ const heartbeatSchema = z.object({
   vehicle_signals: z.record(z.unknown()).optional(),
   driver_id: z.number().int().positive().optional(),
   driver_code: z.string().max(32).optional(),
+  odo_km: z.number().nonnegative().optional(),
+  shift_delta_km: z.number().nonnegative().optional(),
 })
 
 fleetRouter.post('/heartbeat', (req, res) => {
@@ -106,8 +109,28 @@ fleetRouter.post('/heartbeat', (req, res) => {
     })
     if (resolved && !('clear' in resolved)) {
       assignDriverToDevice(d.device_id, resolved.id)
+      if (!openShiftForDevice(d.device_id)) {
+        startShift({
+          deviceId: d.device_id,
+          driverId: resolved.id,
+          odoKm: d.odo_km,
+          lat: d.lat,
+          lng: d.lng,
+        })
+      }
     }
   }
+
+  const odoFromSignals =
+    typeof signals?.odometer_km === 'number' ? (signals.odometer_km as number) : undefined
+  const odoKm = d.odo_km ?? odoFromSignals
+  touchShift({
+    deviceId: d.device_id,
+    odoKm,
+    deltaKm: d.shift_delta_km,
+    lat: d.lat,
+    lng: d.lng,
+  })
 
   db.prepare(
     `
@@ -196,6 +219,7 @@ fleetRouter.post('/heartbeat', (req, res) => {
       created_at: c.created_at,
     })),
     driver: driverForDevice(d.device_id),
+    shift: openShiftForDevice(d.device_id),
   })
 })
 
@@ -442,9 +466,11 @@ fleetRouter.post('/command', (req, res) => {
   if (parsed.data.command === 'set_driver') {
     const resolved = resolveDriverPayload(parsed.data.payload ?? null)
     if (resolved && 'clear' in resolved) {
+      endShift({ deviceId: parsed.data.device_id })
       assignDriverToDevice(parsed.data.device_id, null)
     } else if (resolved) {
       assignDriverToDevice(parsed.data.device_id, resolved.id)
+      startShift({ deviceId: parsed.data.device_id, driverId: resolved.id })
     } else {
       res.status(400).json({ error: 'set_driver requiere code, driver_id o clear' })
       return

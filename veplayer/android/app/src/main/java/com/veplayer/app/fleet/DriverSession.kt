@@ -120,12 +120,14 @@ object DriverSession {
                     parse(JSONObject(text).getJSONObject("driver"))
                         ?: error("driver vacío")
                 apply(prefs, driver, scope)
+                runCatching { ShiftTracker.start(prefs, driver.id) }
                 driver
             }
         }
 
     fun logout(prefs: VePrefs): Result<Unit> =
         runCatching {
+            runCatching { ShiftTracker.end(prefs) }
             val body =
                 JSONObject()
                     .put("device_id", prefs.deviceId())
@@ -140,6 +142,7 @@ object DriverSession {
                 if (!resp.isSuccessful) error("logout HTTP ${resp.code}")
             }
             clear(prefs)
+            ShiftTracker.clearLocal()
         }
 
     fun parse(o: JSONObject): DriverProfile? {
