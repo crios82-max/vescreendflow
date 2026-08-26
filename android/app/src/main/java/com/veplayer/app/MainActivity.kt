@@ -281,6 +281,28 @@ private fun NavChrome() {
     val prefs = remember { VePrefs(context) }
     val native = prefs.mapMode != "web"
     val nav by com.veplayer.app.nav.NavEngine.route.collectAsState()
+    val ttsPhrase by com.veplayer.app.nav.NavTts.lastPhrase.collectAsState()
+    val ttsOn by com.veplayer.app.nav.NavTts.enabled.collectAsState()
+    val ego =
+        remember(prefs.navFromLat, prefs.navFromLng, nav.updatedAtMs) {
+            com.veplayer.app.nav.LatLng(prefs.navFromLat, prefs.navFromLng)
+        }
+    val stepIdx =
+        remember(nav, ego) {
+            com.veplayer.app.nav.NavGuidance.currentStepIndex(nav, ego).coerceAtLeast(0)
+        }
+    val step = nav.steps.getOrNull(stepIdx)
+    val remain =
+        remember(nav, ego, stepIdx) {
+            com.veplayer.app.nav.NavGuidance.remainOnStepM(nav, ego, stepIdx)
+        }
+    val distLabel =
+        when {
+            step == null -> "—"
+            remain >= 1000f -> "%.1f km".format(remain / 1000f)
+            else -> "${remain.toInt()} m"
+        }
+    val instr = step?.instruction ?: nav.nextInstruction
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -290,8 +312,11 @@ private fun NavChrome() {
                 .background(Color(0xCC111111))
                 .padding(horizontal = 14.dp, vertical = 12.dp),
         ) {
-            Text(nav.nextDistanceShort, color = Mist, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-            Text(nav.nextInstruction, color = Mute, fontSize = 14.sp)
+            Text(distLabel, color = Mist, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text(instr, color = Mute, fontSize = 14.sp)
+            if (ttsOn && ttsPhrase.isNotBlank()) {
+                Text("Voz · $ttsPhrase", color = Mute, fontSize = 11.sp, maxLines = 2)
+            }
         }
         Column(
             modifier = Modifier
@@ -308,7 +333,8 @@ private fun NavChrome() {
                 fontWeight = FontWeight.Medium,
             )
             Text(
-                "Destino · ${nav.destinationName.ifBlank { "—" }} · ${nav.source}",
+                "Destino · ${nav.destinationName.ifBlank { "—" }} · ${nav.source}" +
+                    if (ttsOn) " · TTS" else "",
                 color = Mute,
                 fontSize = 12.sp,
             )

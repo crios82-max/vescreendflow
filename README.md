@@ -190,6 +190,18 @@ Mapa Compose con rasters OSM alineados (Web Mercator):
 npm run veplayer:osm-tiles-smoke
 ```
 
+## Guía por voz Nav TTS (v0.20)
+
+TextToSpeech (es-VE/ES) con duck de audio:
+
+- Cues por umbral 800/400/150/50 m + intro de ruta + llegada
+- Pref `nav_tts` (default ON) · Ajustes → Guía por voz · botón Probar voz
+- Chrome muestra última frase TTS
+
+```bash
+npm run veplayer:nav-tts-smoke
+```
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

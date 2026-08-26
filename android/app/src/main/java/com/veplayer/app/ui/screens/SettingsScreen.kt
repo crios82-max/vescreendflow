@@ -523,6 +523,30 @@ fun SettingsScreen() {
                     },
                 )
             }
+            var navTts by remember { mutableStateOf(prefs.navTtsEnabled) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Guía por voz (TTS)", color = Mist)
+                Switch(
+                    checked = navTts,
+                    onCheckedChange = {
+                        navTts = it
+                        com.veplayer.app.nav.NavTts.setEnabled(it)
+                        status = if (it) "TTS ON" else "TTS OFF"
+                    },
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    com.veplayer.app.nav.NavTts.speakNow(
+                        "En 200 metros, girá a la izquierda. Ruta de prueba VePlayer.",
+                    )
+                    status = "TTS prueba"
+                },
+            ) { Text("Probar voz") }
             Text("Mapa cockpit:", color = Mist)
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf("native" to "Nativo", "web" to "WebView").forEach { (id, label) ->
