@@ -260,7 +260,20 @@ Primer hito fase 4: flota hablada.
 npm run veplayer:fleet-inbox-smoke
 ```
 
-**Fase 4 (siguiente):** trip/shift log · speed HUD · crowd en mapa nativo · mantenimiento odómetro.
+## Trip / shift log (v0.25)
+
+Turnos de conductor con distancia (odómetro o integración):
+
+- `POST /api/fleet/shifts/start|end` · `GET /current` · ops `/api/fleet/ops/shifts`
+- Login conductor abre turno · logout / `set_driver clear` cierra
+- Heartbeat actualiza `distance_km` vía `odo_km`
+- Ajustes: Abrir/Cerrar turno · DriveViz km del turno · CSV `kind=shifts`
+
+```bash
+npm run veplayer:shift-smoke
+```
+
+**Fase 4 (siguiente):** speed HUD · crowd en mapa nativo · mantenimiento odómetro.
 
 ## Device Owner (kiosk duro · v0.12)
 

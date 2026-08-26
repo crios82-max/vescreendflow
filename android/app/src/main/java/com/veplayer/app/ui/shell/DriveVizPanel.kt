@@ -106,6 +106,14 @@ fun DriveVizPanel(
                 if (driverLabel.isNotBlank()) {
                     Text("Conductor · $driverLabel", color = Mute, fontSize = 11.sp)
                 }
+                val shift by com.veplayer.app.fleet.ShiftTracker.shift.collectAsState()
+                if (shift.status == "open") {
+                    Text(
+                        "Turno · ${"%.1f".format(shift.distanceKm)} km",
+                        color = Mute,
+                        fontSize = 11.sp,
+                    )
+                }
                 val inboxLast by com.veplayer.app.fleet.FleetInbox.last.collectAsState()
                 inboxLast?.let { item ->
                     Text(
