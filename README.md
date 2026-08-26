@@ -128,6 +128,28 @@ Cockpit **Compose** (sin WebView por defecto):
 npm run veplayer:nav-map-smoke
 ```
 
+## Flota ops (v0.17)
+
+Roles + reportes + historial en SenseFlow `/fleet.html`:
+
+| Rol | Token demo | Puede |
+|-----|------------|--------|
+| admin | `fleet-admin-demo` | todo (incl. wipe) |
+| dispatcher | `fleet-dispatch-demo` | cmds salvo wipe |
+| viewer | `fleet-viewer-demo` | solo lectura |
+
+```bash
+# Header en API
+curl -H 'x-fleet-token: fleet-viewer-demo' http://127.0.0.1:4100/api/fleet/ops/me
+curl -H 'x-fleet-token: fleet-admin-demo' http://127.0.0.1:4100/api/fleet/ops/reports/summary
+curl http://127.0.0.1:4100/api/fleet/ops/commands/history?limit=20
+curl http://127.0.0.1:4100/api/fleet/ops/ota/history
+
+npm run veplayer:fleet-ops-smoke
+```
+
+Dashboard: selector de rol · cards reporte 24h · historial cmds/OTA · wipe oculto si no admin.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
