@@ -30,7 +30,43 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_pings_ts ON pings(ts);
   CREATE INDEX IF NOT EXISTS idx_pings_geohash ON pings(geohash);
   CREATE INDEX IF NOT EXISTS idx_pings_activity_ts ON pings(activity, ts);
+
+  CREATE TABLE IF NOT EXISTS fleet_devices (
+    device_id TEXT PRIMARY KEY,
+    pair_code TEXT,
+    name TEXT,
+    app_version TEXT,
+    version_code INTEGER,
+    last_seen_at INTEGER,
+    last_lat REAL,
+    last_lng REAL,
+    last_speed_mps REAL,
+    reverse INTEGER NOT NULL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'online',
+    created_at INTEGER NOT NULL DEFAULT (unixepoch())
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_fleet_pair ON fleet_devices(pair_code);
+  CREATE INDEX IF NOT EXISTS idx_fleet_seen ON fleet_devices(last_seen_at);
+
+  CREATE TABLE IF NOT EXISTS ota_releases (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    version_name TEXT NOT NULL,
+    version_code INTEGER NOT NULL UNIQUE,
+    apk_url TEXT NOT NULL,
+    notes TEXT,
+    created_at INTEGER NOT NULL DEFAULT (unixepoch())
+  );
 `)
+
+// Seed a placeholder OTA row if empty
+const otaCount = db.prepare('SELECT COUNT(*) AS n FROM ota_releases').get() as { n: number }
+if (otaCount.n === 0) {
+  db.prepare(
+    `INSERT INTO ota_releases (version_name, version_code, apk_url, notes)
+     VALUES ('0.3.0', 3, 'https://example.com/veplayer-0.3.0.apk', 'VePlayer OS MVP — reemplaza apk_url en producción')`,
+  ).run()
+}
 
 export type Activity = 'IN_VEHICLE' | 'ON_FOOT' | 'STILL' | 'UNKNOWN'
 

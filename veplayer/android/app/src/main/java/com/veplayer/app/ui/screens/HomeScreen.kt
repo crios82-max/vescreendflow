@@ -69,6 +69,11 @@ fun HomeScreen(onOpen: (VeDest) -> Unit) {
             HomeCard("Pantalla", "vescreenflow", Teal, Modifier.weight(1f)) { onOpen(VeDest.Player) }
             HomeCard("Mapa", "Tráfico + personas", Amber, Modifier.weight(1f)) { onOpen(VeDest.Map) }
         }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+            HomeCard("Ajustes", "PIN · flota · OTA · mock", Teal, Modifier.weight(1f)) { onOpen(VeDest.Settings) }
+            Box(modifier = Modifier.weight(1f))
+            Box(modifier = Modifier.weight(1f))
+        }
         Spacer(Modifier.height(8.dp))
         Box(
             modifier = Modifier

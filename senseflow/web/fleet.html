@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SenseFlow Flota</title>
+  <style>
+    :root { --ink:#0f1c18; --mist:#e8f2ee; --teal:#0d9488; --panel:#15201c; }
+    body { margin:0; font-family:system-ui,sans-serif; background:var(--ink); color:var(--mist); padding:20px; }
+    a { color:var(--teal); }
+    table { width:100%; border-collapse:collapse; background:var(--panel); border-radius:12px; overflow:hidden; }
+    th, td { text-align:left; padding:10px 12px; border-bottom:1px solid #24332e; font-size:.92rem; }
+    th { color:var(--teal); }
+    .bar { display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+    button { background:var(--teal); color:#042f2e; border:0; border-radius:8px; padding:8px 12px; font-weight:700; cursor:pointer; }
+    code { background:#0b1411; padding:2px 6px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <h1 style="margin:0">Flota VePlayer</h1>
+    <a href="/">← Mapa</a>
+    <button id="refresh">Actualizar</button>
+    <span id="meta"></span>
+  </div>
+  <p>API: <code>POST /api/fleet/register</code> · <code>POST /api/fleet/heartbeat</code> · <code>GET /api/fleet/devices</code> · <code>GET /api/fleet/ota/latest</code></p>
+  <table>
+    <thead>
+      <tr><th>Nombre</th><th>Pair</th><th>Versión</th><th>Seen</th><th>Speed</th><th>Rev</th><th>Device</th></tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <script>
+    async function load() {
+      const [dev, ota] = await Promise.all([
+        fetch('/api/fleet/devices').then(r => r.json()),
+        fetch('/api/fleet/ota/latest').then(r => r.json()),
+      ])
+      document.getElementById('meta').textContent =
+        (ota.release ? `OTA ${ota.release.version_name} (${ota.release.version_code})` : 'sin OTA') +
+        ` · ${dev.devices.length} units`
+      const tb = document.getElementById('rows')
+      tb.innerHTML = ''
+      for (const d of dev.devices) {
+        const tr = document.createElement('tr')
+        const seen = d.last_seen_at ? new Date(d.last_seen_at * 1000).toLocaleString() : '—'
+        tr.innerHTML = `<td>${d.name || '—'}</td><td>${d.pair_code || '—'}</td>
+          <td>${d.app_version || '—'} (${d.version_code ?? '—'})</td>
+          <td>${seen}</td>
+          <td>${d.last_speed_mps != null ? (d.last_speed_mps*3.6).toFixed(0)+' km/h' : '—'}</td>
+          <td>${d.reverse ? '⏪' : '—'}</td>
+          <td><code>${(d.device_id||'').slice(0,12)}…</code></td>`
+        tb.appendChild(tr)
+      }
+    }
+    document.getElementById('refresh').onclick = load
+    load()
+    setInterval(load, 15000)
+  </script>
+</body>
+</html>

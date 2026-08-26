@@ -43,6 +43,7 @@
       <button data-tab="store">Tienda</button>
       <button data-tab="player">Pantalla</button>
       <button data-tab="map">Mapa</button>
+      <button data-tab="settings">Ajustes</button>
     </nav>
     <main class="main">
       <section id="home">
@@ -108,6 +109,16 @@
         <h2>Mapa SenseFlow</h2>
         <p class="muted">Tráfico + personas (requiere API local :4100)</p>
         <iframe class="frame" src="http://127.0.0.1:4100/" title="SenseFlow"></iframe>
+      </section>
+      <section id="settings" class="hidden">
+        <h2>Ajustes (PIN)</h2>
+        <p class="muted">PIN default 1234 · flota/pairing · OTA · mock reverse/velocidad · bloqueo video</p>
+        <div class="list">
+          <div class="row"><div><strong>PIN servicio</strong><br><span class="muted">Desbloquea URLs, umbral video, mock vehículo</span></div><span>1234</span></div>
+          <div class="row"><div><strong>Flota</strong><br><span class="muted">POST /api/fleet/register + heartbeat</span></div><span>pair_code</span></div>
+          <div class="row"><div><strong>OTA</strong><br><span class="muted">Heartbeat devuelve update_available + apk_url</span></div><span>v0.3</span></div>
+          <div class="row"><div><strong>Reverse mock</strong><br><span class="muted">Fuerza pantalla Cámaras · bloquea YouTube/Player</span></div><span>⏪</span></div>
+        </div>
       </section>
     </main>
   </div>
