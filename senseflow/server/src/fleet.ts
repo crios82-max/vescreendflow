@@ -382,6 +382,7 @@ const commandSchema = z.object({
     'lock_task',
     'apply_kiosk',
     'run_diag',
+    'set_dbc',
   ]),
   payload: z.record(z.string(), z.unknown()).optional(),
 })

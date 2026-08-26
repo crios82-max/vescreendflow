@@ -83,6 +83,22 @@ npm run veplayer:ota-smoke
 
 `PUBLIC_BASE` = URL que ven las unidades (túnel Cloudflare / LAN). Default = `SENSEFLOW_URL`.
 
+## DBC real (v0.14)
+
+Decoder CAN carga un **DBC** (BO_/SG_) en vez del mapa hardcode:
+
+- Asset demo: `assets/dbc/veplayer_demo.dbc` (IDs 0x100–0x108 / 256–264)
+- Ajustes → **Demo DBC** / **Desde SenseFlow** (`/dbc/veplayer_demo.dbc`)
+- Campo OEM: `prefs.dbcSource = file:/…/custom.dbc`
+- Flota: cmd `set_dbc` `{ "url": "https://…/oem.dbc" }`
+
+```bash
+npm run veplayer:dbc-smoke
+curl http://127.0.0.1:4100/dbc/veplayer_demo.dbc | head
+```
+
+Aliases de señales: `Speed_Kmh`, `Gear`, `SOC`, `TPMS_FL`, `HVAC_Cabin`, `ABS`, …
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

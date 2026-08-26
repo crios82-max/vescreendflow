@@ -14,6 +14,7 @@
     "veplayer:kiosk-smoke": "node veplayer/scripts/kiosk-smoke.mjs",
     "veplayer:field-smoke": "node veplayer/scripts/field-smoke.mjs",
     "veplayer:ota-smoke": "node veplayer/scripts/ota-smoke.mjs",
+    "veplayer:dbc-smoke": "node veplayer/scripts/dbc-smoke.mjs",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "build": "tsc -b && vite build",

@@ -36,6 +36,10 @@ app.use('/api/nav', navRouter)
 // Fleet OTA APK hosting (publish-ota.sh drops files here)
 app.use('/ota', express.static(otaDir, { fallthrough: true, index: false }))
 
+const dbcDir = path.join(rootDir, 'dbc')
+fs.mkdirSync(dbcDir, { recursive: true })
+app.use('/dbc', express.static(dbcDir, { fallthrough: true, index: false }))
+
 app.use(express.static(webDir))
 
 app.get('/', (_req, res) => {

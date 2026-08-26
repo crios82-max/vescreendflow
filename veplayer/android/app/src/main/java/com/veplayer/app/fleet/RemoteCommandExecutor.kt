@@ -126,6 +126,41 @@ class RemoteCommandExecutor(
                         onStatus(report.lines.take(4).joinToString(" | "))
                         Log.i(TAG, report.asText())
                     }
+                    "set_dbc" -> {
+                        val url = cmd.payload?.optString("url").orEmpty()
+                        val text = cmd.payload?.optString("text").orEmpty()
+                        onStatus("Cmd set_dbc")
+                        runCatching {
+                            val body =
+                                when {
+                                    text.isNotBlank() -> text
+                                    url.isNotBlank() -> {
+                                        okhttp3.OkHttpClient()
+                                            .newCall(okhttp3.Request.Builder().url(url).build())
+                                            .execute()
+                                            .use { resp ->
+                                                if (!resp.isSuccessful) error("HTTP ${resp.code}")
+                                                resp.body?.string() ?: error("empty DBC")
+                                            }
+                                    }
+                                    else -> error("set_dbc sin url/text")
+                                }
+                            val key =
+                                com.veplayer.app.vehicle.can.dbc.DbcRepository.installCustom(
+                                    context,
+                                    body,
+                                    "fleet.dbc",
+                                )
+                            prefs.dbcSource = key
+                            com.veplayer.app.vehicle.can.CanSignalDecoder.reload(context)
+                            CanBusManager.rebind()
+                            onStatus("DBC instalado · $key")
+                            RemoteCommandBus.publish("DBC flota aplicado")
+                        }.onFailure {
+                            onStatus("set_dbc fail: ${it.message}")
+                            throw it
+                        }
+                    }
                     "set_source" -> {
                         val src = cmd.payload?.optString("source")?.lowercase().orEmpty()
                         if (src in setOf("gps", "mock", "can", "obd")) {
