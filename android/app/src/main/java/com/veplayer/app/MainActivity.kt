@@ -1,18 +1,21 @@
 package com.veplayer.app
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,9 +23,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,30 +34,35 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.veplayer.app.data.VePrefs
+import com.veplayer.app.fleet.RemoteCommandBus
 import com.veplayer.app.kiosk.KioskController
 import com.veplayer.app.sense.SenseBridgeService
 import com.veplayer.app.ui.VeDest
 import com.veplayer.app.ui.screens.CamerasScreen
-import com.veplayer.app.ui.screens.HomeScreen
-import com.veplayer.app.ui.screens.MapScreen
 import com.veplayer.app.ui.screens.PlayerScreen
 import com.veplayer.app.ui.screens.RadioScreen
 import com.veplayer.app.ui.screens.SettingsScreen
 import com.veplayer.app.ui.screens.StoreScreen
 import com.veplayer.app.ui.screens.YouTubeScreen
+import com.veplayer.app.ui.shell.BottomDock
+import com.veplayer.app.ui.shell.DriveVizPanel
+import com.veplayer.app.ui.theme.Mist
 import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Night
-import com.veplayer.app.ui.theme.Panel
 import com.veplayer.app.ui.theme.Teal
 import com.veplayer.app.ui.theme.VePlayerTheme
-import com.veplayer.app.fleet.RemoteCommandBus
+import com.veplayer.app.vehicle.VehicleState
 import com.veplayer.app.watchdog.WatchdogService
 import kotlinx.coroutines.flow.collectLatest
 
@@ -88,11 +94,7 @@ class MainActivity : ComponentActivity() {
                     WatchdogService.touchUi(this@MainActivity)
                     RemoteCommandBus.messages.collectLatest { fleetMsg = it }
                 }
-                LaunchedEffect(dest) {
-                    WatchdogService.touchUi(this@MainActivity)
-                }
-
-                // Marcha atrás → forzar cámaras (retrovisor/trasera)
+                LaunchedEffect(dest) { WatchdogService.touchUi(this@MainActivity) }
                 LaunchedEffect(vehicle.reverse) {
                     if (vehicle.reverse) dest = VeDest.Cameras
                 }
@@ -104,41 +106,59 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxWidth()
                                 .background(Teal)
                                 .clickable { fleetMsg = null }
-                                .padding(12.dp),
+                                .padding(10.dp),
                         ) {
                             Text("Flota: $fleetMsg", color = Night, fontWeight = FontWeight.Bold)
                         }
                     }
-                    Row(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                    Rail(
-                        current = dest,
-                        onSelect = { dest = it },
-                        speedKmh = vehicle.speedKmh,
-                        reverse = vehicle.reverse,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .width(148.dp)
-                            .background(Panel)
-                            .padding(vertical = 16.dp, horizontal = 10.dp),
-                    )
+
+                    // Main stage
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxHeight()
-                            .padding(16.dp),
+                            .fillMaxWidth(),
                     ) {
                         when (dest) {
-                            VeDest.Home -> HomeScreen(onOpen = { dest = it })
-                            VeDest.Cameras -> CamerasScreen(preferRear = vehicle.reverse)
-                            VeDest.Radio -> RadioScreen()
-                            VeDest.YouTube -> YouTubeScreen()
-                            VeDest.Store -> StoreScreen()
-                            VeDest.Player -> PlayerScreen()
-                            VeDest.Map -> MapScreen()
-                            VeDest.Settings -> SettingsScreen()
+                            VeDest.Home, VeDest.Map -> {
+                                // Tesla cockpit: drive viz | map
+                                Row(modifier = Modifier.fillMaxSize()) {
+                                    DriveVizPanel(
+                                        vehicle = vehicle,
+                                        modifier = Modifier
+                                            .weight(0.38f)
+                                            .fillMaxHeight(),
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(0.62f)
+                                            .fillMaxHeight(),
+                                    ) {
+                                        MapPane()
+                                        NavChrome()
+                                    }
+                                }
+                            }
+                            else -> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(12.dp),
+                                ) {
+                                    when (dest) {
+                                        VeDest.Cameras -> CamerasScreen(preferRear = vehicle.reverse)
+                                        VeDest.Radio -> RadioScreen()
+                                        VeDest.YouTube -> YouTubeScreen()
+                                        VeDest.Store -> StoreScreen()
+                                        VeDest.Player -> PlayerScreen()
+                                        VeDest.Settings -> SettingsScreen()
+                                        else -> {}
+                                    }
+                                }
+                            }
                         }
                     }
-                    }
+
+                    BottomDock(current = dest, onSelect = { dest = it })
                 }
             }
         }
@@ -185,48 +205,50 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("SetJavaScriptEnabled")
 @androidx.compose.runtime.Composable
-private fun Rail(
-    current: VeDest,
-    onSelect: (VeDest) -> Unit,
-    speedKmh: Float,
-    reverse: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Text(
-            "VePlayer",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = Teal,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-        )
-        Text(
-            if (reverse) "⏪ REVERSE" else "${speedKmh.toInt()} km/h",
-            style = MaterialTheme.typography.labelMedium,
-            color = if (reverse) Teal else Mute,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-        )
-        VeDest.entries.forEach { item ->
-            val selected = item == current
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(if (selected) Teal.copy(alpha = 0.22f) else Night.copy(alpha = 0.35f))
-                    .clickable { onSelect(item) }
-                    .padding(horizontal = 12.dp, vertical = 14.dp),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                Text(
-                    item.label,
-                    color = if (selected) Teal else Mute,
-                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
-                )
+private fun MapPane() {
+    val context = LocalContext.current
+    val prefs = remember { VePrefs(context) }
+    AndroidView(
+        factory = { ctx ->
+            WebView(ctx).apply {
+                setBackgroundColor(0xFF000000.toInt())
+                settings.javaScriptEnabled = true
+                settings.domStorageEnabled = true
+                webViewClient = WebViewClient()
+                webChromeClient = WebChromeClient()
+                loadUrl(prefs.senseflowUrl.trimEnd('/') + "/")
             }
+        },
+        modifier = Modifier.fillMaxSize(),
+    )
+}
+
+@androidx.compose.runtime.Composable
+private fun NavChrome() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xCC111111))
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+        ) {
+            Text("80 m", color = Mist, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+            Text("↗ Continuar por la vía", color = Mute, fontSize = 14.sp)
+        }
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(16.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(0xCC111111))
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+        ) {
+            Text("14:42 · 12 min · 4,8 km", color = Mist, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+            Text("Destino · flota SenseFlow", color = Mute, fontSize = 12.sp)
         }
     }
 }

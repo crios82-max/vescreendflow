@@ -5,20 +5,25 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-val Night = Color(0xFF0B1220)
-val Panel = Color(0xFF151E2E)
-val Teal = Color(0xFF2DD4BF)
-val Amber = Color(0xFFFBBF24)
-val Mist = Color(0xFFE8EEF7)
-val Mute = Color(0xFF94A3B8)
+/** Tesla-like dark cockpit palette */
+val Night = Color(0xFF000000)
+val Panel = Color(0xFF111111)
+val Card = Color(0xFF1A1A1A)
+val Teal = Color(0xFF3E9EFD) // map/route blue accent
+val Accent = Color(0xFF18C964) // spotify/phone green
+val Amber = Color(0xFFF5A623)
+val Mist = Color(0xFFF2F2F2)
+val Mute = Color(0xFF9A9A9A)
+val Road = Color(0xFF2A2A2A)
+val Lane = Color(0xFF5A5A5A)
 
 private val Colors =
     darkColorScheme(
         primary = Teal,
-        secondary = Amber,
+        secondary = Accent,
         background = Night,
         surface = Panel,
-        onPrimary = Night,
+        onPrimary = Mist,
         onSecondary = Night,
         onBackground = Mist,
         onSurface = Mist,

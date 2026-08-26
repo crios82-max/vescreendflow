@@ -3,135 +3,146 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>VePlayer — OS reproductor</title>
+  <title>VePlayer — cockpit</title>
   <style>
-    :root { --night:#0B1220; --panel:#151E2E; --teal:#2DD4BF; --amber:#FBBF24; --mist:#E8EEF7; --mute:#94A3B8; }
+    :root {
+      --bg: #000;
+      --panel: #111;
+      --card: #1a1a1a;
+      --mist: #f2f2f2;
+      --mute: #9a9a9a;
+      --road: #2a2a2a;
+      --lane: #5a5a5a;
+      --blue: #3e9efd;
+      --green: #18c964;
+    }
     * { box-sizing: border-box; }
-    html, body { margin:0; height:100%; background:var(--night); color:var(--mist); font-family:"Segoe UI",system-ui,sans-serif; }
-    .shell { display:flex; height:100%; }
-    .rail { width:160px; background:var(--panel); padding:18px 12px; display:flex; flex-direction:column; gap:8px; }
-    .rail h1 { margin:0 8px 4px; color:var(--teal); font-size:1.25rem; }
-    .rail .sub { margin:0 8px 12px; color:var(--mute); font-size:.8rem; }
-    .rail button { border:0; border-radius:12px; padding:14px 12px; text-align:left; background:rgba(11,18,32,.35); color:var(--mute); font-weight:600; cursor:pointer; }
-    .rail button.active { background:rgba(45,212,191,.22); color:var(--teal); }
-    .main { flex:1; padding:20px; overflow:auto; }
-    h2 { margin:0 0 8px; }
-    .muted { color:var(--mute); margin-bottom:16px; }
-    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-    .card { background:var(--panel); border-radius:18px; padding:18px; min-height:120px; cursor:pointer; }
-    .card strong { color:var(--teal); font-size:1.2rem; display:block; }
-    .cams { display:grid; grid-template-columns:1fr 1fr; gap:12px; height:calc(100% - 80px); }
-    .cam { background:linear-gradient(160deg,#1a2740,#0b1220); border-radius:16px; min-height:280px; position:relative; display:flex; align-items:center; justify-content:center; color:var(--mute); }
-    .cam span { position:absolute; top:12px; left:12px; background:rgba(11,18,32,.7); color:var(--teal); padding:6px 10px; border-radius:8px; font-weight:700; }
-    .list { display:flex; flex-direction:column; gap:8px; }
-    .row { background:var(--panel); border-radius:12px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; }
-    .pill { display:inline-block; background:var(--teal); color:var(--night); font-weight:700; border:0; border-radius:10px; padding:10px 14px; cursor:pointer; margin-right:8px; }
-    .pill.ghost { background:transparent; color:var(--mist); outline:1px solid var(--mute); }
-    iframe, .frame { width:100%; height:calc(100vh - 120px); border:0; border-radius:16px; background:#000; }
-    .hidden { display:none; }
+    html, body { margin:0; height:100%; background:var(--bg); color:var(--mist); font-family: "SF Pro Display", "Segoe UI", system-ui, sans-serif; overflow:hidden; }
+    .cockpit { display:flex; flex-direction:column; height:100%; }
+    .stage { flex:1; display:flex; min-height:0; }
+    .drive {
+      width:38%; background:#000; padding:16px 20px 12px; display:flex; flex-direction:column;
+      border-right:1px solid #1a1a1a;
+    }
+    .speed { display:flex; align-items:flex-end; gap:8px; }
+    .speed .n { font-size:64px; font-weight:300; line-height:1; }
+    .speed .u { font-size:18px; color:var(--mute); padding-bottom:10px; }
+    .limit { color:var(--mute); font-size:13px; margin:4px 0 10px; }
+    .viz {
+      flex:1; border-radius:12px; background:#0a0a0a; position:relative; overflow:hidden;
+      background-image:
+        linear-gradient(90deg, transparent 17%, var(--road) 17%, var(--road) 83%, transparent 83%);
+    }
+    .lane {
+      position:absolute; left:49%; top:0; bottom:0; width:2%;
+      background: repeating-linear-gradient(to bottom, var(--lane) 0 28px, transparent 28px 56px);
+      transform: translateX(-50%);
+    }
+    .car, .blob {
+      position:absolute; border-radius:14px;
+    }
+    .car { width:16%; height:22%; left:42%; top:55%; background:#e8e8e8; }
+    .blob.a { width:17%; height:20%; left:22%; top:18%; background:#6e6e6e; }
+    .blob.b { width:15%; height:19%; left:58%; top:8%; background:#7a7a7a; }
+    .blob.c { width:14%; height:18%; left:62%; top:62%; background:#5c5c5c; }
+    .media {
+      margin-top:10px; background:var(--card); border-radius:14px; padding:14px;
+    }
+    .media .title { font-weight:600; font-size:15px; }
+    .media .artist { color:var(--mute); font-size:13px; margin-top:2px; }
+    .bar { height:3px; background:#333; border-radius:2px; margin:10px 0 6px; overflow:hidden; }
+    .bar i { display:block; height:100%; width:42%; background:var(--mist); }
+    .controls { display:flex; justify-content:center; gap:18px; font-size:22px; color:var(--mist); }
+    .mapwrap { flex:1; position:relative; background:#0b0f14; }
+    .mapwrap iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+    .nav-card, .trip-card {
+      position:absolute; z-index:2; background:rgba(17,17,17,.85); backdrop-filter:blur(8px);
+      border-radius:12px; padding:12px 14px;
+    }
+    .nav-card { top:16px; left:16px; }
+    .nav-card .m { font-size:28px; font-weight:700; }
+    .nav-card .s { color:var(--mute); font-size:14px; }
+    .trip-card { bottom:16px; left:16px; font-size:14px; }
+    .trip-card .s { color:var(--mute); font-size:12px; margin-top:2px; }
+    .dock {
+      height:72px; background:#0a0a0a; display:flex; align-items:center; justify-content:space-between;
+      padding:0 16px; border-top:1px solid #151515;
+    }
+    .dock .left, .dock .right { display:flex; align-items:center; gap:12px; min-width:120px; }
+    .dock .apps { display:flex; gap:8px; }
+    .dock button {
+      width:48px; height:48px; border:0; border-radius:14px; background:transparent; color:var(--mist);
+      font-size:20px; cursor:pointer;
+    }
+    .dock button.active { background:#222; }
+    .overlay-app {
+      display:none; position:absolute; inset:0 0 72px 0; background:#000; z-index:5; padding:16px; overflow:auto;
+    }
+    .overlay-app.show { display:block; }
+    .overlay-app h2 { margin:0 0 8px; }
+    .muted { color:var(--mute); }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <nav class="rail">
-      <h1>VePlayer</h1>
-      <p class="sub">OS reproductor</p>
-      <button class="active" data-tab="home">Inicio</button>
-      <button data-tab="cameras">Cámaras</button>
-      <button data-tab="radio">Radio</button>
-      <button data-tab="youtube">YouTube</button>
-      <button data-tab="store">Tienda</button>
-      <button data-tab="player">Pantalla</button>
-      <button data-tab="map">Mapa</button>
-      <button data-tab="settings">Ajustes</button>
+  <div class="cockpit">
+    <div class="stage" id="stage">
+      <section class="drive">
+        <div class="speed"><div class="n" id="spd">17</div><div class="u">km/h</div></div>
+        <div class="limit">Límite 50</div>
+        <div class="viz">
+          <div class="lane"></div>
+          <div class="blob a"></div>
+          <div class="blob b"></div>
+          <div class="car"></div>
+          <div class="blob c"></div>
+        </div>
+        <div class="media">
+          <div class="title">Euphoria - Single Version</div>
+          <div class="artist">Loreen</div>
+          <div class="bar"><i></i></div>
+          <div class="controls"><span>⏮</span><span>▶</span><span>⏭</span></div>
+        </div>
+      </section>
+      <section class="mapwrap">
+        <iframe src="http://127.0.0.1:4100/" title="map"></iframe>
+        <div class="nav-card"><div class="m">80 m</div><div class="s">↗ Continuar por la vía</div></div>
+        <div class="trip-card"><div>14:42 · 12 min · 4,8 km</div><div class="s">Destino · SenseFlow</div></div>
+      </section>
+    </div>
+
+    <div id="app-cameras" class="overlay-app"><h2>Cámaras</h2><p class="muted">Delantera / trasera · abre desde el dock en la app Android</p></div>
+    <div id="app-radio" class="overlay-app"><h2>Radio</h2><p class="muted">Streaming + audio focus</p></div>
+    <div id="app-store" class="overlay-app"><h2>Spotify / Tienda</h2><p class="muted">App Remote · Play Store</p></div>
+    <div id="app-youtube" class="overlay-app"><h2>YouTube</h2><p class="muted">Bloqueado en movimiento</p></div>
+    <div id="app-player" class="overlay-app"><h2>Pantalla</h2><p class="muted">vescreenflow</p></div>
+    <div id="app-settings" class="overlay-app"><h2>Ajustes</h2><p class="muted">PIN 1234 · flota · OTA · mock</p></div>
+
+    <nav class="dock">
+      <div class="left"><span>🚗</span><strong>19.0°</strong></div>
+      <div class="apps">
+        <button class="active" data-go="home" title="Home">🚘</button>
+        <button data-go="map" title="Mapa">🗺️</button>
+        <button data-go="radio" title="Radio">🎵</button>
+        <button data-go="store" title="Spotify">🟢</button>
+        <button data-go="cameras" title="Cámaras">📷</button>
+        <button data-go="youtube" title="YouTube">▶️</button>
+        <button data-go="player" title="Player">📺</button>
+        <button data-go="settings" title="Ajustes">⚙️</button>
+      </div>
+      <div class="right"><span>▦</span><span>🔊</span><span style="width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block"></span></div>
     </nav>
-    <main class="main">
-      <section id="home">
-        <h2>Centro de control</h2>
-        <p class="muted">Cámaras · Radio · YouTube · Tienda (Spotify) · Pantalla · Mapa</p>
-        <div class="grid">
-          <div class="card" data-go="cameras"><strong>Cámaras</strong>Frontal + trasera</div>
-          <div class="card" data-go="radio"><strong>Radio</strong>Emisoras en vivo</div>
-          <div class="card" data-go="youtube"><strong>YouTube</strong>Video a bordo</div>
-          <div class="card" data-go="store"><strong>Tienda</strong>Spotify Connect</div>
-          <div class="card" data-go="player"><strong>Pantalla</strong>vescreenflow</div>
-          <div class="card" data-go="map"><strong>Mapa</strong>SenseFlow</div>
-        </div>
-      </section>
-      <section id="cameras" class="hidden">
-        <h2>Cámaras del vehículo</h2>
-        <p class="muted">Dual ConcurrentCamera · front / back / USB EXTERNAL</p>
-        <div class="cams">
-          <div class="cam"><span>Panel A · Delantera / retrovisor</span>Camera2 FRONT · USB si aplica</div>
-          <div class="cam"><span>Panel B · Trasera / USB</span>Camera2 BACK / EXTERNAL</div>
-        </div>
-      </section>
-      <section id="radio" class="hidden">
-        <h2>Radio</h2>
-        <p class="muted">Streaming IP (MVP) — mismo UI para FM hardware</p>
-        <div class="list">
-          <div class="row"><div><strong>SomaFM Groove Salad</strong><br><span class="muted">Global · Ambient</span></div><span>▶</span></div>
-          <div class="row"><div><strong>SomaFM Beat Blender</strong><br><span class="muted">Global · Electronic</span></div><span>○</span></div>
-          <div class="row"><div><strong>Radio Paradise</strong><br><span class="muted">Global · Eclectic</span></div><span>○</span></div>
-        </div>
-      </section>
-      <section id="youtube" class="hidden">
-        <h2>YouTube</h2>
-        <p class="muted">Reproductor oficial embebido</p>
-        <iframe class="frame" src="https://m.youtube.com" title="YouTube"></iframe>
-      </section>
-      <section id="store" class="hidden">
-        <h2>Tienda VePlayer</h2>
-        <p class="muted">Spotify App Remote SDK + Play Store — sin APKs pirateados</p>
-        <div class="list">
-          <div class="row" style="flex-direction:column;align-items:flex-start;gap:10px">
-            <div><strong style="color:var(--teal)">Spotify App Remote</strong><br>
-              Enlaza la app Spotify del head-unit (Client ID + veplayer://callback).<br>
-              Botones: Enlazar dispositivo · Play · Pause · playlist de prueba
-            </div>
-            <div>
-              <a class="pill" href="https://play.google.com/store/apps/details?id=com.spotify.music" target="_blank" rel="noopener">Instalar / abrir Spotify</a>
-              <a class="pill ghost" href="https://developer.spotify.com/documentation/android" target="_blank" rel="noopener">Docs App Remote</a>
-            </div>
-          </div>
-          <div class="row" style="flex-direction:column;align-items:flex-start;gap:8px">
-            <div><strong style="color:var(--teal)">Kiosk duro</strong><br>
-              Device Owner + Lock Task · <code>scripts/enable-device-owner.sh</code>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section id="player" class="hidden">
-        <h2>Pantalla vescreenflow</h2>
-        <iframe class="frame" src="https://vescreenflow.com/play" title="Player"></iframe>
-      </section>
-      <section id="map" class="hidden">
-        <h2>Mapa SenseFlow</h2>
-        <p class="muted">Tráfico + personas (requiere API local :4100)</p>
-        <iframe class="frame" src="http://127.0.0.1:4100/" title="SenseFlow"></iframe>
-      </section>
-      <section id="settings" class="hidden">
-        <h2>Ajustes (PIN)</h2>
-        <p class="muted">PIN default 1234 · flota/pairing · OTA · mock reverse/velocidad · bloqueo video</p>
-        <div class="list">
-          <div class="row"><div><strong>PIN servicio</strong><br><span class="muted">Desbloquea URLs, umbral video, mock vehículo</span></div><span>1234</span></div>
-          <div class="row"><div><strong>Flota</strong><br><span class="muted">POST /api/fleet/register + heartbeat</span></div><span>pair_code</span></div>
-          <div class="row"><div><strong>OTA</strong><br><span class="muted">Heartbeat devuelve update_available + apk_url</span></div><span>v0.3</span></div>
-          <div class="row"><div><strong>Reverse mock</strong><br><span class="muted">Fuerza pantalla Cámaras · bloquea YouTube/Player</span></div><span>⏪</span></div>
-        </div>
-      </section>
-    </main>
   </div>
   <script>
-    const tabs = [...document.querySelectorAll('.rail button')]
-    const sections = Object.fromEntries([...document.querySelectorAll('main > section')].map(s => [s.id, s]))
+    const apps = [...document.querySelectorAll('.overlay-app')]
+    const btns = [...document.querySelectorAll('.dock .apps button')]
     function show(id) {
-      Object.values(sections).forEach(s => s.classList.add('hidden'))
-      sections[id].classList.remove('hidden')
-      tabs.forEach(b => b.classList.toggle('active', b.dataset.tab === id))
+      apps.forEach(a => a.classList.remove('show'))
+      btns.forEach(b => b.classList.toggle('active', b.dataset.go === id || (id==='map' && b.dataset.go==='home')))
+      if (id === 'home' || id === 'map') return
+      const el = document.getElementById('app-' + id)
+      if (el) el.classList.add('show')
     }
-    tabs.forEach(b => b.onclick = () => show(b.dataset.tab))
-    document.querySelectorAll('[data-go]').forEach(c => c.onclick = () => show(c.dataset.go))
+    btns.forEach(b => b.onclick = () => show(b.dataset.go))
   </script>
 </body>
 </html>
