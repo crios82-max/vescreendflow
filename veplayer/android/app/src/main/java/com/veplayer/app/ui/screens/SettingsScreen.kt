@@ -41,10 +41,13 @@ import com.veplayer.app.ui.theme.Mist
 import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Panel
 import com.veplayer.app.ui.theme.Teal
+import com.veplayer.app.vehicle.CanBusManager
+import com.veplayer.app.vehicle.SignalSourceKind
 import com.veplayer.app.vehicle.VehicleState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun SettingsScreen() {
@@ -64,8 +67,11 @@ fun SettingsScreen() {
     var newPin by remember { mutableStateOf("") }
     var mockReverse by remember { mutableStateOf(prefs.mockReverse) }
     var mockSpeed by remember { mutableStateOf(prefs.mockSpeedKmh.toString()) }
+    var signalSource by remember { mutableStateOf(prefs.signalSource) }
+    var obdAddr by remember { mutableStateOf(prefs.obdDeviceAddress) }
     var pairCode by remember { mutableStateOf(prefs.pairCodeCached() ?: "—") }
     var otaText by remember { mutableStateOf("OTA: sin chequear") }
+    val live by VehicleState.state.collectAsState()
 
     Column(
         modifier = Modifier
@@ -74,7 +80,7 @@ fun SettingsScreen() {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text("Ajustes", style = MaterialTheme.typography.headlineMedium, color = Mist, fontWeight = FontWeight.Bold)
-        Text("PIN de servicio · flota · OTA · mock vehículo", color = Mute)
+        Text("PIN · flota · OTA · CAN / señales", color = Mute)
 
         if (!unlocked) {
             Column(
@@ -225,7 +231,56 @@ fun SettingsScreen() {
             )
         }
 
+        PanelBlock("Señales vehículo (CAN / OBD / GPS)") {
+            Text("Fuente activa: ${SignalSourceKind.fromId(signalSource).label}", color = Mist)
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                SignalSourceKind.entries.forEach { kind ->
+                    val selected = signalSource == kind.id
+                    if (selected) {
+                        Button(
+                            onClick = {
+                                signalSource = kind.id
+                                prefs.signalSource = kind.id
+                                CanBusManager.rebind()
+                                status = "Fuente → ${kind.label}"
+                            },
+                        ) { Text(kind.id.uppercase()) }
+                    } else {
+                        OutlinedButton(
+                            onClick = {
+                                signalSource = kind.id
+                                prefs.signalSource = kind.id
+                                CanBusManager.rebind()
+                                status = "Fuente → ${kind.label}"
+                            },
+                        ) { Text(kind.id.uppercase()) }
+                    }
+                }
+            }
+            OutlinedTextField(
+                value = obdAddr,
+                onValueChange = { obdAddr = it },
+                label = { Text("OBD ELM327 MAC (opcional)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Text(
+                buildString {
+                    append("Live · ${live.speedKmh.toInt()} km/h · gear ${live.gear}")
+                    append(" · turn ${live.turn}")
+                    append(" · src ${live.source}")
+                    live.batterySocPct?.let { append(" · SOC ${it.toInt()}%") }
+                    live.rpm?.let { append(" · ${it.toInt()} rpm") }
+                    live.headingDeg?.let { append(" · hdg ${it.toInt()}°") }
+                    if (live.anyDoorOpen) append(" · puerta abierta")
+                    if (live.parkingBrake) append(" · freno parking")
+                },
+                color = Mute,
+            )
+        }
+
         PanelBlock("Mock vehículo (demo)") {
+            Text("Aplica sobre mock / can_stub / obd_sim (no pisa GPS real).", color = Mute)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("Marcha atrás", color = Mist)
                 Switch(
@@ -233,7 +288,11 @@ fun SettingsScreen() {
                     onCheckedChange = {
                         mockReverse = it
                         prefs.mockReverse = it
-                        VehicleState.applyMock(mockSpeed.toFloatOrNull() ?: 0f, it)
+                        if (signalSource == "gps") {
+                            VehicleState.applyMock(mockSpeed.toFloatOrNull() ?: 0f, it)
+                        } else {
+                            CanBusManager.rebind()
+                        }
                     },
                 )
             }
@@ -249,8 +308,12 @@ fun SettingsScreen() {
                     val kmh = mockSpeed.toFloatOrNull() ?: 0f
                     prefs.mockSpeedKmh = kmh
                     prefs.mockReverse = mockReverse
-                    VehicleState.applyMock(kmh, mockReverse)
-                    status = "Mock aplicado: ${kmh} km/h reverse=$mockReverse"
+                    if (signalSource == "gps") {
+                        VehicleState.applyMock(kmh, mockReverse)
+                    } else {
+                        CanBusManager.rebind()
+                    }
+                    status = "Mock: ${kmh} km/h reverse=$mockReverse"
                 },
             ) { Text("Aplicar mock") }
         }
@@ -273,8 +336,11 @@ fun SettingsScreen() {
                 prefs.playerUrl = playerUrl
                 prefs.deviceName = deviceName
                 prefs.videoSpeedBlockKmh = blockKmh.toFloatOrNull() ?: 8f
+                prefs.signalSource = signalSource
+                prefs.obdDeviceAddress = obdAddr
                 if (newPin.length >= 4) prefs.pin = newPin
-                status = "Guardado"
+                CanBusManager.rebind()
+                status = "Guardado · fuente ${prefs.signalSource}"
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text("Guardar ajustes") }

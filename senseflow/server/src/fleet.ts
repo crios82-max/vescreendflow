@@ -59,6 +59,7 @@ const heartbeatSchema = z.object({
   lng: z.number().optional(),
   speed_mps: z.number().optional(),
   reverse: z.boolean().optional(),
+  vehicle_signals: z.record(z.unknown()).optional(),
 })
 
 fleetRouter.post('/heartbeat', (req, res) => {
@@ -74,6 +75,16 @@ fleetRouter.post('/heartbeat', (req, res) => {
     res.status(404).json({ error: 'dispositivo no registrado — POST /api/fleet/register' })
     return
   }
+
+  const signals = d.vehicle_signals
+  const speedFromSignals =
+    typeof signals?.speed_mps === 'number' ? (signals.speed_mps as number) : undefined
+  const reverseFromSignals =
+    typeof signals?.reverse === 'boolean' ? (signals.reverse as boolean) : undefined
+  const speed = d.speed_mps ?? speedFromSignals
+  const reverse = d.reverse ?? reverseFromSignals
+  const telemetryJson = signals != null ? JSON.stringify(signals) : null
+
   db.prepare(
     `
     UPDATE fleet_devices SET
@@ -84,6 +95,7 @@ fleetRouter.post('/heartbeat', (req, res) => {
       last_lng = COALESCE(@lng, last_lng),
       last_speed_mps = COALESCE(@speed_mps, last_speed_mps),
       reverse = COALESCE(@reverse, reverse),
+      telemetry_json = COALESCE(@telemetry_json, telemetry_json),
       status = 'online'
     WHERE device_id = @device_id
   `,
@@ -94,8 +106,9 @@ fleetRouter.post('/heartbeat', (req, res) => {
     version_code: d.version_code ?? null,
     lat: d.lat ?? null,
     lng: d.lng ?? null,
-    speed_mps: d.speed_mps ?? null,
-    reverse: d.reverse == null ? null : d.reverse ? 1 : 0,
+    speed_mps: speed ?? null,
+    reverse: reverse == null ? null : reverse ? 1 : 0,
+    telemetry_json: telemetryJson,
   })
 
   const latest = db
@@ -177,11 +190,25 @@ fleetRouter.get('/devices', (_req, res) => {
   const rows = db
     .prepare(
       `SELECT device_id, pair_code, name, app_version, version_code, last_seen_at,
-              last_lat, last_lng, last_speed_mps, reverse, status
+              last_lat, last_lng, last_speed_mps, reverse, status, telemetry_json
        FROM fleet_devices ORDER BY last_seen_at DESC`,
     )
-    .all()
-  res.json({ devices: rows })
+    .all() as Array<Record<string, unknown>>
+
+  const devices = rows.map((r) => {
+    let vehicle_signals: unknown = null
+    const raw = r.telemetry_json
+    if (typeof raw === 'string' && raw.length > 0) {
+      try {
+        vehicle_signals = JSON.parse(raw)
+      } catch {
+        vehicle_signals = null
+      }
+    }
+    const { telemetry_json: _drop, ...rest } = r
+    return { ...rest, vehicle_signals }
+  })
+  res.json({ devices })
 })
 
 fleetRouter.get('/ota/latest', (_req, res) => {

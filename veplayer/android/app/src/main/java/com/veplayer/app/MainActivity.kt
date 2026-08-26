@@ -63,6 +63,7 @@ import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Night
 import com.veplayer.app.ui.theme.Teal
 import com.veplayer.app.ui.theme.VePlayerTheme
+import com.veplayer.app.vehicle.CanBusManager
 import com.veplayer.app.vehicle.VehicleState
 import com.veplayer.app.watchdog.WatchdogService
 import kotlinx.coroutines.flow.collectLatest
@@ -80,7 +81,8 @@ class MainActivity : ComponentActivity() {
         KioskController.tryStartLockTask(this)
 
         val prefs = VePrefs(this)
-        if (prefs.mockReverse || prefs.mockSpeedKmh > 0f) {
+        CanBusManager.start(this)
+        if (prefs.signalSource == "gps" && (prefs.mockReverse || prefs.mockSpeedKmh > 0f)) {
             VehicleState.applyMock(prefs.mockSpeedKmh, prefs.mockReverse)
         }
         ContextCompat.startForegroundService(this, Intent(this, SenseBridgeService::class.java))

@@ -44,6 +44,8 @@ import com.veplayer.app.ui.theme.Mist
 import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Night
 import com.veplayer.app.ui.theme.Road
+import com.veplayer.app.vehicle.Gear
+import com.veplayer.app.vehicle.TurnSignal
 import com.veplayer.app.vehicle.VehicleSnapshot
 
 @Composable
@@ -60,18 +62,40 @@ fun DriveVizPanel(
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
             Text(
-                if (vehicle.reverse) "R" else vehicle.speedKmh.toInt().toString(),
+                when {
+                    vehicle.reverse -> "R"
+                    vehicle.gear == Gear.P -> "P"
+                    vehicle.gear == Gear.N -> "N"
+                    else -> vehicle.speedKmh.toInt().toString()
+                },
                 color = Mist,
                 fontSize = 64.sp,
                 fontWeight = FontWeight.Light,
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                if (vehicle.reverse) "REVERSE" else "km/h",
-                color = Mute,
-                fontSize = 18.sp,
-                modifier = Modifier.padding(bottom = 12.dp),
-            )
+            Column(modifier = Modifier.padding(bottom = 10.dp)) {
+                Text(
+                    when {
+                        vehicle.reverse -> "REVERSE"
+                        vehicle.gear == Gear.P -> "PARK"
+                        vehicle.gear == Gear.N -> "NEUTRAL"
+                        else -> "km/h"
+                    },
+                    color = Mute,
+                    fontSize = 18.sp,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    TurnChip("◀", vehicle.turn == TurnSignal.LEFT || vehicle.turn == TurnSignal.HAZARD)
+                    TurnChip("▶", vehicle.turn == TurnSignal.RIGHT || vehicle.turn == TurnSignal.HAZARD)
+                    Text(vehicle.source, color = Mute, fontSize = 11.sp)
+                }
+            }
+        }
+        vehicle.batterySocPct?.let { soc ->
+            Text("SOC ${soc.toInt()}% · rango ${vehicle.rangeKm?.toInt() ?: "—"} km", color = Mute, fontSize = 12.sp)
+        }
+        vehicle.rpm?.let { rpm ->
+            Text("RPM ${rpm.toInt()} · coolant ${vehicle.coolantC?.toInt() ?: "—"}°C", color = Mute, fontSize = 12.sp)
         }
         val counts =
             surround.actors.groupingBy { it.kind }.eachCount()
@@ -149,6 +173,16 @@ fun DriveVizPanel(
             }
         }
     }
+}
+
+@Composable
+private fun TurnChip(label: String, on: Boolean) {
+    Text(
+        label,
+        color = if (on) Color(0xFFFFC107) else Mute,
+        fontSize = 12.sp,
+        fontWeight = if (on) FontWeight.Bold else FontWeight.Normal,
+    )
 }
 
 @Composable

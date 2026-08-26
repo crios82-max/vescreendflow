@@ -72,6 +72,13 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_fleet_cmd_pending ON fleet_commands(device_id, status);
 `)
 
+// Migrations for existing DBs
+try {
+  db.exec(`ALTER TABLE fleet_devices ADD COLUMN telemetry_json TEXT`)
+} catch {
+  // column already exists
+}
+
 // Seed a placeholder OTA row if empty
 const otaCount = db.prepare('SELECT COUNT(*) AS n FROM ota_releases').get() as { n: number }
 if (otaCount.n === 0) {

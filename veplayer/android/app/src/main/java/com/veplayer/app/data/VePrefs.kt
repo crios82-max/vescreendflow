@@ -32,6 +32,16 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("mock_speed_kmh", 0f)
         set(value) = sp.edit().putFloat("mock_speed_kmh", value).apply()
 
+    /** gps | mock | can | obd — see [com.veplayer.app.vehicle.SignalSourceKind]. */
+    var signalSource: String
+        get() = sp.getString("signal_source", "gps") ?: "gps"
+        set(value) = sp.edit().putString("signal_source", value.trim().lowercase()).apply()
+
+    /** Bluetooth MAC for ELM327 (optional; simulator used if blank / unlinkable). */
+    var obdDeviceAddress: String
+        get() = sp.getString("obd_device_address", "") ?: ""
+        set(value) = sp.edit().putString("obd_device_address", value.trim()).apply()
+
     var deviceName: String
         get() = sp.getString("device_name", "VePlayer") ?: "VePlayer"
         set(value) = sp.edit().putString("device_name", value).apply()

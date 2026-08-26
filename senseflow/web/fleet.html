@@ -33,7 +33,7 @@
   <div id="toast"></div>
   <table>
     <thead>
-      <tr><th>Nombre</th><th>Pair</th><th>Versión</th><th>Seen</th><th>Speed</th><th>Rev</th><th>Comandos</th></tr>
+      <tr><th>Nombre</th><th>Pair</th><th>Versión</th><th>Seen</th><th>Speed</th><th>Señales</th><th>Comandos</th></tr>
     </thead>
     <tbody id="rows"></tbody>
   </table>
@@ -65,11 +65,20 @@
         const tr = document.createElement('tr')
         const seen = d.last_seen_at ? new Date(d.last_seen_at * 1000).toLocaleString() : '—'
         const id = d.device_id
+        const vs = d.vehicle_signals || {}
+        const sigBits = []
+        if (vs.gear) sigBits.push(vs.gear)
+        if (d.reverse || vs.reverse) sigBits.push('R')
+        if (vs.turn && vs.turn !== 'off') sigBits.push(vs.turn)
+        if (vs.battery_soc_pct != null) sigBits.push(`SOC ${Math.round(vs.battery_soc_pct)}%`)
+        if (vs.rpm != null) sigBits.push(`${Math.round(vs.rpm)} rpm`)
+        if (vs.source) sigBits.push(vs.source)
+        const sig = sigBits.length ? sigBits.join(' · ') : (d.reverse ? '⏪' : '—')
         tr.innerHTML = `<td>${d.name || '—'}</td><td>${d.pair_code || '—'}</td>
           <td>${d.app_version || '—'} (${d.version_code ?? '—'})</td>
           <td>${seen}</td>
           <td>${d.last_speed_mps != null ? (d.last_speed_mps*3.6).toFixed(0)+' km/h' : '—'}</td>
-          <td>${d.reverse ? '⏪' : '—'}</td>
+          <td>${sig}</td>
           <td class="cmds"></td>`
         const cell = tr.querySelector('.cmds')
         const mk = (label, cmd, cls, payload) => {
