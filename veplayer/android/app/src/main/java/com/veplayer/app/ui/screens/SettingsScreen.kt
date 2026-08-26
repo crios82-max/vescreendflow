@@ -545,6 +545,22 @@ fun SettingsScreen() {
                     }
                 }
             }
+            var mapTiles by remember { mutableStateOf(prefs.mapTilesEnabled) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Tiles OSM (mapa nativo)", color = Mist)
+                Switch(
+                    checked = mapTiles,
+                    onCheckedChange = {
+                        mapTiles = it
+                        prefs.mapTilesEnabled = it
+                        status = if (it) "Tiles OSM ON" else "Tiles OSM OFF"
+                    },
+                )
+            }
             Text("Destino rápido (Caracas demo)", color = Mute)
             val presets =
                 listOf(

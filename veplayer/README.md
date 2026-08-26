@@ -115,17 +115,19 @@ npm run veplayer:fm-smoke
 
 En HU con chip FM real, `listModules()` no vacío → HAL; si no, sim con RDS fake.
 
-## Mapa nativo (v0.16)
+## Mapa nativo (v0.16) + tiles OSM (v0.19)
 
 Cockpit **Compose** (sin WebView por defecto):
 
 - Polyline desde `NavEngine.geometry` · ego chevron (heading) · destino
 - Chips de destinos SenseFlow `/api/nav/destinations`
 - Chrome ETA / próximo giro
+- **Tiles OSM** (Web Mercator) bajo la ruta · cache disco · Ajustes → Tiles OSM
 - Fallback WebView: Ajustes → Mapa → WebView (`map_mode=web`)
 
 ```bash
 npm run veplayer:nav-map-smoke
+npm run veplayer:osm-tiles-smoke
 ```
 
 ## Flota ops (v0.17)
@@ -175,6 +177,18 @@ npm run veplayer:fleet-auth-smoke
 ```
 
 `/fleet.html` pide login (usuario/clave o token).
+
+## Tiles OSM nativos (v0.19)
+
+Mapa Compose con rasters OSM alineados (Web Mercator):
+
+- `WebMercator` + `OsmTileStore` (cache disco/memoria, User-Agent VePlayer)
+- Overlay ruta / ego / destino encima de tiles + scrim nocturno
+- Prefs: `map_tiles` (default ON), `map_tile_url` con `{z}/{x}/{y}`
+
+```bash
+npm run veplayer:osm-tiles-smoke
+```
 
 ## Device Owner (kiosk duro · v0.12)
 

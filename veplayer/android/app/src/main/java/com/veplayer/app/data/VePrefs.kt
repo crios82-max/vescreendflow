@@ -117,6 +117,18 @@ class VePrefs(context: Context) {
         get() = sp.getString("map_mode", "native") ?: "native"
         set(value) = sp.edit().putString("map_mode", value.trim().lowercase()).apply()
 
+    /** OSM (or compatible) raster tiles under native Compose map. */
+    var mapTilesEnabled: Boolean
+        get() = sp.getBoolean("map_tiles", true)
+        set(value) = sp.edit().putBoolean("map_tiles", value).apply()
+
+    /** Tile URL template with {z}/{x}/{y}. Default: OSM. */
+    var mapTileUrl: String
+        get() =
+            sp.getString("map_tile_url", "https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+                ?: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+        set(value) = sp.edit().putString("map_tile_url", value.trim()).apply()
+
     var deviceName: String
         get() = sp.getString("device_name", "VePlayer") ?: "VePlayer"
         set(value) = sp.edit().putString("device_name", value).apply()
