@@ -12,6 +12,11 @@ val localProps = Properties().apply {
     if (f.exists()) load(FileInputStream(f))
 }
 
+val keystoreProps = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) load(FileInputStream(f))
+}
+
 fun propOrEnv(key: String, default: String): String =
     System.getenv(key)?.takeIf { it.isNotBlank() }
         ?: localProps.getProperty(key)?.takeIf { it.isNotBlank() }
@@ -25,10 +30,14 @@ android {
         applicationId = "com.veplayer.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 14
-        versionName = "0.12.0"
-        buildConfigField("String", "SENSEFLOW_URL", "\"http://10.0.2.2:4100\"")
-        buildConfigField("String", "PLAYER_URL", "\"https://vescreenflow.com/play\"")
+        versionCode = 15
+        versionName = "0.13.0"
+        buildConfigField(
+            "String",
+            "SENSEFLOW_URL",
+            "\"${propOrEnv("SENSEFLOW_URL", "http://10.0.2.2:4100")}\"",
+        )
+        buildConfigField("String", "PLAYER_URL", "\"${propOrEnv("PLAYER_URL", "https://vescreenflow.com/play")}\"")
         buildConfigField(
             "String",
             "SPOTIFY_CLIENT_ID",
@@ -41,6 +50,18 @@ android {
         )
     }
 
+    signingConfigs {
+        create("field") {
+            val store = keystoreProps.getProperty("storeFile")
+            if (store != null) {
+                storeFile = rootProject.file(store)
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -48,6 +69,14 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            val field = signingConfigs.findByName("field")
+            if (field?.storeFile != null && field.storeFile!!.exists()) {
+                signingConfig = field
+            } else {
+                // Local/CI without keystore: still produce an installable APK (debug-signed).
+                signingConfig = signingConfigs.getByName("debug")
+                println("WARNING: release using debug signing — run scripts/gen-field-keystore.sh for field builds")
+            }
         }
         debug {
             applicationIdSuffix = ".debug"

@@ -94,7 +94,17 @@ class SenseBridgeService : Service() {
                                 reverse = snap.reverse,
                                 vehicleSignals =
                                     snap.toJsonMap() +
-                                        mapOf("kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService)),
+                                        mapOf(
+                                            "kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService),
+                                            "field" to
+                                                mapOf(
+                                                    "package" to packageName,
+                                                    "cams" to com.veplayer.app.camera.CameraCatalog.list(this@SenseBridgeService).size,
+                                                    "signal_source" to prefs.signalSource,
+                                                    "can" to com.veplayer.app.vehicle.can.CanLinkBus.state.value.state.name,
+                                                    "obd" to com.veplayer.app.vehicle.ObdLinkBus.state.value.state.name,
+                                                ),
+                                        ),
                             ).getOrThrow()
                         remote.handle(hb.commands)
                         remote.handleAlerts(hb.alerts)
@@ -129,7 +139,17 @@ class SenseBridgeService : Service() {
                         reverse = snap.reverse,
                         vehicleSignals =
                             snap.toJsonMap() +
-                                mapOf("kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService)),
+                                mapOf(
+                                    "kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService),
+                                    "field" to
+                                        mapOf(
+                                            "package" to packageName,
+                                            "cams" to com.veplayer.app.camera.CameraCatalog.list(this@SenseBridgeService).size,
+                                            "signal_source" to prefs.signalSource,
+                                            "can" to com.veplayer.app.vehicle.can.CanLinkBus.state.value.state.name,
+                                            "obd" to com.veplayer.app.vehicle.ObdLinkBus.state.value.state.name,
+                                        ),
+                                ),
                     ).getOrThrow()
                 remote.handle(hb.commands)
                 remote.handleAlerts(hb.alerts)

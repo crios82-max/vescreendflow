@@ -21,6 +21,68 @@ cd veplayer/android
 # APK: app/build/outputs/apk/debug/app-debug.apk
 ```
 
+## Campo real (v0.13)
+
+Comisionar head-unit / tablet de flota con APK **release firmado**:
+
+```bash
+# 1) Keystore de campo (local, no se sube a git)
+veplayer/scripts/gen-field-keystore.sh
+
+# 2) Build (en máquina con Android SDK)
+cd veplayer/android
+# opcional: SenseFlow de flota
+echo 'SENSEFLOW_URL=https://sense.tu-dominio.com' >> local.properties
+./gradlew :app:assembleRelease
+
+# 3) Instalar + Device Owner + permisos
+../scripts/field-deploy.sh \
+  app/build/outputs/apk/release/app-release.apk \
+  com.veplayer.app
+```
+
+En la unidad: **Ajustes (PIN) → Campo → Diagnóstico** (cámaras, USB, BT, CAN/OBD, SenseFlow, kiosk).
+
+Remoto: cmd `run_diag` desde `/fleet.html` o:
+
+```bash
+npm run veplayer:field-smoke
+curl -X POST http://127.0.0.1:4100/api/fleet/command \
+  -H 'content-type: application/json' \
+  -d '{"device_id":"…","command":"run_diag"}'
+```
+
+Checklist campo:
+
+1. Sin cuentas Google (o wipe) → Device Owner OK  
+2. Release `com.veplayer.app` (no `.debug`)  
+3. CAN/OBD/USB visibles en diag  
+4. Heartbeat flota + OTA auto  
+5. Lock Task tras boot  
+
+## OTA prod (v0.13)
+
+SenseFlow sirve APKs desde `senseflow/ota/` en `/ota/…`:
+
+```bash
+# tras assembleRelease
+veplayer/scripts/publish-ota.sh \
+  veplayer/android/app/build/outputs/apk/release/app-release.apk \
+  0.13.0 15 "campo release"
+
+# opcional: encolar OTA silenciosa a unidades desactualizadas
+ROLLOUT=1 veplayer/scripts/publish-ota.sh … 0.13.0 15
+
+# o:
+curl -X POST http://127.0.0.1:4100/api/fleet/ota/rollout \
+  -H 'content-type: application/json' \
+  -d '{"version_code":15,"silent":true}'
+
+npm run veplayer:ota-smoke
+```
+
+`PUBLIC_BASE` = URL que ven las unidades (túnel Cloudflare / LAN). Default = `SENSEFLOW_URL`.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
