@@ -94,6 +94,7 @@ class SenseBridgeService : Service() {
                                 vehicleSignals = snap.toJsonMap(),
                             ).getOrThrow()
                         remote.handle(hb.commands)
+                        remote.handleAlerts(hb.alerts)
                     }
                     runCatching {
                         val actors =
