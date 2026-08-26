@@ -586,6 +586,22 @@ fun SettingsScreen() {
                     },
                 )
             }
+            var mapCrowd by remember { mutableStateOf(prefs.mapCrowdEnabled) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Crowd SenseFlow en mapa", color = Mist)
+                Switch(
+                    checked = mapCrowd,
+                    onCheckedChange = {
+                        mapCrowd = it
+                        prefs.mapCrowdEnabled = it
+                        status = if (it) "Crowd ON" else "Crowd OFF"
+                    },
+                )
+            }
             Text("Destino rápido (Caracas demo)", color = Mute)
             val presets =
                 listOf(

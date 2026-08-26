@@ -105,4 +105,25 @@ object GeoProjection {
         if (total <= 0) return 0f
         return (done / total).toFloat().coerceIn(0f, 1f)
     }
+
+    /**
+     * Vehicle-frame offset (+y ahead, +x right) → geographic point.
+     * [headingDeg] clockwise from north.
+     */
+    fun offsetToLatLng(
+        ego: LatLng,
+        headingDeg: Float,
+        xM: Float,
+        yM: Float,
+    ): LatLng {
+        val h = Math.toRadians(headingDeg.toDouble())
+        val cosH = cos(h)
+        val sinH = sin(h)
+        val northM = yM * cosH - xM * sinH
+        val eastM = yM * sinH + xM * cosH
+        val dLat = northM / 111_320.0
+        val cosLat = cos(Math.toRadians(ego.lat)).coerceAtLeast(1e-6)
+        val dLng = eastM / (111_320.0 * cosLat)
+        return LatLng(ego.lat + dLat, ego.lng + dLng)
+    }
 }

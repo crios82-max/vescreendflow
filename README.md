@@ -285,7 +285,18 @@ Badge de límite + color por banda (ok / cerca / exceso):
 npm run veplayer:speed-hud-smoke
 ```
 
-**Fase 4 (siguiente):** crowd en mapa nativo · mantenimiento odómetro.
+## Crowd en mapa nativo (v0.27)
+
+Actores SenseFlow/visión sobre el canvas OSM:
+
+- `offsetToLatLng` (marco vehículo → geo) · puntos por kind (persona/moto/auto…)
+- Chip **Crowd** en mapa · Ajustes toggle · pref `map_crowd`
+
+```bash
+npm run veplayer:crowd-map-smoke
+```
+
+**Fase 4 (siguiente):** mantenimiento odómetro.
 
 ## Device Owner (kiosk duro · v0.12)
 
