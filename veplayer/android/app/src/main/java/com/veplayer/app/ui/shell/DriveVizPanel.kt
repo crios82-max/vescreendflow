@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
@@ -24,6 +23,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +35,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.veplayer.app.surround.ActorKind
+import com.veplayer.app.surround.SurroundActor
+import com.veplayer.app.surround.SurroundEngine
 import com.veplayer.app.ui.theme.Card
 import com.veplayer.app.ui.theme.Lane
 import com.veplayer.app.ui.theme.Mist
@@ -47,12 +51,13 @@ fun DriveVizPanel(
     vehicle: VehicleSnapshot,
     modifier: Modifier = Modifier,
 ) {
+    val surround by SurroundEngine.snapshot.collectAsState()
+
     Column(
         modifier = modifier
             .background(Night)
             .padding(horizontal = 20.dp, vertical = 12.dp),
     ) {
-        // Speed
         Row(verticalAlignment = Alignment.Bottom) {
             Text(
                 if (vehicle.reverse) "R" else vehicle.speedKmh.toInt().toString(),
@@ -60,7 +65,7 @@ fun DriveVizPanel(
                 fontSize = 64.sp,
                 fontWeight = FontWeight.Light,
             )
-            Spacer(Modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 if (vehicle.reverse) "REVERSE" else "km/h",
                 color = Mute,
@@ -68,11 +73,31 @@ fun DriveVizPanel(
                 modifier = Modifier.padding(bottom = 12.dp),
             )
         }
-        Text("Límite 50", color = Mute, fontSize = 13.sp)
+        val counts =
+            surround.actors.groupingBy { it.kind }.eachCount()
+        Text(
+            buildString {
+                append("Límite 50")
+                if (surround.actors.isNotEmpty()) {
+                    append(" · ")
+                    append(counts[ActorKind.PERSON] ?: 0)
+                    append(" personas · ")
+                    append((counts[ActorKind.MOTORCYCLE] ?: 0) + (counts[ActorKind.BICYCLE] ?: 0))
+                    append(" motos/bici · ")
+                    append(
+                        (counts[ActorKind.CAR] ?: 0) +
+                            (counts[ActorKind.TRUCK] ?: 0) +
+                            (counts[ActorKind.BUS] ?: 0),
+                    )
+                    append(" vehículos")
+                }
+            },
+            color = Mute,
+            fontSize = 13.sp,
+        )
 
-        Spacer(Modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // 3D-ish road viz
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -80,12 +105,14 @@ fun DriveVizPanel(
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color(0xFF0A0A0A)),
         ) {
-            RoadSceneCanvas(modifier = Modifier.fillMaxSize())
+            RoadSceneCanvas(
+                actors = surround.actors,
+                modifier = Modifier.fillMaxSize(),
+            )
         }
 
-        Spacer(Modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // Media widget (Tesla-style)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -95,7 +122,7 @@ fun DriveVizPanel(
         ) {
             Text("Euphoria - Single Version", color = Mist, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
             Text("Loreen", color = Mute, fontSize = 13.sp)
-            Spacer(Modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             LinearProgressIndicator(
                 progress = { 0.42f },
                 modifier = Modifier
@@ -125,13 +152,14 @@ fun DriveVizPanel(
 }
 
 @Composable
-private fun RoadSceneCanvas(modifier: Modifier = Modifier) {
+private fun RoadSceneCanvas(
+    actors: List<SurroundActor>,
+    modifier: Modifier = Modifier,
+) {
     Canvas(modifier = modifier) {
         val w = size.width
         val h = size.height
-        // road
         drawRect(Road, topLeft = Offset(w * 0.18f, 0f), size = Size(w * 0.64f, h))
-        // lane dashes
         var y = 20f
         while (y < h) {
             drawRoundRect(
@@ -142,33 +170,70 @@ private fun RoadSceneCanvas(modifier: Modifier = Modifier) {
             )
             y += 56f
         }
-        // ego car (white)
+
+        // Map meters → canvas: ego at bottom-center; ahead = up; right = right
+        val maxAhead = 45f
+        val maxLat = 8f
+        fun toCanvas(actor: SurroundActor): Offset {
+            val nx = ((actor.xM / maxLat) * 0.5f + 0.5f).coerceIn(0.05f, 0.95f)
+            val ny = (1f - (actor.yM / maxAhead)).coerceIn(0.05f, 0.92f)
+            return Offset(nx * w, ny * h)
+        }
+
+        for (actor in actors) {
+            val p = toCanvas(actor)
+            when (actor.kind) {
+                ActorKind.PERSON -> {
+                    // small standing figure
+                    drawCircle(Color(0xFFFFCC80), radius = 8f, center = p)
+                    drawRoundRect(
+                        Color(0xFFFFB74D),
+                        topLeft = Offset(p.x - 5f, p.y - 22f),
+                        size = Size(10f, 18f),
+                        cornerRadius = CornerRadius(4f, 4f),
+                    )
+                }
+                ActorKind.MOTORCYCLE, ActorKind.BICYCLE -> {
+                    drawRoundRect(
+                        Color(0xFF80CBC4),
+                        topLeft = Offset(p.x - 14f, p.y - 10f),
+                        size = Size(28f, 16f),
+                        cornerRadius = CornerRadius(8f, 8f),
+                    )
+                    drawCircle(Color(0xFF004D40), radius = 5f, center = Offset(p.x - 10f, p.y + 6f))
+                    drawCircle(Color(0xFF004D40), radius = 5f, center = Offset(p.x + 10f, p.y + 6f))
+                }
+                ActorKind.TRUCK, ActorKind.BUS -> {
+                    val bw = w * 0.14f
+                    val bh = h * 0.16f
+                    drawRoundRect(
+                        Color(0xFF78909C),
+                        topLeft = Offset(p.x - bw / 2, p.y - bh / 2),
+                        size = Size(bw, bh),
+                        cornerRadius = CornerRadius(12f, 12f),
+                    )
+                }
+                ActorKind.CAR, ActorKind.UNKNOWN -> {
+                    val bw = w * 0.11f
+                    val bh = h * 0.12f
+                    drawRoundRect(
+                        Color(0xFF9E9E9E),
+                        topLeft = Offset(p.x - bw / 2, p.y - bh / 2),
+                        size = Size(bw, bh),
+                        cornerRadius = CornerRadius(14f, 14f),
+                    )
+                }
+            }
+        }
+
+        // Ego car (white) — always bottom-center
         val carW = w * 0.16f
         val carH = h * 0.22f
         drawRoundRect(
             color = Color(0xFFE8E8E8),
-            topLeft = Offset(w * 0.42f, h * 0.55f),
+            topLeft = Offset(w * 0.42f, h * 0.72f),
             size = Size(carW, carH),
             cornerRadius = CornerRadius(18f, 18f),
-        )
-        // other vehicles (grey blocks)
-        drawRoundRect(
-            color = Color(0xFF6E6E6E),
-            topLeft = Offset(w * 0.22f, h * 0.18f),
-            size = Size(carW * 1.1f, carH * 0.9f),
-            cornerRadius = CornerRadius(14f, 14f),
-        )
-        drawRoundRect(
-            color = Color(0xFF7A7A7A),
-            topLeft = Offset(w * 0.58f, h * 0.08f),
-            size = Size(carW * 0.95f, carH * 0.85f),
-            cornerRadius = CornerRadius(14f, 14f),
-        )
-        drawRoundRect(
-            color = Color(0xFF5C5C5C),
-            topLeft = Offset(w * 0.62f, h * 0.62f),
-            size = Size(carW * 0.9f, carH * 0.8f),
-            cornerRadius = CornerRadius(12f, 12f),
         )
     }
 }

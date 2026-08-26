@@ -58,6 +58,29 @@ const tx = db.transaction(() => {
       p++
     }
   }
+
+  // Tight surround ring around ego for left-panel viz (personas / motos / autos)
+  for (let i = 0; i < 18; i++) {
+    const ang = (i / 18) * Math.PI * 2
+    const distM = 12 + (i % 5) * 6
+    const dLat = (Math.cos(ang) * distM) / 111320
+    const dLng = (Math.sin(ang) * distM) / (111320 * Math.cos((CENTER.lat * Math.PI) / 180))
+    const lat = CENTER.lat + dLat
+    const lng = CENTER.lng + dLng
+    const kindRoll = i % 3
+    const activity = kindRoll === 0 ? 'ON_FOOT' : 'IN_VEHICLE'
+    const speed = kindRoll === 0 ? 1.2 : kindRoll === 1 ? 12 : 22
+    insert.run({
+      lat,
+      lng,
+      accuracy_m: 6,
+      speed_mps: speed,
+      activity,
+      geohash: encodeGeohash(lat, lng, 7),
+      device_bucket: `surr_${String(i).padStart(2, '0')}_day`,
+      ts: now - Math.floor(Math.random() * 120),
+    })
+  }
 })
 
 tx()

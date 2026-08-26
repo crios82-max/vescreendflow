@@ -55,6 +55,7 @@ import com.veplayer.app.ui.screens.RadioScreen
 import com.veplayer.app.ui.screens.SettingsScreen
 import com.veplayer.app.ui.screens.StoreScreen
 import com.veplayer.app.ui.screens.YouTubeScreen
+import com.veplayer.app.surround.SurroundVision
 import com.veplayer.app.ui.shell.BottomDock
 import com.veplayer.app.ui.shell.DriveVizPanel
 import com.veplayer.app.ui.theme.Mist
@@ -69,6 +70,7 @@ import kotlinx.coroutines.flow.collectLatest
 class MainActivity : ComponentActivity() {
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { }
+    private var surroundVision: SurroundVision? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +85,7 @@ class MainActivity : ComponentActivity() {
         }
         ContextCompat.startForegroundService(this, Intent(this, SenseBridgeService::class.java))
         WatchdogService.start(this)
+        surroundVision = SurroundVision(this).also { it.start(this) }
 
         setContent {
             VePlayerTheme {
@@ -162,6 +165,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        surroundVision?.stop()
+        surroundVision = null
+        super.onDestroy()
     }
 
     override fun onResume() {

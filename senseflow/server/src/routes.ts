@@ -233,3 +233,91 @@ apiRouter.get('/stats', (_req, res) => {
     by_activity: byActivity,
   })
 })
+
+/** Actors around ego for Tesla-like left viz (meters: +y ahead, +x right). */
+apiRouter.get('/surround', (req, res) => {
+  const lat = Number(req.query.lat)
+  const lng = Number(req.query.lng)
+  const radiusM = Math.min(300, Math.max(40, Number(req.query.radius_m) || 120))
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    res.status(400).json({ error: 'lat/lng requeridos' })
+    return
+  }
+  const since = sinceTs(Math.min(WINDOW_SEC, 5 * 60))
+  // ~1° lat ≈ 111km; lng scales with cos(lat)
+  const dLat = radiusM / 111_320
+  const dLng = radiusM / (111_320 * Math.cos((lat * Math.PI) / 180))
+
+  const rows = db
+    .prepare(
+      `
+    SELECT lat, lng, speed_mps, activity, device_bucket, ts
+    FROM pings
+    WHERE ts >= ?
+      AND lat BETWEEN ? AND ?
+      AND lng BETWEEN ? AND ?
+    ORDER BY ts DESC
+    LIMIT 400
+  `,
+    )
+    .all(since, lat - dLat, lat + dLat, lng - dLng, lng + dLng) as Array<{
+    lat: number
+    lng: number
+    speed_mps: number | null
+    activity: Activity
+    device_bucket: string
+    ts: number
+  }>
+
+  // Keep latest ping per device
+  const latest = new Map<string, (typeof rows)[0]>()
+  for (const r of rows) {
+    if (!latest.has(r.device_bucket)) latest.set(r.device_bucket, r)
+  }
+
+  const actors = [...latest.values()]
+    .map((r) => {
+      const { x, y } = toLocalMeters(lat, lng, r.lat, r.lng)
+      const dist = Math.hypot(x, y)
+      if (dist < 2 || dist > radiusM) return null
+      const speed = r.speed_mps ?? 0
+      const kind =
+        r.activity === 'ON_FOOT' || r.activity === 'STILL'
+          ? 'person'
+          : speed >= 8 && speed < 18
+            ? 'motorcycle'
+            : speed >= 18
+              ? 'car'
+              : r.activity === 'IN_VEHICLE'
+                ? 'car'
+                : 'unknown'
+      return {
+        id: r.device_bucket.slice(0, 12),
+        kind,
+        x_m: Math.round(x * 10) / 10,
+        y_m: Math.round(y * 10) / 10,
+        speed_mps: Math.round(speed * 10) / 10,
+        source: 'senseflow',
+      }
+    })
+    .filter(Boolean)
+
+  res.json({
+    ego: { lat, lng },
+    radius_m: radiusM,
+    actors,
+  })
+})
+
+function toLocalMeters(
+  egoLat: number,
+  egoLng: number,
+  lat: number,
+  lng: number,
+): { x: number; y: number } {
+  const mPerDegLat = 111_320
+  const mPerDegLng = 111_320 * Math.cos((egoLat * Math.PI) / 180)
+  const y = (lat - egoLat) * mPerDegLat // north ≈ ahead if heading north; UI treats +y as ahead
+  const x = (lng - egoLng) * mPerDegLng // east ≈ right
+  return { x, y }
+}
