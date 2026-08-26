@@ -72,6 +72,9 @@
         if (vs.turn && vs.turn !== 'off') sigBits.push(vs.turn)
         if (vs.battery_soc_pct != null) sigBits.push(`SOC ${Math.round(vs.battery_soc_pct)}%`)
         if (vs.rpm != null) sigBits.push(`${Math.round(vs.rpm)} rpm`)
+        if (vs.abs_active) sigBits.push('ABS')
+        if (vs.tpms && vs.tpms.low) sigBits.push('TPMS↓')
+        if (vs.hvac && vs.hvac.cabin_c != null) sigBits.push(`HVAC ${Math.round(vs.hvac.cabin_c)}°`)
         if (vs.source) sigBits.push(vs.source)
         const sig = sigBits.length ? sigBits.join(' · ') : (d.reverse ? '⏪' : '—')
         tr.innerHTML = `<td>${d.name || '—'}</td><td>${d.pair_code || '—'}</td>

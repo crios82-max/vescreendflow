@@ -69,12 +69,31 @@ data class VehicleSignals(
     val headingDeg: Float? = null,
     val yawRateDegS: Float? = null,
     val odometerKm: Float? = null,
+    /** ABS / ESC intervention active. */
+    val absActive: Boolean = false,
+    /** Tire pressure PSI (TPMS). */
+    val tpmsFlPsi: Float? = null,
+    val tpmsFrPsi: Float? = null,
+    val tpmsRlPsi: Float? = null,
+    val tpmsRrPsi: Float? = null,
+    /** Cabin HVAC. */
+    val hvacCabinC: Float? = null,
+    val hvacTargetC: Float? = null,
+    val hvacAcOn: Boolean = false,
+    val hvacFanLevel: Int = 0,
+    val throttlePct: Float? = null,
     val source: String = "idle",
     val updatedAtMs: Long = System.currentTimeMillis(),
 ) {
     val reverse: Boolean get() = gear == Gear.R
     val speedKmh: Float get() = speedMps * 3.6f
     val anyDoorOpen: Boolean get() = doorFl || doorFr || doorRl || doorRr || trunkOpen || hoodOpen
+
+    val tpmsLow: Boolean
+        get() {
+            val all = listOfNotNull(tpmsFlPsi, tpmsFrPsi, tpmsRlPsi, tpmsRrPsi)
+            return all.any { it < 28f }
+        }
 
     fun toJsonMap(): Map<String, Any?> =
         mapOf(
@@ -105,6 +124,23 @@ data class VehicleSignals(
             "heading_deg" to headingDeg?.toDouble(),
             "yaw_rate_deg_s" to yawRateDegS?.toDouble(),
             "odometer_km" to odometerKm?.toDouble(),
+            "abs_active" to absActive,
+            "tpms" to
+                mapOf(
+                    "fl_psi" to tpmsFlPsi?.toDouble(),
+                    "fr_psi" to tpmsFrPsi?.toDouble(),
+                    "rl_psi" to tpmsRlPsi?.toDouble(),
+                    "rr_psi" to tpmsRrPsi?.toDouble(),
+                    "low" to tpmsLow,
+                ),
+            "hvac" to
+                mapOf(
+                    "cabin_c" to hvacCabinC?.toDouble(),
+                    "target_c" to hvacTargetC?.toDouble(),
+                    "ac_on" to hvacAcOn,
+                    "fan" to hvacFanLevel,
+                ),
+            "throttle_pct" to throttlePct?.toDouble(),
             "source" to source,
             "updated_at_ms" to updatedAtMs,
         )

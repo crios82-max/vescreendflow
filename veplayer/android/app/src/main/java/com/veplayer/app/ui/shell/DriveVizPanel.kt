@@ -97,6 +97,22 @@ fun DriveVizPanel(
         vehicle.rpm?.let { rpm ->
             Text("RPM ${rpm.toInt()} · coolant ${vehicle.coolantC?.toInt() ?: "—"}°C", color = Mute, fontSize = 12.sp)
         }
+        Text(
+            buildString {
+                if (vehicle.absActive) append("ABS · ")
+                vehicle.tpmsFlPsi?.let {
+                    append("TPMS ${it.toInt()}")
+                    if (vehicle.tpmsLow) append("!")
+                    append(" · ")
+                }
+                vehicle.hvacCabinC?.let {
+                    append("HVAC ${it.toInt()}°")
+                    if (vehicle.hvacAcOn) append(" AC")
+                }
+            }.ifBlank { "—" },
+            color = Mute,
+            fontSize = 12.sp,
+        )
         val counts =
             surround.actors.groupingBy { it.kind }.eachCount()
         Text(
