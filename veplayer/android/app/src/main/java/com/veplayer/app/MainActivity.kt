@@ -49,6 +49,7 @@ import com.veplayer.app.fleet.RemoteCommandBus
 import com.veplayer.app.kiosk.KioskController
 import com.veplayer.app.sense.SenseBridgeService
 import com.veplayer.app.ui.VeDest
+import com.veplayer.app.ui.map.NativeMapPane
 import com.veplayer.app.ui.screens.CamerasScreen
 import com.veplayer.app.ui.screens.PlayerScreen
 import com.veplayer.app.ui.screens.RadioScreen
@@ -243,40 +244,48 @@ class MainActivity : ComponentActivity() {
 private fun MapPane() {
     val context = LocalContext.current
     val prefs = remember { VePrefs(context) }
-    val url =
-        remember(prefs.senseflowUrl, prefs.navToLat, prefs.navDestName) {
-            buildString {
-                append(prefs.senseflowUrl.trimEnd('/'))
-                append("/?auto=1")
-                append("&from_lat=${prefs.navFromLat}&from_lng=${prefs.navFromLng}")
-                append("&to_lat=${prefs.navToLat}&to_lng=${prefs.navToLng}")
-                append("&dest_name=${java.net.URLEncoder.encode(prefs.navDestName, "UTF-8")}")
+    val native = prefs.mapMode != "web"
+    if (native) {
+        NativeMapPane()
+    } else {
+        val url =
+            remember(prefs.senseflowUrl, prefs.navToLat, prefs.navDestName) {
+                buildString {
+                    append(prefs.senseflowUrl.trimEnd('/'))
+                    append("/?auto=1")
+                    append("&from_lat=${prefs.navFromLat}&from_lng=${prefs.navFromLng}")
+                    append("&to_lat=${prefs.navToLat}&to_lng=${prefs.navToLng}")
+                    append("&dest_name=${java.net.URLEncoder.encode(prefs.navDestName, "UTF-8")}")
+                }
             }
-        }
-    AndroidView(
-        factory = { ctx ->
-            WebView(ctx).apply {
-                setBackgroundColor(0xFF000000.toInt())
-                settings.javaScriptEnabled = true
-                settings.domStorageEnabled = true
-                webViewClient = WebViewClient()
-                webChromeClient = WebChromeClient()
-                loadUrl(url)
-            }
-        },
-        update = { it.loadUrl(url) },
-        modifier = Modifier.fillMaxSize(),
-    )
+        AndroidView(
+            factory = { ctx ->
+                WebView(ctx).apply {
+                    setBackgroundColor(0xFF000000.toInt())
+                    settings.javaScriptEnabled = true
+                    settings.domStorageEnabled = true
+                    webViewClient = WebViewClient()
+                    webChromeClient = WebChromeClient()
+                    loadUrl(url)
+                }
+            },
+            update = { it.loadUrl(url) },
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
 }
 
 @androidx.compose.runtime.Composable
 private fun NavChrome() {
+    val context = LocalContext.current
+    val prefs = remember { VePrefs(context) }
+    val native = prefs.mapMode != "web"
     val nav by com.veplayer.app.nav.NavEngine.route.collectAsState()
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(16.dp)
+                .align(Alignment.TopEnd)
+                .padding(top = if (native) 56.dp else 16.dp, end = 16.dp, start = 16.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(Color(0xCC111111))
                 .padding(horizontal = 14.dp, vertical = 12.dp),
