@@ -21,6 +21,7 @@ import com.veplayer.app.R
 import com.veplayer.app.data.VePrefs
 import com.veplayer.app.fleet.FleetClient
 import com.veplayer.app.fleet.RemoteCommandExecutor
+import com.veplayer.app.ota.SilentOtaCoordinator
 import com.veplayer.app.surround.SenseflowSurroundClient
 import com.veplayer.app.surround.SurroundEngine
 import com.veplayer.app.vehicle.CanBusManager
@@ -91,10 +92,13 @@ class SenseBridgeService : Service() {
                                 lng = loc.longitude,
                                 speedMps = snap.speedMps,
                                 reverse = snap.reverse,
-                                vehicleSignals = snap.toJsonMap(),
+                                vehicleSignals =
+                                    snap.toJsonMap() +
+                                        mapOf("kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService)),
                             ).getOrThrow()
                         remote.handle(hb.commands)
                         remote.handleAlerts(hb.alerts)
+                        SilentOtaCoordinator.maybeApply(this@SenseBridgeService, hb.ota)
                     }
                     runCatching {
                         val actors =
@@ -123,10 +127,13 @@ class SenseBridgeService : Service() {
                     fleet.heartbeat(
                         speedMps = snap.speedMps,
                         reverse = snap.reverse,
-                        vehicleSignals = snap.toJsonMap(),
+                        vehicleSignals =
+                            snap.toJsonMap() +
+                                mapOf("kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService)),
                     ).getOrThrow()
                 remote.handle(hb.commands)
                 remote.handleAlerts(hb.alerts)
+                SilentOtaCoordinator.maybeApply(this@SenseBridgeService, hb.ota)
             }
         }
         try {

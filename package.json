@@ -11,6 +11,7 @@
     "senseflow:smoke": "senseflow/scripts/smoke.sh",
     "veplayer:obd-smoke": "node veplayer/scripts/obd-pid-smoke.mjs",
     "veplayer:can-smoke": "node veplayer/scripts/can-smoke.mjs",
+    "veplayer:kiosk-smoke": "node veplayer/scripts/kiosk-smoke.mjs",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "build": "tsc -b && vite build",

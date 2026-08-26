@@ -286,6 +286,8 @@ const commandSchema = z.object({
     'set_source',
     'reboot_obd',
     'nav_dest',
+    'lock_task',
+    'apply_kiosk',
   ]),
   payload: z.record(z.string(), z.unknown()).optional(),
 })

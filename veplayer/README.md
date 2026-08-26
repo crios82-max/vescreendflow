@@ -21,14 +21,30 @@ cd veplayer/android
 # APK: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-## Device Owner (kiosk duro)
+## Device Owner (kiosk duro · v0.12)
 
-Tras instalar el APK debug (sin cuentas Google en el device de prueba):
+Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
 
 ```bash
-./scripts/enable-device-owner.sh com.veplayer.app.debug
-# o release:
-./scripts/enable-device-owner.sh com.veplayer.app
+cd veplayer/android && ./gradlew assembleDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+# package debug suele ser com.veplayer.app (mismo applicationId)
+../scripts/enable-device-owner.sh com.veplayer.app
+```
+
+Qué aplica el owner:
+
+- Lock Task whitelist (VePlayer + Spotify + YouTube) · sin Home/Overview
+- Restricciones: safe boot · add user · factory reset
+- Keyguard + status bar off · uninstall block
+- Home preferido = MainActivity
+- Watchdog cada 20s (Sense + UI + re-Lock) + alarm keep-alive
+- **OTA silenciosa** de flota (`auto_ota` ON · Device Owner + PackageInstaller)
+
+En Ajustes (PIN): checklist kiosk · Aplicar políticas · Lock Task · toggle OTA auto.
+
+```bash
+npm run veplayer:kiosk-smoke   # SenseFlow cmds lock_task / apply_kiosk / ota silent
 ```
 
 Whitelistea VePlayer + Spotify + YouTube en Lock Task.
@@ -53,13 +69,14 @@ AARs oficiales en `app/libs/` (no redistribuimos el cliente Spotify).
 Si el kernel expone UVC como Camera2 `LENS_FACING_EXTERNAL`, aparecen en el selector Dual A/B.  
 ConcurrentCamera requiere SoC compatible; si no, cae a cámara simple.
 
-## Flota pro (v0.11)
+## Flota pro (v0.11+)
 
 - Geofences (`GET/POST /api/fleet/geofences`)
 - Alertas ABS / TPMS / SOC / geofence enter (`GET /api/fleet/alerts`, ack)
 - Historial telemetría (`GET /api/fleet/telemetry/:deviceId`)
-- Comandos nuevos: `set_source` · `reboot_obd` · `nav_dest`
+- Comandos: `set_source` · `reboot_obd` · `nav_dest` · **`lock_task`** · **`apply_kiosk`** · **`ota`** (`silent`, `version_code`)
 - Dashboard `/fleet.html` con alertas, fences y spark de velocidad
+- Heartbeat incluye `vehicle_signals.kiosk` (owner / lock / OTA status)
 
 ```bash
 curl -s http://127.0.0.1:4100/api/fleet/alerts
@@ -152,8 +169,8 @@ curl "http://127.0.0.1:4100/api/surround?lat=10.496&lng=-66.898&radius_m=120"
 
 - **Ajustes + PIN** (default `1234`)
 - **Flota**: register / heartbeat / pair / devices / **commands**
-- **OTA**: PackageInstaller (+ heartbeat `update_available`)
-- **Watchdog** auto-recover Sense + UI
+- **OTA**: PackageInstaller silent (Device Owner) + auto desde heartbeat
+- **Watchdog** kiosk: Sense + UI stale 60s + re-Lock + AlarmManager keep-alive
 - **Audio focus** en Radio
 - **Reverse mock** → Cámaras · **video lock** en movimiento
 

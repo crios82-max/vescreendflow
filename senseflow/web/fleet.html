@@ -40,7 +40,7 @@
     <button id="refresh">Actualizar</button>
     <span id="meta"></span>
   </div>
-  <p class="muted">Cmds: restart · lock · message · wipe · ota · <b>set_source</b> · <b>reboot_obd</b> · <b>nav_dest</b></p>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · message · wipe · ota(silent) · set_source · reboot_obd · nav_dest</p>
   <div id="toast"></div>
 
   <div class="grid">
@@ -169,8 +169,9 @@
         }
         mk('Restart', 'restart')
         mk('Lock', 'lock')
+        mk('Kiosk', 'lock_task', 'ghost')
         mk('Msg', 'message', '', { text: 'Hola desde flota' })
-        mk('OTA', 'ota', 'warn', ota.release ? { apk_url: ota.release.apk_url } : null)
+        mk('OTA', 'ota', 'warn', ota.release ? { apk_url: ota.release.apk_url, silent: true, version_code: ota.release.version_code } : null)
         mk('CAN', 'set_source', 'ghost', { source: 'can' })
         mk('OBD', 'reboot_obd', 'ghost')
         mk('Nav', 'nav_dest', 'ghost', { name: 'Altamira', lat: 10.4965, lng: -66.8492 })
