@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
+import com.veplayer.app.audio.VeAudioFocus
 import com.veplayer.app.radio.RadioStation
 import com.veplayer.app.radio.RadioStations
 import com.veplayer.app.ui.theme.Amber
@@ -42,18 +43,31 @@ fun RadioScreen() {
     val context = LocalContext.current
     var current by remember { mutableStateOf<RadioStation?>(null) }
     var playing by remember { mutableStateOf(false) }
-    val player =
-        remember {
-            ExoPlayer.Builder(context).build()
-        }
+    var focusNote by remember { mutableStateOf("Audio focus: idle") }
+    val player = remember { ExoPlayer.Builder(context).build() }
+    val audio = remember { VeAudioFocus(context) }
 
     DisposableEffect(Unit) {
         onDispose {
+            audio.abandon()
             player.release()
         }
     }
 
     fun play(station: RadioStation) {
+        val ok =
+            audio.request(
+                onLostFocus = {
+                    player.pause()
+                    playing = false
+                    focusNote = "Audio focus perdido (llamada/otra app) — radio en pausa"
+                },
+            )
+        if (!ok) {
+            focusNote = "Sin audio focus — no se puede reproducir"
+            return
+        }
+        focusNote = "Audio focus OK"
         current = station
         player.setMediaItem(MediaItem.fromUri(Uri.parse(station.streamUrl)))
         player.prepare()
@@ -65,18 +79,20 @@ fun RadioScreen() {
         if (playing) {
             player.pause()
             playing = false
+            audio.abandon()
+            focusNote = "Audio focus liberado"
         } else {
-            player.play()
-            playing = true
+            current?.let { play(it) }
         }
     }
 
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Radio", style = MaterialTheme.typography.headlineMedium, color = Mist, fontWeight = FontWeight.Bold)
         Text(
-            "Streaming IP (MVP). Con sintonizador FM/DAB del head-unit se enchufa el mismo UI.",
+            "Streaming IP + audio focus (cede ante llamadas / Spotify).",
             color = Mute,
         )
+        Text(focusNote, color = Teal)
         Box(
             modifier = Modifier
                 .fillMaxWidth()

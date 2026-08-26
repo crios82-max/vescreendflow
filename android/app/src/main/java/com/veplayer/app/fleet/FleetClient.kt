@@ -6,6 +6,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
@@ -15,6 +16,17 @@ data class OtaInfo(
     val latestVersionCode: Int?,
     val apkUrl: String?,
     val notes: String?,
+)
+
+data class FleetCommand(
+    val id: Long,
+    val command: String,
+    val payload: JSONObject?,
+)
+
+data class HeartbeatResult(
+    val ota: OtaInfo?,
+    val commands: List<FleetCommand>,
 )
 
 class FleetClient(private val prefs: VePrefs) {
@@ -56,7 +68,7 @@ class FleetClient(private val prefs: VePrefs) {
         lng: Double? = null,
         speedMps: Float? = null,
         reverse: Boolean? = null,
-    ): Result<OtaInfo?> =
+    ): Result<HeartbeatResult> =
         runCatching {
             val payload =
                 JSONObject()
@@ -76,14 +88,53 @@ class FleetClient(private val prefs: VePrefs) {
                 val text = resp.body?.string().orEmpty()
                 if (!resp.isSuccessful) error("heartbeat HTTP ${resp.code}: $text")
                 val json = JSONObject(text)
-                val ota = json.optJSONObject("ota") ?: return@use null
-                OtaInfo(
-                    updateAvailable = ota.optBoolean("update_available"),
-                    latestVersionName = ota.optString("latest_version_name", null),
-                    latestVersionCode = if (ota.has("latest_version_code")) ota.getInt("latest_version_code") else null,
-                    apkUrl = ota.optString("apk_url", null),
-                    notes = ota.optString("notes", null),
-                )
+                val otaJson = json.optJSONObject("ota")
+                val ota =
+                    otaJson?.let {
+                        OtaInfo(
+                            updateAvailable = it.optBoolean("update_available"),
+                            latestVersionName = it.optString("latest_version_name", null),
+                            latestVersionCode =
+                                if (it.has("latest_version_code")) it.getInt("latest_version_code") else null,
+                            apkUrl = it.optString("apk_url", null),
+                            notes = it.optString("notes", null),
+                        )
+                    }
+                val cmds = mutableListOf<FleetCommand>()
+                val arr = json.optJSONArray("commands") ?: JSONArray()
+                for (i in 0 until arr.length()) {
+                    val c = arr.getJSONObject(i)
+                    val p = c.opt("payload")
+                    cmds +=
+                        FleetCommand(
+                            id = c.getLong("id"),
+                            command = c.getString("command"),
+                            payload = p as? JSONObject ?: (p as? String)?.let { runCatching { JSONObject(it) }.getOrNull() },
+                        )
+                }
+                HeartbeatResult(ota = ota, commands = cmds)
+            }
+        }
+
+    fun ackCommands(ids: List<Long>, status: String = "acked"): Result<Unit> =
+        runCatching {
+            if (ids.isEmpty()) return@runCatching
+            val arr = JSONArray()
+            ids.forEach { arr.put(it) }
+            val body =
+                JSONObject()
+                    .put("device_id", prefs.deviceId())
+                    .put("command_ids", arr)
+                    .put("status", status)
+                    .toString()
+                    .toRequestBody(JSON)
+            val req =
+                Request.Builder()
+                    .url(base() + "/api/fleet/command/ack")
+                    .post(body)
+                    .build()
+            client.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) error("ack HTTP ${resp.code}")
             }
         }
 

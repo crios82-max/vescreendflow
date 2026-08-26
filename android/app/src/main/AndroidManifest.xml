@@ -9,10 +9,12 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.USB_PERMISSION" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
@@ -36,6 +38,7 @@
     </queries>
 
     <application
+        android:name=".VePlayerApp"
         android:allowBackup="false"
         android:icon="@drawable/ic_veplayer"
         android:label="@string/app_name"
@@ -57,7 +60,6 @@
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <!-- Spotify App Remote / Auth redirect -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -88,9 +90,22 @@
             </intent-filter>
         </receiver>
 
+        <receiver
+            android:name=".ota.OtaInstallReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.veplayer.app.OTA_INSTALL_STATUS" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".sense.SenseBridgeService"
             android:exported="false"
             android:foregroundServiceType="location" />
+
+        <service
+            android:name=".watchdog.WatchdogService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
     </application>
 </manifest>

@@ -112,6 +112,7 @@ class BootReceiver : BroadcastReceiver() {
             action == Intent.ACTION_LOCKED_BOOT_COMPLETED
         ) {
             KioskController.applyOwnerPolicies(context)
+            com.veplayer.app.watchdog.WatchdogService.start(context)
             val launch =
                 Intent(context, MainActivity::class.java).apply {
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
