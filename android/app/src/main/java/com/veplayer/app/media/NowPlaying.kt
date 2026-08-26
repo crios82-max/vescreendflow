@@ -4,6 +4,7 @@ package com.veplayer.app.media
 enum class MediaSource {
     NONE,
     RADIO,
+    FM,
     SPOTIFY,
 }
 
@@ -17,5 +18,7 @@ data class NowPlaying(
     val progress: Float = -1f,
     val stationId: String? = null,
     val spotifyUri: String? = null,
+    /** FM frequency kHz when source=FM. */
+    val fmFreqKhz: Int? = null,
     val status: String = "",
 )

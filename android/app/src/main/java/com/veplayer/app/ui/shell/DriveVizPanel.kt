@@ -167,6 +167,7 @@ fun DriveVizPanel(
             val srcLabel =
                 when (media.source) {
                     MediaSource.RADIO -> "RADIO"
+                    MediaSource.FM -> "FM"
                     MediaSource.SPOTIFY -> "SPOTIFY"
                     MediaSource.NONE -> "MEDIA"
                 }

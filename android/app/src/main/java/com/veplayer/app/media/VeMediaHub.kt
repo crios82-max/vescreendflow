@@ -9,8 +9,13 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.spotify.protocol.types.PlayerState
 import com.veplayer.app.audio.VeAudioFocus
+import com.veplayer.app.data.VePrefs
 import com.veplayer.app.radio.RadioStation
 import com.veplayer.app.radio.RadioStations
+import com.veplayer.app.radio.fm.FmController
+import com.veplayer.app.radio.fm.FmFreq
+import com.veplayer.app.radio.fm.FmPresets
+import com.veplayer.app.radio.fm.FmStation
 import com.veplayer.app.spotify.SpotifyRemoteController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +23,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 /**
- * App-wide media hub: one Now Playing surface for DriveViz + dock,
- * shared ExoPlayer (radio), Spotify App Remote, and audio focus.
+ * App-wide media hub: Now Playing for DriveViz + dock,
+ * ExoPlayer (IP radio), FM tuner, Spotify App Remote, audio focus.
  */
 object VeMediaHub {
     private const val TAG = "VeMediaHub"
@@ -29,6 +34,7 @@ object VeMediaHub {
     private var radioPlayer: ExoPlayer? = null
     private var spotify: SpotifyRemoteController? = null
     private var audioManager: AudioManager? = null
+    private var prefs: VePrefs? = null
 
     private val _now = MutableStateFlow(NowPlaying())
     val nowPlaying: StateFlow<NowPlaying> = _now.asStateFlow()
@@ -43,9 +49,11 @@ object VeMediaHub {
         if (app != null) return
         val ctx = context.applicationContext
         app = ctx
+        prefs = VePrefs(ctx)
         audio = VeAudioFocus(ctx)
         audioManager = ctx.getSystemService(AudioManager::class.java)
         spotify = SpotifyRemoteController(ctx)
+        FmController.init(ctx)
         radioPlayer =
             ExoPlayer.Builder(ctx).build().also { player ->
                 player.addListener(
@@ -76,6 +84,7 @@ object VeMediaHub {
         val player = radioPlayer ?: return
         val focus = audio ?: return
         pauseSpotifyQuiet()
+        FmController.powerOff()
         val ok =
             focus.request(
                 onLostFocus = {
@@ -90,6 +99,7 @@ object VeMediaHub {
         player.setMediaItem(MediaItem.fromUri(Uri.parse(station.streamUrl)))
         player.prepare()
         player.play()
+        prefs?.radioMode = "stream"
         _now.value =
             NowPlaying(
                 source = MediaSource.RADIO,
@@ -99,7 +109,99 @@ object VeMediaHub {
                 playing = true,
                 progress = -1f,
                 stationId = station.id,
-                status = "Radio · ${station.name}",
+                status = "IP Radio · ${station.name}",
+            )
+    }
+
+    fun playFm(
+        freqKhz: Int? = null,
+        station: FmStation? = null,
+    ) {
+        val p = prefs ?: return
+        val focus = audio ?: return
+        pauseSpotifyQuiet()
+        radioPlayer?.pause()
+        val okFocus =
+            focus.request(
+                onLostFocus = {
+                    FmController.powerOff()
+                    _now.update { it.copy(playing = false, status = "Audio focus perdido") }
+                },
+            )
+        if (!okFocus) {
+            _now.update { it.copy(status = "Sin audio focus") }
+            return
+        }
+        if (!FmController.ensureOpen(p)) {
+            _now.update { it.copy(status = "FM no disponible") }
+            return
+        }
+        val tuned =
+            when {
+                station != null -> FmController.tunePreset(station, p)
+                freqKhz != null -> FmController.tune(freqKhz, p)
+                else -> FmController.tune(p.fmLastFreqKhz, p)
+            }
+        if (!tuned) {
+            _now.update { it.copy(status = "FM tune fail") }
+            return
+        }
+        p.radioMode = "fm"
+        publishFmNow(playing = true)
+    }
+
+    fun pauseFm() {
+        FmController.powerOff()
+        audio?.abandon()
+        if (_now.value.source == MediaSource.FM) {
+            _now.update { it.copy(playing = false, status = "FM off") }
+        }
+    }
+
+    fun fmSeek(up: Boolean) {
+        val p = prefs ?: return
+        if (_now.value.source != MediaSource.FM) {
+            playFm()
+        }
+        FmController.seek(up, p)
+        publishFmNow(playing = true)
+    }
+
+    fun fmStep(up: Boolean) {
+        val p = prefs ?: return
+        if (_now.value.source != MediaSource.FM) playFm()
+        FmController.step(up, p)
+        publishFmNow(playing = true)
+    }
+
+    private fun publishFmNow(playing: Boolean) {
+        val st = FmController.state.value
+        val preset = FmPresets.nearest(st.freqKhz)
+        val close =
+            preset != null &&
+                kotlin.math.abs(preset.freqKhz - st.freqKhz) <= 200
+        _now.value =
+            NowPlaying(
+                source = MediaSource.FM,
+                title =
+                    when {
+                        st.rdsPs.isNotBlank() -> st.rdsPs
+                        close -> preset!!.name
+                        else -> FmFreq.formatMhz(st.freqKhz)
+                    },
+                artist = if (close) preset!!.city else st.backend.uppercase(),
+                subtitle =
+                    buildString {
+                        append(FmFreq.formatMhz(st.freqKhz))
+                        if (st.signalPct > 0) append(" · sig ${st.signalPct}%")
+                        if (st.stereo) append(" · ST")
+                        if (close) append(" · ${preset!!.genre}")
+                    },
+                playing = playing && st.powered,
+                progress = (st.signalPct / 100f).coerceIn(0f, 1f),
+                stationId = if (close) preset!!.id else null,
+                fmFreqKhz = st.freqKhz,
+                status = st.status,
             )
     }
 
@@ -126,6 +228,7 @@ object VeMediaHub {
 
     fun playSpotifyUri(uri: String, onStatus: (String) -> Unit = {}) {
         pauseRadio()
+        pauseFm()
         val s = spotify ?: return
         s.playUri(uri) { msg ->
             onStatus(msg)
@@ -142,6 +245,7 @@ object VeMediaHub {
 
     fun resumeSpotify(onStatus: (String) -> Unit = {}) {
         pauseRadio()
+        pauseFm()
         spotify?.resume { msg ->
             onStatus(msg)
             _now.update { it.copy(source = MediaSource.SPOTIFY, playing = true, status = msg) }
@@ -171,11 +275,16 @@ object VeMediaHub {
                     playRadio(st)
                 }
             }
+            MediaSource.FM -> {
+                if (_now.value.playing) pauseFm()
+                else playFm(_now.value.fmFreqKhz)
+            }
             MediaSource.SPOTIFY -> {
                 if (_now.value.playing) pauseSpotify() else resumeSpotify()
             }
             MediaSource.NONE -> {
-                playRadio(RadioStations.all.first())
+                val mode = prefs?.radioMode ?: "stream"
+                if (mode == "fm") playFm() else playRadio(RadioStations.all.first())
             }
         }
     }
@@ -187,6 +296,7 @@ object VeMediaHub {
                 val idx = list.indexOfFirst { it.id == _now.value.stationId }.coerceAtLeast(0)
                 playRadio(list[(idx + 1) % list.size])
             }
+            MediaSource.FM -> fmSeek(up = true)
             MediaSource.SPOTIFY -> spotify?.skipNext { msg -> _now.update { it.copy(status = msg) } }
             MediaSource.NONE -> playRadio(RadioStations.all.first())
         }
@@ -199,6 +309,7 @@ object VeMediaHub {
                 val idx = list.indexOfFirst { it.id == _now.value.stationId }.coerceAtLeast(0)
                 playRadio(list[(idx - 1 + list.size) % list.size])
             }
+            MediaSource.FM -> fmSeek(up = false)
             MediaSource.SPOTIFY -> spotify?.skipPrevious { msg -> _now.update { it.copy(status = msg) } }
             MediaSource.NONE -> playRadio(RadioStations.all.last())
         }
@@ -251,6 +362,7 @@ object VeMediaHub {
     fun release() {
         radioPlayer?.release()
         radioPlayer = null
+        FmController.powerOff()
         audio?.abandon()
         spotify?.disconnect()
         spotify = null

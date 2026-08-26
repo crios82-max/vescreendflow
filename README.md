@@ -99,6 +99,22 @@ curl http://127.0.0.1:4100/dbc/veplayer_demo.dbc | head
 
 Aliases de señales: `Speed_Kmh`, `Gear`, `SOC`, `TPMS_FL`, `HVAC_Cabin`, `ABS`, …
 
+## Radio FM hardware (v0.15)
+
+Capa FM aparte del stream IP:
+
+- Backends: **HAL** (`RadioManager` reflection) → fallback **sim**
+- Radio screen: tabs **FM** / **IP Stream** · dial ± · seek · presets Caracas
+- Dock next/prev = seek FM cuando `MediaSource.FM`
+- Ajustes: `fm_backend` auto|hal|sim
+- Flota: `fm_tune` `{ "mhz": 95.5 }` o `{ "preset": "fm-955" }`
+
+```bash
+npm run veplayer:fm-smoke
+```
+
+En HU con chip FM real, `listModules()` no vacío → HAL; si no, sim con RDS fake.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
