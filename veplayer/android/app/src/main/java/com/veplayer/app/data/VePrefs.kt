@@ -145,6 +145,11 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("map_tiles", true)
         set(value) = sp.edit().putBoolean("map_tiles", value).apply()
 
+    /** SenseFlow crowd / surround actors on native map. */
+    var mapCrowdEnabled: Boolean
+        get() = sp.getBoolean("map_crowd", true)
+        set(value) = sp.edit().putBoolean("map_crowd", value).apply()
+
     /** Tile URL template with {z}/{x}/{y}. Default: OSM. */
     var mapTileUrl: String
         get() =

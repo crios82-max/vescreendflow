@@ -21,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -49,6 +50,8 @@ import com.veplayer.app.nav.MapBounds
 import com.veplayer.app.nav.NavEngine
 import com.veplayer.app.nav.TileKey
 import com.veplayer.app.nav.WebMercator
+import com.veplayer.app.surround.ActorKind
+import com.veplayer.app.surround.SurroundEngine
 import com.veplayer.app.ui.theme.Mist
 import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Night
@@ -68,10 +71,12 @@ fun NativeMapPane() {
     val route by NavEngine.route.collectAsState()
     val destinations by NavEngine.destinations.collectAsState()
     val vehicle by VehicleState.state.collectAsState()
+    val surround by SurroundEngine.snapshot.collectAsState()
 
     val ego = LatLng(prefs.navFromLat, prefs.navFromLng)
     val dest = LatLng(prefs.navToLat, prefs.navToLng)
     val tilesOn = prefs.mapTilesEnabled
+    var crowdOn by remember { mutableStateOf(prefs.mapCrowdEnabled) }
     val tileTemplate = prefs.mapTileUrl
     val pathPts =
         remember(route.geometry, ego, dest) {
@@ -157,6 +162,21 @@ fun NativeMapPane() {
                         onClick = { NavEngine.setDestination(d, scope) },
                     ) { Text(d.name, fontSize = 12.sp) }
                 }
+            }
+            if (crowdOn) {
+                Button(
+                    onClick = {
+                        crowdOn = false
+                        prefs.mapCrowdEnabled = false
+                    },
+                ) { Text("Crowd", fontSize = 12.sp) }
+            } else {
+                OutlinedButton(
+                    onClick = {
+                        crowdOn = true
+                        prefs.mapCrowdEnabled = true
+                    },
+                ) { Text("Crowd", fontSize = 12.sp) }
             }
         }
 
@@ -246,6 +266,37 @@ fun NativeMapPane() {
 
                 val exy = xy(ego)
                 val heading = vehicle.headingDeg ?: 0f
+
+                if (crowdOn) {
+                    for (actor in surround.actors) {
+                        val ll =
+                            GeoProjection.offsetToLatLng(
+                                ego,
+                                heading,
+                                actor.xM,
+                                actor.yM,
+                            )
+                        val p = xy(ll)
+                        if (p.x < -20f || p.y < -20f || p.x > w + 20f || p.y > h + 20f) continue
+                        val color =
+                            when (actor.kind) {
+                                ActorKind.PERSON -> Color(0xFFFFB74D)
+                                ActorKind.MOTORCYCLE, ActorKind.BICYCLE -> Color(0xFF80CBC4)
+                                ActorKind.TRUCK, ActorKind.BUS -> Color(0xFF90A4AE)
+                                ActorKind.CAR -> Color(0xFFB0BEC5)
+                                ActorKind.UNKNOWN -> Color(0xFF78909C)
+                            }
+                        val r =
+                            when (actor.kind) {
+                                ActorKind.PERSON -> 5f
+                                ActorKind.TRUCK, ActorKind.BUS -> 8f
+                                else -> 6f
+                            }
+                        drawCircle(color.copy(alpha = 0.35f), radius = r + 6f, center = p)
+                        drawCircle(color, radius = r, center = p)
+                    }
+                }
+
                 rotate(degrees = heading, pivot = exy) {
                     val chevron =
                         Path().apply {
@@ -284,7 +335,8 @@ fun NativeMapPane() {
                     fontWeight = FontWeight.Medium,
                 )
                 Text(
-                    "${pathPts.size} pts · ${route.destinationName.ifBlank { "—" }}",
+                    "${pathPts.size} pts · ${route.destinationName.ifBlank { "—" }}" +
+                        if (crowdOn) " · crowd ${surround.actors.size}" else "",
                     color = Mute,
                     fontSize = 11.sp,
                 )
