@@ -92,6 +92,11 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("nav_enabled", true)
         set(value) = sp.edit().putBoolean("nav_enabled", value).apply()
 
+    /** Voice guidance (TextToSpeech) for next-turn cues. */
+    var navTtsEnabled: Boolean
+        get() = sp.getBoolean("nav_tts", true)
+        set(value) = sp.edit().putBoolean("nav_tts", value).apply()
+
     var navFromLat: Double
         get() = Double.fromBits(sp.getLong("nav_from_lat", java.lang.Double.doubleToRawLongBits(10.496)))
         set(value) = sp.edit().putLong("nav_from_lat", value.toRawBits()).apply()
