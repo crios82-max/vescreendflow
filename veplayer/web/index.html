@@ -59,10 +59,10 @@
       </section>
       <section id="cameras" class="hidden">
         <h2>Cámaras del vehículo</h2>
-        <p class="muted">Retrovisor digital (delantera) y cámara trasera</p>
+        <p class="muted">Dual ConcurrentCamera · front / back / USB EXTERNAL</p>
         <div class="cams">
-          <div class="cam"><span>Delantera / retrovisor</span>Vista previa · CameraX FRONT</div>
-          <div class="cam"><span>Trasera</span>Vista previa · CameraX BACK</div>
+          <div class="cam"><span>Panel A · Delantera / retrovisor</span>Camera2 FRONT · USB si aplica</div>
+          <div class="cam"><span>Panel B · Trasera / USB</span>Camera2 BACK / EXTERNAL</div>
         </div>
       </section>
       <section id="radio" class="hidden">
@@ -81,16 +81,21 @@
       </section>
       <section id="store" class="hidden">
         <h2>Tienda VePlayer</h2>
-        <p class="muted">Apps oficiales para enlazar el dispositivo — sin APKs pirateados</p>
+        <p class="muted">Spotify App Remote SDK + Play Store — sin APKs pirateados</p>
         <div class="list">
           <div class="row" style="flex-direction:column;align-items:flex-start;gap:10px">
-            <div><strong style="color:var(--teal)">Spotify</strong><br>
-              Reproduce música en el vehículo. Usa Spotify Connect desde el teléfono.<br>
-              1) Instala Spotify · 2) Inicia sesión · 3) Móvil → Dispositivos disponibles
+            <div><strong style="color:var(--teal)">Spotify App Remote</strong><br>
+              Enlaza la app Spotify del head-unit (Client ID + veplayer://callback).<br>
+              Botones: Enlazar dispositivo · Play · Pause · playlist de prueba
             </div>
             <div>
               <a class="pill" href="https://play.google.com/store/apps/details?id=com.spotify.music" target="_blank" rel="noopener">Instalar / abrir Spotify</a>
-              <a class="pill ghost" href="https://support.spotify.com/article/spotify-connect/" target="_blank" rel="noopener">Enlazar dispositivo</a>
+              <a class="pill ghost" href="https://developer.spotify.com/documentation/android" target="_blank" rel="noopener">Docs App Remote</a>
+            </div>
+          </div>
+          <div class="row" style="flex-direction:column;align-items:flex-start;gap:8px">
+            <div><strong style="color:var(--teal)">Kiosk duro</strong><br>
+              Device Owner + Lock Task · <code>scripts/enable-device-owner.sh</code>
             </div>
           </div>
         </div>

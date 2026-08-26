@@ -4,6 +4,19 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+import java.util.Properties
+import java.io.FileInputStream
+
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) load(FileInputStream(f))
+}
+
+fun propOrEnv(key: String, default: String): String =
+    System.getenv(key)?.takeIf { it.isNotBlank() }
+        ?: localProps.getProperty(key)?.takeIf { it.isNotBlank() }
+        ?: default
+
 android {
     namespace = "com.veplayer.app"
     compileSdk = 35
@@ -12,10 +25,20 @@ android {
         applicationId = "com.veplayer.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
         buildConfigField("String", "SENSEFLOW_URL", "\"http://10.0.2.2:4100\"")
         buildConfigField("String", "PLAYER_URL", "\"https://vescreenflow.com/play\"")
+        buildConfigField(
+            "String",
+            "SPOTIFY_CLIENT_ID",
+            "\"${propOrEnv("SPOTIFY_CLIENT_ID", "YOUR_SPOTIFY_CLIENT_ID")}\"",
+        )
+        buildConfigField(
+            "String",
+            "SPOTIFY_REDIRECT_URI",
+            "\"${propOrEnv("SPOTIFY_REDIRECT_URI", "veplayer://callback")}\"",
+        )
     }
 
     buildTypes {
@@ -67,6 +90,10 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    implementation(files("libs/spotify-app-remote-release-0.8.0.aar"))
+    implementation(files("libs/spotify-auth-release-2.1.0.aar"))
+    implementation("com.google.code.gson:gson:2.11.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
