@@ -6,6 +6,7 @@ import {
   openAlertsForDevice,
   recordTelemetrySample,
 } from './fleetPro.js'
+import { canIssueCommand, logOtaEvent, resolveOperator } from './fleetOps.js'
 
 export const fleetRouter = Router()
 
@@ -297,6 +298,11 @@ fleetRouter.post('/ota/rollout', (req, res) => {
     res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
     return
   }
+  const op = resolveOperator(req)
+  if (!canIssueCommand(op.role, 'ota')) {
+    res.status(403).json({ error: 'rol insuficiente para OTA rollout', role: op.role })
+    return
+  }
   const targetCode =
     parsed.data.version_code ??
     (
@@ -337,6 +343,7 @@ fleetRouter.post('/ota/rollout', (req, res) => {
       .all(targetCode) as Array<{ device_id: string; version_code: number | null }>
   }
 
+  const actor = `${op.name}<${op.role}>`
   const payload = JSON.stringify({
     apk_url: release.apk_url,
     silent: parsed.data.silent !== false,
@@ -344,20 +351,27 @@ fleetRouter.post('/ota/rollout', (req, res) => {
     version_name: release.version_name,
   })
   const ins = db.prepare(
-    `INSERT INTO fleet_commands (device_id, command, payload, status)
-     VALUES (?, 'ota', ?, 'pending')`,
+    `INSERT INTO fleet_commands (device_id, command, payload, status, issued_by)
+     VALUES (?, 'ota', ?, 'pending', ?)`,
   )
   const queued: string[] = []
   const tx = db.transaction(() => {
     for (const d of devices) {
-      // skip unknown device_ids that were explicitly listed but not registered
       const exists = db.prepare(`SELECT 1 FROM fleet_devices WHERE device_id = ?`).get(d.device_id)
       if (!exists) continue
-      ins.run(d.device_id, payload)
+      ins.run(d.device_id, payload, actor)
       queued.push(d.device_id)
     }
   })
   tx()
+  logOtaEvent({
+    version_name: release.version_name,
+    version_code: release.version_code,
+    apk_url: release.apk_url,
+    queued: queued.length,
+    actor,
+    notes: 'rollout',
+  })
   res.status(201).json({
     ok: true,
     version_code: release.version_code,
@@ -365,6 +379,7 @@ fleetRouter.post('/ota/rollout', (req, res) => {
     apk_url: release.apk_url,
     queued: queued.length,
     device_ids: queued,
+    issued_by: actor,
   })
 })
 
@@ -394,6 +409,15 @@ fleetRouter.post('/command', (req, res) => {
     res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
     return
   }
+  const op = resolveOperator(req)
+  if (!canIssueCommand(op.role, parsed.data.command)) {
+    res.status(403).json({
+      error: 'rol insuficiente para este comando',
+      role: op.role,
+      command: parsed.data.command,
+    })
+    return
+  }
   const exists = db
     .prepare(`SELECT device_id FROM fleet_devices WHERE device_id = ?`)
     .get(parsed.data.device_id)
@@ -401,17 +425,19 @@ fleetRouter.post('/command', (req, res) => {
     res.status(404).json({ error: 'dispositivo no encontrado' })
     return
   }
+  const actor = op.token ? `${op.name}<${op.role}>` : `${op.name}<${op.role}>`
   const info = db
     .prepare(
-      `INSERT INTO fleet_commands (device_id, command, payload, status)
-       VALUES (?, ?, ?, 'pending')`,
+      `INSERT INTO fleet_commands (device_id, command, payload, status, issued_by)
+       VALUES (?, ?, ?, 'pending', ?)`,
     )
     .run(
       parsed.data.device_id,
       parsed.data.command,
       parsed.data.payload ? JSON.stringify(parsed.data.payload) : null,
+      actor,
     )
-  res.status(201).json({ ok: true, id: Number(info.lastInsertRowid) })
+  res.status(201).json({ ok: true, id: Number(info.lastInsertRowid), issued_by: actor })
 })
 
 const ackSchema = z.object({

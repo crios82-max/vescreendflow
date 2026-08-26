@@ -5,8 +5,11 @@ import express from 'express'
 import cors from 'cors'
 import { apiRouter } from './routes.js'
 import { fleetRouter } from './fleet.js'
+import { ensureFleetOpsTables, fleetOpsRouter } from './fleetOps.js'
 import { navRouter } from './nav.js'
 import { db } from './db.js'
+
+ensureFleetOpsTables()
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const webDir = path.join(rootDir, 'web')
@@ -31,6 +34,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api', apiRouter)
 app.use('/api/fleet', fleetRouter)
+app.use('/api/fleet/ops', fleetOpsRouter)
 app.use('/api/nav', navRouter)
 
 // Fleet OTA APK hosting (publish-ota.sh drops files here)

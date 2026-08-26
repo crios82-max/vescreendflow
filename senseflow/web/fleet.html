@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SenseFlow Flota Pro</title>
+  <title>SenseFlow Flota Ops</title>
   <style>
     :root { --ink:#0f1c18; --mist:#e8f2ee; --teal:#0d9488; --panel:#15201c; --amber:#d97706; --rose:#e11d48; }
     body { margin:0; font-family:system-ui,sans-serif; background:var(--ink); color:var(--mist); padding:20px; }
@@ -21,8 +21,9 @@
     .btn.ghost { background:#24332e; color:var(--mist); }
     code { background:#0b1411; padding:2px 6px; border-radius:6px; }
     #toast { margin-top:10px; color:var(--teal); min-height:1.2em; }
-    .grid { display:grid; grid-template-columns:1.4fr 1fr; gap:16px; margin-bottom:18px; }
-    @media (max-width: 960px) { .grid { grid-template-columns:1fr; } }
+    .grid { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:16px; margin-bottom:18px; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0; }
+    @media (max-width: 1100px) { .grid, .grid2 { grid-template-columns:1fr; } }
     .card { background:var(--panel); border-radius:12px; padding:14px; }
     .card h2 { margin:0 0 10px; font-size:1.05rem; color:var(--teal); }
     .alert { padding:8px 10px; border-radius:8px; margin:6px 0; background:#0b1411; font-size:.88rem; }
@@ -31,18 +32,38 @@
     .muted { color:#8aa399; font-size:.85rem; }
     .spark { display:flex; align-items:flex-end; gap:2px; height:36px; margin-top:8px; }
     .spark i { display:block; width:4px; background:var(--teal); border-radius:2px 2px 0 0; min-height:2px; }
+    .stat { font-size:1.6rem; font-weight:800; color:var(--mist); }
+    .stat span { font-size:.85rem; color:#8aa399; font-weight:500; }
+    select, input[type=text] {
+      padding:6px 8px; border-radius:6px; border:0; background:#0b1411; color:var(--mist);
+    }
+    .hist-row { font-size:.82rem; padding:4px 0; border-bottom:1px solid #24332e; }
   </style>
 </head>
 <body>
   <div class="bar">
-    <h1 style="margin:0">Flota VePlayer Pro</h1>
+    <h1 style="margin:0">Flota VePlayer Ops</h1>
     <a href="/">← Mapa</a>
     <button id="refresh">Actualizar</button>
     <button class="btn warn" id="ota-rollout">OTA rollout</button>
+    <label class="muted">Rol
+      <select id="role-token">
+        <option value="fleet-admin-demo">admin</option>
+        <option value="fleet-dispatch-demo">dispatcher</option>
+        <option value="fleet-viewer-demo">viewer</option>
+      </select>
+    </label>
+    <span id="me" class="muted"></span>
     <span id="meta"></span>
   </div>
-  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe · ota(silent) · set_source · reboot_obd · nav_dest</p>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · nav_dest</p>
   <div id="toast"></div>
+
+  <div class="grid" id="report-cards">
+    <div class="card"><h2>Flota (24h)</h2><div id="rep-fleet" class="muted">…</div></div>
+    <div class="card"><h2>Comandos / OTA</h2><div id="rep-cmds" class="muted">…</div></div>
+    <div class="card"><h2>Versiones</h2><div id="rep-ver" class="muted">…</div></div>
+  </div>
 
   <div class="grid">
     <div class="card">
@@ -53,12 +74,27 @@
       <h2>Geofences</h2>
       <div id="geofences" class="muted">cargando…</div>
       <div style="margin-top:10px">
-        <input id="gf-name" placeholder="Nombre" style="padding:6px;border-radius:6px;border:0;background:#0b1411;color:var(--mist);width:120px" />
-        <input id="gf-lat" placeholder="lat" value="10.496" style="padding:6px;border-radius:6px;border:0;background:#0b1411;color:var(--mist);width:90px" />
-        <input id="gf-lng" placeholder="lng" value="-66.898" style="padding:6px;border-radius:6px;border:0;background:#0b1411;color:var(--mist);width:90px" />
-        <input id="gf-r" placeholder="m" value="300" style="padding:6px;border-radius:6px;border:0;background:#0b1411;color:var(--mist);width:70px" />
+        <input id="gf-name" placeholder="Nombre" style="width:120px" />
+        <input id="gf-lat" placeholder="lat" value="10.496" style="width:90px" />
+        <input id="gf-lng" placeholder="lng" value="-66.898" style="width:90px" />
+        <input id="gf-r" placeholder="m" value="300" style="width:70px" />
         <button id="gf-add">Add fence</button>
       </div>
+    </div>
+    <div class="card">
+      <h2>Historial cmds</h2>
+      <div id="cmd-hist" class="muted" style="max-height:220px;overflow:auto">…</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Historial OTA</h2>
+      <div id="ota-hist" class="muted" style="max-height:180px;overflow:auto">…</div>
+    </div>
+    <div class="card">
+      <h2>Alertas 24h (reporte)</h2>
+      <div id="rep-alerts" class="muted">…</div>
     </div>
   </div>
 
@@ -69,22 +105,73 @@
     <tbody id="rows"></tbody>
   </table>
   <script>
+    const tokenKey = 'veplayer_fleet_token'
+    const sel = document.getElementById('role-token')
+    sel.value = localStorage.getItem(tokenKey) || 'fleet-admin-demo'
+    sel.onchange = () => { localStorage.setItem(tokenKey, sel.value); load() }
+    const token = () => localStorage.getItem(tokenKey) || sel.value
+    const hdrs = () => ({ 'content-type': 'application/json', 'x-fleet-token': token() })
     const toast = (t) => { document.getElementById('toast').textContent = t }
+
+    let me = { role: 'dispatcher', can_wipe: false, can_dispatch: true }
+
     async function sendCmd(deviceId, command, payload) {
+      if (command === 'wipe' && !me.can_wipe) { toast('Wipe solo admin'); return }
+      if (!me.can_dispatch) { toast('Viewer: solo lectura'); return }
       const body = { device_id: deviceId, command }
       if (payload) body.payload = payload
       const r = await fetch('/api/fleet/command', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(body),
+        method: 'POST', headers: hdrs(), body: JSON.stringify(body),
       })
       const j = await r.json()
       if (!r.ok) { toast(j.error || 'error'); return }
-      toast(`OK cmd #${j.id} → ${command}`)
+      toast(`OK cmd #${j.id} → ${command} · ${j.issued_by || ''}`)
+      loadHistory()
     }
     async function ackAlert(id) {
-      await fetch('/api/fleet/alerts/' + id + '/ack', { method: 'POST' })
+      await fetch('/api/fleet/alerts/' + id + '/ack', { method: 'POST', headers: hdrs() })
       load()
+    }
+    async function loadMe() {
+      const j = await fetch('/api/fleet/ops/me', { headers: hdrs() }).then(r => r.json())
+      me = j
+      document.getElementById('me').textContent = `${j.name} · ${j.role}`
+    }
+    async function loadReports() {
+      const j = await fetch('/api/fleet/ops/reports/summary', { headers: hdrs() }).then(r => r.json())
+      const f = j.fleet
+      document.getElementById('rep-fleet').innerHTML =
+        `<div class="stat">${f.online}<span> online</span> / ${f.devices}</div>
+         <div class="muted">stale ${f.stale} · alertas abiertas ${f.open_alerts}</div>
+         <div class="muted">telem avg ${j.telemetry_24h.avg_kmh != null ? j.telemetry_24h.avg_kmh.toFixed(0)+' km/h' : '—'} · max ${j.telemetry_24h.max_kmh != null ? j.telemetry_24h.max_kmh.toFixed(0) : '—'}</div>`
+      const c = j.commands_24h || {}
+      document.getElementById('rep-cmds').innerHTML =
+        `<div class="stat">${Object.values(c).reduce((a,b)=>a+b,0)}<span> cmds</span></div>
+         <div class="muted">${Object.entries(c).map(([k,v])=>k+':'+v).join(' · ') || 'sin cmds'}</div>
+         <div class="muted">OTA latest ${j.ota.latest ? j.ota.latest.version_name+' ('+j.ota.latest.version_code+')' : '—'} · below ${j.ota.devices_below_latest}</div>`
+      document.getElementById('rep-ver').innerHTML =
+        (j.versions || []).map(v => `<div>· ${v.app_version} (${v.version_code}) × ${v.n}</div>`).join('') || '—'
+      document.getElementById('rep-alerts').innerHTML =
+        (j.alerts_24h || []).map(a => `<div>· <b>${a.kind}</b> × ${a.n}</div>`).join('') || 'Sin alertas 24h'
+    }
+    async function loadHistory() {
+      const [cmds, ota] = await Promise.all([
+        fetch('/api/fleet/ops/commands/history?limit=40', { headers: hdrs() }).then(r => r.json()),
+        fetch('/api/fleet/ops/ota/history', { headers: hdrs() }).then(r => r.json()),
+      ])
+      document.getElementById('cmd-hist').innerHTML =
+        (cmds.commands || []).map(c =>
+          `<div class="hist-row"><b>${c.command}</b> · ${c.status} · ${c.device_id.slice(0,10)}…
+           <span class="muted">${c.issued_by || '—'} · ${new Date(c.created_at*1000).toLocaleString()}</span></div>`
+        ).join('') || 'Sin historial'
+      const ev = (ota.events || []).map(e =>
+        `<div class="hist-row">rollout <b>${e.version_name}</b> → ${e.queued} · ${e.actor || '—'}
+         <span class="muted">${new Date(e.created_at*1000).toLocaleString()}</span></div>`
+      ).join('')
+      const rel = (ota.releases || []).slice(0, 5).map(r =>
+        `<div class="hist-row">release ${r.version_name} (${r.version_code})</div>`
+      ).join('')
+      document.getElementById('ota-hist').innerHTML = (ev || '') + (rel || 'Sin OTA')
     }
     async function loadAlerts() {
       const j = await fetch('/api/fleet/alerts?open=1').then(r => r.json())
@@ -116,7 +203,6 @@
         const max = Math.max(1, ...speeds)
         const wrap = document.createElement('div')
         wrap.className = 'spark'
-        wrap.title = samples.length + ' samples'
         for (const v of speeds) {
           const i = document.createElement('i')
           i.style.height = Math.max(2, Math.round((v / max) * 34)) + 'px'
@@ -127,6 +213,7 @@
       } catch { cell.textContent = '—' }
     }
     async function load() {
+      await loadMe()
       const [dev, ota] = await Promise.all([
         fetch('/api/fleet/devices').then(r => r.json()),
         fetch('/api/fleet/ota/latest').then(r => r.json()),
@@ -144,14 +231,10 @@
         const sigBits = []
         if (vs.gear) sigBits.push(vs.gear)
         if (d.reverse || vs.reverse) sigBits.push('R')
-        if (vs.turn && vs.turn !== 'off') sigBits.push(vs.turn)
         if (vs.battery_soc_pct != null) sigBits.push(`SOC ${Math.round(vs.battery_soc_pct)}%`)
-        if (vs.rpm != null) sigBits.push(`${Math.round(vs.rpm)} rpm`)
         if (vs.abs_active) sigBits.push('ABS')
-        if (vs.tpms && vs.tpms.low) sigBits.push('TPMS↓')
-        if (vs.hvac && vs.hvac.cabin_c != null) sigBits.push(`HVAC ${Math.round(vs.hvac.cabin_c)}°`)
         if (vs.source) sigBits.push(vs.source)
-        const sig = sigBits.length ? sigBits.join(' · ') : (d.reverse ? '⏪' : '—')
+        const sig = sigBits.length ? sigBits.join(' · ') : '—'
         tr.innerHTML = `<td>${d.name || '—'}</td><td>${d.pair_code || '—'}</td>
           <td>${d.app_version || '—'} (${d.version_code ?? '—'})</td>
           <td>${seen}</td>
@@ -162,6 +245,8 @@
         spark(id, tr.querySelector('.hist'))
         const cell = tr.querySelector('.cmds')
         const mk = (label, cmd, cls, payload) => {
+          if (!me.can_dispatch) return
+          if (cmd === 'wipe' && !me.can_wipe) return
           const b = document.createElement('button')
           b.className = 'btn ' + (cls || '')
           b.textContent = label
@@ -180,19 +265,19 @@
         mk('OBD', 'reboot_obd', 'ghost')
         mk('Nav', 'nav_dest', 'ghost', { name: 'Altamira', lat: 10.4965, lng: -66.8492 })
         mk('Wipe', 'wipe', 'danger')
+        if (!me.can_dispatch) cell.textContent = 'viewer · read-only'
         tb.appendChild(tr)
       }
-      await Promise.all([loadAlerts(), loadGeofences()])
+      await Promise.all([loadAlerts(), loadGeofences(), loadReports(), loadHistory()])
     }
     document.getElementById('refresh').onclick = load
     document.getElementById('ota-rollout').onclick = async () => {
+      if (!me.can_dispatch) { toast('Viewer: solo lectura'); return }
       const r = await fetch('/api/fleet/ota/rollout', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ silent: true }),
+        method: 'POST', headers: hdrs(), body: JSON.stringify({ silent: true }),
       })
       const j = await r.json()
-      toast(r.ok ? `OTA rollout ${j.version_name} → ${j.queued} unidades` : (j.error || 'rollout fail'))
+      toast(r.ok ? `OTA rollout ${j.version_name} → ${j.queued}` : (j.error || 'rollout fail'))
       load()
     }
     document.getElementById('gf-add').onclick = async () => {
@@ -203,7 +288,7 @@
         radius_m: Number(document.getElementById('gf-r').value) || 250,
       }
       const r = await fetch('/api/fleet/geofences', {
-        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+        method: 'POST', headers: hdrs(), body: JSON.stringify(body),
       })
       const j = await r.json()
       toast(r.ok ? `Geofence #${j.id}` : (j.error || 'fail'))
