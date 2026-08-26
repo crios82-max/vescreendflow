@@ -20,6 +20,8 @@ class VePlayerApp : Application() {
         CanBusManager.start(this)
         NavEngine.start(com.veplayer.app.data.VePrefs(this), appScope)
         com.veplayer.app.nav.NavTts.start(this, com.veplayer.app.data.VePrefs(this), appScope)
+        val prefs = com.veplayer.app.data.VePrefs(this)
+        com.veplayer.app.fleet.FleetInbox.load(prefs)
         val default = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
             Log.e(TAG, "Uncaught in ${t.name}", e)

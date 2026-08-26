@@ -617,6 +617,73 @@ fun SettingsScreen() {
             ) { Text("Recalcular ruta") }
         }
 
+        PanelBlock("Flota voz / inbox") {
+            var alertsOn by remember { mutableStateOf(prefs.fleetAlertsEnabled) }
+            var ttsAlerts by remember { mutableStateOf(prefs.fleetTtsAlerts) }
+            var ttsMsgs by remember { mutableStateOf(prefs.fleetTtsMessages) }
+            val inbox by com.veplayer.app.fleet.FleetInbox.items.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Inbox alertas", color = Mist)
+                Switch(
+                    checked = alertsOn,
+                    onCheckedChange = {
+                        alertsOn = it
+                        prefs.fleetAlertsEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS alertas (geofence/ABS…)", color = Mist)
+                Switch(
+                    checked = ttsAlerts,
+                    onCheckedChange = {
+                        ttsAlerts = it
+                        prefs.fleetTtsAlerts = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS mensajes flota", color = Mist)
+                Switch(
+                    checked = ttsMsgs,
+                    onCheckedChange = {
+                        ttsMsgs = it
+                        prefs.fleetTtsMessages = it
+                    },
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    com.veplayer.app.fleet.FleetInbox.push(
+                        prefs,
+                        kind = "message",
+                        text = "Prueba de inbox VePlayer",
+                        speak = true,
+                    )
+                    status = "Inbox prueba"
+                },
+            ) { Text("Probar voz inbox") }
+            Text("Últimos ${inbox.size.coerceAtMost(5)}", color = Mute)
+            inbox.take(5).forEach { item ->
+                Text(
+                    "· [${item.severity}] ${item.text.take(72)}",
+                    color = Mute,
+                )
+            }
+        }
+
         PanelBlock("Conductor") {
             var driverCode by remember { mutableStateOf(prefs.driverCode) }
             var driverPin by remember { mutableStateOf("") }

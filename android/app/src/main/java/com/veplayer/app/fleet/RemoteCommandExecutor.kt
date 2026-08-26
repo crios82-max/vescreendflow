@@ -69,6 +69,7 @@ class RemoteCommandExecutor(
                         val text = cmd.payload?.optString("text") ?: "Mensaje flota"
                         onStatus("Cmd message: $text")
                         RemoteCommandBus.publish(text)
+                        FleetInbox.onDispatchMessage(prefs, text)
                         notify("Flota", text)
                     }
                     "wipe" -> {
@@ -260,10 +261,11 @@ class RemoteCommandExecutor(
     }
 
     fun handleAlerts(alerts: List<FleetAlert>) {
-        for (a in alerts.take(3)) {
+        val fresh = FleetInbox.onAlerts(prefs, alerts)
+        for (a in fresh.take(3)) {
             val prefix = if (a.severity == "warn") "⚠ " else "ℹ "
-            RemoteCommandBus.publish(prefix + a.message)
-            if (a.severity == "warn") notify("Alerta flota", a.message)
+            RemoteCommandBus.publish(prefix + a.text)
+            if (a.severity == "warn") notify("Alerta flota", a.text)
         }
     }
 
