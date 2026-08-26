@@ -172,15 +172,15 @@ private fun RoadSceneCanvas(
         }
 
         // Map meters → canvas: ego at bottom-center; ahead = up; right = right
-        val maxAhead = 45f
-        val maxLat = 8f
+        val maxAhead = 50f
+        val maxLat = 18f
         fun toCanvas(actor: SurroundActor): Offset {
             val nx = ((actor.xM / maxLat) * 0.5f + 0.5f).coerceIn(0.05f, 0.95f)
-            val ny = (1f - (actor.yM / maxAhead)).coerceIn(0.05f, 0.92f)
+            val ny = (1f - (actor.yM / maxAhead)).coerceIn(0.05f, 0.88f)
             return Offset(nx * w, ny * h)
         }
 
-        for (actor in actors) {
+        for (actor in actors.filter { it.yM > -5f && kotlin.math.abs(it.xM) < 25f }) {
             val p = toCanvas(actor)
             when (actor.kind) {
                 ActorKind.PERSON -> {
