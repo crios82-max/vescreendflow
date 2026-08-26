@@ -134,6 +134,16 @@ class VePrefs(context: Context) {
                 ?: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         set(value) = sp.edit().putString("map_tile_url", value.trim()).apply()
 
+    /** Parking guidelines on reverse camera. */
+    var reverseGuidesEnabled: Boolean
+        get() = sp.getBoolean("reverse_guides", true)
+        set(value) = sp.edit().putBoolean("reverse_guides", value).apply()
+
+    /** Track width of guide rails as fraction of preview (0.30..0.60). */
+    var reverseGuideTrack: Float
+        get() = sp.getFloat("reverse_guide_track", 0.46f)
+        set(value) = sp.edit().putFloat("reverse_guide_track", value.coerceIn(0.30f, 0.60f)).apply()
+
     var deviceName: String
         get() = sp.getString("device_name", "VePlayer") ?: "VePlayer"
         set(value) = sp.edit().putString("device_name", value).apply()

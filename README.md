@@ -202,6 +202,18 @@ TextToSpeech (es-VE/ES) con duck de audio:
 npm run veplayer:nav-tts-smoke
 ```
 
+## Guías reverse (v0.21)
+
+Overlay de parking en preview trasera:
+
+- Rieles + bandas rojo/ámbar/verde · curvatura por `steering_angle_deg`
+- Auto al gear **R** (y modo Simple trasera) · chip Guías ON/OFF · ancho vías
+- Prefs `reverse_guides` / `reverse_guide_track`
+
+```bash
+npm run veplayer:reverse-guides-smoke
+```
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

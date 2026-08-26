@@ -634,6 +634,22 @@ fun SettingsScreen() {
                     },
                 )
             }
+            var revGuides by remember { mutableStateOf(prefs.reverseGuidesEnabled) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Guías reverse (cámara)", color = Mist)
+                Switch(
+                    checked = revGuides,
+                    onCheckedChange = {
+                        revGuides = it
+                        prefs.reverseGuidesEnabled = it
+                        status = if (it) "Guías ON" else "Guías OFF"
+                    },
+                )
+            }
             OutlinedTextField(
                 value = mockSpeed,
                 onValueChange = { mockSpeed = it.filter { c -> c.isDigit() || c == '.' } },
