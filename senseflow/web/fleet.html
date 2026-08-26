@@ -72,13 +72,14 @@
       <option value="commands">CSV commands</option>
       <option value="alerts">CSV alerts</option>
       <option value="telemetry">CSV telemetry</option>
+      <option value="drivers">CSV drivers</option>
     </select>
     <button class="btn ghost" id="csv-export">Export CSV</button>
     <button class="btn ghost" id="logout-btn">Logout</button>
     <span id="me" class="muted"></span>
     <span id="meta"></span>
   </div>
-  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · nav_dest</p>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · nav_dest · set_driver</p>
   <div id="toast"></div>
 
   <div class="grid" id="report-cards">
@@ -115,6 +116,16 @@
       <div id="ota-hist" class="muted" style="max-height:180px;overflow:auto">…</div>
     </div>
     <div class="card">
+      <h2>Conductores</h2>
+      <div id="drivers" class="muted">cargando…</div>
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        <input id="drv-code" placeholder="D001" style="width:70px" />
+        <input id="drv-device" placeholder="device_id" style="width:140px" />
+        <button id="drv-assign" class="btn ghost">Asignar</button>
+        <button id="drv-clear" class="btn ghost">Quitar</button>
+      </div>
+    </div>
+    <div class="card">
       <h2>Alertas 24h (reporte)</h2>
       <div id="rep-alerts" class="muted">…</div>
     </div>
@@ -122,7 +133,7 @@
 
   <table>
     <thead>
-      <tr><th>Nombre</th><th>Pair</th><th>Versión</th><th>Seen</th><th>Speed</th><th>Señales</th><th>Hist</th><th>Comandos</th></tr>
+      <tr><th>Nombre</th><th>Pair</th><th>Conductor</th><th>Versión</th><th>Seen</th><th>Speed</th><th>Señales</th><th>Hist</th><th>Comandos</th></tr>
     </thead>
     <tbody id="rows"></tbody>
   </table>
@@ -363,6 +374,7 @@
         if (vs.source) sigBits.push(vs.source)
         const sig = sigBits.length ? sigBits.join(' · ') : '—'
         tr.innerHTML = `<td>${d.name || '—'}</td><td>${d.pair_code || '—'}</td>
+          <td>${d.driver_code ? (d.driver_code + ' · ' + (d.driver_name || '')) : '—'}</td>
           <td>${d.app_version || '—'} (${d.version_code ?? '—'})</td>
           <td>${seen}</td>
           <td>${d.last_speed_mps != null ? (d.last_speed_mps*3.6).toFixed(0)+' km/h' : '—'}</td>
@@ -391,13 +403,49 @@
         mk('CAN', 'set_source', 'ghost', { source: 'can' })
         mk('OBD', 'reboot_obd', 'ghost')
         mk('Nav', 'nav_dest', 'ghost', { name: 'Altamira', lat: 10.4965, lng: -66.8492 })
+        mk('Drv', 'set_driver', 'ghost', { code: 'D001' })
         mk('Wipe', 'wipe', 'danger')
         if (!me.can_dispatch) cell.textContent = 'viewer · read-only'
         tb.appendChild(tr)
       }
-      await Promise.all([loadAlerts(), loadGeofences(), loadReports(), loadHistory()])
+      await Promise.all([loadAlerts(), loadGeofences(), loadReports(), loadHistory(), loadDrivers()])
+    }
+    async function loadDrivers() {
+      const j = await fetch('/api/fleet/ops/drivers', { headers: hdrs() }).then(r => r.json())
+      const el = document.getElementById('drivers')
+      if (!el) return
+      el.innerHTML = (j.drivers || []).map(d =>
+        `<div>· <b>${d.code}</b> ${d.name}${d.has_pin ? ' · PIN' : ''} · dest ${d.preferred_dest || '—'} · units ${d.devices || 0}</div>`
+      ).join('') || '<span class="muted">Sin conductores</span>'
     }
     document.getElementById('refresh').onclick = load
+    document.getElementById('drv-assign').onclick = async () => {
+      if (!me.can_dispatch) { toast('Viewer: solo lectura'); return }
+      const code = document.getElementById('drv-code').value.trim()
+      const device_id = document.getElementById('drv-device').value.trim()
+      if (!code || !device_id) { toast('código + device_id'); return }
+      const list = await fetch('/api/fleet/ops/drivers', { headers: hdrs() }).then(r => r.json())
+      const d = (list.drivers || []).find(x => x.code.toLowerCase() === code.toLowerCase())
+      if (!d) { toast('conductor no encontrado'); return }
+      const r = await fetch('/api/fleet/ops/drivers/assign', {
+        method: 'POST', headers: hdrs(),
+        body: JSON.stringify({ device_id, driver_id: d.id }),
+      })
+      const j = await r.json()
+      toast(r.ok ? `Asignado ${d.code} → ${device_id.slice(0,10)}…` : (j.error || 'fail'))
+      load()
+    }
+    document.getElementById('drv-clear').onclick = async () => {
+      if (!me.can_dispatch) { toast('Viewer: solo lectura'); return }
+      const device_id = document.getElementById('drv-device').value.trim()
+      if (!device_id) { toast('device_id'); return }
+      const r = await fetch('/api/fleet/ops/drivers/assign', {
+        method: 'POST', headers: hdrs(),
+        body: JSON.stringify({ device_id, driver_id: null }),
+      })
+      toast(r.ok ? 'Conductor quitado' : 'fail')
+      load()
+    }
     document.getElementById('ota-rollout').onclick = async () => {
       if (!me.can_dispatch) { toast('Viewer: solo lectura'); return }
       const r = await fetch('/api/fleet/ota/rollout', {

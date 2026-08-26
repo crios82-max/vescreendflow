@@ -6,10 +6,17 @@ import cors from 'cors'
 import { apiRouter } from './routes.js'
 import { fleetRouter } from './fleet.js'
 import { ensureFleetOpsTables, fleetOpsRouter } from './fleetOps.js'
+import {
+  ensureFleetDriversTables,
+  fleetDriversRouter,
+  mountDriverOpsRoutes,
+} from './fleetDrivers.js'
 import { navRouter } from './nav.js'
 import { db } from './db.js'
 
 ensureFleetOpsTables()
+ensureFleetDriversTables()
+mountDriverOpsRoutes(fleetOpsRouter)
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const webDir = path.join(rootDir, 'web')
@@ -34,6 +41,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api', apiRouter)
 app.use('/api/fleet', fleetRouter)
+app.use('/api/fleet/drivers', fleetDriversRouter)
 app.use('/api/fleet/ops', fleetOpsRouter)
 app.use('/api/nav', navRouter)
 

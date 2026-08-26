@@ -7,6 +7,11 @@ import {
   recordTelemetrySample,
 } from './fleetPro.js'
 import { assertCanMutate, logOtaEvent } from './fleetOps.js'
+import {
+  assignDriverToDevice,
+  driverForDevice,
+  resolveDriverPayload,
+} from './fleetDrivers.js'
 
 export const fleetRouter = Router()
 
@@ -66,6 +71,8 @@ const heartbeatSchema = z.object({
   speed_mps: z.number().optional(),
   reverse: z.boolean().optional(),
   vehicle_signals: z.record(z.unknown()).optional(),
+  driver_id: z.number().int().positive().optional(),
+  driver_code: z.string().max(32).optional(),
 })
 
 fleetRouter.post('/heartbeat', (req, res) => {
@@ -90,6 +97,17 @@ fleetRouter.post('/heartbeat', (req, res) => {
   const speed = d.speed_mps ?? speedFromSignals
   const reverse = d.reverse ?? reverseFromSignals
   const telemetryJson = signals != null ? JSON.stringify(signals) : null
+
+  // Sync driver assignment from device heartbeat when provided
+  if (d.driver_id != null || d.driver_code) {
+    const resolved = resolveDriverPayload({
+      driver_id: d.driver_id,
+      code: d.driver_code,
+    })
+    if (resolved && !('clear' in resolved)) {
+      assignDriverToDevice(d.device_id, resolved.id)
+    }
+  }
 
   db.prepare(
     `
@@ -177,6 +195,7 @@ fleetRouter.post('/heartbeat', (req, res) => {
       payload: c.payload ? safeJson(c.payload) : null,
       created_at: c.created_at,
     })),
+    driver: driverForDevice(d.device_id),
   })
 })
 
@@ -218,9 +237,12 @@ fleetRouter.post('/pair', (req, res) => {
 fleetRouter.get('/devices', (_req, res) => {
   const rows = db
     .prepare(
-      `SELECT device_id, pair_code, name, app_version, version_code, last_seen_at,
-              last_lat, last_lng, last_speed_mps, reverse, status, telemetry_json
-       FROM fleet_devices ORDER BY last_seen_at DESC`,
+      `SELECT fd.device_id, fd.pair_code, fd.name, fd.app_version, fd.version_code, fd.last_seen_at,
+              fd.last_lat, fd.last_lng, fd.last_speed_mps, fd.reverse, fd.status, fd.telemetry_json,
+              fd.driver_id, dr.code AS driver_code, dr.name AS driver_name
+       FROM fleet_devices fd
+       LEFT JOIN fleet_drivers dr ON dr.id = fd.driver_id
+       ORDER BY fd.last_seen_at DESC`,
     )
     .all() as Array<Record<string, unknown>>
 
@@ -396,6 +418,7 @@ const commandSchema = z.object({
     'run_diag',
     'set_dbc',
     'fm_tune',
+    'set_driver',
   ]),
   payload: z.record(z.string(), z.unknown()).optional(),
 })
@@ -416,6 +439,17 @@ fleetRouter.post('/command', (req, res) => {
     return
   }
   const actor = `${op.name}<${op.role}>`
+  if (parsed.data.command === 'set_driver') {
+    const resolved = resolveDriverPayload(parsed.data.payload ?? null)
+    if (resolved && 'clear' in resolved) {
+      assignDriverToDevice(parsed.data.device_id, null)
+    } else if (resolved) {
+      assignDriverToDevice(parsed.data.device_id, resolved.id)
+    } else {
+      res.status(400).json({ error: 'set_driver requiere code, driver_id o clear' })
+      return
+    }
+  }
   const info = db
     .prepare(
       `INSERT INTO fleet_commands (device_id, command, payload, status, issued_by)

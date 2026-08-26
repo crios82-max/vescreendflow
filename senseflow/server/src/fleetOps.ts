@@ -35,6 +35,7 @@ const DISPATCH_CMDS = new Set([
   'run_diag',
   'set_dbc',
   'fm_tune',
+  'set_driver',
 ])
 
 const SESSION_TTL_S = 12 * 3600
@@ -821,9 +822,46 @@ fleetOpsRouter.get('/reports/export', (req, res) => {
     return
   }
 
+  if (kind === 'drivers') {
+    const rows = db
+      .prepare(
+        `SELECT d.id, d.code, d.name, d.phone, d.language, d.preferred_dest, d.active, d.created_at,
+                (SELECT COUNT(*) FROM fleet_devices fd WHERE fd.driver_id = d.id) AS devices
+         FROM fleet_drivers d ORDER BY d.code LIMIT ?`,
+      )
+      .all(limit) as Array<Record<string, unknown>>
+    sendCsv(
+      res,
+      `fleet-drivers-${stamp}.csv`,
+      [
+        'id',
+        'code',
+        'name',
+        'phone',
+        'language',
+        'preferred_dest',
+        'active',
+        'devices',
+        'created_at',
+      ],
+      rows.map((r) => [
+        r.id,
+        r.code,
+        r.name,
+        r.phone,
+        r.language,
+        r.preferred_dest,
+        r.active,
+        r.devices,
+        r.created_at,
+      ]),
+    )
+    return
+  }
+
   res.status(400).json({
     error: 'kind inválido',
-    kinds: ['devices', 'commands', 'alerts', 'telemetry', 'summary'],
+    kinds: ['devices', 'commands', 'alerts', 'telemetry', 'summary', 'drivers'],
   })
 })
 

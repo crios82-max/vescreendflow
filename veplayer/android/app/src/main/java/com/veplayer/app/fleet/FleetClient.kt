@@ -91,6 +91,10 @@ class FleetClient(private val prefs: VePrefs) {
             if (vehicleSignals != null) {
                 payload.put("vehicle_signals", mapToJson(vehicleSignals))
             }
+            if (prefs.driverId > 0) {
+                payload.put("driver_id", prefs.driverId)
+                if (prefs.driverCode.isNotBlank()) payload.put("driver_code", prefs.driverCode)
+            }
             val req =
                 Request.Builder()
                     .url(base() + "/api/fleet/heartbeat")

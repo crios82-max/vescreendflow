@@ -228,6 +228,25 @@ UTF-8 BOM · `Content-Disposition` attachment · auth session/token (prod estric
 npm run veplayer:fleet-csv-smoke
 ```
 
+## Perfil conductor (v0.23)
+
+Conductores de flota con PIN + destino preferido:
+
+| Código | PIN | Destino |
+|--------|-----|---------|
+| D001 | 1234 | Altamira |
+| D002 | 5678 | Chacao |
+| D003 | — | — |
+
+- API: `GET/POST /api/fleet/drivers`, login/logout, ops assign
+- Cmd flota `set_driver` `{ "code":"D001" }` o `{ "clear": true }`
+- VePlayer Ajustes → Conductor · DriveViz muestra nombre
+- CSV `kind=drivers`
+
+```bash
+npm run veplayer:driver-smoke
+```
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

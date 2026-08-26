@@ -144,6 +144,22 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("reverse_guide_track", 0.46f)
         set(value) = sp.edit().putFloat("reverse_guide_track", value.coerceIn(0.30f, 0.60f)).apply()
 
+    var driverId: Int
+        get() = sp.getInt("driver_id", 0)
+        set(value) = sp.edit().putInt("driver_id", value).apply()
+
+    var driverCode: String
+        get() = sp.getString("driver_code", "") ?: ""
+        set(value) = sp.edit().putString("driver_code", value.trim()).apply()
+
+    var driverName: String
+        get() = sp.getString("driver_name", "") ?: ""
+        set(value) = sp.edit().putString("driver_name", value.trim()).apply()
+
+    var driverLanguage: String
+        get() = sp.getString("driver_language", "es") ?: "es"
+        set(value) = sp.edit().putString("driver_language", value.trim().ifBlank { "es" }).apply()
+
     var deviceName: String
         get() = sp.getString("device_name", "VePlayer") ?: "VePlayer"
         set(value) = sp.edit().putString("device_name", value).apply()
