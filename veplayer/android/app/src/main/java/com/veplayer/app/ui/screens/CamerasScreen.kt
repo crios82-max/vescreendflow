@@ -26,12 +26,13 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -46,11 +47,13 @@ import com.veplayer.app.camera.CameraCatalog
 import com.veplayer.app.camera.CameraSlots
 import com.veplayer.app.data.VePrefs
 import com.veplayer.app.ui.cameras.BirdEye360Panel
+import com.veplayer.app.ui.cameras.ReverseGuidelinesOverlay
 import com.veplayer.app.ui.theme.Mist
 import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Night
 import com.veplayer.app.ui.theme.Panel
 import com.veplayer.app.ui.theme.Teal
+import com.veplayer.app.vehicle.VehicleState
 
 private enum class CamMode { SIMPLE, DUAL, SURROUND360 }
 
@@ -88,10 +91,23 @@ fun CamerasScreen(preferRear: Boolean = false) {
     var previewRear by remember { mutableStateOf<PreviewView?>(null) }
     var maxAhead by remember { mutableStateOf(prefs.birdEyeMaxAheadM) }
     var maxLat by remember { mutableStateOf(prefs.birdEyeMaxLatM) }
+    val vehicle by VehicleState.state.collectAsState()
+    var guidesOn by remember { mutableStateOf(prefs.reverseGuidesEnabled) }
+    var guideTrack by remember { mutableStateOf(prefs.reverseGuideTrack) }
 
     val hasPermission =
         ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
             PackageManager.PERMISSION_GRANTED
+
+    fun isRearFacing(device: CamDevice?): Boolean {
+        if (device == null) return false
+        return device.facing == CameraCharacteristics.LENS_FACING_BACK ||
+            device.facing == CameraCharacteristics.LENS_FACING_EXTERNAL
+    }
+
+    val showGuides =
+        guidesOn &&
+            (preferRear || vehicle.reverse || (mode == CamMode.SIMPLE && isRearFacing(camA)))
 
     fun selectorFor(device: CamDevice): CameraSelector {
         val facing =
@@ -250,7 +266,7 @@ fun CamerasScreen(preferRear: Boolean = false) {
     Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text("Cámaras del vehículo", style = MaterialTheme.typography.headlineMedium, color = Mist, fontWeight = FontWeight.Bold)
         Text(
-            "Simple · Dual ConcurrentCamera · 360 bird’s-eye (overlay surround calibrado).",
+            "Simple · Dual ConcurrentCamera · 360 bird’s-eye · guías reverse.",
             color = Mute,
         )
         Text(
@@ -262,6 +278,33 @@ fun CamerasScreen(preferRear: Boolean = false) {
             Chip("Simple", mode == CamMode.SIMPLE) { mode = CamMode.SIMPLE }
             Chip("Dual", mode == CamMode.DUAL) { mode = CamMode.DUAL }
             Chip("360", mode == CamMode.SURROUND360) { mode = CamMode.SURROUND360 }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                if (vehicle.reverse) "REVERSE · guías" else "Guías parking",
+                color = if (vehicle.reverse) Teal else Mist,
+                fontWeight = FontWeight.Bold,
+            )
+            Chip(if (guidesOn) "Guías ON" else "Guías OFF", guidesOn) {
+                guidesOn = !guidesOn
+                prefs.reverseGuidesEnabled = guidesOn
+            }
+        }
+        if (guidesOn && mode != CamMode.SURROUND360) {
+            Text("Ancho vías ${(guideTrack * 100).toInt()}%", color = Mute)
+            Slider(
+                value = guideTrack,
+                onValueChange = {
+                    guideTrack = it
+                    prefs.reverseGuideTrack = it
+                },
+                valueRange = 0.30f..0.60f,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
 
         if (mode != CamMode.SURROUND360 && devices.isNotEmpty()) {
@@ -342,6 +385,9 @@ fun CamerasScreen(preferRear: Boolean = false) {
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth(),
+                        showGuides = guidesOn && (preferRear || vehicle.reverse),
+                        steeringDeg = vehicle.steeringAngleDeg,
+                        trackWidth = guideTrack,
                     ) { previewRear = it }
                 }
                 BirdEye360Panel(
@@ -372,6 +418,9 @@ fun CamerasScreen(preferRear: Boolean = false) {
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
+                    showGuides = showGuides || (guidesOn && vehicle.reverse && isRearFacing(camA)),
+                    steeringDeg = vehicle.steeringAngleDeg,
+                    trackWidth = guideTrack,
                 ) { previewA = it }
                 if (dual) {
                     CamSurface(
@@ -379,6 +428,9 @@ fun CamerasScreen(preferRear: Boolean = false) {
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight(),
+                        showGuides = guidesOn && (vehicle.reverse || preferRear) && isRearFacing(camB),
+                        steeringDeg = vehicle.steeringAngleDeg,
+                        trackWidth = guideTrack,
                     ) { previewB = it }
                 }
             }
@@ -418,6 +470,9 @@ private fun SideSlot(
 private fun CamSurface(
     label: String,
     modifier: Modifier = Modifier,
+    showGuides: Boolean = false,
+    steeringDeg: Float? = null,
+    trackWidth: Float = 0.46f,
     onReady: (PreviewView) -> Unit,
 ) {
     Box(modifier = modifier.clip(RoundedCornerShape(16.dp)).background(Panel)) {
@@ -436,8 +491,14 @@ private fun CamSurface(
             },
             modifier = Modifier.fillMaxSize(),
         )
+        ReverseGuidelinesOverlay(
+            steeringDeg = steeringDeg,
+            trackWidth = trackWidth,
+            enabled = showGuides,
+            modifier = Modifier.fillMaxSize(),
+        )
         Text(
-            label,
+            label + if (showGuides) " · guías" else "",
             color = Teal,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
