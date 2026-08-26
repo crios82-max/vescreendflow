@@ -602,6 +602,231 @@ fleetOpsRouter.get('/reports/summary', (_req, res) => {
   })
 })
 
+function csvCell(v: unknown): string {
+  if (v == null) return ''
+  const s = typeof v === 'number' && Number.isFinite(v) ? String(v) : String(v)
+  if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`
+  return s
+}
+
+function toCsv(headers: string[], rows: Array<Array<unknown>>): string {
+  const bom = '\uFEFF'
+  const lines = [
+    headers.map(csvCell).join(','),
+    ...rows.map((r) => r.map(csvCell).join(',')),
+  ]
+  return bom + lines.join('\n') + '\n'
+}
+
+function sendCsv(res: Response, filename: string, headers: string[], rows: Array<Array<unknown>>) {
+  const body = toCsv(headers, rows)
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+  res.setHeader('Cache-Control', 'no-store')
+  res.send(body)
+}
+
+/** CSV export: kind=devices|commands|alerts|telemetry|summary */
+fleetOpsRouter.get('/reports/export', (req, res) => {
+  const op = resolveOperator(req)
+  if (!isOpenMode() && !op.authenticated) {
+    res.status(401).json({ error: 'auth requerida' })
+    return
+  }
+  const kind = String(req.query.kind || 'devices').toLowerCase()
+  const limit = Math.min(5_000, Math.max(1, Number(req.query.limit) || 1_000))
+  const deviceId = typeof req.query.device_id === 'string' ? req.query.device_id : null
+  const now = Math.floor(Date.now() / 1000)
+  const day = now - 86_400
+  const stamp = new Date().toISOString().slice(0, 10)
+
+  if (kind === 'devices') {
+    const rows = db
+      .prepare(
+        `SELECT device_id, name, pair_code, app_version, version_code, status,
+                last_seen_at, last_lat, last_lng, last_speed_mps, reverse
+         FROM fleet_devices ORDER BY last_seen_at DESC LIMIT ?`,
+      )
+      .all(limit) as Array<Record<string, unknown>>
+    sendCsv(
+      res,
+      `fleet-devices-${stamp}.csv`,
+      [
+        'device_id',
+        'name',
+        'pair_code',
+        'app_version',
+        'version_code',
+        'status',
+        'last_seen_at',
+        'last_lat',
+        'last_lng',
+        'last_speed_kmh',
+        'reverse',
+      ],
+      rows.map((r) => [
+        r.device_id,
+        r.name,
+        r.pair_code,
+        r.app_version,
+        r.version_code,
+        r.status,
+        r.last_seen_at,
+        r.last_lat,
+        r.last_lng,
+        r.last_speed_mps != null ? Number(r.last_speed_mps) * 3.6 : '',
+        r.reverse,
+      ]),
+    )
+    return
+  }
+
+  if (kind === 'commands') {
+    let sql = `SELECT id, device_id, command, status, created_at, acked_at, issued_by, payload
+               FROM fleet_commands`
+    const params: unknown[] = []
+    if (deviceId) {
+      sql += ` WHERE device_id = ?`
+      params.push(deviceId)
+    }
+    sql += ` ORDER BY id DESC LIMIT ?`
+    params.push(limit)
+    const rows = db.prepare(sql).all(...params) as Array<Record<string, unknown>>
+    sendCsv(
+      res,
+      `fleet-commands-${stamp}.csv`,
+      ['id', 'device_id', 'command', 'status', 'created_at', 'acked_at', 'issued_by', 'payload'],
+      rows.map((r) => [
+        r.id,
+        r.device_id,
+        r.command,
+        r.status,
+        r.created_at,
+        r.acked_at,
+        r.issued_by,
+        typeof r.payload === 'string' ? r.payload : '',
+      ]),
+    )
+    return
+  }
+
+  if (kind === 'alerts') {
+    let sql = `SELECT id, device_id, kind, severity, message, created_at, acked_at
+               FROM fleet_alerts`
+    const params: unknown[] = []
+    if (deviceId) {
+      sql += ` WHERE device_id = ?`
+      params.push(deviceId)
+    }
+    sql += ` ORDER BY id DESC LIMIT ?`
+    params.push(limit)
+    const rows = db.prepare(sql).all(...params) as Array<Record<string, unknown>>
+    sendCsv(
+      res,
+      `fleet-alerts-${stamp}.csv`,
+      ['id', 'device_id', 'kind', 'severity', 'message', 'created_at', 'acked_at', 'open'],
+      rows.map((r) => [
+        r.id,
+        r.device_id,
+        r.kind,
+        r.severity,
+        r.message,
+        r.created_at,
+        r.acked_at,
+        r.acked_at == null ? 1 : 0,
+      ]),
+    )
+    return
+  }
+
+  if (kind === 'telemetry') {
+    let sql = `SELECT id, device_id, ts, lat, lng, speed_mps FROM fleet_telemetry`
+    const params: unknown[] = []
+    if (deviceId) {
+      sql += ` WHERE device_id = ? AND ts >= ?`
+      params.push(deviceId, day)
+    } else {
+      sql += ` WHERE ts >= ?`
+      params.push(day)
+    }
+    sql += ` ORDER BY ts DESC LIMIT ?`
+    params.push(limit)
+    const rows = db.prepare(sql).all(...params) as Array<Record<string, unknown>>
+    sendCsv(
+      res,
+      `fleet-telemetry-${stamp}.csv`,
+      ['id', 'device_id', 'ts', 'lat', 'lng', 'speed_kmh'],
+      rows.map((r) => [
+        r.id,
+        r.device_id,
+        r.ts,
+        r.lat,
+        r.lng,
+        r.speed_mps != null ? Number(r.speed_mps) * 3.6 : '',
+      ]),
+    )
+    return
+  }
+
+  if (kind === 'summary') {
+    const devices = db.prepare(`SELECT COUNT(*) AS n FROM fleet_devices`).get() as { n: number }
+    const online = db
+      .prepare(`SELECT COUNT(*) AS n FROM fleet_devices WHERE last_seen_at >= ?`)
+      .get(now - 120) as { n: number }
+    const openAlerts = db
+      .prepare(`SELECT COUNT(*) AS n FROM fleet_alerts WHERE acked_at IS NULL`)
+      .get() as { n: number }
+    const cmds = db
+      .prepare(
+        `SELECT status, COUNT(*) AS n FROM fleet_commands WHERE created_at >= ? GROUP BY status`,
+      )
+      .all(day) as Array<{ status: string; n: number }>
+    const versions = db
+      .prepare(
+        `SELECT COALESCE(app_version,'?') AS app_version, COALESCE(version_code,0) AS version_code, COUNT(*) AS n
+         FROM fleet_devices GROUP BY app_version, version_code`,
+      )
+      .all() as Array<{ app_version: string; version_code: number; n: number }>
+    const speed = db
+      .prepare(
+        `SELECT AVG(speed_mps) AS avg_mps, MAX(speed_mps) AS max_mps, COUNT(*) AS samples
+         FROM fleet_telemetry WHERE ts >= ? AND speed_mps IS NOT NULL`,
+      )
+      .get(day) as { avg_mps: number | null; max_mps: number | null; samples: number }
+
+    const rows: Array<Array<unknown>> = [
+      ['generated_at', now, ''],
+      ['window_s', 86_400, ''],
+      ['devices_total', devices.n, ''],
+      ['devices_online', online.n, ''],
+      ['devices_stale', devices.n - online.n, ''],
+      ['open_alerts', openAlerts.n, ''],
+      [
+        'telem_avg_kmh',
+        speed.avg_mps != null ? +(speed.avg_mps * 3.6).toFixed(2) : '',
+        '',
+      ],
+      [
+        'telem_max_kmh',
+        speed.max_mps != null ? +(speed.max_mps * 3.6).toFixed(2) : '',
+        '',
+      ],
+      ['telem_samples_24h', speed.samples, ''],
+    ]
+    for (const c of cmds) rows.push([`cmds_24h_${c.status}`, c.n, ''])
+    for (const v of versions) {
+      rows.push([`version_${v.app_version}`, v.version_code, v.n])
+    }
+    sendCsv(res, `fleet-summary-${stamp}.csv`, ['metric', 'value', 'extra'], rows)
+    return
+  }
+
+  res.status(400).json({
+    error: 'kind inválido',
+    kinds: ['devices', 'commands', 'alerts', 'telemetry', 'summary'],
+  })
+})
+
 function safeJson(raw: string): unknown {
   try {
     return JSON.parse(raw)

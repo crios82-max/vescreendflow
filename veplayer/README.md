@@ -214,6 +214,20 @@ Overlay de parking en preview trasera:
 npm run veplayer:reverse-guides-smoke
 ```
 
+## Export reportes CSV (v0.22)
+
+SenseFlow `/fleet.html` → selector + **Export CSV**:
+
+```
+GET /api/fleet/ops/reports/export?kind=devices|commands|alerts|telemetry|summary
+```
+
+UTF-8 BOM · `Content-Disposition` attachment · auth session/token (prod estricto).
+
+```bash
+npm run veplayer:fleet-csv-smoke
+```
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

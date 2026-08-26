@@ -66,6 +66,14 @@
     <a href="/">← Mapa</a>
     <button id="refresh">Actualizar</button>
     <button class="btn warn" id="ota-rollout">OTA rollout</button>
+    <select id="csv-kind" title="Export CSV">
+      <option value="summary">CSV summary</option>
+      <option value="devices">CSV devices</option>
+      <option value="commands">CSV commands</option>
+      <option value="alerts">CSV alerts</option>
+      <option value="telemetry">CSV telemetry</option>
+    </select>
+    <button class="btn ghost" id="csv-export">Export CSV</button>
     <button class="btn ghost" id="logout-btn">Logout</button>
     <span id="me" class="muted"></span>
     <span id="meta"></span>
@@ -203,6 +211,34 @@
       localStorage.removeItem(sessionKey)
       localStorage.removeItem(tokenKey)
       showLogin('Sesión cerrada')
+    }
+
+    document.getElementById('csv-export').onclick = async () => {
+      const kind = document.getElementById('csv-kind').value
+      try {
+        const r = await fetch('/api/fleet/ops/reports/export?kind=' + encodeURIComponent(kind) + '&limit=2000', {
+          headers: hdrs(),
+        })
+        if (!r.ok) {
+          const j = await r.json().catch(() => ({}))
+          toast(j.error || ('export HTTP ' + r.status))
+          return
+        }
+        const blob = await r.blob()
+        const cd = r.headers.get('content-disposition') || ''
+        const m = /filename="([^"]+)"/.exec(cd)
+        const name = m ? m[1] : ('fleet-' + kind + '.csv')
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = name
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        URL.revokeObjectURL(a.href)
+        toast('CSV · ' + name)
+      } catch (e) {
+        toast('export fail: ' + e.message)
+      }
     }
 
     async function sendCmd(deviceId, command, payload) {
