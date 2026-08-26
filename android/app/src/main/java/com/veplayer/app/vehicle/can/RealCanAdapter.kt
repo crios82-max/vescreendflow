@@ -80,10 +80,11 @@ class RealCanAdapter(
                 transport = opened.first
                 val tag = opened.second
                 val isSim = opened.first is SimCanTransport
+                CanSignalDecoder.ensureLoaded(context)
                 CanLinkBus.publish(
                     CanLinkBus.Snapshot(
                         state = if (isSim) CanLinkState.SIM else CanLinkState.LIVE,
-                        text = "CAN ${opened.first.name} · $tag",
+                        text = "CAN ${opened.first.name} · $tag · ${CanSignalDecoder.database()?.sourceLabel ?: "dbc?"}",
                         backend = opened.first.name,
                         usbDevices = UsbSlcanTransport(context).listCandidates(),
                     ),
@@ -94,7 +95,7 @@ class RealCanAdapter(
                 while (isActive) {
                     val frame = opened.first.readFrame(150)
                     if (frame != null) {
-                        snap = CanSignalDecoder.apply(frame, snap, tag)
+                        snap = CanSignalDecoder.apply(frame, snap, tag, context)
                         // Honour mock reverse override for bench
                         if (prefs.mockReverse) {
                             snap = snap.copy(gear = com.veplayer.app.vehicle.Gear.R)

@@ -377,6 +377,52 @@ fun SettingsScreen() {
             } else {
                 usbList.forEach { Text("USB · $it", color = Mute) }
             }
+            Text("DBC (mapas CAN):", color = Mist)
+            Text(com.veplayer.app.vehicle.can.CanSignalDecoder.statusLabel(prefs), color = Mute)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = {
+                        prefs.dbcSource = "builtin"
+                        com.veplayer.app.vehicle.can.CanSignalDecoder.reload(context)
+                        if (signalSource == "can") CanBusManager.rebind()
+                        status = "DBC demo cargado"
+                    },
+                ) { Text("Demo DBC") }
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            status = "Descargando DBC…"
+                            val url = prefs.senseflowUrl.trimEnd('/') + "/dbc/veplayer_demo.dbc"
+                            val r =
+                                withContext(Dispatchers.IO) {
+                                    runCatching {
+                                        val body =
+                                            okhttp3.OkHttpClient()
+                                                .newCall(okhttp3.Request.Builder().url(url).build())
+                                                .execute()
+                                                .use { resp ->
+                                                    if (!resp.isSuccessful) error("HTTP ${resp.code}")
+                                                    resp.body?.string() ?: error("empty")
+                                                }
+                                        val key =
+                                            com.veplayer.app.vehicle.can.dbc.DbcRepository.installCustom(
+                                                context,
+                                                body,
+                                                "fleet_demo.dbc",
+                                            )
+                                        prefs.dbcSource = key
+                                        com.veplayer.app.vehicle.can.CanSignalDecoder.reload(context)
+                                        key
+                                    }
+                                }
+                            r.onSuccess {
+                                if (signalSource == "can") CanBusManager.rebind()
+                                status = "DBC flota OK · $it"
+                            }.onFailure { status = it.message ?: "DBC download fail" }
+                        }
+                    },
+                ) { Text("Desde SenseFlow") }
+            }
             OutlinedTextField(
                 value = obdAddr,
                 onValueChange = { obdAddr = it },

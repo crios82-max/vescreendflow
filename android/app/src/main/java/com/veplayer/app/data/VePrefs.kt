@@ -51,6 +51,16 @@ class VePrefs(context: Context) {
         get() = sp.getString("can_socket_iface", "can0") ?: "can0"
         set(value) = sp.edit().putString("can_socket_iface", value.trim().ifBlank { "can0" }).apply()
 
+    /**
+     * DBC source key:
+     * - `builtin` / blank → assets/dbc/veplayer_demo.dbc
+     * - `asset:…` → assets path
+     * - `file:/…` → absolute path (field OEM file)
+     */
+    var dbcSource: String
+        get() = sp.getString("dbc_source", "builtin") ?: "builtin"
+        set(value) = sp.edit().putString("dbc_source", value.trim()).apply()
+
     var birdEyeMaxAheadM: Float
         get() = sp.getFloat("bird_eye_max_ahead_m", 50f)
         set(value) = sp.edit().putFloat("bird_eye_max_ahead_m", value.coerceIn(15f, 80f)).apply()

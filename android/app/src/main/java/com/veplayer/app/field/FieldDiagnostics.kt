@@ -107,6 +107,10 @@ object FieldDiagnostics {
                 add(KioskController.statusLabel(context))
                 add("source=${vehicle.source} · can=${can.state}/${can.backend} · ${can.text}")
                 add("obd=${obd.state} · ${obd.text}")
+                runCatching {
+                    com.veplayer.app.vehicle.can.CanSignalDecoder.ensureLoaded(context)
+                    add(com.veplayer.app.vehicle.can.CanSignalDecoder.statusLabel(prefs))
+                }
                 add("SenseFlow ${prefs.senseflowUrl} · $senseDetail")
                 add("cams=${cams.size}: " + cams.joinToString { it.label })
                 add("usb=${usb.size}: " + if (usb.isEmpty()) "—" else usb.joinToString("; "))
