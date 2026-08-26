@@ -1,0 +1,1 @@
+# VePlayer ProGuard

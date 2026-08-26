@@ -79,3 +79,12 @@ npm run senseflow:seed
 npm run senseflow:dev
 # mapa: http://127.0.0.1:4100
 ```
+
+## VePlayer (OS reproductor vehículo)
+
+Launcher kiosk: cámaras, radio, YouTube, tienda Spotify, pantalla, mapa. Ver [`veplayer/README.md`](veplayer/README.md).
+
+```bash
+cd veplayer/android && ./gradlew assembleDebug
+# demo UI: veplayer/web/index.html
+```

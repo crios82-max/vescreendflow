@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VePlayer — OS reproductor</title>
+  <style>
+    :root { --night:#0B1220; --panel:#151E2E; --teal:#2DD4BF; --amber:#FBBF24; --mist:#E8EEF7; --mute:#94A3B8; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; height:100%; background:var(--night); color:var(--mist); font-family:"Segoe UI",system-ui,sans-serif; }
+    .shell { display:flex; height:100%; }
+    .rail { width:160px; background:var(--panel); padding:18px 12px; display:flex; flex-direction:column; gap:8px; }
+    .rail h1 { margin:0 8px 4px; color:var(--teal); font-size:1.25rem; }
+    .rail .sub { margin:0 8px 12px; color:var(--mute); font-size:.8rem; }
+    .rail button { border:0; border-radius:12px; padding:14px 12px; text-align:left; background:rgba(11,18,32,.35); color:var(--mute); font-weight:600; cursor:pointer; }
+    .rail button.active { background:rgba(45,212,191,.22); color:var(--teal); }
+    .main { flex:1; padding:20px; overflow:auto; }
+    h2 { margin:0 0 8px; }
+    .muted { color:var(--mute); margin-bottom:16px; }
+    .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .card { background:var(--panel); border-radius:18px; padding:18px; min-height:120px; cursor:pointer; }
+    .card strong { color:var(--teal); font-size:1.2rem; display:block; }
+    .cams { display:grid; grid-template-columns:1fr 1fr; gap:12px; height:calc(100% - 80px); }
+    .cam { background:linear-gradient(160deg,#1a2740,#0b1220); border-radius:16px; min-height:280px; position:relative; display:flex; align-items:center; justify-content:center; color:var(--mute); }
+    .cam span { position:absolute; top:12px; left:12px; background:rgba(11,18,32,.7); color:var(--teal); padding:6px 10px; border-radius:8px; font-weight:700; }
+    .list { display:flex; flex-direction:column; gap:8px; }
+    .row { background:var(--panel); border-radius:12px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center; }
+    .pill { display:inline-block; background:var(--teal); color:var(--night); font-weight:700; border:0; border-radius:10px; padding:10px 14px; cursor:pointer; margin-right:8px; }
+    .pill.ghost { background:transparent; color:var(--mist); outline:1px solid var(--mute); }
+    iframe, .frame { width:100%; height:calc(100vh - 120px); border:0; border-radius:16px; background:#000; }
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav class="rail">
+      <h1>VePlayer</h1>
+      <p class="sub">OS reproductor</p>
+      <button class="active" data-tab="home">Inicio</button>
+      <button data-tab="cameras">Cámaras</button>
+      <button data-tab="radio">Radio</button>
+      <button data-tab="youtube">YouTube</button>
+      <button data-tab="store">Tienda</button>
+      <button data-tab="player">Pantalla</button>
+      <button data-tab="map">Mapa</button>
+    </nav>
+    <main class="main">
+      <section id="home">
+        <h2>Centro de control</h2>
+        <p class="muted">Cámaras · Radio · YouTube · Tienda (Spotify) · Pantalla · Mapa</p>
+        <div class="grid">
+          <div class="card" data-go="cameras"><strong>Cámaras</strong>Frontal + trasera</div>
+          <div class="card" data-go="radio"><strong>Radio</strong>Emisoras en vivo</div>
+          <div class="card" data-go="youtube"><strong>YouTube</strong>Video a bordo</div>
+          <div class="card" data-go="store"><strong>Tienda</strong>Spotify Connect</div>
+          <div class="card" data-go="player"><strong>Pantalla</strong>vescreenflow</div>
+          <div class="card" data-go="map"><strong>Mapa</strong>SenseFlow</div>
+        </div>
+      </section>
+      <section id="cameras" class="hidden">
+        <h2>Cámaras del vehículo</h2>
+        <p class="muted">Retrovisor digital (delantera) y cámara trasera</p>
+        <div class="cams">
+          <div class="cam"><span>Delantera / retrovisor</span>Vista previa · CameraX FRONT</div>
+          <div class="cam"><span>Trasera</span>Vista previa · CameraX BACK</div>
+        </div>
+      </section>
+      <section id="radio" class="hidden">
+        <h2>Radio</h2>
+        <p class="muted">Streaming IP (MVP) — mismo UI para FM hardware</p>
+        <div class="list">
+          <div class="row"><div><strong>SomaFM Groove Salad</strong><br><span class="muted">Global · Ambient</span></div><span>▶</span></div>
+          <div class="row"><div><strong>SomaFM Beat Blender</strong><br><span class="muted">Global · Electronic</span></div><span>○</span></div>
+          <div class="row"><div><strong>Radio Paradise</strong><br><span class="muted">Global · Eclectic</span></div><span>○</span></div>
+        </div>
+      </section>
+      <section id="youtube" class="hidden">
+        <h2>YouTube</h2>
+        <p class="muted">Reproductor oficial embebido</p>
+        <iframe class="frame" src="https://m.youtube.com" title="YouTube"></iframe>
+      </section>
+      <section id="store" class="hidden">
+        <h2>Tienda VePlayer</h2>
+        <p class="muted">Apps oficiales para enlazar el dispositivo — sin APKs pirateados</p>
+        <div class="list">
+          <div class="row" style="flex-direction:column;align-items:flex-start;gap:10px">
+            <div><strong style="color:var(--teal)">Spotify</strong><br>
+              Reproduce música en el vehículo. Usa Spotify Connect desde el teléfono.<br>
+              1) Instala Spotify · 2) Inicia sesión · 3) Móvil → Dispositivos disponibles
+            </div>
+            <div>
+              <a class="pill" href="https://play.google.com/store/apps/details?id=com.spotify.music" target="_blank" rel="noopener">Instalar / abrir Spotify</a>
+              <a class="pill ghost" href="https://support.spotify.com/article/spotify-connect/" target="_blank" rel="noopener">Enlazar dispositivo</a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="player" class="hidden">
+        <h2>Pantalla vescreenflow</h2>
+        <iframe class="frame" src="https://vescreenflow.com/play" title="Player"></iframe>
+      </section>
+      <section id="map" class="hidden">
+        <h2>Mapa SenseFlow</h2>
+        <p class="muted">Tráfico + personas (requiere API local :4100)</p>
+        <iframe class="frame" src="http://127.0.0.1:4100/" title="SenseFlow"></iframe>
+      </section>
+    </main>
+  </div>
+  <script>
+    const tabs = [...document.querySelectorAll('.rail button')]
+    const sections = Object.fromEntries([...document.querySelectorAll('main > section')].map(s => [s.id, s]))
+    function show(id) {
+      Object.values(sections).forEach(s => s.classList.add('hidden'))
+      sections[id].classList.remove('hidden')
+      tabs.forEach(b => b.classList.toggle('active', b.dataset.tab === id))
+    }
+    tabs.forEach(b => b.onclick = () => show(b.dataset.tab))
+    document.querySelectorAll('[data-go]').forEach(c => c.onclick = () => show(c.dataset.go))
+  </script>
+</body>
+</html>
