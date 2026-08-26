@@ -24,6 +24,24 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("video_block_kmh", 8f)
         set(value) = sp.edit().putFloat("video_block_kmh", value).apply()
 
+    /** Cockpit speed-limit HUD (km/h). */
+    var speedHudEnabled: Boolean
+        get() = sp.getBoolean("speed_hud", true)
+        set(value) = sp.edit().putBoolean("speed_hud", value).apply()
+
+    var speedLimitKmh: Int
+        get() = sp.getInt("speed_limit_kmh", 50)
+        set(value) = sp.edit().putInt("speed_limit_kmh", value.coerceIn(10, 160)).apply()
+
+    /** Warn band before limit (near). */
+    var speedWarnMarginKmh: Float
+        get() = sp.getFloat("speed_warn_margin", 5f)
+        set(value) = sp.edit().putFloat("speed_warn_margin", value.coerceIn(0f, 20f)).apply()
+
+    var speedTtsWarn: Boolean
+        get() = sp.getBoolean("speed_tts_warn", true)
+        set(value) = sp.edit().putBoolean("speed_tts_warn", value).apply()
+
     var mockReverse: Boolean
         get() = sp.getBoolean("mock_reverse", false)
         set(value) = sp.edit().putBoolean("mock_reverse", value).apply()

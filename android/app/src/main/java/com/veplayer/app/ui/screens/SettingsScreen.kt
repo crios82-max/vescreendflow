@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -615,6 +616,62 @@ fun SettingsScreen() {
                     status = "Ruta refrescada"
                 },
             ) { Text("Recalcular ruta") }
+        }
+
+        PanelBlock("Speed HUD") {
+            var hudOn by remember { mutableStateOf(prefs.speedHudEnabled) }
+            var lim by remember { mutableStateOf(prefs.speedLimitKmh.toFloat()) }
+            var ttsWarn by remember { mutableStateOf(prefs.speedTtsWarn) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Badge límite", color = Mist)
+                Switch(
+                    checked = hudOn,
+                    onCheckedChange = {
+                        hudOn = it
+                        prefs.speedHudEnabled = it
+                    },
+                )
+            }
+            Text("Límite ${lim.toInt()} km/h", color = Mute)
+            Slider(
+                value = lim,
+                onValueChange = {
+                    lim = it
+                    prefs.speedLimitKmh = it.toInt()
+                },
+                valueRange = 20f..120f,
+                steps = 19,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS exceso", color = Mist)
+                Switch(
+                    checked = ttsWarn,
+                    onCheckedChange = {
+                        ttsWarn = it
+                        prefs.speedTtsWarn = it
+                    },
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                listOf(40, 50, 60, 80).forEach { v ->
+                    OutlinedButton(
+                        onClick = {
+                            lim = v.toFloat()
+                            prefs.speedLimitKmh = v
+                            status = "Límite $v"
+                        },
+                    ) { Text("$v") }
+                }
+            }
         }
 
         PanelBlock("Flota voz / inbox") {

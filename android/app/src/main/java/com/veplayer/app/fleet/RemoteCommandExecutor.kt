@@ -252,6 +252,23 @@ class RemoteCommandExecutor(
                             }
                         }
                     }
+                    "set_speed_limit" -> {
+                        val lim =
+                            when {
+                                cmd.payload?.has("kmh") == true -> cmd.payload.optInt("kmh", 50)
+                                cmd.payload?.has("limit") == true -> cmd.payload.optInt("limit", 50)
+                                else -> -1
+                            }
+                        if (lim in 10..160) {
+                            prefs.speedLimitKmh = lim
+                            prefs.speedHudEnabled = true
+                            onStatus("Cmd set_speed_limit → $lim")
+                            RemoteCommandBus.publish("Límite $lim km/h")
+                            com.veplayer.app.nav.NavTts.speakNow("Límite de velocidad $lim kilómetros por hora.")
+                        } else {
+                            onStatus("set_speed_limit inválido")
+                        }
+                    }
                     else -> onStatus("Cmd desconocido ${cmd.command}")
                 }
                 done += cmd.id
