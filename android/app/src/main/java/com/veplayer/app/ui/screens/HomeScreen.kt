@@ -18,8 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.veplayer.app.kiosk.KioskController
 import com.veplayer.app.ui.VeDest
 import com.veplayer.app.ui.theme.Amber
 import com.veplayer.app.ui.theme.Mist
@@ -29,6 +31,9 @@ import com.veplayer.app.ui.theme.Teal
 
 @Composable
 fun HomeScreen(onOpen: (VeDest) -> Unit) {
+    val context = LocalContext.current
+    val kiosk = KioskController.statusLabel(context)
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -38,13 +43,29 @@ fun HomeScreen(onOpen: (VeDest) -> Unit) {
             "Cámaras · Radio · YouTube · Tienda (Spotify) · Pantalla · Mapa SenseFlow",
             color = Mute,
         )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(Panel)
+                .padding(16.dp),
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Kiosk", color = Teal, fontWeight = FontWeight.Bold)
+                Text(kiosk, color = Mist)
+                Text(
+                    "Device Owner: adb shell dpm set-device-owner …/VeDeviceAdminReceiver",
+                    color = Mute,
+                )
+            }
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-            HomeCard("Cámaras", "Frontal + trasera", Teal, Modifier.weight(1f)) { onOpen(VeDest.Cameras) }
+            HomeCard("Cámaras", "Frontal + trasera/USB", Teal, Modifier.weight(1f)) { onOpen(VeDest.Cameras) }
             HomeCard("Radio", "Emisoras en vivo", Amber, Modifier.weight(1f)) { onOpen(VeDest.Radio) }
             HomeCard("YouTube", "Video a bordo", Teal, Modifier.weight(1f)) { onOpen(VeDest.YouTube) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-            HomeCard("Tienda", "Spotify y enlaces", Amber, Modifier.weight(1f)) { onOpen(VeDest.Store) }
+            HomeCard("Tienda", "Spotify App Remote", Amber, Modifier.weight(1f)) { onOpen(VeDest.Store) }
             HomeCard("Pantalla", "vescreenflow", Teal, Modifier.weight(1f)) { onOpen(VeDest.Player) }
             HomeCard("Mapa", "Tráfico + personas", Amber, Modifier.weight(1f)) { onOpen(VeDest.Map) }
         }
@@ -59,8 +80,7 @@ fun HomeScreen(onOpen: (VeDest) -> Unit) {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Modo vehículo", color = Teal, fontWeight = FontWeight.Bold)
                 Text(
-                    "Launcher kiosk · boot auto · SenseFlow en background. " +
-                        "FM hardware opcional; radio por streaming si no hay sintonizador.",
+                    "Launcher kiosk · boot auto · SenseFlow · ConcurrentCamera dual · Spotify App Remote.",
                     color = Mute,
                 )
             }

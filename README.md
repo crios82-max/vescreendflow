@@ -1,17 +1,17 @@
 # VePlayer — OS de reproductor para vehículos
 
-Launcher kiosk Android para head-units / tablets de flota:
+Launcher kiosk Android para head-units / tablets de flota.
 
 | Módulo | Qué hace |
 |--------|----------|
-| **Cámaras** | Delantera (retrovisor digital) + trasera (CameraX) |
-| **Radio** | Streaming IP (SomaFM / Radio Paradise…); UI listo para FM hardware |
-| **YouTube** | WebView oficial `m.youtube.com` |
-| **Tienda** | Instalar/abrir Spotify + guía Connect (sin redistribuir APKs) |
-| **Pantalla** | vescreenflow player |
-| **Mapa** | SenseFlow (tráfico + personas) |
-| **Sense** | Pings anónimos en background |
-| **Kiosk** | Immersive + lock-task + boot receiver |
+| **Cámaras** | Dual ConcurrentCamera · front/back/USB EXTERNAL (Camera2) |
+| **Radio** | Streaming IP (ExoPlayer); UI listo para FM hardware |
+| **YouTube** | WebView oficial |
+| **Tienda** | Play Store + **Spotify App Remote SDK** (enlazar dispositivo) |
+| **Pantalla** | vescreenflow |
+| **Mapa** | SenseFlow |
+| **Kiosk duro** | Device Owner + Lock Task + boot |
+| **Sense** | Pings anónimos |
 
 ## Build
 
@@ -21,28 +21,40 @@ cd veplayer/android
 # APK: app/build/outputs/apk/debug/app-debug.apk
 ```
 
-## Config
-
-En `app/build.gradle.kts`:
-
-- `SENSEFLOW_URL` — default `http://10.0.2.2:4100` (emulador)
-- `PLAYER_URL` — `https://vescreenflow.com/play`
-
-En dispositivo físico: cambia SenseFlow a la IP LAN del servidor.
-
-## Spotify (legal)
-
-La tienda **abre Play Store / app oficial** y documenta Spotify Connect.  
-No se embebe ni se piratea Spotify.
-
 ## Device Owner (kiosk duro)
 
+Tras instalar el APK debug (sin cuentas Google en el device de prueba):
+
 ```bash
-adb shell dpm set-device-owner com.veplayer.app/.kiosk.VeDeviceAdmin
+./scripts/enable-device-owner.sh com.veplayer.app.debug
+# o release:
+./scripts/enable-device-owner.sh com.veplayer.app
 ```
 
-(Admin receiver se puede añadir en un siguiente paso; hoy soft lock-task + HOME launcher.)
+Whitelistea VePlayer + Spotify + YouTube en Lock Task.
+
+## Spotify App Remote
+
+1. Crea una app en [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
+2. Redirect URI: `veplayer://callback`
+3. En `veplayer/android/local.properties`:
+
+```properties
+SPOTIFY_CLIENT_ID=tu_client_id
+SPOTIFY_REDIRECT_URI=veplayer://callback
+```
+
+4. Instala Spotify, inicia sesión, en **Tienda → Enlazar dispositivo**.
+
+AARs oficiales en `app/libs/` (no redistribuimos el cliente Spotify).
+
+## Cámaras USB
+
+Si el kernel expone UVC como Camera2 `LENS_FACING_EXTERNAL`, aparecen en el selector Dual A/B.  
+ConcurrentCamera requiere SoC compatible; si no, cae a cámara simple.
 
 ## Demo UI web
 
-Abre `veplayer/web/index.html` para ver el shell de navegación sin APK.
+```bash
+python3 -m http.server 4101 --directory veplayer/web
+```
