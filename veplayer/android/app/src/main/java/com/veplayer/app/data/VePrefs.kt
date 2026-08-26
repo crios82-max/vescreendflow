@@ -42,6 +42,15 @@ class VePrefs(context: Context) {
         get() = sp.getString("obd_device_address", "") ?: ""
         set(value) = sp.edit().putString("obd_device_address", value.trim()).apply()
 
+    /** auto | car | usb | socket | sim — see [com.veplayer.app.vehicle.can.CanBackend]. */
+    var canBackend: String
+        get() = sp.getString("can_backend", "auto") ?: "auto"
+        set(value) = sp.edit().putString("can_backend", value.trim().lowercase()).apply()
+
+    var canSocketIface: String
+        get() = sp.getString("can_socket_iface", "can0") ?: "can0"
+        set(value) = sp.edit().putString("can_socket_iface", value.trim().ifBlank { "can0" }).apply()
+
     var deviceName: String
         get() = sp.getString("device_name", "VePlayer") ?: "VePlayer"
         set(value) = sp.edit().putString("device_name", value).apply()

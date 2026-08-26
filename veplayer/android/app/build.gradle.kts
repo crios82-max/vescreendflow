@@ -25,8 +25,8 @@ android {
         applicationId = "com.veplayer.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 8
-        versionName = "0.6.1"
+        versionCode = 9
+        versionName = "0.7.0"
         buildConfigField("String", "SENSEFLOW_URL", "\"http://10.0.2.2:4100\"")
         buildConfigField("String", "PLAYER_URL", "\"https://vescreenflow.com/play\"")
         buildConfigField(

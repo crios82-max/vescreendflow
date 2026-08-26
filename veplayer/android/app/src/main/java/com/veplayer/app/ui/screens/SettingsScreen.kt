@@ -45,6 +45,8 @@ import com.veplayer.app.vehicle.CanBusManager
 import com.veplayer.app.vehicle.ObdLinkBus
 import com.veplayer.app.vehicle.SignalSourceKind
 import com.veplayer.app.vehicle.VehicleState
+import com.veplayer.app.vehicle.can.CanBackend
+import com.veplayer.app.vehicle.can.CanLinkBus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -70,6 +72,8 @@ fun SettingsScreen() {
     var mockSpeed by remember { mutableStateOf(prefs.mockSpeedKmh.toString()) }
     var signalSource by remember { mutableStateOf(prefs.signalSource) }
     var obdAddr by remember { mutableStateOf(prefs.obdDeviceAddress) }
+    var canBackend by remember { mutableStateOf(prefs.canBackend) }
+    var canIface by remember { mutableStateOf(prefs.canSocketIface) }
     var pairCode by remember { mutableStateOf(prefs.pairCodeCached() ?: "—") }
     var otaText by remember { mutableStateOf("OTA: sin chequear") }
     val live by VehicleState.state.collectAsState()
@@ -258,6 +262,51 @@ fun SettingsScreen() {
                     }
                 }
             }
+            Text("CAN backend:", color = Mist)
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                CanBackend.entries.forEach { b ->
+                    val selected = canBackend == b.id
+                    if (selected) {
+                        Button(
+                            onClick = {
+                                canBackend = b.id
+                                prefs.canBackend = b.id
+                                if (signalSource == "can") CanBusManager.rebind()
+                                status = "CAN → ${b.label}"
+                            },
+                        ) { Text(b.id) }
+                    } else {
+                        OutlinedButton(
+                            onClick = {
+                                canBackend = b.id
+                                prefs.canBackend = b.id
+                                if (signalSource == "can") CanBusManager.rebind()
+                                status = "CAN → ${b.label}"
+                            },
+                        ) { Text(b.id) }
+                    }
+                }
+            }
+            OutlinedTextField(
+                value = canIface,
+                onValueChange = { canIface = it },
+                label = { Text("SocketCAN iface") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            val canLink by CanLinkBus.state.collectAsState()
+            Text("CAN link: ${canLink.state} · ${canLink.text}", color = Mute)
+            var usbList by remember { mutableStateOf(CanBusManager.usbCanDevices()) }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { usbList = CanBusManager.usbCanDevices() }) {
+                    Text("Refresh USB")
+                }
+            }
+            if (usbList.isEmpty()) {
+                Text("USB CAN: ninguno conectado", color = Mute)
+            } else {
+                usbList.forEach { Text("USB · $it", color = Mute) }
+            }
             OutlinedTextField(
                 value = obdAddr,
                 onValueChange = { obdAddr = it },
@@ -376,9 +425,11 @@ fun SettingsScreen() {
                 prefs.videoSpeedBlockKmh = blockKmh.toFloatOrNull() ?: 8f
                 prefs.signalSource = signalSource
                 prefs.obdDeviceAddress = obdAddr
+                prefs.canBackend = canBackend
+                prefs.canSocketIface = canIface
                 if (newPin.length >= 4) prefs.pin = newPin
                 CanBusManager.rebind()
-                status = "Guardado · fuente ${prefs.signalSource}"
+                status = "Guardado · fuente ${prefs.signalSource} · can ${prefs.canBackend}"
             },
             modifier = Modifier.fillMaxWidth(),
         ) { Text("Guardar ajustes") }

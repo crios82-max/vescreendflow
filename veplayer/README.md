@@ -59,10 +59,28 @@ ConcurrentCamera requiere SoC compatible; si no, cae a cámara simple.
 |--------------------|---------|
 | **gps** | Fused Location → velocidad (+ heading) |
 | **mock** | Ciclo CAN sintético (velocidad, gear, turn, SOC, RPM…) |
-| **can** | Stub SocketCAN/USB-CAN / CarPropertyManager → hoy `can_stub` demo |
+| **can** | Auto: CarProperty → USB SLCAN → SocketCAN JNI → `can_sim` |
 | **obd** | ELM327 Bluetooth Classic RFCOMM (SPP) · fallback `obd_sim` |
 
 Señales en `VehicleSignals`: speed, gear P/R/N/D, turn, puertas, parking brake, SOC/fuel, RPM, steering, coolant, outdoor temp, ignition, heading, yaw, odometer, range, **ABS**, **TPMS** (4 ruedas), **HVAC** (cabin/target/AC/fan), throttle.
+
+### CAN real (v0.7)
+
+Backends (`Ajustes` → CAN backend):
+
+| Backend | Qué hace |
+|---------|----------|
+| **auto** | Prueba Car → USB → Socket → sim |
+| **car** | Android Automotive `CarPropertyManager` (reflection) |
+| **usb** | USB host **SLCAN** (`tIIILDD…`) |
+| **socket** | SocketCAN `can0` vía `libveplayer_can.so` |
+| **sim** | Frames demo 0x100–0x108 |
+
+DBC-lite (`CanSignalDecoder`): speed · gear · turn · doors · SOC/fuel · steer/RPM · ABS/flags · TPMS · HVAC.
+
+```bash
+npm run veplayer:can-smoke
+```
 
 ### OBD ELM327
 

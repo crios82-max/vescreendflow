@@ -3,6 +3,8 @@ package com.veplayer.app.vehicle
 import android.content.Context
 import android.util.Log
 import com.veplayer.app.data.VePrefs
+import com.veplayer.app.vehicle.can.RealCanAdapter
+import com.veplayer.app.vehicle.can.UsbSlcanTransport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -51,7 +53,7 @@ object CanBusManager {
             when (kind) {
                 SignalSourceKind.GPS -> GpsSpeedAdapter().also { gpsAdapter = it }
                 SignalSourceKind.MOCK -> MockCanAdapter(p, scope)
-                SignalSourceKind.CAN -> CanBusStubAdapter(p, scope)
+                SignalSourceKind.CAN -> RealCanAdapter(ctx, p, scope)
                 SignalSourceKind.OBD -> ObdElm327Adapter(ctx, p, scope)
             }
         adapter = next
@@ -97,5 +99,10 @@ object CanBusManager {
     fun bondedObdDevices(): List<ObdBondedDevice> {
         val ctx = appContext ?: return emptyList()
         return ObdBluetoothClient(ctx).bondedDevices()
+    }
+
+    fun usbCanDevices(): List<String> {
+        val ctx = appContext ?: return emptyList()
+        return UsbSlcanTransport(ctx).listCandidates()
     }
 }
