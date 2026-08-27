@@ -620,6 +620,63 @@ export function raisePanic(
   return { id, deduped: false }
 }
 
+const INCIDENT_LABELS: Record<string, string> = {
+  accident: 'Accidente',
+  breakdown: 'Avería',
+  traffic: 'Tráfico',
+  other: 'Incidente',
+}
+
+/** Driver-reported incident (not SOS). Soft-dedupes same category within cooldown. */
+export function raiseIncident(
+  deviceId: string,
+  input: {
+    category?: string | null
+    note?: string | null
+    lat?: number | null
+    lng?: number | null
+    source?: string | null
+    driver_code?: string | null
+    driver_name?: string | null
+    clip_url?: string | null
+  } = {},
+): { id: number; deduped: boolean } {
+  const rawCat = (input.category || 'other').toLowerCase().trim()
+  const category = INCIDENT_LABELS[rawCat] ? rawCat : 'other'
+  if (recentlyAlerted(deviceId, 'incident', 45)) {
+    const last = db
+      .prepare(
+        `SELECT id FROM fleet_alerts WHERE device_id = ? AND kind = 'incident' ORDER BY id DESC LIMIT 1`,
+      )
+      .get(deviceId) as { id: number } | undefined
+    return { id: last?.id ?? 0, deduped: true }
+  }
+  const note = (input.note || '').trim().slice(0, 280)
+  const who =
+    input.driver_name || input.driver_code
+      ? ` (${[input.driver_code, input.driver_name].filter(Boolean).join(' · ')})`
+      : ''
+  const label = INCIDENT_LABELS[category] || 'Incidente'
+  const severity = category === 'accident' ? 'critical' : 'warn'
+  const id = insertAlert(
+    deviceId,
+    'incident',
+    severity,
+    `${label}${who}${note ? `: ${note}` : ''}`,
+    {
+      category,
+      lat: input.lat ?? null,
+      lng: input.lng ?? null,
+      note: note || null,
+      source: input.source || 'device',
+      driver_code: input.driver_code || null,
+      driver_name: input.driver_name || null,
+      clip_url: input.clip_url || null,
+    },
+  )
+  return { id, deduped: false }
+}
+
 export function ackPanicsForDevice(deviceId: string): number {
   const now = Math.floor(Date.now() / 1000)
   const info = db
@@ -630,7 +687,7 @@ export function ackPanicsForDevice(deviceId: string): number {
   return info.changes
 }
 
-/** Merge dashcam clip metadata into an open panic alert payload. */
+/** Merge dashcam clip metadata into an alert payload (panic by default). */
 export function attachPanicClip(
   deviceId: string,
   input: {
@@ -648,7 +705,7 @@ export function attachPanicClip(
     const row = db
       .prepare(
         `SELECT id, device_id, kind, severity, message, payload, created_at, acked_at
-         FROM fleet_alerts WHERE id = ? AND device_id = ? AND kind = 'panic' LIMIT 1`,
+         FROM fleet_alerts WHERE id = ? AND device_id = ? LIMIT 1`,
       )
       .get(input.alertId, deviceId) as FleetAlert | undefined
     alert = row ?? null

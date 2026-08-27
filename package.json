@@ -32,6 +32,7 @@
     "veplayer:harsh-driving-smoke": "node veplayer/scripts/harsh-driving-smoke.mjs",
     "veplayer:geofence-exit-smoke": "node veplayer/scripts/geofence-exit-smoke.mjs",
     "veplayer:coolant-overheat-smoke": "node veplayer/scripts/coolant-overheat-smoke.mjs",
+    "veplayer:incident-report-smoke": "node veplayer/scripts/incident-report-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",

@@ -590,6 +590,21 @@ npm run veplayer:coolant-overheat-smoke
 
 **Fase 8 (siguiente):** incident report.
 
+## Incident report (v0.48 · Fase 8)
+
+Reporte manual de incidente (no SOS):
+
+- `POST /api/fleet/incident` · categorías accident / breakdown / traffic / other
+- Nota + clip JPEG opcional · soft dedupe 45s
+- Accidente = severity critical · resto warn
+- Ajustes: categoría · nota · enviar · clip on/off
+
+```bash
+npm run veplayer:incident-report-smoke
+```
+
+**Fase 8 completa** (seatbelt · harsh · geofence exit · coolant · incident).
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

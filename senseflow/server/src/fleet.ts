@@ -9,6 +9,7 @@ import {
   openAlertsForDevice,
   openPanicForDevice,
   raisePanic,
+  raiseIncident,
   ackPanicsForDevice,
   attachPanicClip,
   panicClipUrlFromAlert,
@@ -767,6 +768,116 @@ fleetRouter.post('/panic', (req, res) => {
           clip_url: panicClipUrlFromAlert(alert),
         }
       : { id: result.id },
+  })
+})
+
+const incidentSchema = z.object({
+  device_id: z.string().min(8).max(64),
+  category: z.enum(['accident', 'breakdown', 'traffic', 'other']).default('other'),
+  note: z.string().max(280).optional(),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+  source: z.string().max(32).optional(),
+  driver_code: z.string().max(32).optional(),
+  driver_name: z.string().max(80).optional(),
+  // optional inline clip (JPEG base64)
+  clip_kind: z.enum(['jpeg', 'jpg', 'png']).optional(),
+  clip_base64: z.string().min(8).max(2_800_000).optional(),
+  clip_sim: z.boolean().optional(),
+})
+
+fleetRouter.post('/incident', (req, res) => {
+  const parsed = incidentSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
+    return
+  }
+  const exists = db
+    .prepare(`SELECT device_id FROM fleet_devices WHERE device_id = ?`)
+    .get(parsed.data.device_id)
+  if (!exists) {
+    res.status(404).json({ error: 'dispositivo no registrado' })
+    return
+  }
+
+  let clipUrl: string | null = null
+  if (parsed.data.clip_base64) {
+    let raw: Buffer
+    try {
+      const b64 = parsed.data.clip_base64.replace(/^data:[^;]+;base64,/, '')
+      raw = Buffer.from(b64, 'base64')
+    } catch {
+      res.status(400).json({ error: 'clip base64 inválido' })
+      return
+    }
+    if (raw.length < 32 || raw.length > 2_500_000) {
+      res.status(400).json({ error: 'clip demasiado pequeño o grande' })
+      return
+    }
+    const kind = parsed.data.clip_kind === 'png' ? 'png' : 'jpeg'
+    const ext = kind === 'png' ? 'png' : 'jpg'
+    const stamp = Date.now().toString(36)
+    const safeDev = parsed.data.device_id.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 24)
+    const filename = `inc-${safeDev}-${stamp}.${ext}`
+    const clipsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../clips')
+    fs.mkdirSync(clipsDir, { recursive: true })
+    fs.writeFileSync(path.join(clipsDir, filename), raw)
+    clipUrl = `/clips/${filename}`
+  }
+
+  const result = raiseIncident(parsed.data.device_id, {
+    category: parsed.data.category,
+    note: parsed.data.note,
+    lat: parsed.data.lat,
+    lng: parsed.data.lng,
+    source: parsed.data.source ?? 'device',
+    driver_code: parsed.data.driver_code,
+    driver_name: parsed.data.driver_name,
+    clip_url: clipUrl,
+  })
+
+  if (clipUrl && result.id > 0) {
+    attachPanicClip(parsed.data.device_id, {
+      alertId: result.id,
+      clipUrl,
+      kind: parsed.data.clip_kind === 'png' ? 'png' : 'jpeg',
+      camera: 'incident',
+      durationSec: 8,
+      bytes: null,
+      sim: parsed.data.clip_sim ?? false,
+    })
+  }
+
+  const row = db
+    .prepare(
+      `SELECT id, device_id, kind, severity, message, payload, created_at, acked_at
+       FROM fleet_alerts WHERE id = ?`,
+    )
+    .get(result.id) as
+    | {
+        id: number
+        kind: string
+        severity: string
+        message: string
+        payload: string | null
+        created_at: number
+      }
+    | undefined
+
+  res.status(result.deduped ? 200 : 201).json({
+    ok: true,
+    deduped: result.deduped,
+    alert: row
+      ? {
+          id: row.id,
+          kind: row.kind,
+          severity: row.severity,
+          message: row.message,
+          created_at: row.created_at,
+          clip_url: panicClipUrlFromAlert(row as never) ?? clipUrl,
+          payload: row.payload ? safeJson(row.payload) : null,
+        }
+      : { id: result.id, clip_url: clipUrl },
   })
 })
 
