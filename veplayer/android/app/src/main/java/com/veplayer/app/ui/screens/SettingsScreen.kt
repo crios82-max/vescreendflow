@@ -2308,6 +2308,52 @@ fun SettingsScreen() {
                 color = if (harshSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var impactOn by remember { mutableStateOf(prefs.impactEnabled) }
+            var impactTts by remember { mutableStateOf(prefs.impactTts) }
+            val impactSt by com.veplayer.app.vehicle.ImpactDetectMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Detectar impacto", color = Mist)
+                Switch(
+                    checked = impactOn,
+                    onCheckedChange = {
+                        impactOn = it
+                        prefs.impactEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS impacto", color = Mist)
+                Switch(
+                    checked = impactTts,
+                    onCheckedChange = {
+                        impactTts = it
+                        prefs.impactTts = it
+                    },
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    com.veplayer.app.vehicle.ImpactDetectMonitor.armSim()
+                    status = "Sim impacto armado (próximo tick)"
+                },
+            ) { Text("Sim impacto") }
+            Text(
+                if (impactSt.showWarn) {
+                    "${impactSt.label} · ${impactSt.band} · g≈${"%.2f".format(impactSt.gApprox)}"
+                } else {
+                    "Impact idle (decel ${prefs.impactDecelWarnKmhS.toInt()}/${prefs.impactDecelAlertKmhS.toInt()} · yaw ${prefs.impactYawWarnDegS.toInt()})"
+                },
+                color = if (impactSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             OutlinedTextField(
                 value = mockSpeed,
                 onValueChange = { mockSpeed = it.filter { c -> c.isDigit() || c == '.' } },

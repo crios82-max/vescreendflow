@@ -179,6 +179,9 @@ object FleetInbox {
                 "Atención. Frenada. $body."
             kind == "accel_alert" || kind == "accel_warn" ->
                 "Atención. Aceleración. $body."
+            kind == "impact_alert" -> "Atención. Posible impacto. $body."
+            kind == "impact_warn" || kind.startsWith("impact_") ->
+                "Cuidado. Maniobra extrema. $body."
             kind == "shift_summary" -> "Turno cerrado. $body."
             kind == "shift_fatigue" -> "Atención. Turno prolongado. $body."
             kind == "shift_warn" || kind.startsWith("shift_") ->

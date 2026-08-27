@@ -435,6 +435,38 @@ export function evaluateFleetAlerts(
         raised.push(band)
       }
     }
+
+    // Impact / collision candidate
+    const impact = signals.impact as Record<string, unknown> | undefined
+    if (impact && typeof impact.band === 'string') {
+      const band = impact.band as string
+      const decel =
+        typeof impact.decel_kmh_s === 'number' ? (impact.decel_kmh_s as number) : null
+      const yaw = typeof impact.yaw_deg_s === 'number' ? (impact.yaw_deg_s as number) : null
+      const kind = typeof impact.kind === 'string' ? (impact.kind as string) : ''
+      if (band === 'alert' && !recentlyAlerted(deviceId, 'impact_alert', 180)) {
+        insertAlert(
+          deviceId,
+          'impact_alert',
+          'critical',
+          `Posible impacto${kind ? ` · ${kind}` : ''}` +
+            (decel != null ? ` · ${Math.round(decel)} km/h/s` : '') +
+            (yaw != null && kind === 'yaw' ? ` · yaw ${Math.round(yaw)}°/s` : ''),
+          { impact },
+        )
+        raised.push('impact_alert')
+      } else if (band === 'warn' && !recentlyAlerted(deviceId, 'impact_warn', 180)) {
+        insertAlert(
+          deviceId,
+          'impact_warn',
+          'warn',
+          `Maniobra extrema / posible golpe` +
+            (decel != null ? ` · ${Math.round(decel)} km/h/s` : ''),
+          { impact },
+        )
+        raised.push('impact_warn')
+      }
+    }
     const dtcs = Array.isArray(signals.dtcs) ? signals.dtcs : []
     for (const raw of dtcs) {
       if (!raw || typeof raw !== 'object') continue
