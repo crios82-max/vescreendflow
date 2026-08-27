@@ -92,6 +92,7 @@ object ShiftTracker {
             integratedKm = 0.0
             lastSpeedTs = System.currentTimeMillis()
             clearSummary()
+            com.veplayer.app.vehicle.DriverScoreMonitor.reset()
             val body =
                 JSONObject()
                     .put("device_id", prefs.deviceId())

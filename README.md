@@ -718,7 +718,20 @@ Desvío respecto a la polyline de nav activa:
 npm run veplayer:route-deviation-smoke
 ```
 
-**Fase 10 (en curso):** battery 12V · impact detect · rest break · route deviation · driver scorecard.
+## Driver scorecard (v0.58 · Fase 10)
+
+Score de **seguridad** del turno (aparte del eco):
+
+- Acumula harsh brake/accel · overspeed · seatbelt · impact · route deviation → **0–100**
+- Bands `good` (≥80) / `fair` (≥60) / `poor` · warn **&lt;70** / alert **≤50**
+- DriveViz `Score XX · band` · TTS + inbox · flota `score_warn` / `score_alert`
+- Sim score en Ajustes → Conductor
+
+```bash
+npm run veplayer:driver-scorecard-smoke
+```
+
+**Fase 10 completa** (battery 12V · impact · rest break · route deviation · driver scorecard).
 
 ## Device Owner (kiosk duro · v0.12)
 

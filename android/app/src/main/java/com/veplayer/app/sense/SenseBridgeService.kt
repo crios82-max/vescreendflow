@@ -112,6 +112,12 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.RouteDeviation.toJsonMap(
                                             com.veplayer.app.vehicle.RouteDeviationMonitor.state.value,
                                         ),
+                                    "driver_score" to
+                                        com.veplayer.app.vehicle.DriverScore.toJsonMap(
+                                            com.veplayer.app.vehicle.DriverScoreMonitor.state.value,
+                                        ),
+                                    "driver_score_warn" to prefs.driverScoreWarn.toDouble(),
+                                    "driver_score_alert" to prefs.driverScoreAlert.toDouble(),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                     "coolant_warn_c" to prefs.coolantWarnC.toDouble(),
@@ -237,6 +243,12 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.RouteDeviation.toJsonMap(
                                             com.veplayer.app.vehicle.RouteDeviationMonitor.state.value,
                                         ),
+                                    "driver_score" to
+                                        com.veplayer.app.vehicle.DriverScore.toJsonMap(
+                                            com.veplayer.app.vehicle.DriverScoreMonitor.state.value,
+                                        ),
+                                    "driver_score_warn" to prefs.driverScoreWarn.toDouble(),
+                                    "driver_score_alert" to prefs.driverScoreAlert.toDouble(),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                     "coolant_warn_c" to prefs.coolantWarnC.toDouble(),
