@@ -1228,6 +1228,67 @@ fun SettingsScreen() {
                 color = if (towSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var pbrakeOn by remember { mutableStateOf(prefs.pbrakeEnabled) }
+            var pbrakeTtsOn by remember { mutableStateOf(prefs.pbrakeTts) }
+            var pbrakeSimOn by remember { mutableStateOf(prefs.pbrakeSim) }
+            val pbrakeSt by com.veplayer.app.vehicle.ParkingBrakeMovingMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Freno estacionamiento en movimiento", color = Mist)
+                Switch(
+                    checked = pbrakeOn,
+                    onCheckedChange = {
+                        pbrakeOn = it
+                        prefs.pbrakeEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS freno estacionamiento", color = Mist)
+                Switch(
+                    checked = pbrakeTtsOn,
+                    onCheckedChange = {
+                        pbrakeTtsOn = it
+                        prefs.pbrakeTts = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Sim freno + velocidad", color = Mist)
+                Switch(
+                    checked = pbrakeSimOn,
+                    onCheckedChange = {
+                        pbrakeSimOn = it
+                        prefs.pbrakeSim = it
+                        status =
+                            if (it) {
+                                "P-brake sim ON · ${prefs.pbrakeSimKmh.toInt()} km/h"
+                            } else {
+                                "P-brake sim OFF"
+                            }
+                    },
+                )
+            }
+            Text(
+                if (pbrakeSt.showWarn || pbrakeSt.parkingBrake) {
+                    "${pbrakeSt.label.ifBlank { "Freno" }} · ${pbrakeSt.band}"
+                } else {
+                    "P-brake idle (warn ≥${prefs.pbrakeWarnKmh.toInt()} / alert ≥${prefs.pbrakeAlertKmh.toInt()} km/h)"
+                },
+                color = if (pbrakeSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
         }
 
         PanelBlock("Caída brusca de combustible") {

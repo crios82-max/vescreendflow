@@ -761,6 +761,20 @@ npm run veplayer:ice-frost-smoke
 
 **Fase 11 (en curso):** RPM over-rev · ice/frost outdoor · parking-brake moving · turn stuck · ABS HUD.
 
+## Parking-brake moving (v0.61 · Fase 11)
+
+EPB / freno de estacionamiento activado en marcha (error de conductor, ≠ remolque):
+
+- Default **≥5 km/h warn / ≥15 km/h alert**
+- DriveViz `Freno · N km/h` · TTS + inbox
+- Flota `pbrake_warn` / `pbrake_alert` · sim en Ajustes (Remolque)
+
+```bash
+npm run veplayer:pbrake-moving-smoke
+```
+
+**Fase 11 (en curso):** RPM over-rev · ice/frost · parking-brake moving · turn stuck · ABS HUD.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

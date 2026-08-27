@@ -157,6 +157,32 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("tow_sim_kmh", 12f)
         set(value) = sp.edit().putFloat("tow_sim_kmh", value.coerceIn(0f, 80f)).apply()
 
+    /** Parking brake engaged while moving. */
+    var pbrakeEnabled: Boolean
+        get() = sp.getBoolean("pbrake_moving", true)
+        set(value) = sp.edit().putBoolean("pbrake_moving", value).apply()
+
+    var pbrakeTts: Boolean
+        get() = sp.getBoolean("pbrake_tts", true)
+        set(value) = sp.edit().putBoolean("pbrake_tts", value).apply()
+
+    var pbrakeWarnKmh: Float
+        get() = sp.getFloat("pbrake_warn_kmh", 5f)
+        set(value) = sp.edit().putFloat("pbrake_warn_kmh", value.coerceIn(1f, 40f)).apply()
+
+    var pbrakeAlertKmh: Float
+        get() = sp.getFloat("pbrake_alert_kmh", 15f)
+        set(value) = sp.edit().putFloat("pbrake_alert_kmh", value.coerceIn(5f, 60f)).apply()
+
+    /** Demo: force parking brake on (+ optional speed). */
+    var pbrakeSim: Boolean
+        get() = sp.getBoolean("pbrake_sim", false)
+        set(value) = sp.edit().putBoolean("pbrake_sim", value).apply()
+
+    var pbrakeSimKmh: Float
+        get() = sp.getFloat("pbrake_sim_kmh", 20f)
+        set(value) = sp.edit().putFloat("pbrake_sim_kmh", value.coerceIn(0f, 80f)).apply()
+
     /** Sudden fuel drop (theft / leak) in a short window. */
     var fuelDropEnabled: Boolean
         get() = sp.getBoolean("fuel_drop", true)
