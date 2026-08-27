@@ -339,6 +339,16 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("fatigue_sim_h", 0f)
         set(value) = sp.edit().putFloat("fatigue_sim_h", value.coerceIn(0f, 16f)).apply()
 
+    /** HVAC climate panel. */
+    var hvacPanelEnabled: Boolean
+        get() = sp.getBoolean("hvac_panel", true)
+        set(value) = sp.edit().putBoolean("hvac_panel", value).apply()
+
+    /** |cabin-target| ≤ this → comfort band (°C). */
+    var hvacComfortDeltaC: Float
+        get() = sp.getFloat("hvac_comfort_delta", 2.5f)
+        set(value) = sp.edit().putFloat("hvac_comfort_delta", value.coerceIn(0.5f, 6f)).apply()
+
     /** Collect fleet alerts into inbox. */
     var fleetAlertsEnabled: Boolean
         get() = sp.getBoolean("fleet_alerts", true)

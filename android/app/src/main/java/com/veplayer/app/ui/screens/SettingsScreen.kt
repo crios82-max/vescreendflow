@@ -1376,6 +1376,32 @@ fun SettingsScreen() {
             )
         }
 
+        PanelBlock("Clima HVAC") {
+            var hvacOn by remember { mutableStateOf(prefs.hvacPanelEnabled) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Panel clima", color = Mist)
+                Switch(
+                    checked = hvacOn,
+                    onCheckedChange = {
+                        hvacOn = it
+                        prefs.hvacPanelEnabled = it
+                    },
+                )
+            }
+            Text(
+                "Target ± · AC · fan (override local en mock/obd_sim). Cabina deriva al objetivo.",
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            if (hvacOn) {
+                com.veplayer.app.ui.climate.HvacClimatePanel()
+            }
+        }
+
         PanelBlock("Phone Link · Android Auto / CarPlay") {
             var phoneOn by remember { mutableStateOf(prefs.phoneLinkEnabled) }
             val phone by com.veplayer.app.phone.PhoneLinkBus.state.collectAsState()

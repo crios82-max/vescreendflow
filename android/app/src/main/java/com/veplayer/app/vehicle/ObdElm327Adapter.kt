@@ -203,7 +203,8 @@ class ObdElm327Adapter(
             }
         val absPulse = ((t * 2).toInt() % 40) == 0 && kmh > 20f
         return withDtc(
-            VehicleSignals(
+            HvacClimateBus.applyToSignals(
+                VehicleSignals(
                 speedMps = kmh / 3.6f,
                 gear = gear,
                 turn = TurnSignal.OFF,
@@ -229,6 +230,7 @@ class ObdElm327Adapter(
                 throttlePct = (kmh / 90f * 100f).coerceIn(0f, 100f),
                 source = "obd_sim",
                 updatedAtMs = System.currentTimeMillis(),
+                ),
             ),
         )
     }
