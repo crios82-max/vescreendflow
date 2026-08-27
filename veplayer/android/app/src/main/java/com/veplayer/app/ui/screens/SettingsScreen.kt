@@ -1485,6 +1485,59 @@ fun SettingsScreen() {
                 color = if (park.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var doorHud by remember { mutableStateOf(prefs.doorAjarEnabled) }
+            var doorTts by remember { mutableStateOf(prefs.doorAjarTts) }
+            var doorSim by remember { mutableStateOf(prefs.doorAjarSim) }
+            val door by com.veplayer.app.vehicle.DoorAjarMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("HUD puerta abierta", color = Mist)
+                Switch(
+                    checked = doorHud,
+                    onCheckedChange = {
+                        doorHud = it
+                        prefs.doorAjarEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS puerta", color = Mist)
+                Switch(
+                    checked = doorTts,
+                    onCheckedChange = {
+                        doorTts = it
+                        prefs.doorAjarTts = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Sim puerta FL (mock)", color = Mist)
+                Switch(
+                    checked = doorSim,
+                    onCheckedChange = {
+                        doorSim = it
+                        prefs.doorAjarSim = it
+                        CanBusManager.rebind()
+                        status = if (it) "Puerta FL sim ON" else "Puerta FL sim OFF"
+                    },
+                )
+            }
+            Text(
+                if (door.label.isNotBlank()) "Puerta · ${door.label} · ${door.band}" else "Puertas cerradas",
+                color = if (door.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             OutlinedTextField(
                 value = mockSpeed,
                 onValueChange = { mockSpeed = it.filter { c -> c.isDigit() || c == '.' } },

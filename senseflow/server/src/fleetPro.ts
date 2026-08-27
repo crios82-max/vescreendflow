@@ -250,6 +250,44 @@ export function evaluateFleetAlerts(
         }
       }
     }
+    const doors = signals.doors as Record<string, unknown> | undefined
+    if (doors) {
+      const parts: string[] = []
+      if (doors.fl === true) parts.push('FL')
+      if (doors.fr === true) parts.push('FR')
+      if (doors.rl === true) parts.push('RL')
+      if (doors.rr === true) parts.push('RR')
+      if (doors.trunk === true) parts.push('maletero')
+      if (doors.hood === true) parts.push('capó')
+      if (parts.length) {
+        const which = parts.join(', ')
+        const speedFromSignals =
+          typeof signals.speed_mps === 'number'
+            ? (signals.speed_mps as number)
+            : typeof signals.speed_kmh === 'number'
+              ? (signals.speed_kmh as number) / 3.6
+              : undefined
+        const spdMps = speedMps ?? speedFromSignals
+        const kmh = typeof spdMps === 'number' ? spdMps * 3.6 : null
+        const moving =
+          (typeof kmh === 'number' && kmh >= 5) ||
+          signals.reverse === true ||
+          signals.gear === 'R'
+        if (moving && !recentlyAlerted(deviceId, 'door_moving', 90)) {
+          insertAlert(
+            deviceId,
+            'door_moving',
+            'critical',
+            `Puerta abierta en movimiento (${which}${typeof kmh === 'number' ? ` · ${Math.round(kmh)} km/h` : ''})`,
+            { doors, speed_kmh: kmh != null ? Math.round(kmh) : null },
+          )
+          raised.push('door_moving')
+        } else if (!moving && !recentlyAlerted(deviceId, 'door_ajar', 180)) {
+          insertAlert(deviceId, 'door_ajar', 'warn', `Puerta abierta (${which})`, { doors })
+          raised.push('door_ajar')
+        }
+      }
+    }
     const dtcs = Array.isArray(signals.dtcs) ? signals.dtcs : []
     for (const raw of dtcs) {
       if (!raw || typeof raw !== 'object') continue

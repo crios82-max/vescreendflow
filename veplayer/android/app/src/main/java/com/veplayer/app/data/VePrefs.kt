@@ -291,6 +291,28 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("parking_crit_m", 0.6f)
         set(value) = sp.edit().putFloat("parking_crit_m", value.coerceIn(0.2f, 1.5f)).apply()
 
+    /** Door ajar while moving. */
+    var doorAjarEnabled: Boolean
+        get() = sp.getBoolean("door_ajar", true)
+        set(value) = sp.edit().putBoolean("door_ajar", value).apply()
+
+    var doorAjarTts: Boolean
+        get() = sp.getBoolean("door_ajar_tts", true)
+        set(value) = sp.edit().putBoolean("door_ajar_tts", value).apply()
+
+    var doorAjarWarnKmh: Float
+        get() = sp.getFloat("door_ajar_warn_kmh", 5f)
+        set(value) = sp.edit().putFloat("door_ajar_warn_kmh", value.coerceIn(1f, 30f)).apply()
+
+    var doorAjarAlertKmh: Float
+        get() = sp.getFloat("door_ajar_alert_kmh", 20f)
+        set(value) = sp.edit().putFloat("door_ajar_alert_kmh", value.coerceIn(5f, 80f)).apply()
+
+    /** Demo: pulse FL door open in mock/obd_sim. */
+    var doorAjarSim: Boolean
+        get() = sp.getBoolean("door_ajar_sim", false)
+        set(value) = sp.edit().putBoolean("door_ajar_sim", value).apply()
+
     /** Collect fleet alerts into inbox. */
     var fleetAlertsEnabled: Boolean
         get() = sp.getBoolean("fleet_alerts", true)

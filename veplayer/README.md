@@ -458,6 +458,21 @@ npm run veplayer:parking-hud-smoke
 
 **Fase 6 completa** (geofence speed · DTC · eco · Phone Link · OSM prefetch · parking HUD).
 
+## Door ajar HUD (v0.39 · Fase 7)
+
+Puerta / baúl / capó abiertos:
+
+- Señales `doors.fl/fr/rl/rr` · trunk · hood
+- Bands `ajar` (parado) · `warn` (≥5 km/h) · `alert` (≥20 km/h o reverse)
+- DriveViz chip `Puerta · FL` · TTS + inbox · flota `door_ajar` / `door_moving`
+- Sim puerta FL en mock (`doorAjarSim`)
+
+```bash
+npm run veplayer:door-ajar-smoke
+```
+
+**Fase 7 (en curso):** door ajar · shift fatigue · HVAC · cabin overtemp · SOS dashcam.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

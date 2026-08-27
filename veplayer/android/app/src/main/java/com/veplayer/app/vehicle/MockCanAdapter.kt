@@ -81,7 +81,7 @@ class MockCanAdapter(
             speedMps = kmh / 3.6f,
             gear = gear,
             turn = turn,
-            doorFl = false,
+            doorFl = prefs.doorAjarSim,
             doorFr = false,
             doorRl = false,
             doorRr = false,
