@@ -897,6 +897,51 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Parking brake while moving (driver error)
+    if (parkingBrake) {
+      const pbrakeKmh =
+        typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : typeof speedMps === 'number'
+            ? speedMps * 3.6
+            : typeof towKmh === 'number'
+              ? towKmh
+              : null
+      if (typeof pbrakeKmh === 'number') {
+        const pWarn =
+          typeof signals.pbrake_warn_kmh === 'number'
+            ? (signals.pbrake_warn_kmh as number)
+            : 5
+        const pAlert =
+          typeof signals.pbrake_alert_kmh === 'number'
+            ? (signals.pbrake_alert_kmh as number)
+            : 15
+        if (pbrakeKmh >= pAlert && !recentlyAlerted(deviceId, 'pbrake_alert', 120)) {
+          insertAlert(
+            deviceId,
+            'pbrake_alert',
+            'critical',
+            `Freno estacionamiento · ${Math.round(pbrakeKmh)} km/h`,
+            { speed_kmh: Math.round(pbrakeKmh), parking_brake: true, alert_kmh: pAlert },
+          )
+          raised.push('pbrake_alert')
+        } else if (
+          pbrakeKmh >= pWarn &&
+          pbrakeKmh < pAlert &&
+          !recentlyAlerted(deviceId, 'pbrake_warn', 120)
+        ) {
+          insertAlert(
+            deviceId,
+            'pbrake_warn',
+            'warn',
+            `Freno estacionamiento · ${Math.round(pbrakeKmh)} km/h`,
+            { speed_kmh: Math.round(pbrakeKmh), parking_brake: true, warn_kmh: pWarn },
+          )
+          raised.push('pbrake_warn')
+        }
+      }
+    }
+
     // Sudden fuel drop (theft / leak)
     const fuelDropPct =
       typeof signals.fuel_drop_pct === 'number' ? (signals.fuel_drop_pct as number) : null

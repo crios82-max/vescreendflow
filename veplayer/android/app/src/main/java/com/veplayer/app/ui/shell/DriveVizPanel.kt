@@ -76,6 +76,7 @@ import com.veplayer.app.vehicle.HarshDrivingMonitor
 import com.veplayer.app.vehicle.ImpactDetectMonitor
 import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.IceFrostMonitor
+import com.veplayer.app.vehicle.ParkingBrakeMovingMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.RestBreakMonitor
 import com.veplayer.app.vehicle.RouteDeviationMonitor
@@ -123,6 +124,7 @@ fun DriveVizPanel(
     val coolantHot by CoolantOverheatMonitor.state.collectAsState()
     val rpmHot by RpmOverRevMonitor.state.collectAsState()
     val tow by UnauthorizedMoveMonitor.state.collectAsState()
+    val pbrake by ParkingBrakeMovingMonitor.state.collectAsState()
     val fuelDrop by SuddenFuelDropMonitor.state.collectAsState()
     val tpmsHud by TpmsHudMonitor.state.collectAsState()
     val battV by BatteryVoltageMonitor.state.collectAsState()
@@ -155,6 +157,7 @@ fun DriveVizPanel(
             CoolantOverheatMonitor.tick(prefs, snap)
             RpmOverRevMonitor.tick(prefs, snap)
             UnauthorizedMoveMonitor.tick(prefs, snap)
+            ParkingBrakeMovingMonitor.tick(prefs, snap)
             SuddenFuelDropMonitor.tick(prefs, snap)
             TpmsHudMonitor.tick(prefs, snap)
             BatteryVoltageMonitor.tick(prefs, snap)
@@ -365,6 +368,13 @@ fun DriveVizPanel(
                     Text(
                         tow.label.ifBlank { "Remolque" },
                         color = Color(com.veplayer.app.vehicle.UnauthorizedMove.accentArgb(tow.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (pbrake.showWarn) {
+                    Text(
+                        pbrake.label,
+                        color = Color(com.veplayer.app.vehicle.ParkingBrakeMoving.accentArgb(pbrake.band)),
                         fontSize = 11.sp,
                     )
                 }

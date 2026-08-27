@@ -145,6 +145,18 @@ class SenseBridgeService : Service() {
                                     "tow_speed_min_kmh" to prefs.towSpeedMinKmh.toDouble(),
                                     "tow_warn_sec" to prefs.towWarnSec.toDouble(),
                                     "tow_alert_sec" to prefs.towAlertSec.toDouble(),
+                                    "pbrake_warn_kmh" to prefs.pbrakeWarnKmh.toDouble(),
+                                    "pbrake_alert_kmh" to prefs.pbrakeAlertKmh.toDouble(),
+                                    "parking_brake" to
+                                        (prefs.pbrakeSim ||
+                                            com.veplayer.app.vehicle.ParkingBrakeMovingMonitor.state.value.parkingBrake ||
+                                            snap.parkingBrake),
+                                    "speed_kmh" to
+                                        (if (prefs.pbrakeSim && prefs.pbrakeSimKmh > 0f) {
+                                            prefs.pbrakeSimKmh
+                                        } else {
+                                            snap.speedKmh
+                                        }).toDouble(),
                                     "fuel_drop_pct" to
                                         com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
                                     "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),
@@ -290,6 +302,18 @@ class SenseBridgeService : Service() {
                                     "tow_speed_min_kmh" to prefs.towSpeedMinKmh.toDouble(),
                                     "tow_warn_sec" to prefs.towWarnSec.toDouble(),
                                     "tow_alert_sec" to prefs.towAlertSec.toDouble(),
+                                    "pbrake_warn_kmh" to prefs.pbrakeWarnKmh.toDouble(),
+                                    "pbrake_alert_kmh" to prefs.pbrakeAlertKmh.toDouble(),
+                                    "parking_brake" to
+                                        (prefs.pbrakeSim ||
+                                            com.veplayer.app.vehicle.ParkingBrakeMovingMonitor.state.value.parkingBrake ||
+                                            snap.parkingBrake),
+                                    "speed_kmh" to
+                                        (if (prefs.pbrakeSim && prefs.pbrakeSimKmh > 0f) {
+                                            prefs.pbrakeSimKmh
+                                        } else {
+                                            snap.speedKmh
+                                        }).toDouble(),
                                     "fuel_drop_pct" to
                                         com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
                                     "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),
