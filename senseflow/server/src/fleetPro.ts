@@ -1389,6 +1389,246 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Barometric pressure (OBD PID 0133) — out of range
+    const baroObj = signals.barometric as Record<string, unknown> | undefined
+    let baroKpa: number | null =
+      typeof baroObj?.baro_kpa === 'number'
+        ? (baroObj.baro_kpa as number)
+        : typeof signals.baro_kpa === 'number'
+          ? (signals.baro_kpa as number)
+          : null
+    const baroSpeedKmh =
+      typeof baroObj?.speed_kmh === 'number'
+        ? (baroObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof baroKpa === 'number') {
+      const warnLow =
+        typeof signals.baro_warn_low_kpa === 'number'
+          ? (signals.baro_warn_low_kpa as number)
+          : 88
+      const alertLow =
+        typeof signals.baro_alert_low_kpa === 'number'
+          ? (signals.baro_alert_low_kpa as number)
+          : 82
+      const warnHigh =
+        typeof signals.baro_warn_high_kpa === 'number'
+          ? (signals.baro_warn_high_kpa as number)
+          : 108
+      const alertHigh =
+        typeof signals.baro_alert_high_kpa === 'number'
+          ? (signals.baro_alert_high_kpa as number)
+          : 112
+      const baroMinSpd =
+        typeof signals.baro_speed_min_kmh === 'number'
+          ? (signals.baro_speed_min_kmh as number)
+          : 20
+      const baroSpdOk =
+        typeof baroSpeedKmh === 'number' && baroSpeedKmh >= baroMinSpd
+      if (
+        baroSpdOk &&
+        (baroKpa <= alertLow || baroKpa >= alertHigh) &&
+        !recentlyAlerted(deviceId, 'baro_alert', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'baro_alert',
+          'critical',
+          `Barométrica crítica · ${Math.round(baroKpa)} kPa`,
+          {
+            baro_kpa: baroKpa,
+            barometric: baroObj ?? null,
+          },
+        )
+        raised.push('baro_alert')
+      } else if (
+        baroSpdOk &&
+        (baroKpa <= warnLow || baroKpa >= warnHigh) &&
+        baroKpa > alertLow &&
+        baroKpa < alertHigh &&
+        !recentlyAlerted(deviceId, 'baro_warn', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'baro_warn',
+          'warn',
+          `Barométrica fuera de rango · ${Math.round(baroKpa)} kPa`,
+          {
+            baro_kpa: baroKpa,
+            barometric: baroObj ?? null,
+          },
+        )
+        raised.push('baro_warn')
+      }
+    }
+
+    // Timing advance (OBD PID 010E) — high advance
+    const timingObj = signals.timing_advance as Record<string, unknown> | undefined
+    let timingDeg: number | null =
+      typeof timingObj?.timing_deg === 'number'
+        ? (timingObj.timing_deg as number)
+        : typeof signals.timing_advance_deg === 'number'
+          ? (signals.timing_advance_deg as number)
+          : null
+    const timingSpeedKmh =
+      typeof timingObj?.speed_kmh === 'number'
+        ? (timingObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const timingRpm =
+      typeof timingObj?.rpm === 'number'
+        ? (timingObj.rpm as number)
+        : typeof signals.rpm === 'number'
+          ? (signals.rpm as number)
+          : null
+    if (typeof timingDeg === 'number') {
+      const warnDeg =
+        typeof signals.timing_warn_deg === 'number'
+          ? (signals.timing_warn_deg as number)
+          : 38
+      const alertDeg =
+        typeof signals.timing_alert_deg === 'number'
+          ? (signals.timing_alert_deg as number)
+          : 45
+      const timingMinSpd =
+        typeof signals.timing_speed_min_kmh === 'number'
+          ? (signals.timing_speed_min_kmh as number)
+          : 20
+      const timingRpmMin =
+        typeof signals.timing_rpm_min === 'number'
+          ? (signals.timing_rpm_min as number)
+          : 800
+      const timingSpdOk =
+        typeof timingSpeedKmh === 'number' && timingSpeedKmh >= timingMinSpd
+      const timingRpmOk =
+        typeof timingRpm !== 'number' || timingRpm >= timingRpmMin
+      if (
+        timingSpdOk &&
+        timingRpmOk &&
+        timingDeg >= alertDeg &&
+        !recentlyAlerted(deviceId, 'timing_alert', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'timing_alert',
+          'critical',
+          `Timing crítico · ${Math.round(timingDeg)}°`,
+          {
+            timing_deg: timingDeg,
+            timing_advance: timingObj ?? null,
+          },
+        )
+        raised.push('timing_alert')
+      } else if (
+        timingSpdOk &&
+        timingRpmOk &&
+        timingDeg >= warnDeg &&
+        timingDeg < alertDeg &&
+        !recentlyAlerted(deviceId, 'timing_warn', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'timing_warn',
+          'warn',
+          `Timing alto · ${Math.round(timingDeg)}°`,
+          {
+            timing_deg: timingDeg,
+            timing_advance: timingObj ?? null,
+          },
+        )
+        raised.push('timing_warn')
+      }
+    }
+
+    // O2 voltage B1S1 (OBD PID 014A) — stuck lean/rich
+    const o2Obj = signals.o2_voltage as Record<string, unknown> | undefined
+    let o2Volts: number | null =
+      typeof o2Obj?.o2_volts === 'number'
+        ? (o2Obj.o2_volts as number)
+        : typeof signals.o2_b1s1_volts === 'number'
+          ? (signals.o2_b1s1_volts as number)
+          : null
+    const o2SpeedKmh =
+      typeof o2Obj?.speed_kmh === 'number'
+        ? (o2Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const o2Rpm =
+      typeof o2Obj?.rpm === 'number'
+        ? (o2Obj.rpm as number)
+        : typeof signals.rpm === 'number'
+          ? (signals.rpm as number)
+          : null
+    if (typeof o2Volts === 'number') {
+      const warnLowV =
+        typeof signals.o2_warn_low_v === 'number'
+          ? (signals.o2_warn_low_v as number)
+          : 0.1
+      const alertLowV =
+        typeof signals.o2_alert_low_v === 'number'
+          ? (signals.o2_alert_low_v as number)
+          : 0.06
+      const warnHighV =
+        typeof signals.o2_warn_high_v === 'number'
+          ? (signals.o2_warn_high_v as number)
+          : 0.88
+      const alertHighV =
+        typeof signals.o2_alert_high_v === 'number'
+          ? (signals.o2_alert_high_v as number)
+          : 0.95
+      const o2MinSpd =
+        typeof signals.o2_speed_min_kmh === 'number'
+          ? (signals.o2_speed_min_kmh as number)
+          : 20
+      const o2RpmMin =
+        typeof signals.o2_rpm_min === 'number'
+          ? (signals.o2_rpm_min as number)
+          : 800
+      const o2SpdOk =
+        typeof o2SpeedKmh === 'number' && o2SpeedKmh >= o2MinSpd
+      const o2RpmOk = typeof o2Rpm !== 'number' || o2Rpm >= o2RpmMin
+      if (
+        o2SpdOk &&
+        o2RpmOk &&
+        (o2Volts <= alertLowV || o2Volts >= alertHighV) &&
+        !recentlyAlerted(deviceId, 'o2_alert', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'o2_alert',
+          'critical',
+          `O2 crítico · ${o2Volts.toFixed(2)} V`,
+          {
+            o2_volts: o2Volts,
+            o2_voltage: o2Obj ?? null,
+          },
+        )
+        raised.push('o2_alert')
+      } else if (
+        o2SpdOk &&
+        o2RpmOk &&
+        (o2Volts <= warnLowV || o2Volts >= warnHighV) &&
+        o2Volts > alertLowV &&
+        o2Volts < alertHighV &&
+        !recentlyAlerted(deviceId, 'o2_warn', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'o2_warn',
+          'warn',
+          `O2 fuera de rango · ${o2Volts.toFixed(2)} V`,
+          {
+            o2_volts: o2Volts,
+            o2_voltage: o2Obj ?? null,
+          },
+        )
+        raised.push('o2_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

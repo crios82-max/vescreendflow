@@ -3143,6 +3143,183 @@ fun SettingsScreen() {
                 color = if (fuelPressSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var baroOn by remember { mutableStateOf(prefs.baroEnabled) }
+            var baroTts by remember { mutableStateOf(prefs.baroTts) }
+            var baroSim by remember {
+                mutableStateOf(
+                    if (prefs.baroSimKpa > 0f) prefs.baroSimKpa.toInt().toString() else "0",
+                )
+            }
+            val baroSt by com.veplayer.app.vehicle.BarometricPressureMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso barométrica (0133)", color = Mist)
+                Switch(
+                    checked = baroOn,
+                    onCheckedChange = {
+                        baroOn = it
+                        prefs.baroEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS barométrica", color = Mist)
+                Switch(
+                    checked = baroTts,
+                    onCheckedChange = {
+                        baroTts = it
+                        prefs.baroTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = baroSim,
+                onValueChange = { baroSim = it.filter { c -> c.isDigit() }.take(3) },
+                label = { Text("Sim baro kPa (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.baroSimKpa = baroSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Baro sim ${prefs.baroSimKpa.toInt()} kPa · low ${prefs.baroAlertLowKpa.toInt()}/${prefs.baroWarnLowKpa.toInt()} · high ${prefs.baroWarnHighKpa.toInt()}/${prefs.baroAlertHighKpa.toInt()}"
+                },
+            ) { Text("Aplicar sim baro") }
+            Text(
+                if (baroSt.baroKpa != null) {
+                    "${baroSt.label} · ${baroSt.band}"
+                } else {
+                    "Baro idle (fuera de rango)"
+                },
+                color = if (baroSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
+            var timingOn by remember { mutableStateOf(prefs.timingEnabled) }
+            var timingTts by remember { mutableStateOf(prefs.timingTts) }
+            var timingSim by remember {
+                mutableStateOf(
+                    if (prefs.timingSimDeg != 0f) prefs.timingSimDeg.toInt().toString() else "0",
+                )
+            }
+            val timingSt by com.veplayer.app.vehicle.TimingAdvanceMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso timing advance (010E)", color = Mist)
+                Switch(
+                    checked = timingOn,
+                    onCheckedChange = {
+                        timingOn = it
+                        prefs.timingEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS timing", color = Mist)
+                Switch(
+                    checked = timingTts,
+                    onCheckedChange = {
+                        timingTts = it
+                        prefs.timingTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = timingSim,
+                onValueChange = { timingSim = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                label = { Text("Sim timing ° (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.timingSimDeg = timingSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Timing sim ${prefs.timingSimDeg.toInt()}° · warn ${prefs.timingWarnDeg.toInt()} / alert ${prefs.timingAlertDeg.toInt()}"
+                },
+            ) { Text("Aplicar sim timing") }
+            Text(
+                if (timingSt.timingDeg != null) {
+                    "${timingSt.label} · ${timingSt.band}"
+                } else {
+                    "Timing idle (warn ≥${prefs.timingWarnDeg.toInt()}° / alert ≥${prefs.timingAlertDeg.toInt()}°)"
+                },
+                color = if (timingSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
+            var o2On by remember { mutableStateOf(prefs.o2Enabled) }
+            var o2Tts by remember { mutableStateOf(prefs.o2Tts) }
+            var o2Sim by remember {
+                mutableStateOf(
+                    if (prefs.o2SimVolts > 0f) prefs.o2SimVolts.toString() else "0",
+                )
+            }
+            val o2St by com.veplayer.app.vehicle.O2VoltageMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso O2 voltaje (014A)", color = Mist)
+                Switch(
+                    checked = o2On,
+                    onCheckedChange = {
+                        o2On = it
+                        prefs.o2Enabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS O2", color = Mist)
+                Switch(
+                    checked = o2Tts,
+                    onCheckedChange = {
+                        o2Tts = it
+                        prefs.o2Tts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = o2Sim,
+                onValueChange = { o2Sim = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                label = { Text("Sim O2 V (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.o2SimVolts = o2Sim.toFloatOrNull() ?: 0f
+                    status =
+                        "O2 sim ${prefs.o2SimVolts} V · low ${prefs.o2AlertLowV}/${prefs.o2WarnLowV} · high ${prefs.o2WarnHighV}/${prefs.o2AlertHighV}"
+                },
+            ) { Text("Aplicar sim O2") }
+            Text(
+                if (o2St.o2Volts != null) {
+                    "${o2St.label} · ${o2St.band}"
+                } else {
+                    "O2 idle (stuck lean/rich)"
+                },
+                color = if (o2St.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

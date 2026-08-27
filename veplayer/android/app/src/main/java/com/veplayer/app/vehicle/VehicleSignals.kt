@@ -103,6 +103,12 @@ data class VehicleSignals(
         val mafGps: Float? = null,
         /** Fuel rail pressure (OBD PID 010A), kPa. */
         val fuelPressureKpa: Float? = null,
+        /** Barometric pressure (OBD PID 0133), kPa. */
+        val baroKpa: Float? = null,
+        /** Ignition timing advance (OBD PID 010E), degrees. */
+        val timingAdvanceDeg: Float? = null,
+        /** O2 sensor voltage B1S1 (OBD PID 014A), volts. */
+        val o2B1s1Volts: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -189,6 +195,9 @@ data class VehicleSignals(
             "catalyst_temp_c" to catalystTempC?.toDouble(),
             "maf_gps" to mafGps?.toDouble(),
             "fuel_pressure_kpa" to fuelPressureKpa?.toDouble(),
+            "baro_kpa" to baroKpa?.toDouble(),
+            "timing_advance_deg" to timingAdvanceDeg?.toDouble(),
+            "o2_b1s1_volts" to o2B1s1Volts?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

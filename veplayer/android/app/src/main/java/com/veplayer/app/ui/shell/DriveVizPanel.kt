@@ -69,6 +69,9 @@ import com.veplayer.app.vehicle.FuelRangeHudMonitor
 import com.veplayer.app.vehicle.FuelRateMonitor
 import com.veplayer.app.vehicle.MafAirflowMonitor
 import com.veplayer.app.vehicle.FuelPressureMonitor
+import com.veplayer.app.vehicle.BarometricPressureMonitor
+import com.veplayer.app.vehicle.TimingAdvanceMonitor
+import com.veplayer.app.vehicle.O2VoltageMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -134,6 +137,9 @@ fun DriveVizPanel(
     val fuelRate by FuelRateMonitor.state.collectAsState()
     val mafFlow by MafAirflowMonitor.state.collectAsState()
     val fuelPress by FuelPressureMonitor.state.collectAsState()
+    val baroPress by BarometricPressureMonitor.state.collectAsState()
+    val timingAdv by TimingAdvanceMonitor.state.collectAsState()
+    val o2Volt by O2VoltageMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -185,6 +191,9 @@ fun DriveVizPanel(
             FuelRateMonitor.tick(prefs, snap)
             MafAirflowMonitor.tick(prefs, snap)
             FuelPressureMonitor.tick(prefs, snap)
+            BarometricPressureMonitor.tick(prefs, snap)
+            TimingAdvanceMonitor.tick(prefs, snap)
+            O2VoltageMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -608,6 +617,48 @@ fun DriveVizPanel(
                     Text(
                         fuelPress.label,
                         color = Color(com.veplayer.app.vehicle.FuelPressure.accentArgb(fuelPress.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (
+                    baroPress.showWarn ||
+                        (
+                            prefs.baroEnabled &&
+                                baroPress.band == "ok" &&
+                                baroPress.label.isNotBlank()
+                        )
+                ) {
+                    Text(
+                        baroPress.label,
+                        color = Color(com.veplayer.app.vehicle.BarometricPressure.accentArgb(baroPress.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (
+                    timingAdv.showWarn ||
+                        (
+                            prefs.timingEnabled &&
+                                timingAdv.band == "ok" &&
+                                timingAdv.label.isNotBlank()
+                        )
+                ) {
+                    Text(
+                        timingAdv.label,
+                        color = Color(com.veplayer.app.vehicle.TimingAdvance.accentArgb(timingAdv.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (
+                    o2Volt.showWarn ||
+                        (
+                            prefs.o2Enabled &&
+                                o2Volt.band == "ok" &&
+                                o2Volt.label.isNotBlank()
+                        )
+                ) {
+                    Text(
+                        o2Volt.label,
+                        color = Color(com.veplayer.app.vehicle.O2Voltage.accentArgb(o2Volt.band)),
                         fontSize = 11.sp,
                     )
                 }
