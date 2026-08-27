@@ -71,6 +71,10 @@ const dbcDir = path.join(rootDir, 'dbc')
 fs.mkdirSync(dbcDir, { recursive: true })
 app.use('/dbc', express.static(dbcDir, { fallthrough: true, index: false }))
 
+const brandsDir = path.join(rootDir, 'brands')
+fs.mkdirSync(brandsDir, { recursive: true })
+app.use('/brands', express.static(brandsDir, { fallthrough: true, index: false }))
+
 app.use(express.static(webDir))
 
 app.get('/', (_req, res) => {

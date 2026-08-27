@@ -495,6 +495,7 @@ const commandSchema = z.object({
     'apply_kiosk',
     'run_diag',
     'set_dbc',
+    'set_brand',
     'fm_tune',
     'set_driver',
     'set_speed_limit',

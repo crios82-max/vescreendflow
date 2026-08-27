@@ -405,6 +405,7 @@ class SenseBridgeService : Service() {
                                     "speed_limit_kmh" to
                                         com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
                                             "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),
+                                            "brand" to com.veplayer.app.brand.BrandRepository.toJsonMap(prefs),
                                             "kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService),
                                             "field" to
                                                 mapOf(
@@ -779,6 +780,7 @@ class SenseBridgeService : Service() {
                                     "speed_limit_kmh" to
                                         com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
                                     "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),
+                                    "brand" to com.veplayer.app.brand.BrandRepository.toJsonMap(prefs),
                                     "kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService),
                                     "field" to
                                         mapOf(

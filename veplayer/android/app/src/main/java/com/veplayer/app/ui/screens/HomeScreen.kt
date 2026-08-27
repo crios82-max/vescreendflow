@@ -15,13 +15,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.veplayer.app.kiosk.KioskController
+import com.veplayer.app.brand.BrandBus
+import com.veplayer.app.ui.brand.BrandLogo
 import com.veplayer.app.ui.VeDest
 import com.veplayer.app.ui.theme.Amber
 import com.veplayer.app.ui.theme.Mist
@@ -33,16 +37,34 @@ import com.veplayer.app.ui.theme.Teal
 fun HomeScreen(onOpen: (VeDest) -> Unit) {
     val context = LocalContext.current
     val kiosk = KioskController.statusLabel(context)
+  LaunchedEffect(Unit) { BrandBus.refresh(context) }
+    val brand by BrandBus.state.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Centro de control", style = MaterialTheme.typography.headlineMedium, color = Mist, fontWeight = FontWeight.Bold)
-        Text(
-            "Cámaras · Radio · YouTube · Tienda (Spotify) · Pantalla · Mapa SenseFlow",
-            color = Mute,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    if (brand.displayName.isNotBlank()) brand.displayName else "Centro de control",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Color(brand.accentArgb),
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    "Cámaras · Radio · YouTube · Tienda (Spotify) · Pantalla · Mapa SenseFlow",
+                    color = Mute,
+                )
+            }
+            if (brand.hasLogo) {
+                BrandLogo(height = 48.dp)
+            }
+        }
         Box(
             modifier = Modifier
                 .fillMaxWidth()

@@ -103,7 +103,7 @@
     <span id="me" class="muted"></span>
     <span id="meta"></span>
   </div>
-  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · read_dtc · clear_dtc · seed_dtc · prefetch_tiles · nav_dest · set_driver · set_speed_limit · set_fuel_warn · set_idle_warn · panic_ack · service_done · set_maintenance</p>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · set_brand · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · read_dtc · clear_dtc · seed_dtc · prefetch_tiles · nav_dest · set_driver · set_speed_limit · set_fuel_warn · set_idle_warn · panic_ack · service_done · set_maintenance</p>
   <div id="toast"></div>
 
   <div class="grid" id="report-cards">
@@ -556,6 +556,12 @@
         mk('Kiosk', 'lock_task', 'ghost')
         mk('Diag', 'run_diag', 'ghost')
         mk('DBC', 'set_dbc', 'ghost', { url: location.origin + '/dbc/veplayer_demo.dbc' })
+        mk('Brand', 'set_brand', 'ghost', {
+          brand_id: 'demo',
+          name: 'Marca Demo',
+          logo_url: location.origin + '/brands/demo/logo.png',
+          accent: '#E11D48',
+        })
         mk('FM', 'fm_tune', 'ghost', { mhz: 95.5 })
         mk('Msg', 'message', '', { text: 'Hola desde flota' })
         mk('OTA', 'ota', 'warn', ota.release ? { apk_url: ota.release.apk_url, silent: true, version_code: ota.release.version_code } : null)

@@ -62,6 +62,8 @@ import com.veplayer.app.ui.theme.Mist
 import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Night
 import com.veplayer.app.ui.theme.Road
+import com.veplayer.app.brand.BrandBus
+import com.veplayer.app.ui.brand.BrandLogo
 import com.veplayer.app.vehicle.FuelRangeHud
 import com.veplayer.app.vehicle.FuelRangeHudMonitor
 import com.veplayer.app.vehicle.FuelRateMonitor
@@ -172,6 +174,8 @@ fun DriveVizPanel(
     val panic by PanicBus.state.collectAsState()
     var holdProgress by remember { mutableFloatStateOf(0f) }
     var holdJob by remember { mutableStateOf<Job?>(null) }
+    LaunchedEffect(Unit) { BrandBus.refresh(context) }
+    val brand by BrandBus.state.collectAsState()
     LaunchedEffect(Unit) {
         while (true) {
             val snap = com.veplayer.app.vehicle.VehicleState.state.value
@@ -653,6 +657,12 @@ fun DriveVizPanel(
                         fontSize = 11.sp,
                     )
                 }
+            }
+            if (brand.hasLogo) {
+                BrandLogo(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    height = 40.dp,
+                )
             }
             if (prefs.speedHudEnabled) {
                 val zone by com.veplayer.app.vehicle.SpeedZoneBus.zone.collectAsState()
