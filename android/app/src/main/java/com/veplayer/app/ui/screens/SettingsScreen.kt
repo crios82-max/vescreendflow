@@ -244,6 +244,14 @@ fun SettingsScreen() {
                         }
                     },
                 ) { Text("Heartbeat") }
+                OutlinedButton(
+                    onClick = {
+                        val url = senseUrl.trimEnd('/') + "/fleet.html"
+                        runCatching {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                        }.onFailure { status = "No se pudo abrir mapa flota" }
+                    },
+                ) { Text("Mapa flota") }
             }
         }
 
