@@ -747,6 +747,20 @@ npm run veplayer:rpm-overrev-smoke
 
 **Fase 11 (en curso):** RPM over-rev · ice/frost outdoor · parking-brake moving · turn stuck · ABS HUD.
 
+## Ice / frost outdoor (v0.60 · Fase 11)
+
+Riesgo de hielo / escarcha (OBD ambient **0146** / `outdoor_temp_c`):
+
+- Default **≤3 °C warn / ≤0 °C alert**
+- DriveViz `Ext · N°C` · TTS + inbox
+- Flota `ice_warn` / `ice_alert` · sim °C en Ajustes (Clima HVAC)
+
+```bash
+npm run veplayer:ice-frost-smoke
+```
+
+**Fase 11 (en curso):** RPM over-rev · ice/frost outdoor · parking-brake moving · turn stuck · ABS HUD.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

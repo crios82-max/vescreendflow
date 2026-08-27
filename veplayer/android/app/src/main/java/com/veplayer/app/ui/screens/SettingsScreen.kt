@@ -2121,6 +2121,81 @@ fun SettingsScreen() {
                 color = if (cabinHot.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var iceOn by remember { mutableStateOf(prefs.iceEnabled) }
+            var iceTtsOn by remember { mutableStateOf(prefs.iceTts) }
+            var iceSimTxt by remember {
+                mutableStateOf(if (prefs.iceSimOn) prefs.iceSimC.toInt().toString() else "")
+            }
+            val iceSt by com.veplayer.app.vehicle.IceFrostMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso hielo / escarcha", color = Mist)
+                Switch(
+                    checked = iceOn,
+                    onCheckedChange = {
+                        iceOn = it
+                        prefs.iceEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS hielo", color = Mist)
+                Switch(
+                    checked = iceTtsOn,
+                    onCheckedChange = {
+                        iceTtsOn = it
+                        prefs.iceTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = iceSimTxt,
+                onValueChange = {
+                    iceSimTxt = it.filter { c -> c.isDigit() || c == '-' || c == '.' }.take(5)
+                },
+                label = { Text("Sim exterior °C (vacío=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        val v = iceSimTxt.toFloatOrNull()
+                        if (v != null) {
+                            prefs.iceSimC = v
+                            prefs.iceSimOn = true
+                            status =
+                                "Hielo sim ${prefs.iceSimC}° · warn ≤${prefs.iceWarnC.toInt()} / alert ≤${prefs.iceAlertC.toInt()}"
+                        } else {
+                            prefs.iceSimOn = false
+                            status = "Hielo sim off (live)"
+                        }
+                    },
+                ) { Text("Aplicar sim hielo") }
+                OutlinedButton(
+                    onClick = {
+                        prefs.iceSimOn = false
+                        iceSimTxt = ""
+                        status = "Hielo sim off"
+                    },
+                ) { Text("Live") }
+            }
+            Text(
+                if (iceSt.outdoorC != null) {
+                    "Ext · ${iceSt.label} · ${iceSt.band}"
+                } else {
+                    "Hielo idle (warn ≤${prefs.iceWarnC.toInt()} / alert ≤${prefs.iceAlertC.toInt()} °C)"
+                },
+                color = if (iceSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var coolOn by remember { mutableStateOf(prefs.coolantEnabled) }
             var coolTts by remember { mutableStateOf(prefs.coolantTts) }
             var coolSim by remember {

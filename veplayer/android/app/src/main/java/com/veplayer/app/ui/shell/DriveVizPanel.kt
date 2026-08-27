@@ -75,6 +75,7 @@ import com.veplayer.app.vehicle.DriverScoreMonitor
 import com.veplayer.app.vehicle.HarshDrivingMonitor
 import com.veplayer.app.vehicle.ImpactDetectMonitor
 import com.veplayer.app.vehicle.HvacClimateMonitor
+import com.veplayer.app.vehicle.IceFrostMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.RestBreakMonitor
 import com.veplayer.app.vehicle.RouteDeviationMonitor
@@ -118,6 +119,7 @@ fun DriveVizPanel(
     val driverScore by DriverScoreMonitor.state.collectAsState()
     val hvac by HvacClimateMonitor.state.collectAsState()
     val cabinHot by CabinOvertempMonitor.state.collectAsState()
+    val iceFrost by IceFrostMonitor.state.collectAsState()
     val coolantHot by CoolantOverheatMonitor.state.collectAsState()
     val rpmHot by RpmOverRevMonitor.state.collectAsState()
     val tow by UnauthorizedMoveMonitor.state.collectAsState()
@@ -149,6 +151,7 @@ fun DriveVizPanel(
             DriverScoreMonitor.tick(prefs)
             HvacClimateMonitor.tick(prefs, snap)
             CabinOvertempMonitor.tick(prefs, snap)
+            IceFrostMonitor.tick(prefs, snap)
             CoolantOverheatMonitor.tick(prefs, snap)
             RpmOverRevMonitor.tick(prefs, snap)
             UnauthorizedMoveMonitor.tick(prefs, snap)
@@ -334,6 +337,13 @@ fun DriveVizPanel(
                     Text(
                         "Cabina · ${cabinHot.label}",
                         color = Color(com.veplayer.app.vehicle.CabinOvertemp.accentArgb(cabinHot.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (iceFrost.showWarn || (prefs.iceEnabled && iceFrost.band == "ok")) {
+                    Text(
+                        "Ext · ${iceFrost.label}",
+                        color = Color(com.veplayer.app.vehicle.IceFrost.accentArgb(iceFrost.band)),
                         fontSize = 11.sp,
                     )
                 }

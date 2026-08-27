@@ -737,6 +737,43 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Outdoor ice / frost
+    const outdoorC =
+      typeof signals.outdoor_temp_c === 'number'
+        ? (signals.outdoor_temp_c as number)
+        : typeof signals.outdoor_c === 'number'
+          ? (signals.outdoor_c as number)
+          : null
+    if (typeof outdoorC === 'number') {
+      const warnC =
+        typeof signals.ice_warn_c === 'number' ? (signals.ice_warn_c as number) : 3
+      const alertC =
+        typeof signals.ice_alert_c === 'number' ? (signals.ice_alert_c as number) : 0
+      if (outdoorC <= alertC && !recentlyAlerted(deviceId, 'ice_alert', 300)) {
+        insertAlert(
+          deviceId,
+          'ice_alert',
+          'critical',
+          `Riesgo de hielo · ${Math.round(outdoorC)} °C`,
+          { outdoor_temp_c: outdoorC, alert_c: alertC },
+        )
+        raised.push('ice_alert')
+      } else if (
+        outdoorC <= warnC &&
+        outdoorC > alertC &&
+        !recentlyAlerted(deviceId, 'ice_warn', 300)
+      ) {
+        insertAlert(
+          deviceId,
+          'ice_warn',
+          'warn',
+          `Posible escarcha · ${Math.round(outdoorC)} °C`,
+          { outdoor_temp_c: outdoorC, warn_c: warnC },
+        )
+        raised.push('ice_warn')
+      }
+    }
+
     // Coolant overheat
     const coolantC =
       typeof signals.coolant_c === 'number' ? (signals.coolant_c as number) : null

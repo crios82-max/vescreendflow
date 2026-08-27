@@ -718,6 +718,34 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("rpm_sim", 0f)
         set(value) = sp.edit().putFloat("rpm_sim", value.coerceIn(0f, 8000f)).apply()
 
+    /** Outdoor ice / frost (ambient). */
+    var iceEnabled: Boolean
+        get() = sp.getBoolean("ice_frost", true)
+        set(value) = sp.edit().putBoolean("ice_frost", value).apply()
+
+    var iceTts: Boolean
+        get() = sp.getBoolean("ice_frost_tts", true)
+        set(value) = sp.edit().putBoolean("ice_frost_tts", value).apply()
+
+    /** Outdoor ≤ this → warn (°C). */
+    var iceWarnC: Float
+        get() = sp.getFloat("ice_warn_c", 3f)
+        set(value) = sp.edit().putFloat("ice_warn_c", value.coerceIn(-5f, 10f)).apply()
+
+    /** Outdoor ≤ this → alert (°C). */
+    var iceAlertC: Float
+        get() = sp.getFloat("ice_alert_c", 0f)
+        set(value) = sp.edit().putFloat("ice_alert_c", value.coerceIn(-20f, 5f)).apply()
+
+    /** Demo outdoor °C (allows 0 / negative). */
+    var iceSimOn: Boolean
+        get() = sp.getBoolean("ice_sim_on", false)
+        set(value) = sp.edit().putBoolean("ice_sim_on", value).apply()
+
+    var iceSimC: Float
+        get() = sp.getFloat("ice_sim_c", 0f)
+        set(value) = sp.edit().putFloat("ice_sim_c", value.coerceIn(-40f, 40f)).apply()
+
     /** Collect fleet alerts into inbox. */
     var fleetAlertsEnabled: Boolean
         get() = sp.getBoolean("fleet_alerts", true)
