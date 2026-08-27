@@ -93,6 +93,11 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("idle_tts_warn", true)
         set(value) = sp.edit().putBoolean("idle_tts_warn", value).apply()
 
+    /** Show SOS long-press on DriveViz. */
+    var panicEnabled: Boolean
+        get() = sp.getBoolean("panic_enabled", true)
+        set(value) = sp.edit().putBoolean("panic_enabled", value).apply()
+
     var mockReverse: Boolean
         get() = sp.getBoolean("mock_reverse", false)
         set(value) = sp.edit().putBoolean("mock_reverse", value).apply()

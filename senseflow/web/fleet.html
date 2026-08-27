@@ -29,6 +29,8 @@
     .alert { padding:8px 10px; border-radius:8px; margin:6px 0; background:#0b1411; font-size:.88rem; }
     .alert.warn { border-left:3px solid var(--amber); }
     .alert.info { border-left:3px solid var(--teal); }
+    .alert.critical { border-left:3px solid var(--rose); background:#2a0f14; box-shadow:0 0 0 1px #7f1d1d inset; }
+    .alert.critical b { color:var(--rose); }
     .muted { color:#8aa399; font-size:.85rem; }
     .spark { display:flex; align-items:flex-end; gap:2px; height:36px; margin-top:8px; }
     .spark i { display:block; width:4px; background:var(--teal); border-radius:2px 2px 0 0; min-height:2px; }
@@ -81,7 +83,7 @@
     <span id="me" class="muted"></span>
     <span id="meta"></span>
   </div>
-  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · nav_dest · set_driver · set_speed_limit · set_fuel_warn · set_idle_warn · service_done · set_maintenance</p>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · nav_dest · set_driver · set_speed_limit · set_fuel_warn · set_idle_warn · panic_ack · service_done · set_maintenance</p>
   <div id="toast"></div>
 
   <div class="grid" id="report-cards">
@@ -328,10 +330,20 @@
       el.innerHTML = ''
       for (const a of j.alerts.slice(0, 30)) {
         const d = document.createElement('div')
-        d.className = 'alert ' + (a.severity === 'warn' ? 'warn' : 'info')
+        const sev = a.severity === 'critical' ? 'critical' : (a.severity === 'warn' ? 'warn' : 'info')
+        d.className = 'alert ' + sev
+        const ackBtn = a.kind === 'panic'
+          ? `<button class="btn danger" style="float:right;margin-left:6px" data-panic="1">Ack SOS</button>`
+          : `<button class="btn ghost" style="float:right">Ack</button>`
         d.innerHTML = `<b>${a.kind}</b> · ${a.message}<br><span class="muted">${a.device_id.slice(0,12)}… · ${new Date(a.created_at*1000).toLocaleString()}</span>
-          <button class="btn ghost" style="float:right">Ack</button>`
-        d.querySelector('button').onclick = () => ackAlert(a.id)
+          ${ackBtn}`
+        d.querySelector('button').onclick = async () => {
+          if (a.kind === 'panic') {
+            await sendCmd(a.device_id, 'panic_ack', {})
+          }
+          await ackAlert(a.id)
+          load()
+        }
         el.appendChild(d)
       }
     }
@@ -417,6 +429,7 @@
         mk('Lim', 'set_speed_limit', 'ghost', { kmh: 50 })
         mk('Fuel', 'set_fuel_warn', 'ghost', { pct: 15, range_km: 40 })
         mk('Idle', 'set_idle_warn', 'ghost', { warn_sec: 120, alert_sec: 300 })
+        mk('SOS✓', 'panic_ack', 'danger')
         mk('Svc', 'service_done', 'ghost', { kind: 'oil', odo_km: 12500 })
         mk('Wipe', 'wipe', 'danger')
         if (!me.can_dispatch) cell.textContent = 'viewer · read-only'

@@ -32,7 +32,7 @@ function haversineM(aLat: number, aLng: number, bLat: number, bLng: number): num
 }
 
 /** Avoid flooding: skip if same kind for device in last `cooldownSec`. */
-function recentlyAlerted(deviceId: string, kind: string, cooldownSec: number): boolean {
+export function recentlyAlerted(deviceId: string, kind: string, cooldownSec: number): boolean {
   const since = Math.floor(Date.now() / 1000) - cooldownSec
   const row = db
     .prepare(
@@ -42,18 +42,21 @@ function recentlyAlerted(deviceId: string, kind: string, cooldownSec: number): b
   return row != null
 }
 
-function insertAlert(
+export function insertAlert(
   deviceId: string,
   kind: string,
   severity: string,
   message: string,
   payload: Record<string, unknown> | null,
-) {
+): number {
   const now = Math.floor(Date.now() / 1000)
-  db.prepare(
-    `INSERT INTO fleet_alerts (device_id, kind, severity, message, payload, created_at)
+  const info = db
+    .prepare(
+      `INSERT INTO fleet_alerts (device_id, kind, severity, message, payload, created_at)
      VALUES (?, ?, ?, ?, ?, ?)`,
-  ).run(deviceId, kind, severity, message, payload ? JSON.stringify(payload) : null, now)
+    )
+    .run(deviceId, kind, severity, message, payload ? JSON.stringify(payload) : null, now)
+  return Number(info.lastInsertRowid)
 }
 
 export function recordTelemetrySample(
@@ -195,4 +198,64 @@ export function openAlertsForDevice(deviceId: string, limit = 20): FleetAlert[] 
        ORDER BY id DESC LIMIT ?`,
     )
     .all(deviceId, limit) as FleetAlert[]
+}
+
+export function openPanicForDevice(deviceId: string): FleetAlert | null {
+  const row = db
+    .prepare(
+      `SELECT id, device_id, kind, severity, message, payload, created_at, acked_at
+       FROM fleet_alerts
+       WHERE device_id = ? AND kind = 'panic' AND acked_at IS NULL
+       ORDER BY id DESC LIMIT 1`,
+    )
+    .get(deviceId) as FleetAlert | undefined
+  return row ?? null
+}
+
+/** Raise SOS. Dedupes while an open panic exists. Returns alert id. */
+export function raisePanic(
+  deviceId: string,
+  input: {
+    lat?: number | null
+    lng?: number | null
+    note?: string | null
+    source?: string | null
+    driver_code?: string | null
+    driver_name?: string | null
+  } = {},
+): { id: number; deduped: boolean } {
+  const existing = openPanicForDevice(deviceId)
+  if (existing) {
+    return { id: existing.id, deduped: true }
+  }
+  const note = (input.note || '').trim().slice(0, 200)
+  const who =
+    input.driver_name || input.driver_code
+      ? ` (${[input.driver_code, input.driver_name].filter(Boolean).join(' · ')})`
+      : ''
+  const id = insertAlert(
+    deviceId,
+    'panic',
+    'critical',
+    `SOS — pánico conductor${who}${note ? `: ${note}` : ''}`,
+    {
+      lat: input.lat ?? null,
+      lng: input.lng ?? null,
+      note: note || null,
+      source: input.source || 'device',
+      driver_code: input.driver_code || null,
+      driver_name: input.driver_name || null,
+    },
+  )
+  return { id, deduped: false }
+}
+
+export function ackPanicsForDevice(deviceId: string): number {
+  const now = Math.floor(Date.now() / 1000)
+  const info = db
+    .prepare(
+      `UPDATE fleet_alerts SET acked_at = ? WHERE device_id = ? AND kind = 'panic' AND acked_at IS NULL`,
+    )
+    .run(now, deviceId)
+  return info.changes
 }

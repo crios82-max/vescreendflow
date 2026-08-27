@@ -863,6 +863,48 @@ fun SettingsScreen() {
             }
         }
 
+        PanelBlock("SOS / pánico") {
+            var panicOn by remember { mutableStateOf(prefs.panicEnabled) }
+            val panicSt by com.veplayer.app.fleet.PanicBus.state.collectAsState()
+            val fleetLocal = remember { FleetClient(prefs) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Botón SOS (mantener 1.2s)", color = Mist)
+                Switch(
+                    checked = panicOn,
+                    onCheckedChange = {
+                        panicOn = it
+                        prefs.panicEnabled = it
+                    },
+                )
+            }
+            Text(
+                if (panicSt.active) "SOS activo · id ${panicSt.alertId ?: "—"}" else "Sin SOS abierto",
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = {
+                        scope.launch {
+                            com.veplayer.app.fleet.PanicBus.trigger(prefs, fleetLocal)
+                                .onSuccess { status = "SOS enviado" }
+                                .onFailure { status = "SOS fail: ${it.message}" }
+                        }
+                    },
+                ) { Text("Enviar SOS") }
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.fleet.PanicBus.clear(speak = false)
+                        status = "SOS limpiado local"
+                    },
+                ) { Text("Limpiar") }
+            }
+        }
+
         PanelBlock("Mantenimiento odómetro") {
             var maintOn by remember { mutableStateOf(prefs.maintenanceEnabled) }
             var maintTts by remember { mutableStateOf(prefs.maintenanceTts) }

@@ -41,6 +41,7 @@ const DISPATCH_CMDS = new Set([
   'set_idle_warn',
   'service_done',
   'set_maintenance',
+  'panic_ack',
 ])
 
 const SESSION_TTL_S = 12 * 3600

@@ -4,6 +4,9 @@ import { db } from './db.js'
 import {
   evaluateFleetAlerts,
   openAlertsForDevice,
+  openPanicForDevice,
+  raisePanic,
+  ackPanicsForDevice,
   recordTelemetrySample,
 } from './fleetPro.js'
 import {
@@ -226,6 +229,12 @@ fleetRouter.post('/heartbeat', (req, res) => {
         enabled: i.enabled === 1,
       })),
     },
+    panic: (() => {
+      const p = openPanicForDevice(d.device_id)
+      return p
+        ? { open: true, id: p.id, message: p.message, created_at: p.created_at }
+        : { open: false }
+    })(),
     ota: latest
       ? {
           update_available: updateAvailable,
@@ -471,6 +480,7 @@ const commandSchema = z.object({
     'set_idle_warn',
     'service_done',
     'set_maintenance',
+    'panic_ack',
   ]),
   payload: z.record(z.string(), z.unknown()).optional(),
 })
@@ -539,6 +549,9 @@ fleetRouter.post('/command', (req, res) => {
       warnKm: typeof p.warn_km === 'number' ? p.warn_km : undefined,
       enabled: typeof p.enabled === 'boolean' ? p.enabled : undefined,
     })
+  }
+  if (parsed.data.command === 'panic_ack') {
+    ackPanicsForDevice(parsed.data.device_id)
   }
   const info = db
     .prepare(
@@ -631,13 +644,60 @@ fleetRouter.get('/alerts', (req, res) => {
   }
   if (openOnly) where.push('acked_at IS NULL')
   if (where.length) sql += ` WHERE ${where.join(' AND ')}`
-  sql += ' ORDER BY id DESC LIMIT 100'
+  sql += ' ORDER BY CASE WHEN severity = \'critical\' THEN 0 ELSE 1 END, id DESC LIMIT 100'
   const rows = db.prepare(sql).all(...params) as Array<Record<string, unknown>>
   res.json({
     alerts: rows.map((r) => ({
       ...r,
       payload: typeof r.payload === 'string' ? safeJson(r.payload) : r.payload,
     })),
+  })
+})
+
+const panicSchema = z.object({
+  device_id: z.string().min(8).max(64),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+  note: z.string().max(200).optional(),
+  source: z.string().max(32).optional(),
+  driver_code: z.string().max(32).optional(),
+  driver_name: z.string().max(80).optional(),
+})
+
+fleetRouter.post('/panic', (req, res) => {
+  const parsed = panicSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
+    return
+  }
+  const exists = db
+    .prepare(`SELECT device_id FROM fleet_devices WHERE device_id = ?`)
+    .get(parsed.data.device_id)
+  if (!exists) {
+    res.status(404).json({ error: 'dispositivo no registrado' })
+    return
+  }
+  const result = raisePanic(parsed.data.device_id, {
+    lat: parsed.data.lat,
+    lng: parsed.data.lng,
+    note: parsed.data.note,
+    source: parsed.data.source ?? 'device',
+    driver_code: parsed.data.driver_code,
+    driver_name: parsed.data.driver_name,
+  })
+  const alert = openPanicForDevice(parsed.data.device_id)
+  res.status(result.deduped ? 200 : 201).json({
+    ok: true,
+    deduped: result.deduped,
+    alert: alert
+      ? {
+          id: alert.id,
+          kind: alert.kind,
+          severity: alert.severity,
+          message: alert.message,
+          created_at: alert.created_at,
+        }
+      : { id: result.id },
   })
 })
 
