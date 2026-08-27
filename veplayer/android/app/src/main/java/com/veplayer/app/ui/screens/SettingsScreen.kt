@@ -3320,6 +3320,87 @@ fun SettingsScreen() {
                 color = if (o2St.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 16 OBD (0143/45/49/4B/4D):", color = Mist)
+            val absLoadSt by com.veplayer.app.vehicle.AbsoluteLoadMonitor.state.collectAsState()
+            val relThrSt by com.veplayer.app.vehicle.RelativeThrottleMonitor.state.collectAsState()
+            val accelPedalSt by com.veplayer.app.vehicle.AccelPedalMonitor.state.collectAsState()
+            val o2B2St by com.veplayer.app.vehicle.O2B2VoltageMonitor.state.collectAsState()
+            val egrSt by com.veplayer.app.vehicle.EgrErrorMonitor.state.collectAsState()
+            var f16Abs by remember {
+                mutableStateOf(if (prefs.absLoadSimPct > 0f) prefs.absLoadSimPct.toInt().toString() else "0")
+            }
+            var f16Rel by remember {
+                mutableStateOf(if (prefs.relThrSimPct > 0f) prefs.relThrSimPct.toInt().toString() else "0")
+            }
+            var f16Ped by remember {
+                mutableStateOf(if (prefs.accelPedalSimPct > 0f) prefs.accelPedalSimPct.toInt().toString() else "0")
+            }
+            var f16O2b2 by remember {
+                mutableStateOf(if (prefs.o2B2SimVolts > 0f) prefs.o2B2SimVolts.toString() else "0")
+            }
+            var f16Egr by remember {
+                mutableStateOf(if (prefs.egrSimPct != 0f) prefs.egrSimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f16Abs,
+                    onValueChange = { f16Abs = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("AbsL %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f16Rel,
+                    onValueChange = { f16Rel = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("RelT %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f16Ped,
+                    onValueChange = { f16Ped = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("Pedal %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f16O2b2,
+                    onValueChange = { f16O2b2 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2B2 V") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f16Egr,
+                    onValueChange = { f16Egr = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("EGR %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.absLoadSimPct = f16Abs.toFloatOrNull() ?: 0f
+                    prefs.relThrSimPct = f16Rel.toFloatOrNull() ?: 0f
+                    prefs.accelPedalSimPct = f16Ped.toFloatOrNull() ?: 0f
+                    prefs.o2B2SimVolts = f16O2b2.toFloatOrNull() ?: 0f
+                    prefs.egrSimPct = f16Egr.toFloatOrNull() ?: 0f
+                    status = "Fase 16 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 16") }
+            Text(
+                listOfNotNull(
+                    absLoadSt.label.takeIf { it.isNotBlank() },
+                    relThrSt.label.takeIf { it.isNotBlank() },
+                    accelPedalSt.label.takeIf { it.isNotBlank() },
+                    o2B2St.label.takeIf { it.isNotBlank() },
+                    egrSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 16 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

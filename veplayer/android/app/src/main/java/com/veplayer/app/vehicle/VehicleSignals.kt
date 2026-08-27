@@ -109,6 +109,16 @@ data class VehicleSignals(
         val timingAdvanceDeg: Float? = null,
         /** O2 sensor voltage B1S1 (OBD PID 014A), volts. */
         val o2B1s1Volts: Float? = null,
+        /** Absolute engine load % (OBD PID 0143). */
+        val absoluteLoadPct: Float? = null,
+        /** Relative throttle % (OBD PID 0145). */
+        val relativeThrottlePct: Float? = null,
+        /** Accelerator pedal D % (OBD PID 0149). */
+        val accelPedalPct: Float? = null,
+        /** O2 sensor voltage B1S2 (OBD PID 014B), volts. */
+        val o2B1s2Volts: Float? = null,
+        /** EGR error % (OBD PID 014D), signed. */
+        val egrErrorPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -198,6 +208,11 @@ data class VehicleSignals(
             "baro_kpa" to baroKpa?.toDouble(),
             "timing_advance_deg" to timingAdvanceDeg?.toDouble(),
             "o2_b1s1_volts" to o2B1s1Volts?.toDouble(),
+            "absolute_load_pct" to absoluteLoadPct?.toDouble(),
+            "relative_throttle_pct" to relativeThrottlePct?.toDouble(),
+            "accel_pedal_pct" to accelPedalPct?.toDouble(),
+            "o2_b1s2_volts" to o2B1s2Volts?.toDouble(),
+            "egr_error_pct" to egrErrorPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

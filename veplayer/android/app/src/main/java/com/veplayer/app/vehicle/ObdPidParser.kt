@@ -34,6 +34,16 @@ object ObdPidParser {
         val timingAdvanceDeg: Float? = null,
         /** O2 sensor voltage B1S1 (OBD PID 014A), volts. */
         val o2B1s1Volts: Float? = null,
+        /** Absolute engine load % (OBD PID 0143). */
+        val absoluteLoadPct: Float? = null,
+        /** Relative throttle % (OBD PID 0145). */
+        val relativeThrottlePct: Float? = null,
+        /** Accelerator pedal D % (OBD PID 0149). */
+        val accelPedalPct: Float? = null,
+        /** O2 sensor voltage B1S2 (OBD PID 014B), volts. */
+        val o2B1s2Volts: Float? = null,
+        /** EGR error % (OBD PID 014D), signed. */
+        val egrErrorPct: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -119,6 +129,20 @@ object ObdPidParser {
                 PidValues(
                     o2B1s1Volts = data.getOrNull(0)?.let { it / 200f },
                 )
+            0x43 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(absoluteLoadPct = ((data[0] * 256) + data[1]) * 100f / 255f)
+            }
+            0x45 -> PidValues(relativeThrottlePct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x49 -> PidValues(accelPedalPct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x4B ->
+                PidValues(
+                    o2B1s2Volts = data.getOrNull(0)?.let { it / 200f },
+                )
+            0x4D ->
+                PidValues(
+                    egrErrorPct = data.getOrNull(0)?.let { (it - 128) * 100f / 128f },
+                )
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -160,6 +184,11 @@ object ObdPidParser {
             baroKpa = add.baroKpa ?: base.baroKpa,
             timingAdvanceDeg = add.timingAdvanceDeg ?: base.timingAdvanceDeg,
             o2B1s1Volts = add.o2B1s1Volts ?: base.o2B1s1Volts,
+            absoluteLoadPct = add.absoluteLoadPct ?: base.absoluteLoadPct,
+            relativeThrottlePct = add.relativeThrottlePct ?: base.relativeThrottlePct,
+            accelPedalPct = add.accelPedalPct ?: base.accelPedalPct,
+            o2B1s2Volts = add.o2B1s2Volts ?: base.o2B1s2Volts,
+            egrErrorPct = add.egrErrorPct ?: base.egrErrorPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

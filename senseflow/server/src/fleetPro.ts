@@ -1629,6 +1629,273 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Absolute load (OBD PID 0143)
+    const absLoadObj = signals.absolute_load as Record<string, unknown> | undefined
+    let absLoadPct: number | null =
+      typeof absLoadObj?.load_pct === 'number'
+        ? (absLoadObj.load_pct as number)
+        : typeof signals.absolute_load_pct === 'number'
+          ? (signals.absolute_load_pct as number)
+          : null
+    const absLoadSpeed =
+      typeof absLoadObj?.speed_kmh === 'number'
+        ? (absLoadObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof absLoadPct === 'number') {
+      const warnPct =
+        typeof signals.abs_load_warn_pct === 'number'
+          ? (signals.abs_load_warn_pct as number)
+          : 85
+      const alertPct =
+        typeof signals.abs_load_alert_pct === 'number'
+          ? (signals.abs_load_alert_pct as number)
+          : 95
+      const minSpd =
+        typeof signals.abs_load_speed_min_kmh === 'number'
+          ? (signals.abs_load_speed_min_kmh as number)
+          : 20
+      const spdOk = typeof absLoadSpeed === 'number' && absLoadSpeed >= minSpd
+      if (spdOk && absLoadPct >= alertPct && !recentlyAlerted(deviceId, 'abs_load_alert', 120)) {
+        insertAlert(deviceId, 'abs_load_alert', 'critical', `Carga absoluta crítica · ${Math.round(absLoadPct)}%`, {
+          absolute_load_pct: absLoadPct,
+          absolute_load: absLoadObj ?? null,
+        })
+        raised.push('abs_load_alert')
+      } else if (
+        spdOk &&
+        absLoadPct >= warnPct &&
+        absLoadPct < alertPct &&
+        !recentlyAlerted(deviceId, 'abs_load_warn', 120)
+      ) {
+        insertAlert(deviceId, 'abs_load_warn', 'warn', `Carga absoluta alta · ${Math.round(absLoadPct)}%`, {
+          absolute_load_pct: absLoadPct,
+          absolute_load: absLoadObj ?? null,
+        })
+        raised.push('abs_load_warn')
+      }
+    }
+
+    // Relative throttle (OBD PID 0145)
+    const relThrObj = signals.relative_throttle as Record<string, unknown> | undefined
+    let relThrPct: number | null =
+      typeof relThrObj?.throttle_pct === 'number'
+        ? (relThrObj.throttle_pct as number)
+        : typeof signals.relative_throttle_pct === 'number'
+          ? (signals.relative_throttle_pct as number)
+          : null
+    const relThrSpeed =
+      typeof relThrObj?.speed_kmh === 'number'
+        ? (relThrObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof relThrPct === 'number') {
+      const warnPct =
+        typeof signals.rel_thr_warn_pct === 'number'
+          ? (signals.rel_thr_warn_pct as number)
+          : 75
+      const alertPct =
+        typeof signals.rel_thr_alert_pct === 'number'
+          ? (signals.rel_thr_alert_pct as number)
+          : 90
+      const minSpd =
+        typeof signals.rel_thr_speed_min_kmh === 'number'
+          ? (signals.rel_thr_speed_min_kmh as number)
+          : 20
+      const spdOk = typeof relThrSpeed === 'number' && relThrSpeed >= minSpd
+      if (spdOk && relThrPct >= alertPct && !recentlyAlerted(deviceId, 'rel_thr_alert', 120)) {
+        insertAlert(deviceId, 'rel_thr_alert', 'critical', `Acelerador relativo crítico · ${Math.round(relThrPct)}%`, {
+          relative_throttle_pct: relThrPct,
+          relative_throttle: relThrObj ?? null,
+        })
+        raised.push('rel_thr_alert')
+      } else if (
+        spdOk &&
+        relThrPct >= warnPct &&
+        relThrPct < alertPct &&
+        !recentlyAlerted(deviceId, 'rel_thr_warn', 120)
+      ) {
+        insertAlert(deviceId, 'rel_thr_warn', 'warn', `Acelerador relativo alto · ${Math.round(relThrPct)}%`, {
+          relative_throttle_pct: relThrPct,
+          relative_throttle: relThrObj ?? null,
+        })
+        raised.push('rel_thr_warn')
+      }
+    }
+
+    // Accel pedal D (OBD PID 0149)
+    const pedalObj = signals.accel_pedal as Record<string, unknown> | undefined
+    let pedalPct: number | null =
+      typeof pedalObj?.pedal_pct === 'number'
+        ? (pedalObj.pedal_pct as number)
+        : typeof signals.accel_pedal_pct === 'number'
+          ? (signals.accel_pedal_pct as number)
+          : null
+    const pedalSpeed =
+      typeof pedalObj?.speed_kmh === 'number'
+        ? (pedalObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof pedalPct === 'number') {
+      const warnPct =
+        typeof signals.accel_pedal_warn_pct === 'number'
+          ? (signals.accel_pedal_warn_pct as number)
+          : 80
+      const alertPct =
+        typeof signals.accel_pedal_alert_pct === 'number'
+          ? (signals.accel_pedal_alert_pct as number)
+          : 92
+      const minSpd =
+        typeof signals.accel_pedal_speed_min_kmh === 'number'
+          ? (signals.accel_pedal_speed_min_kmh as number)
+          : 20
+      const spdOk = typeof pedalSpeed === 'number' && pedalSpeed >= minSpd
+      if (spdOk && pedalPct >= alertPct && !recentlyAlerted(deviceId, 'accel_pedal_alert', 120)) {
+        insertAlert(deviceId, 'accel_pedal_alert', 'critical', `Pedal crítico · ${Math.round(pedalPct)}%`, {
+          accel_pedal_pct: pedalPct,
+          accel_pedal: pedalObj ?? null,
+        })
+        raised.push('accel_pedal_alert')
+      } else if (
+        spdOk &&
+        pedalPct >= warnPct &&
+        pedalPct < alertPct &&
+        !recentlyAlerted(deviceId, 'accel_pedal_warn', 120)
+      ) {
+        insertAlert(deviceId, 'accel_pedal_warn', 'warn', `Pedal alto · ${Math.round(pedalPct)}%`, {
+          accel_pedal_pct: pedalPct,
+          accel_pedal: pedalObj ?? null,
+        })
+        raised.push('accel_pedal_warn')
+      }
+    }
+
+    // O2 B1S2 (OBD PID 014B)
+    const o2B2Obj = signals.o2_b2_voltage as Record<string, unknown> | undefined
+    let o2B2Volts: number | null =
+      typeof o2B2Obj?.o2_volts === 'number'
+        ? (o2B2Obj.o2_volts as number)
+        : typeof signals.o2_b1s2_volts === 'number'
+          ? (signals.o2_b1s2_volts as number)
+          : null
+    const o2B2Speed =
+      typeof o2B2Obj?.speed_kmh === 'number'
+        ? (o2B2Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const o2B2Rpm =
+      typeof o2B2Obj?.rpm === 'number'
+        ? (o2B2Obj.rpm as number)
+        : typeof signals.rpm === 'number'
+          ? (signals.rpm as number)
+          : null
+    if (typeof o2B2Volts === 'number') {
+      const warnLowV =
+        typeof signals.o2_b2_warn_low_v === 'number'
+          ? (signals.o2_b2_warn_low_v as number)
+          : 0.1
+      const alertLowV =
+        typeof signals.o2_b2_alert_low_v === 'number'
+          ? (signals.o2_b2_alert_low_v as number)
+          : 0.06
+      const warnHighV =
+        typeof signals.o2_b2_warn_high_v === 'number'
+          ? (signals.o2_b2_warn_high_v as number)
+          : 0.88
+      const alertHighV =
+        typeof signals.o2_b2_alert_high_v === 'number'
+          ? (signals.o2_b2_alert_high_v as number)
+          : 0.95
+      const minSpd =
+        typeof signals.o2_b2_speed_min_kmh === 'number'
+          ? (signals.o2_b2_speed_min_kmh as number)
+          : 20
+      const rpmMin =
+        typeof signals.o2_b2_rpm_min === 'number'
+          ? (signals.o2_b2_rpm_min as number)
+          : 800
+      const spdOk = typeof o2B2Speed === 'number' && o2B2Speed >= minSpd
+      const rpmOk = typeof o2B2Rpm !== 'number' || o2B2Rpm >= rpmMin
+      if (
+        spdOk &&
+        rpmOk &&
+        (o2B2Volts <= alertLowV || o2B2Volts >= alertHighV) &&
+        !recentlyAlerted(deviceId, 'o2_b2_alert', 120)
+      ) {
+        insertAlert(deviceId, 'o2_b2_alert', 'critical', `O2 B1S2 crítico · ${o2B2Volts.toFixed(2)} V`, {
+          o2_b1s2_volts: o2B2Volts,
+          o2_b2_voltage: o2B2Obj ?? null,
+        })
+        raised.push('o2_b2_alert')
+      } else if (
+        spdOk &&
+        rpmOk &&
+        (o2B2Volts <= warnLowV || o2B2Volts >= warnHighV) &&
+        o2B2Volts > alertLowV &&
+        o2B2Volts < alertHighV &&
+        !recentlyAlerted(deviceId, 'o2_b2_warn', 120)
+      ) {
+        insertAlert(deviceId, 'o2_b2_warn', 'warn', `O2 B1S2 fuera de rango · ${o2B2Volts.toFixed(2)} V`, {
+          o2_b1s2_volts: o2B2Volts,
+          o2_b2_voltage: o2B2Obj ?? null,
+        })
+        raised.push('o2_b2_warn')
+      }
+    }
+
+    // EGR error (OBD PID 014D)
+    const egrObj = signals.egr_error as Record<string, unknown> | undefined
+    let egrPct: number | null =
+      typeof egrObj?.error_pct === 'number'
+        ? (egrObj.error_pct as number)
+        : typeof signals.egr_error_pct === 'number'
+          ? (signals.egr_error_pct as number)
+          : null
+    const egrSpeed =
+      typeof egrObj?.speed_kmh === 'number'
+        ? (egrObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof egrPct === 'number') {
+      const warnPct =
+        typeof signals.egr_warn_pct === 'number'
+          ? (signals.egr_warn_pct as number)
+          : 15
+      const alertPct =
+        typeof signals.egr_alert_pct === 'number'
+          ? (signals.egr_alert_pct as number)
+          : 25
+      const minSpd =
+        typeof signals.egr_speed_min_kmh === 'number'
+          ? (signals.egr_speed_min_kmh as number)
+          : 20
+      const spdOk = typeof egrSpeed === 'number' && egrSpeed >= minSpd
+      const absEgr = Math.abs(egrPct)
+      if (spdOk && absEgr >= alertPct && !recentlyAlerted(deviceId, 'egr_error_alert', 120)) {
+        insertAlert(deviceId, 'egr_error_alert', 'critical', `EGR crítico · ${Math.round(egrPct)}%`, {
+          egr_error_pct: egrPct,
+          egr_error: egrObj ?? null,
+        })
+        raised.push('egr_error_alert')
+      } else if (
+        spdOk &&
+        absEgr >= warnPct &&
+        absEgr < alertPct &&
+        !recentlyAlerted(deviceId, 'egr_error_warn', 120)
+      ) {
+        insertAlert(deviceId, 'egr_error_warn', 'warn', `EGR fuera de rango · ${Math.round(egrPct)}%`, {
+          egr_error_pct: egrPct,
+          egr_error: egrObj ?? null,
+        })
+        raised.push('egr_error_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
