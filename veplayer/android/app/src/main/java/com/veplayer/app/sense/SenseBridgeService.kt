@@ -210,6 +210,18 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.MilDistance.toJsonMap(
                                             com.veplayer.app.vehicle.MilDistanceMonitor.state.value,
                                         ),
+                                    "dist_clear_warn_km" to prefs.distClearWarnKm.toDouble(),
+                                    "dist_clear_alert_km" to prefs.distClearAlertKm.toDouble(),
+                                    "dist_since_clear_km" to
+                                        (if (prefs.distClearSimKm > 0f) prefs.distClearSimKm
+                                        else
+                                            com.veplayer.app.vehicle.DistSinceClearMonitor.state.value.distanceKm
+                                                ?: snap.distSinceClearKm
+                                        )?.toDouble(),
+                                    "dist_since_clear" to
+                                        com.veplayer.app.vehicle.DistSinceClear.toJsonMap(
+                                            com.veplayer.app.vehicle.DistSinceClearMonitor.state.value,
+                                        ),
                                     "rpm_warn" to prefs.rpmWarn.toDouble(),
                                     "rpm_alert" to prefs.rpmAlert.toDouble(),
                                     "rpm" to
@@ -500,6 +512,18 @@ class SenseBridgeService : Service() {
                                     "mil_dist" to
                                         com.veplayer.app.vehicle.MilDistance.toJsonMap(
                                             com.veplayer.app.vehicle.MilDistanceMonitor.state.value,
+                                        ),
+                                    "dist_clear_warn_km" to prefs.distClearWarnKm.toDouble(),
+                                    "dist_clear_alert_km" to prefs.distClearAlertKm.toDouble(),
+                                    "dist_since_clear_km" to
+                                        (if (prefs.distClearSimKm > 0f) prefs.distClearSimKm
+                                        else
+                                            com.veplayer.app.vehicle.DistSinceClearMonitor.state.value.distanceKm
+                                                ?: snap.distSinceClearKm
+                                        )?.toDouble(),
+                                    "dist_since_clear" to
+                                        com.veplayer.app.vehicle.DistSinceClear.toJsonMap(
+                                            com.veplayer.app.vehicle.DistSinceClearMonitor.state.value,
                                         ),
                                     "rpm_warn" to prefs.rpmWarn.toDouble(),
                                     "rpm_alert" to prefs.rpmAlert.toDouble(),

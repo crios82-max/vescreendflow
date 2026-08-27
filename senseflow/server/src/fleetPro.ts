@@ -409,6 +409,60 @@ export function evaluateFleetAlerts(
         raised.push('mil_dist_warn')
       }
     }
+
+    // Distance since DTC clear (OBD PID 0131)
+    const clearObj = signals.dist_since_clear as Record<string, unknown> | undefined
+    const faultActive =
+      signals.mil === true ||
+      clearObj?.fault_active === true ||
+      (typeof signals.dtc_count === 'number' && (signals.dtc_count as number) > 0)
+    let clearKm: number | null =
+      typeof clearObj?.distance_km === 'number'
+        ? (clearObj.distance_km as number)
+        : typeof signals.dist_since_clear_km === 'number'
+          ? (signals.dist_since_clear_km as number)
+          : null
+    if (faultActive && typeof clearKm === 'number') {
+      const warnKm =
+        typeof signals.dist_clear_warn_km === 'number'
+          ? (signals.dist_clear_warn_km as number)
+          : 100
+      const alertKm =
+        typeof signals.dist_clear_alert_km === 'number'
+          ? (signals.dist_clear_alert_km as number)
+          : 200
+      if (clearKm >= alertKm && !recentlyAlerted(deviceId, 'dist_clear_alert', 600)) {
+        insertAlert(
+          deviceId,
+          'dist_clear_alert',
+          'critical',
+          `Falla sin reparar · ${Math.round(clearKm)} km desde clear`,
+          {
+            dist_since_clear_km: clearKm,
+            alert_km: alertKm,
+            dist_since_clear: clearObj ?? null,
+          },
+        )
+        raised.push('dist_clear_alert')
+      } else if (
+        clearKm >= warnKm &&
+        clearKm < alertKm &&
+        !recentlyAlerted(deviceId, 'dist_clear_warn', 600)
+      ) {
+        insertAlert(
+          deviceId,
+          'dist_clear_warn',
+          'warn',
+          `Desde clear · ${Math.round(clearKm)} km con falla`,
+          {
+            dist_since_clear_km: clearKm,
+            warn_km: warnKm,
+            dist_since_clear: clearObj ?? null,
+          },
+        )
+        raised.push('dist_clear_warn')
+      }
+    }
     const uss = signals.uss as Record<string, unknown> | undefined
     if (uss && (signals.reverse === true || signals.gear === 'R')) {
       const vals = [uss.rear_l_m, uss.rear_c_m, uss.rear_r_m]

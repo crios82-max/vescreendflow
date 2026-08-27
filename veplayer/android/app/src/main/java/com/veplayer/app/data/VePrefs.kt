@@ -83,6 +83,28 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("mil_dist_sim_km", 0f)
         set(value) = sp.edit().putFloat("mil_dist_sim_km", value.coerceIn(0f, 500f)).apply()
 
+    /** Distance since DTC clear (OBD 0131). */
+    var distClearEnabled: Boolean
+        get() = sp.getBoolean("dist_clear", true)
+        set(value) = sp.edit().putBoolean("dist_clear", value).apply()
+
+    var distClearTts: Boolean
+        get() = sp.getBoolean("dist_clear_tts", true)
+        set(value) = sp.edit().putBoolean("dist_clear_tts", value).apply()
+
+    var distClearWarnKm: Float
+        get() = sp.getFloat("dist_clear_warn_km", 100f)
+        set(value) = sp.edit().putFloat("dist_clear_warn_km", value.coerceIn(10f, 1000f)).apply()
+
+    var distClearAlertKm: Float
+        get() = sp.getFloat("dist_clear_alert_km", 200f)
+        set(value) = sp.edit().putFloat("dist_clear_alert_km", value.coerceIn(20f, 2000f)).apply()
+
+    /** Demo km since clear (0 = live OBD). */
+    var distClearSimKm: Float
+        get() = sp.getFloat("dist_clear_sim_km", 0f)
+        set(value) = sp.edit().putFloat("dist_clear_sim_km", value.coerceIn(0f, 1000f)).apply()
+
     /** Phone Link (BT / Android Auto / CarPlay). */
     var phoneLinkEnabled: Boolean
         get() = sp.getBoolean("phone_link", true)

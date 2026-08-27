@@ -18,6 +18,7 @@ object ObdPidParser {
         val engineLoadPct: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
+        val distSinceClearKm: Float? = null,
         val batteryVoltageV: Float? = null,
     )
 
@@ -78,6 +79,10 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(milDistanceKm = ((data[0] * 256) + data[1]).toFloat())
             }
+            0x31 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(distSinceClearKm = ((data[0] * 256) + data[1]).toFloat())
+            }
             0x42 -> {
                 if (data.size < 2) PidValues()
                 else PidValues(batteryVoltageV = ((data[0] * 256) + data[1]) / 1000f)
@@ -100,6 +105,7 @@ object ObdPidParser {
             engineLoadPct = add.engineLoadPct ?: base.engineLoadPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
+            distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,
             batteryVoltageV = add.batteryVoltageV ?: base.batteryVoltageV,
         )
 }
