@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SenseFlow — tráfico + nav</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <style>
+      :root {
+        --ink: #0f1c18;
+        --mist: #e8f2ee;
+        --teal: #0d9488;
+        --amber: #d97706;
+        --rose: #e11d48;
+        --panel: rgba(15, 28, 24, 0.82);
+        --blue: #3e9efd;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; font-family: "Segoe UI", system-ui, sans-serif; background: var(--ink); color: var(--mist); }
+      #map { position: absolute; inset: 0; }
+      .hud {
+        position: absolute; z-index: 1000; top: 12px; left: 12px; right: 12px;
+        display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+        pointer-events: none;
+      }
+      .hud > * { pointer-events: auto; }
+      .brand {
+        background: var(--panel); backdrop-filter: blur(8px);
+        padding: 10px 14px; border-radius: 10px;
+        font-weight: 700; letter-spacing: 0.02em;
+      }
+      .brand span { font-weight: 500; opacity: 0.75; margin-left: 8px; font-size: 0.85rem; }
+      .toggles {
+        display: flex; gap: 6px; background: var(--panel); padding: 6px; border-radius: 10px; flex-wrap: wrap;
+      }
+      .toggles button, .nav-bar button, .nav-bar select {
+        border: 0; border-radius: 8px; padding: 8px 12px; cursor: pointer;
+        background: transparent; color: var(--mist); font-weight: 600;
+      }
+      .toggles button.active { background: var(--teal); color: #042f2e; }
+      .nav-bar {
+        display: flex; gap: 6px; align-items: center; background: var(--panel);
+        padding: 6px; border-radius: 10px; flex-wrap: wrap;
+      }
+      .nav-bar select { background: #0b1411; }
+      .nav-bar button.go { background: var(--blue); color: #041018; }
+      .stats {
+        margin-left: auto; background: var(--panel); padding: 8px 12px; border-radius: 10px;
+        font-size: 0.85rem; font-variant-numeric: tabular-nums;
+      }
+      .legend {
+        position: absolute; z-index: 1000; bottom: 24px; left: 12px;
+        background: var(--panel); padding: 10px 12px; border-radius: 10px; font-size: 0.8rem;
+      }
+      .legend div { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+      .dot { width: 12px; height: 12px; border-radius: 50%; }
+      .dot.free { background: #22c55e; }
+      .dot.moderate { background: var(--amber); }
+      .dot.slow { background: var(--rose); }
+      .dot.crowd { background: #38bdf8; }
+      .nav-card, .trip-card {
+        position: absolute; z-index: 1000; background: rgba(17,17,17,.88); backdrop-filter: blur(8px);
+        border-radius: 12px; padding: 12px 14px; max-width: 320px;
+      }
+      .nav-card { top: 72px; left: 12px; }
+      .nav-card .m { font-size: 26px; font-weight: 700; }
+      .nav-card .s { color: #9a9a9a; font-size: 14px; margin-top: 2px; }
+      .trip-card { bottom: 24px; right: 12px; font-size: 14px; }
+      .trip-card .s { color: #9a9a9a; font-size: 12px; margin-top: 2px; }
+      .hidden { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div class="hud">
+      <div class="brand">SenseFlow<span>tráfico · personas · nav</span></div>
+      <div class="toggles">
+        <button type="button" id="btn-traffic" class="active">Tráfico</button>
+        <button type="button" id="btn-crowd" class="active">Personas</button>
+        <button type="button" id="btn-refresh">Actualizar</button>
+      </div>
+      <div class="nav-bar">
+        <select id="dest"></select>
+        <button type="button" class="go" id="btn-go">Ir</button>
+        <button type="button" id="btn-clear">Limpiar</button>
+      </div>
+      <div class="stats" id="stats">cargando…</div>
+    </div>
+    <div class="nav-card hidden" id="nav-card">
+      <div class="m" id="nav-dist">—</div>
+      <div class="s" id="nav-instr">Sin ruta</div>
+    </div>
+    <div class="trip-card hidden" id="trip-card">
+      <div id="trip-line">—</div>
+      <div class="s" id="trip-dest">Destino</div>
+    </div>
+    <div class="legend">
+      <div><span class="dot free"></span> libre (≥50 km/h)</div>
+      <div><span class="dot moderate"></span> moderado</div>
+      <div><span class="dot slow"></span> lento</div>
+      <div><span class="dot crowd"></span> personas (intensidad)</div>
+    </div>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script>
+      const params = new URLSearchParams(location.search)
+      const EGO = {
+        lat: parseFloat(params.get('from_lat')) || 10.496,
+        lng: parseFloat(params.get('from_lng')) || -66.898,
+      }
+      const map = L.map('map', { zoomControl: true }).setView([EGO.lat, EGO.lng], 13)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap',
+      }).addTo(map)
+
+      const trafficLayer = L.layerGroup().addTo(map)
+      const crowdLayer = L.layerGroup().addTo(map)
+      const routeLayer = L.layerGroup().addTo(map)
+      let showTraffic = true
+      let showCrowd = true
+      let destinations = []
+      let routeLine = null
+
+      const trafficColor = { free: '#22c55e', moderate: '#d97706', slow: '#e11d48' }
+
+      function fmtDist(m) {
+        return m >= 1000 ? (m / 1000).toFixed(1).replace('.', ',') + ' km' : Math.round(m) + ' m'
+      }
+      function fmtDur(s) {
+        const m = Math.max(1, Math.round(s / 60))
+        return m >= 60 ? Math.floor(m / 60) + ' h ' + (m % 60) + ' min' : m + ' min'
+      }
+      function etaClock(durationS) {
+        const d = new Date(Date.now() + durationS * 1000)
+        return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0')
+      }
+
+      async function loadDestinations() {
+        const j = await fetch('/api/nav/destinations').then((r) => r.json())
+        destinations = j.destinations || []
+        const sel = document.getElementById('dest')
+        sel.innerHTML = destinations.map((d) => `<option value="${d.id}">${d.name}</option>`).join('')
+        const pref = params.get('dest') || params.get('to_name')
+        if (pref) {
+          const hit = destinations.find((d) => d.id === pref || d.name === pref)
+          if (hit) sel.value = hit.id
+        }
+      }
+
+      async function loadRoute(to) {
+        const url =
+          `/api/nav/route?from_lat=${EGO.lat}&from_lng=${EGO.lng}` +
+          `&to_lat=${to.lat}&to_lng=${to.lng}&dest_name=${encodeURIComponent(to.name)}`
+        const j = await fetch(url).then((r) => r.json())
+        routeLayer.clearLayers()
+        const coords = (j.geometry && j.geometry.coordinates) || []
+        const latlngs = coords.map((c) => [c[1], c[0]])
+        if (latlngs.length) {
+          routeLine = L.polyline(latlngs, { color: '#3e9efd', weight: 6, opacity: 0.9 }).addTo(routeLayer)
+          L.circleMarker([EGO.lat, EGO.lng], { radius: 8, color: '#18c964', fillColor: '#18c964', fillOpacity: 1 }).addTo(routeLayer)
+          L.circleMarker([to.lat, to.lng], { radius: 8, color: '#e11d48', fillColor: '#e11d48', fillOpacity: 1 }).addTo(routeLayer)
+          map.fitBounds(routeLine.getBounds(), { padding: [40, 40] })
+        }
+        const step = (j.steps && j.steps[0]) || { instruction: 'Sin pasos', distance_m: 0 }
+        document.getElementById('nav-card').classList.remove('hidden')
+        document.getElementById('trip-card').classList.remove('hidden')
+        document.getElementById('nav-dist').textContent = fmtDist(step.distance_m || j.distance_m)
+        document.getElementById('nav-instr').textContent = step.instruction
+        document.getElementById('trip-line').textContent =
+          `${etaClock(j.duration_s)} · ${fmtDur(j.duration_s)} · ${fmtDist(j.distance_m)}`
+        document.getElementById('trip-dest').textContent =
+          `Destino · ${j.dest_name || to.name} · ${j.source || 'osrm'}`
+      }
+
+      async function loadLayers() {
+        const b = map.getBounds()
+        const bbox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()].join(',')
+        const [traffic, crowd, stats] = await Promise.all([
+          fetch(`/api/traffic?bbox=${bbox}`).then((r) => r.json()),
+          fetch(`/api/crowd?bbox=${bbox}`).then((r) => r.json()),
+          fetch('/api/stats').then((r) => r.json()),
+        ])
+
+        trafficLayer.clearLayers()
+        for (const f of traffic.features || []) {
+          const [lng, lat] = f.geometry.coordinates
+          const level = f.properties.level
+          L.circleMarker([lat, lng], {
+            radius: 9,
+            color: '#0f1c18',
+            weight: 1,
+            fillColor: trafficColor[level] || '#94a3b8',
+            fillOpacity: 0.85,
+          })
+            .bindPopup(
+              `<b>Tráfico</b><br>${f.properties.avg_speed_kmh} km/h<br>${f.properties.devices} dispositivos`,
+            )
+            .addTo(trafficLayer)
+        }
+
+        crowdLayer.clearLayers()
+        for (const f of crowd.features || []) {
+          const [lng, lat] = f.geometry.coordinates
+          const r = 8 + f.properties.intensity * 18
+          L.circleMarker([lat, lng], {
+            radius: r,
+            color: '#0284c7',
+            weight: 1,
+            fillColor: '#38bdf8',
+            fillOpacity: 0.35 + f.properties.intensity * 0.45,
+          })
+            .bindPopup(
+              `<b>Personas</b><br>${f.properties.devices} dispositivos<br>intensidad ${f.properties.intensity}`,
+            )
+            .addTo(crowdLayer)
+        }
+
+        document.getElementById('stats').textContent =
+          `${stats.pings} pings · ${(stats.by_activity || []).map((a) => `${a.activity}:${a.n}`).join(' · ') || 'sin datos'}`
+
+        syncVisibility()
+      }
+
+      function syncVisibility() {
+        if (showTraffic) map.addLayer(trafficLayer)
+        else map.removeLayer(trafficLayer)
+        if (showCrowd) map.addLayer(crowdLayer)
+        else map.removeLayer(crowdLayer)
+      }
+
+      document.getElementById('btn-traffic').onclick = (e) => {
+        showTraffic = !showTraffic
+        e.currentTarget.classList.toggle('active', showTraffic)
+        syncVisibility()
+      }
+      document.getElementById('btn-crowd').onclick = (e) => {
+        showCrowd = !showCrowd
+        e.currentTarget.classList.toggle('active', showCrowd)
+        syncVisibility()
+      }
+      document.getElementById('btn-refresh').onclick = () => loadLayers()
+      document.getElementById('btn-go').onclick = () => {
+        const id = document.getElementById('dest').value
+        const to = destinations.find((d) => d.id === id)
+        if (to) loadRoute(to)
+      }
+      document.getElementById('btn-clear').onclick = () => {
+        routeLayer.clearLayers()
+        document.getElementById('nav-card').classList.add('hidden')
+        document.getElementById('trip-card').classList.add('hidden')
+      }
+
+      map.on('moveend', () => loadLayers())
+      loadDestinations().then(() => {
+        const toLat = parseFloat(params.get('to_lat'))
+        const toLng = parseFloat(params.get('to_lng'))
+        if (!Number.isNaN(toLat) && !Number.isNaN(toLng)) {
+          loadRoute({
+            lat: toLat,
+            lng: toLng,
+            name: params.get('dest_name') || params.get('to_name') || 'Destino',
+          })
+        } else if (params.get('auto') === '1' && destinations[0]) {
+          document.getElementById('dest').value = destinations[0].id
+          loadRoute(destinations[0])
+        }
+      })
+      loadLayers()
+      setInterval(loadLayers, 20000)
+    </script>
+  </body>
+</html>

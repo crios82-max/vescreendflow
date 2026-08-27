@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SenseFlow Flota Ops</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <style>
+    :root { --ink:#0f1c18; --mist:#e8f2ee; --teal:#0d9488; --panel:#15201c; --amber:#d97706; --rose:#e11d48; }
+    body { margin:0; font-family:system-ui,sans-serif; background:var(--ink); color:var(--mist); padding:20px; }
+    a { color:var(--teal); }
+    table { width:100%; border-collapse:collapse; background:var(--panel); border-radius:12px; overflow:hidden; }
+    th, td { text-align:left; padding:10px 12px; border-bottom:1px solid #24332e; font-size:.92rem; vertical-align:top; }
+    th { color:var(--teal); }
+    .bar { display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+    button, .btn {
+      background:var(--teal); color:#042f2e; border:0; border-radius:8px; padding:6px 10px;
+      font-weight:700; cursor:pointer; font-size:.8rem; margin:2px;
+    }
+    .btn.warn { background:var(--amber); color:#1a1205; }
+    .btn.danger { background:var(--rose); color:#fff; }
+    .btn.ghost { background:#24332e; color:var(--mist); }
+    code { background:#0b1411; padding:2px 6px; border-radius:6px; }
+    #toast { margin-top:10px; color:var(--teal); min-height:1.2em; }
+    .grid { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:16px; margin-bottom:18px; }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0; }
+    @media (max-width: 1100px) { .grid, .grid2 { grid-template-columns:1fr; } }
+    .card { background:var(--panel); border-radius:12px; padding:14px; }
+    .card h2 { margin:0 0 10px; font-size:1.05rem; color:var(--teal); }
+    .alert { padding:8px 10px; border-radius:8px; margin:6px 0; background:#0b1411; font-size:.88rem; }
+    .alert.warn { border-left:3px solid var(--amber); }
+    .alert.info { border-left:3px solid var(--teal); }
+    .alert.critical { border-left:3px solid var(--rose); background:#2a0f14; box-shadow:0 0 0 1px #7f1d1d inset; }
+    .alert.critical b { color:var(--rose); }
+    .muted { color:#8aa399; font-size:.85rem; }
+    .spark { display:flex; align-items:flex-end; gap:2px; height:36px; margin-top:8px; }
+    .spark i { display:block; width:4px; background:var(--teal); border-radius:2px 2px 0 0; min-height:2px; }
+    .stat { font-size:1.6rem; font-weight:800; color:var(--mist); }
+    .stat span { font-size:.85rem; color:#8aa399; font-weight:500; }
+    select, input[type=text], input[type=password] {
+      padding:6px 8px; border-radius:6px; border:0; background:#0b1411; color:var(--mist);
+    }
+    .hist-row { font-size:.82rem; padding:4px 0; border-bottom:1px solid #24332e; }
+    #login-gate {
+      position:fixed; inset:0; background:rgba(8,14,12,.92); display:flex; align-items:center; justify-content:center; z-index:50;
+    }
+    #login-gate .card { width:min(380px, 92vw); }
+    #app { display:none; }
+    #app.ready { display:block; }
+    #fleet-map {
+      height: min(420px, 55vh); width: 100%; border-radius: 10px; background: #0b1411;
+      z-index: 1;
+    }
+    .map-toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px; }
+    .leaflet-container { background: #0b1411; font: inherit; }
+    .unit-marker {
+      width: 14px; height: 14px; border-radius: 50%; border: 2px solid #e8f2ee;
+      box-shadow: 0 0 0 2px rgba(15,28,24,.55);
+    }
+    .unit-marker.online { background: var(--teal); }
+    .unit-marker.offline { background: #64748b; }
+    .unit-marker.panic { background: var(--rose); animation: pulse 1.2s ease infinite; }
+    @keyframes pulse { 50% { transform: scale(1.25); } }
+  </style>
+</head>
+<body>
+  <div id="login-gate">
+    <div class="card">
+      <h2>Login flota</h2>
+      <p class="muted">Usuario + clave (o token API). Prod: <code>FLEET_OPEN_MODE=0</code></p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+        <input id="login-user" type="text" placeholder="usuario (admin)" autocomplete="username" />
+        <input id="login-pass" type="password" placeholder="clave" autocomplete="current-password" />
+        <input id="login-token" type="text" placeholder="o token API (opcional)" />
+        <button id="login-btn" class="btn" style="width:100%">Entrar</button>
+        <div id="login-err" class="muted" style="color:var(--rose)"></div>
+      </div>
+    </div>
+  </div>
+  <div id="app">
+  <div class="bar">
+    <h1 style="margin:0">Flota VePlayer Ops</h1>
+    <a href="/">← Mapa</a>
+    <button id="refresh">Actualizar</button>
+    <button class="btn warn" id="ota-rollout">OTA rollout</button>
+    <select id="csv-kind" title="Export CSV">
+      <option value="summary">CSV summary</option>
+      <option value="devices">CSV devices</option>
+      <option value="commands">CSV commands</option>
+      <option value="alerts">CSV alerts</option>
+      <option value="telemetry">CSV telemetry</option>
+      <option value="drivers">CSV drivers</option>
+      <option value="shifts">CSV shifts</option>
+      <option value="maintenance">CSV maintenance</option>
+    </select>
+    <button class="btn ghost" id="csv-export">Export CSV</button>
+    <button class="btn ghost" id="logout-btn">Logout</button>
+    <span id="me" class="muted"></span>
+    <span id="meta"></span>
+  </div>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · set_brand · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · read_dtc · clear_dtc · seed_dtc · prefetch_tiles · nav_dest · set_driver · set_speed_limit · set_fuel_warn · set_idle_warn · panic_ack · service_done · set_maintenance</p>
+  <div id="toast"></div>
+
+  <div class="grid" id="report-cards">
+    <div class="card"><h2>Flota (24h)</h2><div id="rep-fleet" class="muted">…</div></div>
+    <div class="card"><h2>Comandos / OTA</h2><div id="rep-cmds" class="muted">…</div></div>
+    <div class="card"><h2>Versiones</h2><div id="rep-ver" class="muted">…</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <h2>Mapa live</h2>
+    <div class="map-toolbar">
+      <span id="map-meta" class="muted">cargando…</span>
+      <label class="muted"><input type="checkbox" id="map-trails" checked /> trails</label>
+      <label class="muted"><input type="checkbox" id="map-fences" checked /> geofences</label>
+      <button class="btn ghost" id="map-fit" type="button">Fit</button>
+    </div>
+    <div id="fleet-map"></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Alertas abiertas</h2>
+      <div id="alerts" class="muted">cargando…</div>
+    </div>
+    <div class="card">
+      <h2>Geofences</h2>
+      <div id="geofences" class="muted">cargando…</div>
+      <div style="margin-top:10px">
+        <input id="gf-name" placeholder="Nombre" style="width:120px" />
+        <input id="gf-lat" placeholder="lat" value="10.496" style="width:90px" />
+        <input id="gf-lng" placeholder="lng" value="-66.898" style="width:90px" />
+        <input id="gf-r" placeholder="m" value="300" style="width:70px" />
+        <input id="gf-max" placeholder="max km/h" value="40" style="width:80px" title="Límite zona" />
+        <button id="gf-add">Add fence</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Historial cmds</h2>
+      <div id="cmd-hist" class="muted" style="max-height:220px;overflow:auto">…</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Historial OTA</h2>
+      <div id="ota-hist" class="muted" style="max-height:180px;overflow:auto">…</div>
+    </div>
+    <div class="card">
+      <h2>Turnos (shifts)</h2>
+      <div id="shifts" class="muted" style="max-height:180px;overflow:auto">…</div>
+    </div>
+    <div class="card">
+      <h2>Conductores</h2>
+      <div id="drivers" class="muted">cargando…</div>
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        <input id="drv-code" placeholder="D001" style="width:70px" />
+        <input id="drv-device" placeholder="device_id" style="width:140px" />
+        <button id="drv-assign" class="btn ghost">Asignar</button>
+        <button id="drv-clear" class="btn ghost">Quitar</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Mantenimiento</h2>
+      <div id="maint" class="muted">cargando…</div>
+    </div>
+    <div class="card">
+      <h2>Alertas 24h (reporte)</h2>
+      <div id="rep-alerts" class="muted">…</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Nombre</th><th>Pair</th><th>Conductor</th><th>Versión</th><th>Seen</th><th>Speed</th><th>Señales</th><th>Hist</th><th>Comandos</th></tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script>
+    const sessionKey = 'veplayer_fleet_session'
+    const tokenKey = 'veplayer_fleet_token'
+    const toast = (t) => { document.getElementById('toast').textContent = t }
+
+    function session() { return localStorage.getItem(sessionKey) || '' }
+    function apiToken() { return localStorage.getItem(tokenKey) || '' }
+
+    function hdrs() {
+      const h = { 'content-type': 'application/json' }
+      if (session()) h['x-fleet-session'] = session()
+      else if (apiToken()) h['x-fleet-token'] = apiToken()
+      return h
+    }
+
+    let me = { role: 'viewer', can_wipe: false, can_dispatch: false, authenticated: false, open_mode: true }
+    let fleetMap = null
+    let mapLayers = { units: null, trails: null, fences: null }
+    let mapFittedOnce = false
+    let lastMapBounds = null
+
+    function ensureFleetMap() {
+      if (fleetMap) return fleetMap
+      const el = document.getElementById('fleet-map')
+      if (!el || typeof L === 'undefined') return null
+      fleetMap = L.map(el, { zoomControl: true }).setView([10.496, -66.898], 12)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap',
+      }).addTo(fleetMap)
+      mapLayers.units = L.layerGroup().addTo(fleetMap)
+      mapLayers.trails = L.layerGroup().addTo(fleetMap)
+      mapLayers.fences = L.layerGroup().addTo(fleetMap)
+      setTimeout(() => fleetMap.invalidateSize(), 80)
+      return fleetMap
+    }
+
+    function unitIcon(u) {
+      const cls = u.panic ? 'panic' : (u.online ? 'online' : 'offline')
+      return L.divIcon({
+        className: '',
+        html: `<div class="unit-marker ${cls}"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      })
+    }
+
+    async function loadFleetMap() {
+      const map = ensureFleetMap()
+      if (!map) return
+      const showTrails = document.getElementById('map-trails')?.checked !== false
+      const showFences = document.getElementById('map-fences')?.checked !== false
+      const j = await fetch('/api/fleet/ops/map?trail=40', { headers: hdrs() }).then(r => r.json())
+      const meta = document.getElementById('map-meta')
+      if (meta && j.counts) {
+        meta.textContent =
+          `${j.counts.located}/${j.counts.units} ubicadas · online ${j.counts.online}` +
+          (j.counts.panic ? ` · SOS ${j.counts.panic}` : '')
+      }
+      mapLayers.units.clearLayers()
+      mapLayers.trails.clearLayers()
+      mapLayers.fences.clearLayers()
+      const pts = []
+      for (const u of j.units || []) {
+        if (u.lat == null || u.lng == null) continue
+        pts.push([u.lat, u.lng])
+        if (showTrails && u.trail && u.trail.length > 1) {
+          const line = u.trail.map(p => [p.lat, p.lng])
+          L.polyline(line, {
+            color: u.panic ? '#e11d48' : '#0d9488',
+            weight: 3,
+            opacity: 0.55,
+          }).addTo(mapLayers.trails)
+        }
+        const speed = u.speed_kmh != null ? Math.round(u.speed_kmh) + ' km/h' : '—'
+        const who = u.driver_code ? `${u.driver_code} · ${u.driver_name || ''}` : 'sin conductor'
+        const pop =
+          `<b>${u.name || u.device_id.slice(0, 10)}</b><br>` +
+          `${speed} · ${u.online ? 'online' : 'stale'}<br>` +
+          `${who}` +
+          (u.panic ? `<br><span style="color:#e11d48">SOS · ${u.panic.message}</span>` : '')
+        L.marker([u.lat, u.lng], { icon: unitIcon(u) })
+          .bindPopup(pop)
+          .addTo(mapLayers.units)
+      }
+      if (showFences) {
+        for (const g of j.geofences || []) {
+          L.circle([g.lat, g.lng], {
+            radius: g.radius_m,
+            color: g.max_kmh != null ? '#d97706' : '#0d9488',
+            weight: 1,
+            fillOpacity: 0.08,
+          }).bindTooltip(
+            g.name + (g.max_kmh != null ? ` · ${Math.round(g.max_kmh)} km/h` : ''),
+          ).addTo(mapLayers.fences)
+          pts.push([g.lat, g.lng])
+        }
+      }
+      lastMapBounds = pts.length ? L.latLngBounds(pts) : null
+      if (!mapFittedOnce && lastMapBounds && lastMapBounds.isValid()) {
+        map.fitBounds(lastMapBounds.pad(0.2))
+        mapFittedOnce = true
+      }
+      setTimeout(() => map.invalidateSize(), 40)
+    }
+
+    function showApp() {
+      document.getElementById('login-gate').style.display = 'none'
+      document.getElementById('app').classList.add('ready')
+    }
+    function showLogin(msg) {
+      document.getElementById('login-gate').style.display = 'flex'
+      document.getElementById('app').classList.remove('ready')
+      if (msg) document.getElementById('login-err').textContent = msg
+    }
+
+    async function boot() {
+      const cfg = await fetch('/api/fleet/ops/auth/config').then(r => r.json()).catch(() => ({ open_mode: true }))
+      if (session() || apiToken()) {
+        const j = await fetch('/api/fleet/ops/me', { headers: hdrs() }).then(r => r.json())
+        if (j.authenticated || cfg.open_mode) {
+          me = j
+          showApp()
+          load()
+          return
+        }
+      }
+      if (cfg.open_mode) {
+        // auto-login optional: still show login but allow skip via empty enter? Force login UI always for ops dashboard.
+        document.getElementById('login-err').textContent = 'Demo: admin/admin123 · despacho/dispatch123 · viewer/viewer123'
+      }
+      showLogin()
+    }
+
+    document.getElementById('login-btn').onclick = async () => {
+      const user = document.getElementById('login-user').value.trim()
+      const pass = document.getElementById('login-pass').value
+      const tok = document.getElementById('login-token').value.trim()
+      document.getElementById('login-err').textContent = ''
+      if (tok) {
+        localStorage.setItem(tokenKey, tok)
+        localStorage.removeItem(sessionKey)
+        const j = await fetch('/api/fleet/ops/me', { headers: hdrs() }).then(r => r.json())
+        if (!j.authenticated) {
+          document.getElementById('login-err').textContent = 'Token inválido'
+          return
+        }
+        me = j
+        showApp()
+        load()
+        return
+      }
+      const r = await fetch('/api/fleet/ops/login', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: user, password: pass }),
+      })
+      const j = await r.json()
+      if (!r.ok) {
+        document.getElementById('login-err').textContent = j.error || 'login fail'
+        return
+      }
+      localStorage.setItem(sessionKey, j.session)
+      localStorage.removeItem(tokenKey)
+      me = { ...j, authenticated: true, can_dispatch: j.role !== 'viewer', can_wipe: j.role === 'admin' }
+      showApp()
+      load()
+    }
+
+    document.getElementById('logout-btn').onclick = async () => {
+      await fetch('/api/fleet/ops/logout', { method: 'POST', headers: hdrs() })
+      localStorage.removeItem(sessionKey)
+      localStorage.removeItem(tokenKey)
+      showLogin('Sesión cerrada')
+    }
+
+    document.getElementById('csv-export').onclick = async () => {
+      const kind = document.getElementById('csv-kind').value
+      try {
+        const r = await fetch('/api/fleet/ops/reports/export?kind=' + encodeURIComponent(kind) + '&limit=2000', {
+          headers: hdrs(),
+        })
+        if (!r.ok) {
+          const j = await r.json().catch(() => ({}))
+          toast(j.error || ('export HTTP ' + r.status))
+          return
+        }
+        const blob = await r.blob()
+        const cd = r.headers.get('content-disposition') || ''
+        const m = /filename="([^"]+)"/.exec(cd)
+        const name = m ? m[1] : ('fleet-' + kind + '.csv')
+        const a = document.createElement('a')
+        a.href = URL.createObjectURL(blob)
+        a.download = name
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+        URL.revokeObjectURL(a.href)
+        toast('CSV · ' + name)
+      } catch (e) {
+        toast('export fail: ' + e.message)
+      }
+    }
+
+    async function sendCmd(deviceId, command, payload) {
+      if (command === 'wipe' && !me.can_wipe) { toast('Wipe solo admin'); return }
+      if (!me.can_dispatch) { toast('Viewer: solo lectura'); return }
+      const body = { device_id: deviceId, command }
+      if (payload) body.payload = payload
+      const r = await fetch('/api/fleet/command', {
+        method: 'POST', headers: hdrs(), body: JSON.stringify(body),
+      })
+      const j = await r.json()
+      if (!r.ok) { toast(j.error || 'error'); return }
+      toast(`OK cmd #${j.id} → ${command} · ${j.issued_by || ''}`)
+      loadHistory()
+    }
+    async function ackAlert(id) {
+      await fetch('/api/fleet/alerts/' + id + '/ack', { method: 'POST', headers: hdrs() })
+      load()
+    }
+    async function loadMe() {
+      const j = await fetch('/api/fleet/ops/me', { headers: hdrs() }).then(r => r.json())
+      me = j
+      document.getElementById('me').textContent =
+        `${j.name} · ${j.role}` + (j.authenticated ? '' : ' · open')
+    }
+    async function loadReports() {
+      const j = await fetch('/api/fleet/ops/reports/summary', { headers: hdrs() }).then(r => r.json())
+      const f = j.fleet
+      document.getElementById('rep-fleet').innerHTML =
+        `<div class="stat">${f.online}<span> online</span> / ${f.devices}</div>
+         <div class="muted">stale ${f.stale} · alertas abiertas ${f.open_alerts}</div>
+         <div class="muted">telem avg ${j.telemetry_24h.avg_kmh != null ? j.telemetry_24h.avg_kmh.toFixed(0)+' km/h' : '—'} · max ${j.telemetry_24h.max_kmh != null ? j.telemetry_24h.max_kmh.toFixed(0) : '—'}</div>`
+      const c = j.commands_24h || {}
+      document.getElementById('rep-cmds').innerHTML =
+        `<div class="stat">${Object.values(c).reduce((a,b)=>a+b,0)}<span> cmds</span></div>
+         <div class="muted">${Object.entries(c).map(([k,v])=>k+':'+v).join(' · ') || 'sin cmds'}</div>
+         <div class="muted">OTA latest ${j.ota.latest ? j.ota.latest.version_name+' ('+j.ota.latest.version_code+')' : '—'} · below ${j.ota.devices_below_latest}</div>`
+      document.getElementById('rep-ver').innerHTML =
+        (j.versions || []).map(v => `<div>· ${v.app_version} (${v.version_code}) × ${v.n}</div>`).join('') || '—'
+      document.getElementById('rep-alerts').innerHTML =
+        (j.alerts_24h || []).map(a => `<div>· <b>${a.kind}</b> × ${a.n}</div>`).join('') || 'Sin alertas 24h'
+    }
+    async function loadHistory() {
+      const [cmds, ota] = await Promise.all([
+        fetch('/api/fleet/ops/commands/history?limit=40', { headers: hdrs() }).then(r => r.json()),
+        fetch('/api/fleet/ops/ota/history', { headers: hdrs() }).then(r => r.json()),
+      ])
+      document.getElementById('cmd-hist').innerHTML =
+        (cmds.commands || []).map(c =>
+          `<div class="hist-row"><b>${c.command}</b> · ${c.status} · ${c.device_id.slice(0,10)}…
+           <span class="muted">${c.issued_by || '—'} · ${new Date(c.created_at*1000).toLocaleString()}</span></div>`
+        ).join('') || 'Sin historial'
+      const ev = (ota.events || []).map(e =>
+        `<div class="hist-row">rollout <b>${e.version_name}</b> → ${e.queued} · ${e.actor || '—'}
+         <span class="muted">${new Date(e.created_at*1000).toLocaleString()}</span></div>`
+      ).join('')
+      const rel = (ota.releases || []).slice(0, 5).map(r =>
+        `<div class="hist-row">release ${r.version_name} (${r.version_code})</div>`
+      ).join('')
+      document.getElementById('ota-hist').innerHTML = (ev || '') + (rel || 'Sin OTA')
+    }
+    async function loadAlerts() {
+      const j = await fetch('/api/fleet/alerts?open=1').then(r => r.json())
+      const el = document.getElementById('alerts')
+      if (!j.alerts.length) { el.innerHTML = '<span class="muted">Sin alertas abiertas</span>'; return }
+      el.innerHTML = ''
+      for (const a of j.alerts.slice(0, 30)) {
+        const d = document.createElement('div')
+        const sev = a.severity === 'critical' ? 'critical' : (a.severity === 'warn' ? 'warn' : 'info')
+        d.className = 'alert ' + sev
+        const ackBtn = a.kind === 'panic'
+          ? `<button class="btn danger" style="float:right;margin-left:6px" data-panic="1">Ack SOS</button>`
+          : `<button class="btn ghost" style="float:right">Ack</button>`
+        d.innerHTML = `<b>${a.kind}</b> · ${a.message}<br><span class="muted">${a.device_id.slice(0,12)}… · ${new Date(a.created_at*1000).toLocaleString()}</span>
+          ${a.payload?.clip_url ? `<br><a href="${a.payload.clip_url}" target="_blank" style="color:var(--teal)">Ver clip SOS</a>` : ''}
+          ${a.kind === 'incident' && a.payload?.category ? `<br><span class="muted">cat · ${a.payload.category}</span>` : ''}
+          ${a.kind === 'message_reply' && a.payload?.parent_message ? `<br><span class="muted">re: ${String(a.payload.parent_message).slice(0,80)}</span>` : ''}
+          ${ackBtn}`
+        d.querySelector('button').onclick = async () => {
+          if (a.kind === 'panic') {
+            await sendCmd(a.device_id, 'panic_ack', {})
+          }
+          await ackAlert(a.id)
+          load()
+        }
+        el.appendChild(d)
+      }
+    }
+    async function loadGeofences() {
+      const j = await fetch('/api/fleet/geofences').then(r => r.json())
+      const el = document.getElementById('geofences')
+      el.innerHTML = (j.geofences || []).map(g =>
+        `<div>· <b>${g.name}</b> ${g.lat.toFixed(3)},${g.lng.toFixed(3)} · r=${g.radius_m}m` +
+        (g.max_kmh != null ? ` · <span style="color:var(--amber)">${Math.round(g.max_kmh)} km/h</span>` : '') +
+        ` ${g.active ? '' : '(off)'}</div>`
+      ).join('') || '<span class="muted">Sin geofences</span>'
+    }
+    async function spark(deviceId, cell) {
+      try {
+        const j = await fetch('/api/fleet/telemetry/' + deviceId + '?limit=40').then(r => r.json())
+        const samples = j.samples || []
+        if (!samples.length) { cell.textContent = '—'; return }
+        const speeds = samples.map(s => (s.speed_mps || 0) * 3.6)
+        const max = Math.max(1, ...speeds)
+        const wrap = document.createElement('div')
+        wrap.className = 'spark'
+        for (const v of speeds) {
+          const i = document.createElement('i')
+          i.style.height = Math.max(2, Math.round((v / max) * 34)) + 'px'
+          wrap.appendChild(i)
+        }
+        cell.innerHTML = ''
+        cell.appendChild(wrap)
+      } catch { cell.textContent = '—' }
+    }
+    async function load() {
+      await loadMe()
+      const [dev, ota] = await Promise.all([
+        fetch('/api/fleet/devices').then(r => r.json()),
+        fetch('/api/fleet/ota/latest').then(r => r.json()),
+      ])
+      document.getElementById('meta').textContent =
+        (ota.release ? `OTA ${ota.release.version_name} (${ota.release.version_code})` : 'sin OTA') +
+        ` · ${dev.devices.length} units`
+      const tb = document.getElementById('rows')
+      tb.innerHTML = ''
+      for (const d of dev.devices) {
+        const tr = document.createElement('tr')
+        const seen = d.last_seen_at ? new Date(d.last_seen_at * 1000).toLocaleString() : '—'
+        const id = d.device_id
+        const vs = d.vehicle_signals || {}
+        const sigBits = []
+        if (vs.gear) sigBits.push(vs.gear)
+        if (d.reverse || vs.reverse) sigBits.push('R')
+        if (vs.battery_soc_pct != null) sigBits.push(`SOC ${Math.round(vs.battery_soc_pct)}%`)
+        if (vs.abs_active) sigBits.push('ABS')
+        if (vs.mil) sigBits.push('MIL')
+        if (Array.isArray(vs.dtcs) && vs.dtcs.length) {
+          sigBits.push(vs.dtcs.map((c) => c.code || c).slice(0, 3).join(' '))
+        }
+        const pl = vs.phone_link || {}
+        if (pl.connected) sigBits.push((pl.protocol || 'phone').toUpperCase())
+        if (vs.source) sigBits.push(vs.source)
+        const sig = sigBits.length ? sigBits.join(' · ') : '—'
+        tr.innerHTML = `<td>${d.name || '—'}</td><td>${d.pair_code || '—'}</td>
+          <td>${d.driver_code ? (d.driver_code + ' · ' + (d.driver_name || '')) : '—'}</td>
+          <td>${d.app_version || '—'} (${d.version_code ?? '—'})</td>
+          <td>${seen}</td>
+          <td>${d.last_speed_mps != null ? (d.last_speed_mps*3.6).toFixed(0)+' km/h' : '—'}</td>
+          <td>${sig}</td>
+          <td class="hist"></td>
+          <td class="cmds"></td>`
+        spark(id, tr.querySelector('.hist'))
+        const cell = tr.querySelector('.cmds')
+        const mk = (label, cmd, cls, payload) => {
+          if (!me.can_dispatch) return
+          if (cmd === 'wipe' && !me.can_wipe) return
+          const b = document.createElement('button')
+          b.className = 'btn ' + (cls || '')
+          b.textContent = label
+          b.onclick = () => sendCmd(id, cmd, payload)
+          cell.appendChild(b)
+        }
+        mk('Restart', 'restart')
+        mk('Lock', 'lock')
+        mk('Kiosk', 'lock_task', 'ghost')
+        mk('Diag', 'run_diag', 'ghost')
+        mk('DBC', 'set_dbc', 'ghost', { url: location.origin + '/dbc/veplayer_demo.dbc' })
+        mk('Brand', 'set_brand', 'ghost', {
+          brand_id: 'demo',
+          name: 'Marca Demo',
+          logo_url: location.origin + '/brands/demo/logo.png',
+          accent: '#E11D48',
+        })
+        mk('FM', 'fm_tune', 'ghost', { mhz: 95.5 })
+        mk('Msg', 'message', '', { text: 'Hola desde flota' })
+        mk('OTA', 'ota', 'warn', ota.release ? { apk_url: ota.release.apk_url, silent: true, version_code: ota.release.version_code } : null)
+        mk('CAN', 'set_source', 'ghost', { source: 'can' })
+        mk('OBD', 'reboot_obd', 'ghost')
+        mk('DTC', 'read_dtc', 'ghost')
+        mk('CLR', 'clear_dtc', 'ghost')
+        mk('SeedDTC', 'seed_dtc', 'ghost', { mil: true, codes: ['P0420', 'P0301'] })
+        mk('Tiles', 'prefetch_tiles', 'ghost', { mode: 'around', radius_km: 3 })
+        mk('Nav', 'nav_dest', 'ghost', {
+          name: 'Aeropuerto Maiquetía',
+          lat: 10.6013,
+          lng: -66.9912,
+          via: [{ id: 'chacao', name: 'Chacao', lat: 10.4958, lng: -66.8756 }],
+        })
+        mk('Drv', 'set_driver', 'ghost', { code: 'D001' })
+        mk('Lim', 'set_speed_limit', 'ghost', { kmh: 50 })
+        mk('Fuel', 'set_fuel_warn', 'ghost', { pct: 15, range_km: 40 })
+        mk('Idle', 'set_idle_warn', 'ghost', { warn_sec: 120, alert_sec: 300 })
+        mk('SOS✓', 'panic_ack', 'danger')
+        mk('Svc', 'service_done', 'ghost', { kind: 'oil', odo_km: 12500 })
+        mk('Wipe', 'wipe', 'danger')
+        if (!me.can_dispatch) cell.textContent = 'viewer · read-only'
+        tb.appendChild(tr)
+      }
+      await Promise.all([loadAlerts(), loadGeofences(), loadReports(), loadHistory(), loadDrivers(), loadShifts(), loadMaint(), loadFleetMap()])
+    }
+    async function loadMaint() {
+      const j = await fetch('/api/fleet/ops/maintenance?limit=40', { headers: hdrs() }).then(r => r.json())
+      const el = document.getElementById('maint')
+      if (!el) return
+      const due = j.due || 0
+      const warn = j.warn || 0
+      const head = `<div class="muted">due ${due} · warn ${warn}</div>`
+      el.innerHTML = head + (j.items || []).slice(0, 24).map(i => {
+        const rem = i.remaining_km != null ? Math.round(i.remaining_km) + ' km' : '—'
+        return `<div class="hist-row"><b>${i.band}</b> · ${i.label || i.kind} · ${rem}
+          <span class="muted">${(i.device_id || '').slice(0,10)}…</span></div>`
+      }).join('') || '<span class="muted">Sin intervalos</span>'
+    }
+    async function loadShifts() {
+      const j = await fetch('/api/fleet/ops/shifts?limit=30', { headers: hdrs() }).then(r => r.json())
+      const el = document.getElementById('shifts')
+      if (!el) return
+      el.innerHTML = (j.shifts || []).map(s => {
+        const who = s.driver_code ? `${s.driver_code} · ${s.driver_name || ''}` : '—'
+        const dist = (s.distance_km != null ? Number(s.distance_km).toFixed(1) : '0') + ' km'
+        const eco = s.eco_score != null
+          ? ` · <span style="color:${s.eco_band==='good'?'#10b981':s.eco_band==='fair'?'#f59e0b':'#e11d48'}">eco ${Math.round(s.eco_score)}</span>`
+          : ''
+        const when = new Date(s.started_at * 1000).toLocaleString()
+        return `<div class="hist-row"><b>${s.status}</b> · ${who} · ${dist}${eco}
+          <span class="muted">${s.device_id.slice(0,10)}… · ${when}</span></div>`
+      }).join('') || '<span class="muted">Sin turnos</span>'
+    }
+    async function loadDrivers() {
+      const j = await fetch('/api/fleet/ops/drivers', { headers: hdrs() }).then(r => r.json())
+      const el = document.getElementById('drivers')
+      if (!el) return
+      el.innerHTML = (j.drivers || []).map(d =>
+        `<div>· <b>${d.code}</b> ${d.name}${d.has_pin ? ' · PIN' : ''} · dest ${d.preferred_dest || '—'} · units ${d.devices || 0}</div>`
+      ).join('') || '<span class="muted">Sin conductores</span>'
+    }
+    document.getElementById('refresh').onclick = load
+    document.getElementById('drv-assign').onclick = async () => {
+      if (!me.can_dispatch) { toast('Viewer: solo lectura'); return }
+      const code = document.getElementById('drv-code').value.trim()
+      const device_id = document.getElementById('drv-device').value.trim()
+      if (!code || !device_id) { toast('código + device_id'); return }
+      const list = await fetch('/api/fleet/ops/drivers', { headers: hdrs() }).then(r => r.json())
+      const d = (list.drivers || []).find(x => x.code.toLowerCase() === code.toLowerCase())
+      if (!d) { toast('conductor no encontrado'); return }
+      const r = await fetch('/api/fleet/ops/drivers/assign', {
+        method: 'POST', headers: hdrs(),
+        body: JSON.stringify({ device_id, driver_id: d.id }),
+      })
+      const j = await r.json()
+      toast(r.ok ? `Asignado ${d.code} → ${device_id.slice(0,10)}…` : (j.error || 'fail'))
+      load()
+    }
+    document.getElementById('drv-clear').onclick = async () => {
+      if (!me.can_dispatch) { toast('Viewer: solo lectura'); return }
+      const device_id = document.getElementById('drv-device').value.trim()
+      if (!device_id) { toast('device_id'); return }
+      const r = await fetch('/api/fleet/ops/drivers/assign', {
+        method: 'POST', headers: hdrs(),
+        body: JSON.stringify({ device_id, driver_id: null }),
+      })
+      toast(r.ok ? 'Conductor quitado' : 'fail')
+      load()
+    }
+    document.getElementById('ota-rollout').onclick = async () => {
+      if (!me.can_dispatch) { toast('Viewer: solo lectura'); return }
+      const r = await fetch('/api/fleet/ota/rollout', {
+        method: 'POST', headers: hdrs(), body: JSON.stringify({ silent: true }),
+      })
+      const j = await r.json()
+      toast(r.ok ? `OTA rollout ${j.version_name} → ${j.queued}` : (j.error || 'rollout fail'))
+      load()
+    }
+    document.getElementById('gf-add').onclick = async () => {
+      const body = {
+        name: document.getElementById('gf-name').value || 'Fence',
+        lat: Number(document.getElementById('gf-lat').value),
+        lng: Number(document.getElementById('gf-lng').value),
+        radius_m: Number(document.getElementById('gf-r').value) || 250,
+        max_kmh: (() => {
+          const v = Number(document.getElementById('gf-max').value)
+          return Number.isFinite(v) && v > 0 ? v : null
+        })(),
+      }
+      const r = await fetch('/api/fleet/geofences', {
+        method: 'POST', headers: hdrs(), body: JSON.stringify(body),
+      })
+      const j = await r.json()
+      toast(r.ok ? `Geofence #${j.id}` : (j.error || 'fail'))
+      loadGeofences()
+      loadFleetMap()
+    }
+    document.getElementById('map-fit').onclick = () => {
+      const map = ensureFleetMap()
+      if (map && lastMapBounds && lastMapBounds.isValid()) map.fitBounds(lastMapBounds.pad(0.2))
+    }
+    document.getElementById('map-trails').onchange = () => loadFleetMap()
+    document.getElementById('map-fences').onchange = () => loadFleetMap()
+    boot()
+    setInterval(() => {
+      if (document.getElementById('app').classList.contains('ready')) load()
+    }, 15000)
+  </script>
+  </div>
+</body>
+</html>

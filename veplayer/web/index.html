@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VePlayer — cockpit</title>
+  <style>
+    :root {
+      --bg: #000;
+      --panel: #111;
+      --card: #1a1a1a;
+      --mist: #f2f2f2;
+      --mute: #9a9a9a;
+      --road: #2a2a2a;
+      --lane: #5a5a5a;
+      --blue: #3e9efd;
+      --green: #18c964;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin:0; height:100%; background:var(--bg); color:var(--mist); font-family: "SF Pro Display", "Segoe UI", system-ui, sans-serif; overflow:hidden; }
+    .cockpit { display:flex; flex-direction:column; height:100%; }
+    .stage { flex:1; display:flex; min-height:0; }
+    .drive {
+      width:38%; background:#000; padding:16px 20px 12px; display:flex; flex-direction:column;
+      border-right:1px solid #1a1a1a;
+    }
+    .speed { display:flex; align-items:flex-end; gap:8px; }
+    .speed .n { font-size:64px; font-weight:300; line-height:1; }
+    .speed .u { font-size:18px; color:var(--mute); padding-bottom:10px; }
+    .limit { color:var(--mute); font-size:13px; margin:4px 0 10px; }
+    .viz {
+      flex:1; border-radius:12px; background:#0a0a0a; position:relative; overflow:hidden;
+      background-image:
+        linear-gradient(90deg, transparent 17%, var(--road) 17%, var(--road) 83%, transparent 83%);
+    }
+    .lane {
+      position:absolute; left:49%; top:0; bottom:0; width:2%;
+      background: repeating-linear-gradient(to bottom, var(--lane) 0 28px, transparent 28px 56px);
+      transform: translateX(-50%);
+    }
+    .car, .blob {
+      position:absolute; border-radius:14px;
+    }
+    .car { width:16%; height:22%; left:42%; top:72%; background:#e8e8e8; z-index:2; }
+    .actor { position:absolute; z-index:3; transform:translate(-50%,-50%); }
+    .actor.person { width:10px; height:22px; background:#ffb74d; border-radius:4px; }
+    .actor.person::after { content:''; position:absolute; top:-8px; left:0; right:0; height:10px; border-radius:50%; background:#ffcc80; }
+    .actor.moto { width:28px; height:14px; background:#80cbc4; border-radius:8px; }
+    .actor.car { width:11%; height:10%; background:#9e9e9e; border-radius:10px; min-width:36px; min-height:28px; }
+    .actor.truck { width:14%; height:14%; background:#78909c; border-radius:10px; min-width:44px; min-height:36px; }
+    .media {
+      margin-top:10px; background:var(--card); border-radius:14px; padding:14px;
+    }
+    .media .title { font-weight:600; font-size:15px; }
+    .media .artist { color:var(--mute); font-size:13px; margin-top:2px; }
+    .bar { height:3px; background:#333; border-radius:2px; margin:10px 0 6px; overflow:hidden; }
+    .bar i { display:block; height:100%; width:42%; background:var(--mist); }
+    .controls { display:flex; justify-content:center; gap:18px; font-size:22px; color:var(--mist); }
+    .mapwrap { flex:1; position:relative; background:#0b0f14; }
+    .mapwrap iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+    .nav-card, .trip-card {
+      position:absolute; z-index:2; background:rgba(17,17,17,.85); backdrop-filter:blur(8px);
+      border-radius:12px; padding:12px 14px;
+    }
+    .nav-card { top:16px; left:16px; }
+    .nav-card .m { font-size:28px; font-weight:700; }
+    .nav-card .s { color:var(--mute); font-size:14px; }
+    .trip-card { bottom:16px; left:16px; font-size:14px; }
+    .trip-card .s { color:var(--mute); font-size:12px; margin-top:2px; }
+    .dock {
+      height:72px; background:#0a0a0a; display:flex; align-items:center; justify-content:space-between;
+      padding:0 16px; border-top:1px solid #151515;
+    }
+    .dock .left, .dock .right { display:flex; align-items:center; gap:12px; min-width:120px; }
+    .dock .apps { display:flex; gap:8px; }
+    .dock button {
+      width:48px; height:48px; border:0; border-radius:14px; background:transparent; color:var(--mist);
+      font-size:20px; cursor:pointer;
+    }
+    .dock button.active { background:#222; }
+    .overlay-app {
+      display:none; position:absolute; inset:0 0 72px 0; background:#000; z-index:5; padding:16px; overflow:auto;
+    }
+    .overlay-app.show { display:block; }
+    .overlay-app h2 { margin:0 0 8px; }
+    .muted { color:var(--mute); }
+    .cam-slot {
+      flex:1; background:#151515; border-radius:12px; display:flex; align-items:center; justify-content:center;
+      color:#9a9a9a; font-size:13px; font-weight:600; min-height:80px;
+    }
+  </style>
+</head>
+<body>
+  <div class="cockpit">
+    <div class="stage" id="stage">
+      <section class="drive">
+        <div class="speed"><div class="n" id="spd">17</div><div class="u" id="spd-u">km/h</div></div>
+        <div class="sig muted" id="sig" style="font-size:12px;margin:2px 0 6px">src mock · gear D · SOC —</div>
+        <div class="limit">Límite 50</div>
+        <div class="viz" id="viz">
+          <div class="lane"></div>
+          <div class="car"></div>
+        </div>
+        <div class="media">
+          <div class="title" id="media-title">Sin reproducción</div>
+          <div class="artist" id="media-artist">VePlayer · MEDIA</div>
+          <div class="bar"><i id="media-bar"></i></div>
+          <div class="controls">
+            <span id="btn-prev" style="cursor:pointer">⏮</span>
+            <span id="btn-play" style="cursor:pointer">▶</span>
+            <span id="btn-next" style="cursor:pointer">⏭</span>
+          </div>
+        </div>
+      </section>
+      <section class="mapwrap">
+        <iframe src="http://127.0.0.1:4100/" title="map"></iframe>
+        <div class="nav-card"><div class="m" id="nav-m">—</div><div class="s" id="nav-s">Calculando ruta…</div></div>
+        <div class="trip-card"><div id="trip-m">—</div><div class="s" id="trip-s">Destino · SenseFlow</div></div>
+      </section>
+    </div>
+
+    <div id="app-cameras" class="overlay-app">
+      <h2>Cámaras 360</h2>
+      <p class="muted">Simple · Dual · bird’s-eye con overlay surround</p>
+      <div id="cam360" style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:8px;height:70%;margin-top:12px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="cam-slot">FRONT</div>
+          <div class="cam-slot">REAR</div>
+        </div>
+        <div id="birdeye" class="cam-slot" style="position:relative;background:#0a0a0a">
+          <div style="position:absolute;inset:18% 12%;border:1px dashed #333;border-radius:12px"></div>
+          <div style="position:absolute;left:42%;top:55%;width:16%;height:18%;background:#e8e8e8;border-radius:10px"></div>
+          <div style="position:absolute;left:10px;top:10px;color:#9a9a9a;font-size:12px">360 · bird’s-eye</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="cam-slot">LEFT · USB</div>
+          <div class="cam-slot">RIGHT · USB</div>
+        </div>
+      </div>
+    </div>
+    <div id="app-radio" class="overlay-app"><h2>Radio</h2><p class="muted">Streaming + audio focus</p></div>
+    <div id="app-store" class="overlay-app"><h2>Spotify / Tienda</h2><p class="muted">App Remote · Play Store</p></div>
+    <div id="app-youtube" class="overlay-app"><h2>YouTube</h2><p class="muted">Bloqueado en movimiento</p></div>
+    <div id="app-player" class="overlay-app"><h2>Pantalla</h2><p class="muted">vescreenflow</p></div>
+    <div id="app-settings" class="overlay-app"><h2>Ajustes</h2><p class="muted">PIN 1234 · flota · OTA · CAN/GPS/OBD</p></div>
+
+    <nav class="dock">
+      <div class="left"><span>🚗</span><strong>19.0°</strong></div>
+      <div class="apps">
+        <button class="active" data-go="home" title="Home">🚘</button>
+        <button data-go="map" title="Mapa">🗺️</button>
+        <button data-go="radio" title="Radio">🎵</button>
+        <button data-go="store" title="Spotify">🟢</button>
+        <button data-go="cameras" title="Cámaras">📷</button>
+        <button data-go="youtube" title="YouTube">▶️</button>
+        <button data-go="player" title="Player">📺</button>
+        <button data-go="settings" title="Ajustes">⚙️</button>
+      </div>
+      <div class="right"><span>▦</span><span>🔊</span><span style="width:10px;height:10px;border-radius:50%;background:var(--green);display:inline-block"></span></div>
+    </nav>
+  </div>
+  <script>
+    const apps = [...document.querySelectorAll('.overlay-app')]
+    const btns = [...document.querySelectorAll('.dock .apps button')]
+    function show(id) {
+      apps.forEach(a => a.classList.remove('show'))
+      btns.forEach(b => b.classList.toggle('active', b.dataset.go === id || (id==='map' && b.dataset.go==='home')))
+      if (id === 'home' || id === 'map') return
+      const el = document.getElementById('app-' + id)
+      if (el) el.classList.add('show')
+    }
+    btns.forEach(b => b.onclick = () => show(b.dataset.go))
+
+    // Demo media hub (mirrors VeMediaHub radio cycle)
+    const stations = [
+      { title: 'SomaFM Groove Salad', artist: 'Global · Ambient' },
+      { title: 'SomaFM Beat Blender', artist: 'Global · Electronic' },
+      { title: 'Radio Paradise', artist: 'Global · Eclectic' },
+    ]
+    let mediaIdx = 0, mediaPlaying = false
+    function renderMedia() {
+      const s = stations[mediaIdx]
+      document.getElementById('media-title').textContent = s.title
+      document.getElementById('media-artist').textContent = s.artist + (mediaPlaying ? ' · RADIO ▶' : ' · RADIO')
+      document.getElementById('btn-play').textContent = mediaPlaying ? '⏸' : '▶'
+      document.getElementById('media-bar').style.width = mediaPlaying ? '62%' : '12%'
+    }
+    document.getElementById('btn-play').onclick = () => { mediaPlaying = !mediaPlaying; renderMedia() }
+    document.getElementById('btn-next').onclick = () => { mediaIdx = (mediaIdx + 1) % stations.length; mediaPlaying = true; renderMedia() }
+    document.getElementById('btn-prev').onclick = () => { mediaIdx = (mediaIdx - 1 + stations.length) % stations.length; mediaPlaying = true; renderMedia() }
+    renderMedia()
+
+    // Demo CAN-ish signal ticker
+    let t = 0
+    setInterval(() => {
+      t += 0.25
+      const kmh = Math.round(35 + 17 * Math.sin(t / 8))
+      const gear = kmh < 1 ? 'P' : 'D'
+      const turn = Math.floor((t / 12) % 4)
+      const turnLabel = turn === 1 ? '◀ left' : turn === 3 ? 'right ▶' : '—'
+      const soc = Math.round(72 + 4 * Math.sin(t / 40))
+      document.getElementById('spd').textContent = String(kmh)
+      document.getElementById('spd-u').textContent = 'km/h'
+      document.getElementById('sig').textContent =
+        `src mock · gear ${gear} · turn ${turnLabel} · SOC ${soc}% · TPMS 32 · HVAC 23° AC`
+    }, 250)
+
+    // Live surround actors (SenseFlow) → left viz
+    const EGO = { lat: 10.496, lng: -66.898 }
+    async function refreshSurround() {
+      try {
+        const r = await fetch(`http://127.0.0.1:4100/api/surround?lat=${EGO.lat}&lng=${EGO.lng}&radius_m=120`)
+        const j = await r.json()
+        const viz = document.getElementById('viz')
+        ;[...viz.querySelectorAll('.actor')].forEach(n => n.remove())
+        const maxAhead = 45, maxLat = 8
+        for (const a of j.actors || []) {
+          const el = document.createElement('div')
+          const kind = a.kind === 'person' ? 'person' : a.kind === 'motorcycle' || a.kind === 'bicycle' ? 'moto' : a.kind === 'truck' || a.kind === 'bus' ? 'truck' : 'car'
+          el.className = 'actor ' + kind
+          const nx = Math.min(0.95, Math.max(0.05, a.x_m / maxLat * 0.5 + 0.5))
+          const ny = Math.min(0.92, Math.max(0.05, 1 - a.y_m / maxAhead))
+          el.style.left = (nx * 100) + '%'
+          el.style.top = (ny * 100) + '%'
+          viz.appendChild(el)
+        }
+        const n = document.getElementById('spd')
+        // keep speed display; update limit line counts via title
+        const people = (j.actors||[]).filter(a => a.kind==='person').length
+        const motos = (j.actors||[]).filter(a => a.kind==='motorcycle'||a.kind==='bicycle').length
+        const cars = (j.actors||[]).filter(a => a.kind==='car'||a.kind==='truck'||a.kind==='bus').length
+        document.querySelector('.limit').textContent = `Límite 50 · ${people} personas · ${motos} motos · ${cars} vehículos`
+      } catch (e) {}
+    }
+    refreshSurround()
+    setInterval(refreshSurround, 2000)
+
+    // Live nav (SenseFlow OSRM proxy)
+    async function refreshNav() {
+      try {
+        const url = 'http://127.0.0.1:4100/api/nav/route?from_lat=10.496&from_lng=-66.898&to_lat=10.4965&to_lng=-66.8492&dest_name=Altamira'
+        const j = await fetch(url).then(r => r.json())
+        const step = (j.steps && j.steps[0]) || {}
+        const dm = step.distance_m || j.distance_m || 0
+        document.getElementById('nav-m').textContent = dm >= 1000 ? (dm/1000).toFixed(1)+' km' : Math.round(dm)+' m'
+        document.getElementById('nav-s').textContent = step.instruction || 'Continuar'
+        const mins = Math.max(1, Math.round((j.duration_s||0)/60))
+        const eta = new Date(Date.now() + (j.duration_s||0)*1000)
+        const hh = String(eta.getHours()).padStart(2,'0')
+        const mm = String(eta.getMinutes()).padStart(2,'0')
+        const dist = j.distance_m >= 1000 ? (j.distance_m/1000).toFixed(1).replace('.',',')+' km' : Math.round(j.distance_m)+' m'
+        document.getElementById('trip-m').textContent = `${hh}:${mm} · ${mins} min · ${dist}`
+        document.getElementById('trip-s').textContent = `Destino · ${j.dest_name||'Altamira'} · ${j.source||'osrm'}`
+      } catch (e) {
+        document.getElementById('nav-s').textContent = 'Nav offline'
+      }
+    }
+    refreshNav()
+    setInterval(refreshNav, 20000)
+
+    // Populate bird-eye demo actors when cameras overlay opens
+    const origShow = show
+    show = function(id) {
+      origShow(id)
+      if (id === 'cameras') {
+        const be = document.getElementById('birdeye')
+        ;[...be.querySelectorAll('.actor')].forEach(n => n.remove())
+        fetch(`http://127.0.0.1:4100/api/surround?lat=${EGO.lat}&lng=${EGO.lng}&radius_m=120`)
+          .then(r => r.json()).then(j => {
+            for (const a of (j.actors || []).slice(0, 12)) {
+              const el = document.createElement('div')
+              el.className = 'actor ' + (a.kind === 'person' ? 'person' : a.kind === 'motorcycle' || a.kind === 'bicycle' ? 'moto' : a.kind === 'truck' || a.kind === 'bus' ? 'truck' : 'car')
+              const nx = Math.min(0.9, Math.max(0.1, a.x_m / 18 * 0.5 + 0.5))
+              const ny = Math.min(0.85, Math.max(0.1, 1 - a.y_m / 50))
+              el.style.left = (nx * 100) + '%'
+              el.style.top = (ny * 100) + '%'
+              be.appendChild(el)
+            }
+          }).catch(() => {})
+      }
+    }
+  </script>
+</body>
+</html>

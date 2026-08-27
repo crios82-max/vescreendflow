@@ -1,0 +1,44 @@
+VERSION "VePlayer demo DBC 0.14"
+
+NS_ :
+BS_:
+BU_: VePlayer ECU
+
+BO_ 256 VEH_SPEED: 8 Vector__XXX
+ SG_ Speed_Kmh : 0|8@1+ (1,0) [0|255] "km/h" Vector__XXX
+
+BO_ 257 VEH_GEAR: 8 Vector__XXX
+ SG_ Gear : 0|8@1+ (1,0) [0|4] "" Vector__XXX
+
+BO_ 258 VEH_TURN: 8 Vector__XXX
+ SG_ Turn : 0|8@1+ (1,0) [0|3] "" Vector__XXX
+
+BO_ 259 VEH_DOORS: 8 Vector__XXX
+ SG_ Doors_Mask : 0|8@1+ (1,0) [0|63] "" Vector__XXX
+
+BO_ 260 VEH_ENERGY: 8 Vector__XXX
+ SG_ SOC : 0|8@1+ (1,0) [0|100] "%" Vector__XXX
+ SG_ Fuel : 8|8@1+ (1,0) [0|100] "%" Vector__XXX
+
+BO_ 261 VEH_DYNAMICS: 8 Vector__XXX
+ SG_ Steering : 0|16@1- (0.1,0) [-1800|1800] "deg" Vector__XXX
+ SG_ RPM : 16|16@1+ (1,0) [0|8000] "rpm" Vector__XXX
+
+BO_ 262 VEH_FLAGS: 8 Vector__XXX
+ SG_ ABS : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Parking : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Seatbelt : 2|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Ignition : 8|8@1+ (1,0) [0|3] "" Vector__XXX
+
+BO_ 263 VEH_TPMS: 8 Vector__XXX
+ SG_ TPMS_FL : 0|8@1+ (1,0) [0|60] "psi" Vector__XXX
+ SG_ TPMS_FR : 8|8@1+ (1,0) [0|60] "psi" Vector__XXX
+ SG_ TPMS_RL : 16|8@1+ (1,0) [0|60] "psi" Vector__XXX
+ SG_ TPMS_RR : 24|8@1+ (1,0) [0|60] "psi" Vector__XXX
+
+BO_ 264 VEH_HVAC: 8 Vector__XXX
+ SG_ HVAC_Cabin : 0|8@1+ (1,0) [0|50] "C" Vector__XXX
+ SG_ HVAC_Target : 8|8@1+ (1,0) [0|50] "C" Vector__XXX
+ SG_ HVAC_Fan : 16|8@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ HVAC_AC : 24|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Outdoor : 32|8@1+ (1,0) [-40|60] "C" Vector__XXX
