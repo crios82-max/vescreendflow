@@ -1302,6 +1302,73 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Short-term fuel trim (OBD PID 0106)
+    const stftObj = signals.fuel_trim_stft as Record<string, unknown> | undefined
+    let stftPct: number | null =
+      typeof stftObj?.trim_pct === 'number'
+        ? (stftObj.trim_pct as number)
+        : typeof signals.fuel_trim_stft_pct === 'number'
+          ? (signals.fuel_trim_stft_pct as number)
+          : null
+    const stftSpeedKmh =
+      typeof stftObj?.speed_kmh === 'number'
+        ? (stftObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof stftPct === 'number') {
+      const warnStftPct =
+        typeof signals.stft_warn_pct === 'number'
+          ? (signals.stft_warn_pct as number)
+          : 12
+      const alertStftPct =
+        typeof signals.stft_alert_pct === 'number'
+          ? (signals.stft_alert_pct as number)
+          : 20
+      const stftMinSpd =
+        typeof signals.stft_speed_min_kmh === 'number'
+          ? (signals.stft_speed_min_kmh as number)
+          : 20
+      const stftSpdOk = typeof stftSpeedKmh === 'number' && stftSpeedKmh >= stftMinSpd
+      const absStft = Math.abs(stftPct)
+      if (
+        stftSpdOk &&
+        absStft >= alertStftPct &&
+        !recentlyAlerted(deviceId, 'stft_alert', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'stft_alert',
+          'critical',
+          `STFT crítico · ${stftPct > 0 ? '+' : ''}${Math.round(stftPct)}%`,
+          {
+            fuel_trim_stft_pct: stftPct,
+            alert_pct: alertStftPct,
+            fuel_trim_stft: stftObj ?? null,
+          },
+        )
+        raised.push('stft_alert')
+      } else if (
+        stftSpdOk &&
+        absStft >= warnStftPct &&
+        absStft < alertStftPct &&
+        !recentlyAlerted(deviceId, 'stft_warn', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'stft_warn',
+          'warn',
+          `STFT fuera de rango · ${stftPct > 0 ? '+' : ''}${Math.round(stftPct)}%`,
+          {
+            fuel_trim_stft_pct: stftPct,
+            warn_pct: warnStftPct,
+            fuel_trim_stft: stftObj ?? null,
+          },
+        )
+        raised.push('stft_warn')
+      }
+    }
+
     // High throttle / WOT
     const throttlePct =
       typeof signals.throttle_pct === 'number'

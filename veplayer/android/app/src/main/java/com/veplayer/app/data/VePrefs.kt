@@ -1066,6 +1066,36 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("engine_load_sim_speed", 40f)
         set(value) = sp.edit().putFloat("engine_load_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Short-term fuel trim (OBD 0106). */
+    var stftEnabled: Boolean
+        get() = sp.getBoolean("stft", true)
+        set(value) = sp.edit().putBoolean("stft", value).apply()
+
+    var stftTts: Boolean
+        get() = sp.getBoolean("stft_tts", true)
+        set(value) = sp.edit().putBoolean("stft_tts", value).apply()
+
+    var stftWarnPct: Float
+        get() = sp.getFloat("stft_warn_pct", 12f)
+        set(value) = sp.edit().putFloat("stft_warn_pct", value.coerceIn(5f, 40f)).apply()
+
+    var stftAlertPct: Float
+        get() = sp.getFloat("stft_alert_pct", 20f)
+        set(value) = sp.edit().putFloat("stft_alert_pct", value.coerceIn(8f, 50f)).apply()
+
+    var stftSpeedMinKmh: Float
+        get() = sp.getFloat("stft_speed_min", 20f)
+        set(value) = sp.edit().putFloat("stft_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    /** Demo STFT % (0 = live OBD). */
+    var stftSimPct: Float
+        get() = sp.getFloat("stft_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("stft_sim_pct", value.coerceIn(-50f, 50f)).apply()
+
+    var stftSimSpeedKmh: Float
+        get() = sp.getFloat("stft_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("stft_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** High throttle / WOT (OBD 0111). */
     var throttleEnabled: Boolean
         get() = sp.getBoolean("high_throttle", true)

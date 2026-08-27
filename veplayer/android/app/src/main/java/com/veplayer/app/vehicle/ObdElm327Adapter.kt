@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
  * 2. On failure / no MAC → PID simulator (`obd_sim`) so UI/fleet keep working
  * 3. DTC: live Modes 03/07/0A (+0101 MIL) every ~8s · sim seeds demo codes when enabled
  *
- * PIDs: 010D speed · 010C RPM · 0104 load · 0105 coolant · 010F intake · 015C oil · 012F fuel · 015E fuel rate · 0146 ambient · 0111 throttle · 011F runtime · 0121 MIL dist · 0131 clear dist · 0142 voltage
+ * PIDs: 010D speed · 010C RPM · 0104 load · 0106 STFT · 0105 coolant · 010F intake · 015C oil · 012F fuel · 015E fuel rate · 0146 ambient · 0111 throttle · 011F runtime · 0121 MIL dist · 0131 clear dist · 0142 voltage
  */
 class ObdElm327Adapter(
     context: Context,
@@ -184,6 +184,7 @@ class ObdElm327Adapter(
                 hvacFanLevel = prev.hvacFanLevel,
                 throttlePct = p.throttlePct ?: prev.throttlePct,
                 engineLoadPct = p.engineLoadPct ?: prev.engineLoadPct,
+                fuelTrimStftPct = p.fuelTrimStftPct ?: prev.fuelTrimStftPct,
                 runtimeSec = p.runtimeSec ?: prev.runtimeSec,
                 milDistanceKm = p.milDistanceKm ?: prev.milDistanceKm,
                 distSinceClearKm = p.distSinceClearKm ?: prev.distSinceClearKm,
@@ -245,6 +246,7 @@ class ObdElm327Adapter(
                 hvacFanLevel = 2,
                 throttlePct = (kmh / 90f * 100f).coerceIn(0f, 100f),
                 engineLoadPct = (kmh / 90f * 85f).coerceIn(0f, 100f),
+                fuelTrimStftPct = (sin(t / 18.0).toFloat() * 8f + (kmh / 90f * 6f)).coerceIn(-25f, 25f),
                 runtimeSec = t.toInt().coerceAtLeast(0),
                 milDistanceKm = milKm,
                 distSinceClearKm = clearKm,

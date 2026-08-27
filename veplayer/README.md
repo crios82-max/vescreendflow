@@ -953,6 +953,18 @@ Km desde limpiar códigos (**OBD PID 0131**) con falla activa:
 npm run veplayer:dist-since-clear-smoke
 ```
 
+## Fuel trim STFT (v0.75 · Fase 14)
+
+Corrección corto plazo (**OBD PID 0106**), signed %:
+
+- Warn **±12%** / alert **±20%** (en movimiento ≥20 km/h)
+- DriveViz `STFT · ±XX%` · TTS + inbox
+- Flota `stft_warn` / `stft_alert` · sim % en Ajustes (motor)
+
+```bash
+npm run veplayer:fuel-trim-stft-smoke
+```
+
 **Fase 14 (en curso):** dist since clear · fuel trim STFT · fuel trim LTFT · MAP · catalyst temp.
 
 ## Device Owner (kiosk duro · v0.12)

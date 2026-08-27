@@ -16,6 +16,8 @@ object ObdPidParser {
         val outdoorTempC: Float? = null,
         val throttlePct: Float? = null,
         val engineLoadPct: Float? = null,
+        /** Short-term fuel trim % (OBD PID 0106), signed. */
+        val fuelTrimStftPct: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -71,6 +73,11 @@ object ObdPidParser {
             0x46 -> PidValues(outdoorTempC = (data.getOrNull(0)?.minus(40))?.toFloat())
             0x11 -> PidValues(throttlePct = data.getOrNull(0)?.let { it * 100f / 255f })
             0x04 -> PidValues(engineLoadPct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x06 ->
+                PidValues(
+                    fuelTrimStftPct =
+                        data.getOrNull(0)?.let { (it - 128) * 100f / 128f },
+                )
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -103,6 +110,7 @@ object ObdPidParser {
             outdoorTempC = add.outdoorTempC ?: base.outdoorTempC,
             throttlePct = add.throttlePct ?: base.throttlePct,
             engineLoadPct = add.engineLoadPct ?: base.engineLoadPct,
+            fuelTrimStftPct = add.fuelTrimStftPct ?: base.fuelTrimStftPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,
