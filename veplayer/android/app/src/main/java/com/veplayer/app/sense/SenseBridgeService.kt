@@ -171,6 +171,17 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.OilTemp.toJsonMap(
                                             com.veplayer.app.vehicle.OilTempMonitor.state.value,
                                         ),
+                                    "intake_air_warn_c" to prefs.intakeAirWarnC.toDouble(),
+                                    "intake_air_alert_c" to prefs.intakeAirAlertC.toDouble(),
+                                    "intake_air_c" to
+                                        (if (prefs.intakeAirSimC > 0f) prefs.intakeAirSimC
+                                        else com.veplayer.app.vehicle.IntakeAirMonitor.state.value.intakeAirC
+                                            ?: snap.intakeAirC
+                                        )?.toDouble(),
+                                    "intake_air" to
+                                        com.veplayer.app.vehicle.IntakeAir.toJsonMap(
+                                            com.veplayer.app.vehicle.IntakeAirMonitor.state.value,
+                                        ),
                                     "rpm_warn" to prefs.rpmWarn.toDouble(),
                                     "rpm_alert" to prefs.rpmAlert.toDouble(),
                                     "rpm" to
@@ -422,6 +433,17 @@ class SenseBridgeService : Service() {
                                     "oil_temp" to
                                         com.veplayer.app.vehicle.OilTemp.toJsonMap(
                                             com.veplayer.app.vehicle.OilTempMonitor.state.value,
+                                        ),
+                                    "intake_air_warn_c" to prefs.intakeAirWarnC.toDouble(),
+                                    "intake_air_alert_c" to prefs.intakeAirAlertC.toDouble(),
+                                    "intake_air_c" to
+                                        (if (prefs.intakeAirSimC > 0f) prefs.intakeAirSimC
+                                        else com.veplayer.app.vehicle.IntakeAirMonitor.state.value.intakeAirC
+                                            ?: snap.intakeAirC
+                                        )?.toDouble(),
+                                    "intake_air" to
+                                        com.veplayer.app.vehicle.IntakeAir.toJsonMap(
+                                            com.veplayer.app.vehicle.IntakeAirMonitor.state.value,
                                         ),
                                     "rpm_warn" to prefs.rpmWarn.toDouble(),
                                     "rpm_alert" to prefs.rpmAlert.toDouble(),

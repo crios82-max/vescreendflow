@@ -982,6 +982,56 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Intake air temperature (OBD PID 010F)
+    const intakeObj = signals.intake_air as Record<string, unknown> | undefined
+    const intakeAirC =
+      typeof intakeObj?.intake_air_c === 'number'
+        ? (intakeObj.intake_air_c as number)
+        : typeof signals.intake_air_c === 'number'
+          ? (signals.intake_air_c as number)
+          : null
+    if (typeof intakeAirC === 'number') {
+      const iatWarnC =
+        typeof signals.intake_air_warn_c === 'number'
+          ? (signals.intake_air_warn_c as number)
+          : 50
+      const iatAlertC =
+        typeof signals.intake_air_alert_c === 'number'
+          ? (signals.intake_air_alert_c as number)
+          : 60
+      if (intakeAirC >= iatAlertC && !recentlyAlerted(deviceId, 'intake_alert', 300)) {
+        insertAlert(
+          deviceId,
+          'intake_alert',
+          'critical',
+          `Admisión crítica · ${Math.round(intakeAirC)} °C`,
+          {
+            intake_air_c: intakeAirC,
+            alert_c: iatAlertC,
+            intake_air: intakeObj ?? null,
+          },
+        )
+        raised.push('intake_alert')
+      } else if (
+        intakeAirC >= iatWarnC &&
+        intakeAirC < iatAlertC &&
+        !recentlyAlerted(deviceId, 'intake_warn', 300)
+      ) {
+        insertAlert(
+          deviceId,
+          'intake_warn',
+          'warn',
+          `Admisión caliente · ${Math.round(intakeAirC)} °C`,
+          {
+            intake_air_c: intakeAirC,
+            warn_c: iatWarnC,
+            intake_air: intakeObj ?? null,
+          },
+        )
+        raised.push('intake_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
