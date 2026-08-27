@@ -68,6 +68,7 @@ import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.IdleAlert
 import com.veplayer.app.vehicle.IdleMonitor
 import com.veplayer.app.vehicle.DtcMonitor
+import com.veplayer.app.vehicle.DoorAjarMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.MaintenanceMonitor
 import com.veplayer.app.vehicle.SpeedHud
@@ -94,6 +95,7 @@ fun DriveVizPanel(
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val parking by ParkingDistanceMonitor.state.collectAsState()
+    val doorAjar by DoorAjarMonitor.state.collectAsState()
     val panic by PanicBus.state.collectAsState()
     var holdProgress by remember { mutableFloatStateOf(0f) }
     var holdJob by remember { mutableStateOf<Job?>(null) }
@@ -106,6 +108,7 @@ fun DriveVizPanel(
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             ParkingDistanceMonitor.tick(prefs, snap.reverse)
+            DoorAjarMonitor.tick(prefs, snap)
             delay(500)
         }
     }
@@ -211,6 +214,13 @@ fun DriveVizPanel(
                     Text(
                         "PDC · ${parking.label}",
                         color = Color(com.veplayer.app.vehicle.ParkingDistance.accentArgb(parking.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (doorAjar.label.isNotBlank()) {
+                    Text(
+                        "Puerta · ${doorAjar.label}",
+                        color = Color(com.veplayer.app.vehicle.DoorAjar.accentArgb(doorAjar.band)),
                         fontSize = 11.sp,
                     )
                 }

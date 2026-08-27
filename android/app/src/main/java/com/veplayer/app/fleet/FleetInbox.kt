@@ -151,6 +151,9 @@ object FleetInbox {
             kind == "mil_on" || kind == "mil" -> "Atención. Luz de motor encendida."
             kind == "parking_crit" || kind == "parking_near" || kind.startsWith("parking_") ->
                 "Atención. Estacionamiento. $body."
+            kind == "door_moving" -> "Atención. Puerta abierta en movimiento. $body."
+            kind == "door_ajar" || kind.startsWith("door_") ->
+                "Cuidado. Puerta abierta. $body."
             kind.startsWith("dtc:") || kind == "dtc" ->
                 "Atención. Código de falla. $body."
             kind == "soc_low" -> "Atención. Batería baja. $body."
