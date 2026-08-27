@@ -157,6 +157,9 @@ object FleetInbox {
             kind == "shift_fatigue" -> "Atención. Turno prolongado. $body."
             kind == "shift_warn" || kind.startsWith("shift_") ->
                 "Cuidado. Duración de turno. $body."
+            kind == "cabin_overtemp" -> "Atención. Temperatura de cabina crítica. $body."
+            kind == "cabin_warn" || kind.startsWith("cabin_") ->
+                "Cuidado. Cabina caliente. $body."
             kind.startsWith("dtc:") || kind == "dtc" ->
                 "Atención. Código de falla. $body."
             kind == "soc_low" -> "Atención. Batería baja. $body."

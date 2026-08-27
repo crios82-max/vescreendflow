@@ -503,6 +503,21 @@ npm run veplayer:hvac-climate-smoke
 
 **Fase 7 (siguiente):** cabin overtemp · SOS dashcam.
 
+## Cabin overtemp (v0.42 · Fase 7)
+
+Aviso de cabina caliente / crítica:
+
+- Umbrales default **32 °C warn** / **38 °C alert**
+- DriveViz chip `Cabina · 34°C` · TTS + inbox
+- Flota `cabin_warn` / `cabin_overtemp`
+- Sim °C en Ajustes (junto a panel HVAC)
+
+```bash
+npm run veplayer:cabin-overtemp-smoke
+```
+
+**Fase 7 (siguiente):** SOS dashcam clip.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

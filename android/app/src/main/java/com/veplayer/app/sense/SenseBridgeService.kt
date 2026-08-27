@@ -100,6 +100,8 @@ class SenseBridgeService : Service() {
                                             "shift_duration_sec" to
                                                 com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.durationSec.toDouble(),
                                             "shift_band" to com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.band,
+                                    "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
+                                    "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                             "speed_limit_kmh" to
                                                 com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
                                             "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),
@@ -171,6 +173,8 @@ class SenseBridgeService : Service() {
                                     "shift_duration_sec" to
                                         com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.durationSec.toDouble(),
                                     "shift_band" to com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.band,
+                                    "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
+                                    "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                     "speed_limit_kmh" to
                                         com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
                                     "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),

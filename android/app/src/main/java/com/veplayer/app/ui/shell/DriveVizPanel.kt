@@ -68,6 +68,7 @@ import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.IdleAlert
 import com.veplayer.app.vehicle.IdleMonitor
 import com.veplayer.app.vehicle.DtcMonitor
+import com.veplayer.app.vehicle.CabinOvertempMonitor
 import com.veplayer.app.vehicle.DoorAjarMonitor
 import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
@@ -100,6 +101,7 @@ fun DriveVizPanel(
     val doorAjar by DoorAjarMonitor.state.collectAsState()
     val fatigue by ShiftFatigueMonitor.state.collectAsState()
     val hvac by HvacClimateMonitor.state.collectAsState()
+    val cabinHot by CabinOvertempMonitor.state.collectAsState()
     val panic by PanicBus.state.collectAsState()
     var holdProgress by remember { mutableFloatStateOf(0f) }
     var holdJob by remember { mutableStateOf<Job?>(null) }
@@ -115,6 +117,7 @@ fun DriveVizPanel(
             DoorAjarMonitor.tick(prefs, snap)
             ShiftFatigueMonitor.tick(prefs)
             HvacClimateMonitor.tick(prefs, snap)
+            CabinOvertempMonitor.tick(prefs, snap)
             delay(500)
         }
     }
@@ -238,6 +241,13 @@ fun DriveVizPanel(
                     Text(
                         "Puerta · ${doorAjar.label}",
                         color = Color(com.veplayer.app.vehicle.DoorAjar.accentArgb(doorAjar.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (cabinHot.showWarn) {
+                    Text(
+                        "Cabina · ${cabinHot.label}",
+                        color = Color(com.veplayer.app.vehicle.CabinOvertemp.accentArgb(cabinHot.band)),
                         fontSize = 11.sp,
                     )
                 }
