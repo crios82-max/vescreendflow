@@ -896,6 +896,28 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("coolant_sim_c", 0f)
         set(value) = sp.edit().putFloat("coolant_sim_c", value.coerceIn(0f, 140f)).apply()
 
+    /** Engine oil temperature (OBD 015C). */
+    var oilTempEnabled: Boolean
+        get() = sp.getBoolean("oil_temp", true)
+        set(value) = sp.edit().putBoolean("oil_temp", value).apply()
+
+    var oilTempTts: Boolean
+        get() = sp.getBoolean("oil_temp_tts", true)
+        set(value) = sp.edit().putBoolean("oil_temp_tts", value).apply()
+
+    var oilTempWarnC: Float
+        get() = sp.getFloat("oil_temp_warn_c", 120f)
+        set(value) = sp.edit().putFloat("oil_temp_warn_c", value.coerceIn(90f, 140f)).apply()
+
+    var oilTempAlertC: Float
+        get() = sp.getFloat("oil_temp_alert_c", 130f)
+        set(value) = sp.edit().putFloat("oil_temp_alert_c", value.coerceIn(100f, 160f)).apply()
+
+    /** Demo: force oil °C (0 = live). */
+    var oilTempSimC: Float
+        get() = sp.getFloat("oil_temp_sim_c", 0f)
+        set(value) = sp.edit().putFloat("oil_temp_sim_c", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

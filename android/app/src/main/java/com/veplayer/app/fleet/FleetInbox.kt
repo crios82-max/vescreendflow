@@ -212,6 +212,9 @@ object FleetInbox {
             kind == "coolant_overheat" -> "Atención. Temperatura del motor crítica. $body."
             kind == "coolant_warn" || kind.startsWith("coolant_") ->
                 "Cuidado. Motor caliente. $body."
+            kind == "oil_alert" -> "Atención. Aceite del motor crítico. $body."
+            kind == "oil_warn" || kind.startsWith("oil_") ->
+                "Cuidado. Aceite caliente. $body."
             kind == "rpm_alert" -> "Atención. Régimen del motor crítico. $body."
             kind == "rpm_warn" || kind.startsWith("rpm_") ->
                 "Cuidado. Revoluciones altas. $body."

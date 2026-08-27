@@ -9,6 +9,7 @@ object ObdPidParser {
         val speedKmh: Float? = null,
         val rpm: Float? = null,
         val coolantC: Float? = null,
+        val oilTempC: Float? = null,
         val fuelPct: Float? = null,
         val outdoorTempC: Float? = null,
         val throttlePct: Float? = null,
@@ -56,6 +57,7 @@ object ObdPidParser {
                 else PidValues(rpm = ((data[0] * 256) + data[1]) / 4f)
             }
             0x05 -> PidValues(coolantC = (data.getOrNull(0)?.minus(40))?.toFloat())
+            0x5C -> PidValues(oilTempC = (data.getOrNull(0)?.minus(40))?.toFloat())
             0x2F -> PidValues(fuelPct = data.getOrNull(0)?.let { it * 100f / 255f })
             0x46 -> PidValues(outdoorTempC = (data.getOrNull(0)?.minus(40))?.toFloat())
             0x11 -> PidValues(throttlePct = data.getOrNull(0)?.let { it * 100f / 255f })
@@ -77,6 +79,7 @@ object ObdPidParser {
             speedKmh = add.speedKmh ?: base.speedKmh,
             rpm = add.rpm ?: base.rpm,
             coolantC = add.coolantC ?: base.coolantC,
+            oilTempC = add.oilTempC ?: base.oilTempC,
             fuelPct = add.fuelPct ?: base.fuelPct,
             outdoorTempC = add.outdoorTempC ?: base.outdoorTempC,
             throttlePct = add.throttlePct ?: base.throttlePct,
