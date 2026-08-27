@@ -691,6 +691,96 @@ fun SettingsScreen() {
             }
         }
 
+        PanelBlock("Fuel / Range HUD") {
+            var fuelOn by remember { mutableStateOf(prefs.fuelHudEnabled) }
+            var warnPct by remember { mutableStateOf(prefs.fuelWarnPct) }
+            var critPct by remember { mutableStateOf(prefs.fuelCriticalPct) }
+            var fuelTts by remember { mutableStateOf(prefs.fuelTtsWarn) }
+            val liveFuel = live.fuelPct
+            val liveSoc = live.batterySocPct
+            val liveRange = live.rangeKm
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("HUD energía", color = Mist)
+                Switch(
+                    checked = fuelOn,
+                    onCheckedChange = {
+                        fuelOn = it
+                        prefs.fuelHudEnabled = it
+                    },
+                )
+            }
+            Text("Aviso ${warnPct.toInt()}% · crítico ${critPct.toInt()}%", color = Mute)
+            Slider(
+                value = warnPct,
+                onValueChange = {
+                    warnPct = it
+                    prefs.fuelWarnPct = it
+                    if (critPct > it) {
+                        critPct = it
+                        prefs.fuelCriticalPct = it
+                    }
+                },
+                valueRange = 5f..40f,
+                steps = 6,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Slider(
+                value = critPct,
+                onValueChange = {
+                    critPct = it.coerceAtMost(warnPct)
+                    prefs.fuelCriticalPct = critPct
+                },
+                valueRange = 2f..25f,
+                steps = 10,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS bajo", color = Mist)
+                Switch(
+                    checked = fuelTts,
+                    onCheckedChange = {
+                        fuelTts = it
+                        prefs.fuelTtsWarn = it
+                    },
+                )
+            }
+            Text(
+                buildString {
+                    liveFuel?.let { append("Fuel ${it.toInt()}% · ") }
+                    liveSoc?.let { append("SOC ${it.toInt()}% · ") }
+                    append("rango ${liveRange?.toInt() ?: "—"} km")
+                },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            OutlinedButton(
+                onClick = {
+                    val st =
+                        com.veplayer.app.vehicle.FuelRangeHud.evaluate(
+                            liveFuel,
+                            liveSoc,
+                            liveRange,
+                            prefs.fuelWarnPct,
+                            prefs.fuelCriticalPct,
+                            prefs.rangeWarnKm,
+                            prefs.rangeCriticalKm,
+                        )
+                    com.veplayer.app.nav.NavTts.speakNow(
+                        com.veplayer.app.vehicle.FuelRangeHud.voicePhrase(st),
+                    )
+                    status = "TTS energía"
+                },
+            ) { Text("Probar voz energía") }
+        }
+
         PanelBlock("Mantenimiento odómetro") {
             var maintOn by remember { mutableStateOf(prefs.maintenanceEnabled) }
             var maintTts by remember { mutableStateOf(prefs.maintenanceTts) }

@@ -42,6 +42,33 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("speed_tts_warn", true)
         set(value) = sp.edit().putBoolean("speed_tts_warn", value).apply()
 
+    /** Fuel / SOC / range HUD. */
+    var fuelHudEnabled: Boolean
+        get() = sp.getBoolean("fuel_hud", true)
+        set(value) = sp.edit().putBoolean("fuel_hud", value).apply()
+
+    /** Near band threshold (%). */
+    var fuelWarnPct: Float
+        get() = sp.getFloat("fuel_warn_pct", 20f)
+        set(value) = sp.edit().putFloat("fuel_warn_pct", value.coerceIn(5f, 50f)).apply()
+
+    /** Low / critical band (%). */
+    var fuelCriticalPct: Float
+        get() = sp.getFloat("fuel_crit_pct", 10f)
+        set(value) = sp.edit().putFloat("fuel_crit_pct", value.coerceIn(2f, 30f)).apply()
+
+    var rangeWarnKm: Float
+        get() = sp.getFloat("range_warn_km", 40f)
+        set(value) = sp.edit().putFloat("range_warn_km", value.coerceIn(5f, 200f)).apply()
+
+    var rangeCriticalKm: Float
+        get() = sp.getFloat("range_crit_km", 20f)
+        set(value) = sp.edit().putFloat("range_crit_km", value.coerceIn(2f, 100f)).apply()
+
+    var fuelTtsWarn: Boolean
+        get() = sp.getBoolean("fuel_tts_warn", true)
+        set(value) = sp.edit().putBoolean("fuel_tts_warn", value).apply()
+
     var mockReverse: Boolean
         get() = sp.getBoolean("mock_reverse", false)
         set(value) = sp.edit().putBoolean("mock_reverse", value).apply()

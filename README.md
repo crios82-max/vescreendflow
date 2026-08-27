@@ -298,6 +298,21 @@ npm run veplayer:crowd-map-smoke
 
 **Fase 4 (siguiente):** mantenimiento odómetro.
 
+## Fuel / Range HUD (v0.29 · Fase 5)
+
+Energía del vehículo (fuel o SOC) + autonomía:
+
+- Bandas ok / near / low · DriveViz coloreado · TTS crítico sostenido
+- Prefs `fuel_warn_pct` / `fuel_crit_pct` / `range_warn_km` · Ajustes
+- SenseFlow: alertas `fuel_low` · `range_low` (además de `soc_low`)
+- Cmd flota `set_fuel_warn` `{ "pct": 15, "range_km": 40 }`
+
+```bash
+npm run veplayer:fuel-hud-smoke
+```
+
+**Fase 5 (siguiente):** idle alert · panic/SOS · mapa live flota · waypoints.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
