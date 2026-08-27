@@ -918,6 +918,36 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("rpm_sim", 0f)
         set(value) = sp.edit().putFloat("rpm_sim", value.coerceIn(0f, 8000f)).apply()
 
+    /** Calculated engine load (OBD 0104). */
+    var engineLoadEnabled: Boolean
+        get() = sp.getBoolean("engine_load", true)
+        set(value) = sp.edit().putBoolean("engine_load", value).apply()
+
+    var engineLoadTts: Boolean
+        get() = sp.getBoolean("engine_load_tts", true)
+        set(value) = sp.edit().putBoolean("engine_load_tts", value).apply()
+
+    var engineLoadWarnPct: Float
+        get() = sp.getFloat("engine_load_warn_pct", 80f)
+        set(value) = sp.edit().putFloat("engine_load_warn_pct", value.coerceIn(50f, 98f)).apply()
+
+    var engineLoadAlertPct: Float
+        get() = sp.getFloat("engine_load_alert_pct", 92f)
+        set(value) = sp.edit().putFloat("engine_load_alert_pct", value.coerceIn(55f, 100f)).apply()
+
+    var engineLoadSpeedMinKmh: Float
+        get() = sp.getFloat("engine_load_speed_min", 20f)
+        set(value) = sp.edit().putFloat("engine_load_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    /** Demo load % (0 = live). */
+    var engineLoadSimPct: Float
+        get() = sp.getFloat("engine_load_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("engine_load_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    var engineLoadSimSpeedKmh: Float
+        get() = sp.getFloat("engine_load_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("engine_load_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** High throttle / WOT (OBD 0111). */
     var throttleEnabled: Boolean
         get() = sp.getBoolean("high_throttle", true)

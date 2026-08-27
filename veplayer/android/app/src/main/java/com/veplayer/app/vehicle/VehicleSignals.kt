@@ -83,8 +83,9 @@ data class VehicleSignals(
     val hvacTargetC: Float? = null,
     val hvacAcOn: Boolean = false,
     val hvacFanLevel: Int = 0,
-    val throttlePct: Float? = null,
-    /** Run time since engine start (OBD PID 011F), seconds. */
+        val throttlePct: Float? = null,
+        val engineLoadPct: Float? = null,
+        /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** MIL (check engine) from OBD PID 0101. */
     val mil: Boolean = false,
@@ -156,6 +157,7 @@ data class VehicleSignals(
                     "fan" to hvacFanLevel,
                 ),
             "throttle_pct" to throttlePct?.toDouble(),
+            "engine_load_pct" to engineLoadPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil" to mil,
             "dtc_count" to dtcCount,

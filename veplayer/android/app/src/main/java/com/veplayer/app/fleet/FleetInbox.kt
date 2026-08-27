@@ -215,6 +215,9 @@ object FleetInbox {
             kind == "rpm_alert" -> "Atención. Régimen del motor crítico. $body."
             kind == "rpm_warn" || kind.startsWith("rpm_") ->
                 "Cuidado. Revoluciones altas. $body."
+            kind == "load_alert" -> "Atención. Carga del motor crítica. $body."
+            kind == "load_warn" || kind.startsWith("load_") ->
+                "Cuidado. Carga del motor alta. $body."
             kind == "throttle_alert" -> "Atención. Aceleración máxima. $body."
             kind == "throttle_warn" || kind.startsWith("throttle_") ->
                 "Cuidado. Acelerador muy abierto. $body."

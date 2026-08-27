@@ -871,6 +871,20 @@ npm run veplayer:engine-runtime-smoke
 
 **Fase 12 (completa):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
 
+## Engine load (v0.69 · Fase 13)
+
+Carga calculada del motor (**OBD PID 0104**):
+
+- Warn **≥80%** / alert **≥92%** en movimiento (≥20 km/h)
+- DriveViz `Carga · XX%` · TTS + inbox
+- Flota `load_warn` / `load_alert` · sim % en Ajustes (Clima HVAC)
+
+```bash
+npm run veplayer:engine-load-smoke
+```
+
+**Fase 13 (en curso):** engine load · oil temp · intake air · fuel rate · MIL distance.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

@@ -970,6 +970,72 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Calculated engine load (OBD PID 0104)
+    const engLoad = signals.engine_load as Record<string, unknown> | undefined
+    let loadPct: number | null =
+      typeof engLoad?.load_pct === 'number'
+        ? (engLoad.load_pct as number)
+        : typeof signals.engine_load_pct === 'number'
+          ? (signals.engine_load_pct as number)
+          : null
+    const loadSpeedKmh =
+      typeof engLoad?.speed_kmh === 'number'
+        ? (engLoad.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof loadPct === 'number') {
+      const warnLoadPct =
+        typeof signals.engine_load_warn_pct === 'number'
+          ? (signals.engine_load_warn_pct as number)
+          : 80
+      const alertLoadPct =
+        typeof signals.engine_load_alert_pct === 'number'
+          ? (signals.engine_load_alert_pct as number)
+          : 92
+      const loadMinSpd =
+        typeof signals.engine_load_speed_min_kmh === 'number'
+          ? (signals.engine_load_speed_min_kmh as number)
+          : 20
+      const loadSpdOk = typeof loadSpeedKmh === 'number' && loadSpeedKmh >= loadMinSpd
+      if (
+        loadSpdOk &&
+        loadPct >= alertLoadPct &&
+        !recentlyAlerted(deviceId, 'load_alert', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'load_alert',
+          'critical',
+          `Carga motor crítica · ${Math.round(loadPct)}%`,
+          {
+            engine_load_pct: loadPct,
+            alert_pct: alertLoadPct,
+            engine_load: engLoad ?? null,
+          },
+        )
+        raised.push('load_alert')
+      } else if (
+        loadSpdOk &&
+        loadPct >= warnLoadPct &&
+        loadPct < alertLoadPct &&
+        !recentlyAlerted(deviceId, 'load_warn', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'load_warn',
+          'warn',
+          `Carga motor alta · ${Math.round(loadPct)}%`,
+          {
+            engine_load_pct: loadPct,
+            warn_pct: warnLoadPct,
+            engine_load: engLoad ?? null,
+          },
+        )
+        raised.push('load_warn')
+      }
+    }
+
     // High throttle / WOT
     const throttlePct =
       typeof signals.throttle_pct === 'number'

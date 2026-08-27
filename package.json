@@ -53,6 +53,7 @@
     "veplayer:gear-roll-smoke": "node veplayer/scripts/gear-roll-smoke.mjs",
     "veplayer:eco-live-smoke": "node veplayer/scripts/eco-live-smoke.mjs",
     "veplayer:engine-runtime-smoke": "node veplayer/scripts/engine-runtime-smoke.mjs",
+    "veplayer:engine-load-smoke": "node veplayer/scripts/engine-load-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",
