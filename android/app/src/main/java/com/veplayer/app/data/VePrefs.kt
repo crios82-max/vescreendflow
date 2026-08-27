@@ -1096,6 +1096,36 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("stft_sim_speed", 40f)
         set(value) = sp.edit().putFloat("stft_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Long-term fuel trim (OBD 0107). */
+    var ltftEnabled: Boolean
+        get() = sp.getBoolean("ltft", true)
+        set(value) = sp.edit().putBoolean("ltft", value).apply()
+
+    var ltftTts: Boolean
+        get() = sp.getBoolean("ltft_tts", true)
+        set(value) = sp.edit().putBoolean("ltft_tts", value).apply()
+
+    var ltftWarnPct: Float
+        get() = sp.getFloat("ltft_warn_pct", 12f)
+        set(value) = sp.edit().putFloat("ltft_warn_pct", value.coerceIn(5f, 40f)).apply()
+
+    var ltftAlertPct: Float
+        get() = sp.getFloat("ltft_alert_pct", 20f)
+        set(value) = sp.edit().putFloat("ltft_alert_pct", value.coerceIn(8f, 50f)).apply()
+
+    var ltftSpeedMinKmh: Float
+        get() = sp.getFloat("ltft_speed_min", 20f)
+        set(value) = sp.edit().putFloat("ltft_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    /** Demo LTFT % (0 = live OBD). */
+    var ltftSimPct: Float
+        get() = sp.getFloat("ltft_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("ltft_sim_pct", value.coerceIn(-50f, 50f)).apply()
+
+    var ltftSimSpeedKmh: Float
+        get() = sp.getFloat("ltft_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("ltft_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** High throttle / WOT (OBD 0111). */
     var throttleEnabled: Boolean
         get() = sp.getBoolean("high_throttle", true)

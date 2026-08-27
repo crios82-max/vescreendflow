@@ -117,6 +117,7 @@ class MockCanAdapter(
             throttlePct = (kmh / 90f * 80f).coerceIn(0f, 100f),
             engineLoadPct = (kmh / 90f * 75f).coerceIn(0f, 100f),
             fuelTrimStftPct = (sin(t / 18.0).toFloat() * 6f).coerceIn(-25f, 25f),
+            fuelTrimLtftPct = (sin(t / 22.0).toFloat() * 5f).coerceIn(-25f, 25f),
             runtimeSec = t.toInt().coerceAtLeast(0),
             source = sourceTag,
             updatedAtMs = System.currentTimeMillis(),
