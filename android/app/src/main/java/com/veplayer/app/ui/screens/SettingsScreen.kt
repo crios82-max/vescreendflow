@@ -3482,6 +3482,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 18 OBD (014C/5A/61/62/70):", color = Mist)
+            val egrCmdSt by com.veplayer.app.vehicle.CommandedEgrMonitor.state.collectAsState()
+            val relApedSt by com.veplayer.app.vehicle.RelAccelPedalMonitor.state.collectAsState()
+            val drvTorqueSt by com.veplayer.app.vehicle.DriverTorqueMonitor.state.collectAsState()
+            val actTorqueSt by com.veplayer.app.vehicle.ActualTorqueMonitor.state.collectAsState()
+            val catB2St by com.veplayer.app.vehicle.CatalystB2Monitor.state.collectAsState()
+            var f18EgrCmd by remember {
+                mutableStateOf(if (prefs.egrCmdSimPct > 0f) prefs.egrCmdSimPct.toInt().toString() else "0")
+            }
+            var f18RelAp by remember {
+                mutableStateOf(if (prefs.relApedSimPct > 0f) prefs.relApedSimPct.toInt().toString() else "0")
+            }
+            var f18DrvT by remember {
+                mutableStateOf(if (prefs.drvTorqueSimPct != 0f) prefs.drvTorqueSimPct.toInt().toString() else "0")
+            }
+            var f18ActT by remember {
+                mutableStateOf(if (prefs.actTorqueSimPct != 0f) prefs.actTorqueSimPct.toInt().toString() else "0")
+            }
+            var f18CatB2 by remember {
+                mutableStateOf(if (prefs.catB2SimC > 0f) prefs.catB2SimC.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f18EgrCmd,
+                    onValueChange = { f18EgrCmd = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("EGRcmd %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f18RelAp,
+                    onValueChange = { f18RelAp = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("RelAP %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f18DrvT,
+                    onValueChange = { f18DrvT = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("DrvT %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f18ActT,
+                    onValueChange = { f18ActT = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("ActT %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f18CatB2,
+                    onValueChange = { f18CatB2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("CatB2 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.egrCmdSimPct = f18EgrCmd.toFloatOrNull() ?: 0f
+                    prefs.relApedSimPct = f18RelAp.toFloatOrNull() ?: 0f
+                    prefs.drvTorqueSimPct = f18DrvT.toFloatOrNull() ?: 0f
+                    prefs.actTorqueSimPct = f18ActT.toFloatOrNull() ?: 0f
+                    prefs.catB2SimC = f18CatB2.toFloatOrNull() ?: 0f
+                    status = "Fase 18 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 18") }
+            Text(
+                listOfNotNull(
+                    egrCmdSt.label.takeIf { it.isNotBlank() },
+                    relApedSt.label.takeIf { it.isNotBlank() },
+                    drvTorqueSt.label.takeIf { it.isNotBlank() },
+                    actTorqueSt.label.takeIf { it.isNotBlank() },
+                    catB2St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 18 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

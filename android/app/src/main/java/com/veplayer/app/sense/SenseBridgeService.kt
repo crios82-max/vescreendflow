@@ -401,6 +401,65 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.FuelRailAbs.toJsonMap(
                                             com.veplayer.app.vehicle.FuelRailAbsMonitor.state.value,
                                         ),
+                                    "egr_cmd_warn_pct" to prefs.egrCmdWarnPct.toDouble(),
+                                    "egr_cmd_alert_pct" to prefs.egrCmdAlertPct.toDouble(),
+                                    "egr_cmd_speed_min_kmh" to prefs.egrCmdSpeedMinKmh.toDouble(),
+                                    "egr_cmd_pct" to
+                                        (if (prefs.egrCmdSimPct > 0f) prefs.egrCmdSimPct
+                                        else com.veplayer.app.vehicle.CommandedEgrMonitor.state.value.egrPct
+                                            ?: snap.egrCmdPct
+                                        )?.toDouble(),
+                                    "egr_cmd" to
+                                        com.veplayer.app.vehicle.CommandedEgr.toJsonMap(
+                                            com.veplayer.app.vehicle.CommandedEgrMonitor.state.value,
+                                        ),
+                                    "rel_aped_warn_pct" to prefs.relApedWarnPct.toDouble(),
+                                    "rel_aped_alert_pct" to prefs.relApedAlertPct.toDouble(),
+                                    "rel_aped_speed_min_kmh" to prefs.relApedSpeedMinKmh.toDouble(),
+                                    "rel_accel_pedal_pct" to
+                                        (if (prefs.relApedSimPct > 0f) prefs.relApedSimPct
+                                        else com.veplayer.app.vehicle.RelAccelPedalMonitor.state.value.pedalPct
+                                            ?: snap.relAccelPedalPct
+                                        )?.toDouble(),
+                                    "rel_aped" to
+                                        com.veplayer.app.vehicle.RelAccelPedal.toJsonMap(
+                                            com.veplayer.app.vehicle.RelAccelPedalMonitor.state.value,
+                                        ),
+                                    "drv_torque_warn_pct" to prefs.drvTorqueWarnPct.toDouble(),
+                                    "drv_torque_alert_pct" to prefs.drvTorqueAlertPct.toDouble(),
+                                    "drv_torque_speed_min_kmh" to prefs.drvTorqueSpeedMinKmh.toDouble(),
+                                    "driver_torque_pct" to
+                                        (if (prefs.drvTorqueSimPct != 0f) prefs.drvTorqueSimPct
+                                        else com.veplayer.app.vehicle.DriverTorqueMonitor.state.value.torquePct
+                                            ?: snap.driverTorquePct
+                                        )?.toDouble(),
+                                    "drv_torque" to
+                                        com.veplayer.app.vehicle.DriverTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.DriverTorqueMonitor.state.value,
+                                        ),
+                                    "act_torque_warn_pct" to prefs.actTorqueWarnPct.toDouble(),
+                                    "act_torque_alert_pct" to prefs.actTorqueAlertPct.toDouble(),
+                                    "act_torque_speed_min_kmh" to prefs.actTorqueSpeedMinKmh.toDouble(),
+                                    "actual_torque_pct" to
+                                        (if (prefs.actTorqueSimPct != 0f) prefs.actTorqueSimPct
+                                        else com.veplayer.app.vehicle.ActualTorqueMonitor.state.value.torquePct
+                                            ?: snap.actualTorquePct
+                                        )?.toDouble(),
+                                    "act_torque" to
+                                        com.veplayer.app.vehicle.ActualTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.ActualTorqueMonitor.state.value,
+                                        ),
+                                    "cat_b2_warn_c" to prefs.catB2WarnC.toDouble(),
+                                    "cat_b2_alert_c" to prefs.catB2AlertC.toDouble(),
+                                    "catalyst_b2_temp_c" to
+                                        (if (prefs.catB2SimC > 0f) prefs.catB2SimC
+                                        else com.veplayer.app.vehicle.CatalystB2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2" to
+                                        com.veplayer.app.vehicle.CatalystB2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2Monitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -943,6 +1002,65 @@ class SenseBridgeService : Service() {
                                     "fuel_rail_abs" to
                                         com.veplayer.app.vehicle.FuelRailAbs.toJsonMap(
                                             com.veplayer.app.vehicle.FuelRailAbsMonitor.state.value,
+                                        ),
+                                    "egr_cmd_warn_pct" to prefs.egrCmdWarnPct.toDouble(),
+                                    "egr_cmd_alert_pct" to prefs.egrCmdAlertPct.toDouble(),
+                                    "egr_cmd_speed_min_kmh" to prefs.egrCmdSpeedMinKmh.toDouble(),
+                                    "egr_cmd_pct" to
+                                        (if (prefs.egrCmdSimPct > 0f) prefs.egrCmdSimPct
+                                        else com.veplayer.app.vehicle.CommandedEgrMonitor.state.value.egrPct
+                                            ?: snap.egrCmdPct
+                                        )?.toDouble(),
+                                    "egr_cmd" to
+                                        com.veplayer.app.vehicle.CommandedEgr.toJsonMap(
+                                            com.veplayer.app.vehicle.CommandedEgrMonitor.state.value,
+                                        ),
+                                    "rel_aped_warn_pct" to prefs.relApedWarnPct.toDouble(),
+                                    "rel_aped_alert_pct" to prefs.relApedAlertPct.toDouble(),
+                                    "rel_aped_speed_min_kmh" to prefs.relApedSpeedMinKmh.toDouble(),
+                                    "rel_accel_pedal_pct" to
+                                        (if (prefs.relApedSimPct > 0f) prefs.relApedSimPct
+                                        else com.veplayer.app.vehicle.RelAccelPedalMonitor.state.value.pedalPct
+                                            ?: snap.relAccelPedalPct
+                                        )?.toDouble(),
+                                    "rel_aped" to
+                                        com.veplayer.app.vehicle.RelAccelPedal.toJsonMap(
+                                            com.veplayer.app.vehicle.RelAccelPedalMonitor.state.value,
+                                        ),
+                                    "drv_torque_warn_pct" to prefs.drvTorqueWarnPct.toDouble(),
+                                    "drv_torque_alert_pct" to prefs.drvTorqueAlertPct.toDouble(),
+                                    "drv_torque_speed_min_kmh" to prefs.drvTorqueSpeedMinKmh.toDouble(),
+                                    "driver_torque_pct" to
+                                        (if (prefs.drvTorqueSimPct != 0f) prefs.drvTorqueSimPct
+                                        else com.veplayer.app.vehicle.DriverTorqueMonitor.state.value.torquePct
+                                            ?: snap.driverTorquePct
+                                        )?.toDouble(),
+                                    "drv_torque" to
+                                        com.veplayer.app.vehicle.DriverTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.DriverTorqueMonitor.state.value,
+                                        ),
+                                    "act_torque_warn_pct" to prefs.actTorqueWarnPct.toDouble(),
+                                    "act_torque_alert_pct" to prefs.actTorqueAlertPct.toDouble(),
+                                    "act_torque_speed_min_kmh" to prefs.actTorqueSpeedMinKmh.toDouble(),
+                                    "actual_torque_pct" to
+                                        (if (prefs.actTorqueSimPct != 0f) prefs.actTorqueSimPct
+                                        else com.veplayer.app.vehicle.ActualTorqueMonitor.state.value.torquePct
+                                            ?: snap.actualTorquePct
+                                        )?.toDouble(),
+                                    "act_torque" to
+                                        com.veplayer.app.vehicle.ActualTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.ActualTorqueMonitor.state.value,
+                                        ),
+                                    "cat_b2_warn_c" to prefs.catB2WarnC.toDouble(),
+                                    "cat_b2_alert_c" to prefs.catB2AlertC.toDouble(),
+                                    "catalyst_b2_temp_c" to
+                                        (if (prefs.catB2SimC > 0f) prefs.catB2SimC
+                                        else com.veplayer.app.vehicle.CatalystB2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2" to
+                                        com.veplayer.app.vehicle.CatalystB2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2Monitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

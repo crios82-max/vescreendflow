@@ -1472,6 +1472,103 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("rail_abs_sim_speed", 40f)
         set(value) = sp.edit().putFloat("rail_abs_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Commanded EGR % (OBD 014C). */
+    var egrCmdEnabled: Boolean
+        get() = sp.getBoolean("egr_cmd", true)
+        set(value) = sp.edit().putBoolean("egr_cmd", value).apply()
+    var egrCmdTts: Boolean
+        get() = sp.getBoolean("egr_cmd_tts", true)
+        set(value) = sp.edit().putBoolean("egr_cmd_tts", value).apply()
+    var egrCmdWarnPct: Float
+        get() = sp.getFloat("egr_cmd_warn_pct", 50f)
+        set(value) = sp.edit().putFloat("egr_cmd_warn_pct", value.coerceIn(20f, 90f)).apply()
+    var egrCmdAlertPct: Float
+        get() = sp.getFloat("egr_cmd_alert_pct", 70f)
+        set(value) = sp.edit().putFloat("egr_cmd_alert_pct", value.coerceIn(30f, 100f)).apply()
+    var egrCmdSpeedMinKmh: Float
+        get() = sp.getFloat("egr_cmd_speed_min", 20f)
+        set(value) = sp.edit().putFloat("egr_cmd_speed_min", value.coerceIn(0f, 60f)).apply()
+    var egrCmdSimPct: Float
+        get() = sp.getFloat("egr_cmd_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("egr_cmd_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    /** Relative accel pedal % (OBD 015A). */
+    var relApedEnabled: Boolean
+        get() = sp.getBoolean("rel_aped", true)
+        set(value) = sp.edit().putBoolean("rel_aped", value).apply()
+    var relApedTts: Boolean
+        get() = sp.getBoolean("rel_aped_tts", true)
+        set(value) = sp.edit().putBoolean("rel_aped_tts", value).apply()
+    var relApedWarnPct: Float
+        get() = sp.getFloat("rel_aped_warn_pct", 78f)
+        set(value) = sp.edit().putFloat("rel_aped_warn_pct", value.coerceIn(50f, 95f)).apply()
+    var relApedAlertPct: Float
+        get() = sp.getFloat("rel_aped_alert_pct", 90f)
+        set(value) = sp.edit().putFloat("rel_aped_alert_pct", value.coerceIn(55f, 100f)).apply()
+    var relApedSpeedMinKmh: Float
+        get() = sp.getFloat("rel_aped_speed_min", 20f)
+        set(value) = sp.edit().putFloat("rel_aped_speed_min", value.coerceIn(0f, 60f)).apply()
+    var relApedSimPct: Float
+        get() = sp.getFloat("rel_aped_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("rel_aped_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    /** Driver demand torque % (OBD 0161). */
+    var drvTorqueEnabled: Boolean
+        get() = sp.getBoolean("drv_torque", true)
+        set(value) = sp.edit().putBoolean("drv_torque", value).apply()
+    var drvTorqueTts: Boolean
+        get() = sp.getBoolean("drv_torque_tts", true)
+        set(value) = sp.edit().putBoolean("drv_torque_tts", value).apply()
+    var drvTorqueWarnPct: Float
+        get() = sp.getFloat("drv_torque_warn_pct", 40f)
+        set(value) = sp.edit().putFloat("drv_torque_warn_pct", value.coerceIn(15f, 100f)).apply()
+    var drvTorqueAlertPct: Float
+        get() = sp.getFloat("drv_torque_alert_pct", 55f)
+        set(value) = sp.edit().putFloat("drv_torque_alert_pct", value.coerceIn(20f, 125f)).apply()
+    var drvTorqueSpeedMinKmh: Float
+        get() = sp.getFloat("drv_torque_speed_min", 20f)
+        set(value) = sp.edit().putFloat("drv_torque_speed_min", value.coerceIn(0f, 60f)).apply()
+    var drvTorqueSimPct: Float
+        get() = sp.getFloat("drv_torque_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("drv_torque_sim_pct", value.coerceIn(-125f, 125f)).apply()
+
+    /** Actual engine torque % (OBD 0162). */
+    var actTorqueEnabled: Boolean
+        get() = sp.getBoolean("act_torque", true)
+        set(value) = sp.edit().putBoolean("act_torque", value).apply()
+    var actTorqueTts: Boolean
+        get() = sp.getBoolean("act_torque_tts", true)
+        set(value) = sp.edit().putBoolean("act_torque_tts", value).apply()
+    var actTorqueWarnPct: Float
+        get() = sp.getFloat("act_torque_warn_pct", 40f)
+        set(value) = sp.edit().putFloat("act_torque_warn_pct", value.coerceIn(15f, 100f)).apply()
+    var actTorqueAlertPct: Float
+        get() = sp.getFloat("act_torque_alert_pct", 55f)
+        set(value) = sp.edit().putFloat("act_torque_alert_pct", value.coerceIn(20f, 125f)).apply()
+    var actTorqueSpeedMinKmh: Float
+        get() = sp.getFloat("act_torque_speed_min", 20f)
+        set(value) = sp.edit().putFloat("act_torque_speed_min", value.coerceIn(0f, 60f)).apply()
+    var actTorqueSimPct: Float
+        get() = sp.getFloat("act_torque_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("act_torque_sim_pct", value.coerceIn(-125f, 125f)).apply()
+
+    /** Catalyst temp bank 2 °C (OBD 0170). */
+    var catB2Enabled: Boolean
+        get() = sp.getBoolean("cat_b2", true)
+        set(value) = sp.edit().putBoolean("cat_b2", value).apply()
+    var catB2Tts: Boolean
+        get() = sp.getBoolean("cat_b2_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2_tts", value).apply()
+    var catB2WarnC: Float
+        get() = sp.getFloat("cat_b2_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2AlertC: Float
+        get() = sp.getFloat("cat_b2_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2SimC: Float
+        get() = sp.getFloat("cat_b2_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2_sim_c", value.coerceIn(0f, 1200f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

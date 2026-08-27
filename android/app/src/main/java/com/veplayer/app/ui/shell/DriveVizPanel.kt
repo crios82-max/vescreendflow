@@ -82,6 +82,11 @@ import com.veplayer.app.vehicle.EvapPurgeMonitor
 import com.veplayer.app.vehicle.EthanolPctMonitor
 import com.veplayer.app.vehicle.EvapVaporMonitor
 import com.veplayer.app.vehicle.FuelRailAbsMonitor
+import com.veplayer.app.vehicle.CommandedEgrMonitor
+import com.veplayer.app.vehicle.RelAccelPedalMonitor
+import com.veplayer.app.vehicle.DriverTorqueMonitor
+import com.veplayer.app.vehicle.ActualTorqueMonitor
+import com.veplayer.app.vehicle.CatalystB2Monitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -160,6 +165,11 @@ fun DriveVizPanel(
     val ethanol by EthanolPctMonitor.state.collectAsState()
     val evapVap by EvapVaporMonitor.state.collectAsState()
     val railAbs by FuelRailAbsMonitor.state.collectAsState()
+    val egrCmd by CommandedEgrMonitor.state.collectAsState()
+    val relAped by RelAccelPedalMonitor.state.collectAsState()
+    val drvTorque by DriverTorqueMonitor.state.collectAsState()
+    val actTorque by ActualTorqueMonitor.state.collectAsState()
+    val catB2 by CatalystB2Monitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -224,6 +234,11 @@ fun DriveVizPanel(
             EthanolPctMonitor.tick(prefs, snap)
             EvapVaporMonitor.tick(prefs, snap)
             FuelRailAbsMonitor.tick(prefs, snap)
+            CommandedEgrMonitor.tick(prefs, snap)
+            RelAccelPedalMonitor.tick(prefs, snap)
+            DriverTorqueMonitor.tick(prefs, snap)
+            ActualTorqueMonitor.tick(prefs, snap)
+            CatalystB2Monitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -741,6 +756,21 @@ fun DriveVizPanel(
                 }
                 if (railAbs.showWarn || (prefs.railAbsEnabled && railAbs.band == "ok" && railAbs.label.isNotBlank())) {
                     Text(railAbs.label, color = Color(com.veplayer.app.vehicle.FuelRailAbs.accentArgb(railAbs.band)), fontSize = 11.sp)
+                }
+                if (egrCmd.showWarn || (prefs.egrCmdEnabled && egrCmd.band == "ok" && egrCmd.label.isNotBlank())) {
+                    Text(egrCmd.label, color = Color(com.veplayer.app.vehicle.CommandedEgr.accentArgb(egrCmd.band)), fontSize = 11.sp)
+                }
+                if (relAped.showWarn || (prefs.relApedEnabled && relAped.band == "ok" && relAped.label.isNotBlank())) {
+                    Text(relAped.label, color = Color(com.veplayer.app.vehicle.RelAccelPedal.accentArgb(relAped.band)), fontSize = 11.sp)
+                }
+                if (drvTorque.showWarn || (prefs.drvTorqueEnabled && drvTorque.band == "ok" && drvTorque.label.isNotBlank())) {
+                    Text(drvTorque.label, color = Color(com.veplayer.app.vehicle.DriverTorque.accentArgb(drvTorque.band)), fontSize = 11.sp)
+                }
+                if (actTorque.showWarn || (prefs.actTorqueEnabled && actTorque.band == "ok" && actTorque.label.isNotBlank())) {
+                    Text(actTorque.label, color = Color(com.veplayer.app.vehicle.ActualTorque.accentArgb(actTorque.band)), fontSize = 11.sp)
+                }
+                if (catB2.showWarn || (prefs.catB2Enabled && catB2.band == "ok" && catB2.label.isNotBlank())) {
+                    Text(catB2.label, color = Color(com.veplayer.app.vehicle.CatalystB2.accentArgb(catB2.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

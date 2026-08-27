@@ -262,6 +262,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0152", // ethanol
                 "0153", // evap vapor
                 "0159", // fuel rail abs
+                "014C", // commanded EGR
+                "015A", // relative accel pedal
+                "0161", // driver torque
+                "0162", // actual torque
+                "0170", // catalyst B2 temp
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim
