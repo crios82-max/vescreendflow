@@ -89,6 +89,8 @@ object FleetInbox {
         if (!prefs.fleetAlertsEnabled) return emptyList()
         val fresh = mutableListOf<FleetInboxItem>()
         for (a in alerts) {
+            // Replies are for ops; don't re-offer / re-speak on the unit
+            if (a.kind == "message_reply") continue
             val key = "alert:${a.id}"
             val firstTime =
                 synchronized(spokenAlertIds) {
@@ -126,14 +128,26 @@ object FleetInbox {
     fun onDispatchMessage(
         prefs: VePrefs,
         text: String,
+        alertId: Long? = null,
+        commandId: Long? = null,
+        requiresAck: Boolean = true,
     ) {
         push(
             prefs = prefs,
             kind = "message",
             text = text,
             severity = "info",
+            id = if (alertId != null && alertId > 0) "alert:$alertId" else "message:${System.currentTimeMillis()}",
             speak = prefs.fleetTtsMessages,
         )
+        if (prefs.messageReplyEnabled && alertId != null && alertId > 0) {
+            MessageReplyBus.offer(
+                alertId = alertId,
+                text = text,
+                commandId = commandId,
+                requiresAck = requiresAck,
+            )
+        }
     }
 
     fun voicePhrase(
@@ -190,6 +204,7 @@ object FleetInbox {
                 "Atención. Motor en ralentí. $body."
             kind == "panic" -> "Emergencia. SOS enviado. $body."
             kind == "incident" -> "Incidente reportado. $body."
+            kind == "message_reply" -> "Respuesta enviada. $body."
             kind == "message" -> "Mensaje de flota. $body."
             severity == "critical" -> "Emergencia. $body."
             severity == "warn" -> "Alerta. $body."

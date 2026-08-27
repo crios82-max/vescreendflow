@@ -67,9 +67,22 @@ class RemoteCommandExecutor(
                     }
                     "message" -> {
                         val text = cmd.payload?.optString("text") ?: "Mensaje flota"
+                        val alertId =
+                            if (cmd.payload?.has("alert_id") == true) {
+                                cmd.payload.optLong("alert_id")
+                            } else {
+                                0L
+                            }
+                        val requiresAck = cmd.payload?.optBoolean("requires_ack", true) != false
                         onStatus("Cmd message: $text")
                         RemoteCommandBus.publish(text)
-                        FleetInbox.onDispatchMessage(prefs, text)
+                        FleetInbox.onDispatchMessage(
+                            prefs = prefs,
+                            text = text,
+                            alertId = alertId.takeIf { it > 0 },
+                            commandId = cmd.id,
+                            requiresAck = requiresAck,
+                        )
                         notify("Flota", text)
                     }
                     "wipe" -> {
@@ -538,6 +551,13 @@ class RemoteCommandExecutor(
             val prefix = if (a.severity == "warn") "⚠ " else "ℹ "
             RemoteCommandBus.publish(prefix + a.text)
             if (a.severity == "warn") notify("Alerta flota", a.text)
+        }
+        if (prefs.messageReplyEnabled) {
+            for (a in alerts) {
+                if (a.kind == "message" && a.id > 0) {
+                    MessageReplyBus.offer(alertId = a.id, text = a.message)
+                }
+            }
         }
     }
 
