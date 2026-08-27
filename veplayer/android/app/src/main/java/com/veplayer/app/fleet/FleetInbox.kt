@@ -224,6 +224,9 @@ object FleetInbox {
             kind == "oil_alert" -> "Atención. Aceite del motor crítico. $body."
             kind == "oil_warn" || kind.startsWith("oil_") ->
                 "Cuidado. Aceite caliente. $body."
+            kind == "catalyst_alert" -> "Atención. Catalizador crítico. $body."
+            kind == "catalyst_warn" || kind.startsWith("catalyst_") ->
+                "Cuidado. Catalizador caliente. $body."
             kind == "rpm_alert" -> "Atención. Régimen del motor crítico. $body."
             kind == "rpm_warn" || kind.startsWith("rpm_") ->
                 "Cuidado. Revoluciones altas. $body."

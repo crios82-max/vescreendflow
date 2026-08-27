@@ -1088,6 +1088,56 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Catalyst temperature (OBD PID 0134)
+    const catObj = signals.catalyst_temp as Record<string, unknown> | undefined
+    const catalystTempC =
+      typeof catObj?.catalyst_temp_c === 'number'
+        ? (catObj.catalyst_temp_c as number)
+        : typeof signals.catalyst_temp_c === 'number'
+          ? (signals.catalyst_temp_c as number)
+          : null
+    if (typeof catalystTempC === 'number') {
+      const catWarnC =
+        typeof signals.catalyst_warn_c === 'number'
+          ? (signals.catalyst_warn_c as number)
+          : 750
+      const catAlertC =
+        typeof signals.catalyst_alert_c === 'number'
+          ? (signals.catalyst_alert_c as number)
+          : 850
+      if (catalystTempC >= catAlertC && !recentlyAlerted(deviceId, 'catalyst_alert', 300)) {
+        insertAlert(
+          deviceId,
+          'catalyst_alert',
+          'critical',
+          `Catalizador crítico · ${Math.round(catalystTempC)} °C`,
+          {
+            catalyst_temp_c: catalystTempC,
+            alert_c: catAlertC,
+            catalyst_temp: catObj ?? null,
+          },
+        )
+        raised.push('catalyst_alert')
+      } else if (
+        catalystTempC >= catWarnC &&
+        catalystTempC < catAlertC &&
+        !recentlyAlerted(deviceId, 'catalyst_warn', 300)
+      ) {
+        insertAlert(
+          deviceId,
+          'catalyst_warn',
+          'warn',
+          `Catalizador caliente · ${Math.round(catalystTempC)} °C`,
+          {
+            catalyst_temp_c: catalystTempC,
+            warn_c: catWarnC,
+            catalyst_temp: catObj ?? null,
+          },
+        )
+        raised.push('catalyst_warn')
+      }
+    }
+
     // Intake air temperature (OBD PID 010F)
     const intakeObj = signals.intake_air as Record<string, unknown> | undefined
     const intakeAirC =

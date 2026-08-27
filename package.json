@@ -62,6 +62,7 @@
     "veplayer:fuel-trim-stft-smoke": "node veplayer/scripts/fuel-trim-stft-smoke.mjs",
     "veplayer:fuel-trim-ltft-smoke": "node veplayer/scripts/fuel-trim-ltft-smoke.mjs",
     "veplayer:map-pressure-smoke": "node veplayer/scripts/map-pressure-smoke.mjs",
+    "veplayer:catalyst-temp-smoke": "node veplayer/scripts/catalyst-temp-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",

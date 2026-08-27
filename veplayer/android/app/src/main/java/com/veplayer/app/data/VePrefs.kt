@@ -962,6 +962,28 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("oil_temp_sim_c", 0f)
         set(value) = sp.edit().putFloat("oil_temp_sim_c", value.coerceIn(0f, 160f)).apply()
 
+    /** Catalyst temperature (OBD 0134). */
+    var catalystEnabled: Boolean
+        get() = sp.getBoolean("catalyst_temp", true)
+        set(value) = sp.edit().putBoolean("catalyst_temp", value).apply()
+
+    var catalystTts: Boolean
+        get() = sp.getBoolean("catalyst_temp_tts", true)
+        set(value) = sp.edit().putBoolean("catalyst_temp_tts", value).apply()
+
+    var catalystWarnC: Float
+        get() = sp.getFloat("catalyst_warn_c", 750f)
+        set(value) = sp.edit().putFloat("catalyst_warn_c", value.coerceIn(400f, 1000f)).apply()
+
+    var catalystAlertC: Float
+        get() = sp.getFloat("catalyst_alert_c", 850f)
+        set(value) = sp.edit().putFloat("catalyst_alert_c", value.coerceIn(500f, 1200f)).apply()
+
+    /** Demo catalyst °C (0 = live OBD). */
+    var catalystSimC: Float
+        get() = sp.getFloat("catalyst_sim_c", 0f)
+        set(value) = sp.edit().putFloat("catalyst_sim_c", value.coerceIn(0f, 1200f)).apply()
+
     /** Intake air temperature (OBD 010F). */
     var intakeAirEnabled: Boolean
         get() = sp.getBoolean("intake_air", true)

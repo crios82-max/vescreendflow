@@ -989,7 +989,19 @@ Presión absoluta del colector (**OBD PID 010B**), kPa:
 npm run veplayer:map-pressure-smoke
 ```
 
-**Fase 14 (en curso):** dist since clear · fuel trim STFT · fuel trim LTFT · MAP · catalyst temp.
+## Catalyst temp (v0.78 · Fase 14)
+
+Temperatura del catalizador (**OBD PID 0134**), °C:
+
+- Warn **≥750°C** / alert **≥850°C**
+- DriveViz `Cat · XXX°C` · TTS + inbox
+- Flota `catalyst_warn` / `catalyst_alert` · sim °C en Ajustes (clima)
+
+```bash
+npm run veplayer:catalyst-temp-smoke
+```
+
+**Fase 14 (completa):** dist since clear · fuel trim STFT · fuel trim LTFT · MAP · catalyst temp.
 
 ## Device Owner (kiosk duro · v0.12)
 

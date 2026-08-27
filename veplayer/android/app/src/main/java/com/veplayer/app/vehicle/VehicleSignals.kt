@@ -97,6 +97,8 @@ data class VehicleSignals(
         val fuelTrimLtftPct: Float? = null,
         /** Intake manifold absolute pressure (OBD PID 010B), kPa. */
         val mapKpa: Float? = null,
+        /** Catalyst temperature (OBD PID 0134), °C. */
+        val catalystTempC: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -180,6 +182,7 @@ data class VehicleSignals(
             "fuel_trim_stft_pct" to fuelTrimStftPct?.toDouble(),
             "fuel_trim_ltft_pct" to fuelTrimLtftPct?.toDouble(),
             "map_kpa" to mapKpa?.toDouble(),
+            "catalyst_temp_c" to catalystTempC?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),
