@@ -1066,6 +1066,36 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("maf_sim_speed", 40f)
         set(value) = sp.edit().putFloat("maf_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Fuel rail pressure (OBD 010A). */
+    var fuelPressEnabled: Boolean
+        get() = sp.getBoolean("fuel_press", true)
+        set(value) = sp.edit().putBoolean("fuel_press", value).apply()
+
+    var fuelPressTts: Boolean
+        get() = sp.getBoolean("fuel_press_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_press_tts", value).apply()
+
+    var fuelPressWarnKpa: Float
+        get() = sp.getFloat("fuel_press_warn_kpa", 280f)
+        set(value) = sp.edit().putFloat("fuel_press_warn_kpa", value.coerceIn(200f, 500f)).apply()
+
+    var fuelPressAlertKpa: Float
+        get() = sp.getFloat("fuel_press_alert_kpa", 220f)
+        set(value) = sp.edit().putFloat("fuel_press_alert_kpa", value.coerceIn(100f, 400f)).apply()
+
+    var fuelPressSpeedMinKmh: Float
+        get() = sp.getFloat("fuel_press_speed_min", 20f)
+        set(value) = sp.edit().putFloat("fuel_press_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    /** Demo fuel pressure kPa (0 = live OBD). */
+    var fuelPressSimKpa: Float
+        get() = sp.getFloat("fuel_press_sim_kpa", 0f)
+        set(value) = sp.edit().putFloat("fuel_press_sim_kpa", value.coerceIn(0f, 765f)).apply()
+
+    var fuelPressSimSpeedKmh: Float
+        get() = sp.getFloat("fuel_press_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("fuel_press_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

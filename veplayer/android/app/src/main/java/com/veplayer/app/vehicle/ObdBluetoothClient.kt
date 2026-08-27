@@ -248,6 +248,7 @@ class ObdBluetoothClient(private val context: Context) {
                 "010D", // speed
                 "010C", // rpm
                 "0110", // mass air flow
+                "010A", // fuel pressure
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim

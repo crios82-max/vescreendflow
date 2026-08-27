@@ -1322,6 +1322,73 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Fuel rail pressure (OBD PID 010A) — low pressure
+    const fuelPressObj = signals.fuel_pressure as Record<string, unknown> | undefined
+    let fuelPressKpa: number | null =
+      typeof fuelPressObj?.pressure_kpa === 'number'
+        ? (fuelPressObj.pressure_kpa as number)
+        : typeof signals.fuel_pressure_kpa === 'number'
+          ? (signals.fuel_pressure_kpa as number)
+          : null
+    const fuelPressSpeedKmh =
+      typeof fuelPressObj?.speed_kmh === 'number'
+        ? (fuelPressObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof fuelPressKpa === 'number') {
+      const warnPressKpa =
+        typeof signals.fuel_press_warn_kpa === 'number'
+          ? (signals.fuel_press_warn_kpa as number)
+          : 280
+      const alertPressKpa =
+        typeof signals.fuel_press_alert_kpa === 'number'
+          ? (signals.fuel_press_alert_kpa as number)
+          : 220
+      const pressMinSpd =
+        typeof signals.fuel_press_speed_min_kmh === 'number'
+          ? (signals.fuel_press_speed_min_kmh as number)
+          : 20
+      const pressSpdOk =
+        typeof fuelPressSpeedKmh === 'number' && fuelPressSpeedKmh >= pressMinSpd
+      if (
+        pressSpdOk &&
+        fuelPressKpa <= alertPressKpa &&
+        !recentlyAlerted(deviceId, 'fuel_press_alert', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'fuel_press_alert',
+          'critical',
+          `Presión combustible crítica · ${Math.round(fuelPressKpa)} kPa`,
+          {
+            fuel_pressure_kpa: fuelPressKpa,
+            alert_kpa: alertPressKpa,
+            fuel_pressure: fuelPressObj ?? null,
+          },
+        )
+        raised.push('fuel_press_alert')
+      } else if (
+        pressSpdOk &&
+        fuelPressKpa <= warnPressKpa &&
+        fuelPressKpa > alertPressKpa &&
+        !recentlyAlerted(deviceId, 'fuel_press_warn', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'fuel_press_warn',
+          'warn',
+          `Presión combustible baja · ${Math.round(fuelPressKpa)} kPa`,
+          {
+            fuel_pressure_kpa: fuelPressKpa,
+            warn_kpa: warnPressKpa,
+            fuel_pressure: fuelPressObj ?? null,
+          },
+        )
+        raised.push('fuel_press_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

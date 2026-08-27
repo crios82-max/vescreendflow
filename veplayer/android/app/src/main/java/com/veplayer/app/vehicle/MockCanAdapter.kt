@@ -121,6 +121,7 @@ class MockCanAdapter(
             mapKpa = (40f + kmh / 90f * 55f).coerceIn(25f, 100f),
             catalystTempC = (450f + kmh / 90f * 200f).coerceIn(350f, 700f),
             mafGps = (10f + kmh / 90f * 60f).coerceIn(3f, 100f),
+            fuelPressureKpa = (300f + kmh / 90f * 70f).coerceIn(270f, 420f),
             runtimeSec = t.toInt().coerceAtLeast(0),
             source = sourceTag,
             updatedAtMs = System.currentTimeMillis(),

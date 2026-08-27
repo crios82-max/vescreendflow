@@ -64,6 +64,7 @@
     "veplayer:map-pressure-smoke": "node veplayer/scripts/map-pressure-smoke.mjs",
     "veplayer:catalyst-temp-smoke": "node veplayer/scripts/catalyst-temp-smoke.mjs",
     "veplayer:maf-airflow-smoke": "node veplayer/scripts/maf-airflow-smoke.mjs",
+    "veplayer:fuel-pressure-smoke": "node veplayer/scripts/fuel-pressure-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",

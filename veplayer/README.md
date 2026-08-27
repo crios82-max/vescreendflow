@@ -1015,6 +1015,18 @@ Flujo de aire (**OBD PID 0110**), g/s:
 npm run veplayer:maf-airflow-smoke
 ```
 
+## Fuel pressure (v0.80 · Fase 15)
+
+Presión de combustible (**OBD PID 010A**), kPa — alerta por presión **baja**:
+
+- Warn **≤280 kPa** / alert **≤220 kPa** (en movimiento ≥20 km/h)
+- DriveViz `FuelP · XXX kPa` · TTS + inbox
+- Flota `fuel_press_warn` / `fuel_press_alert` · sim kPa en Ajustes (motor)
+
+```bash
+npm run veplayer:fuel-pressure-smoke
+```
+
 **Fase 15 (en curso):** MAF airflow · fuel pressure · barometric · timing advance · O2 voltage.
 
 ## Device Owner (kiosk duro · v0.12)
