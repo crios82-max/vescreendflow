@@ -296,7 +296,17 @@ Actores SenseFlow/visión sobre el canvas OSM:
 npm run veplayer:crowd-map-smoke
 ```
 
-**Fase 4 (siguiente):** mantenimiento odómetro.
+## Mantenimiento odómetro (v0.28)
+
+Intervalos de servicio por km (aceite, neumáticos, revisión…):
+
+- SenseFlow `fleet_maintenance` · alertas `maint_due` / `maint_warn` en heartbeat
+- VePlayer monitor local + TTS/inbox · Ajustes (Hecho / restablecer)
+- Cmds `service_done` · `set_maintenance` · CSV `kind=maintenance`
+
+```bash
+npm run veplayer:maintenance-smoke
+```
 
 ## Fuel / Range HUD (v0.29 · Fase 5)
 
@@ -312,6 +322,20 @@ npm run veplayer:fuel-hud-smoke
 ```
 
 **Fase 5 (siguiente):** idle alert · panic/SOS · mapa live flota · waypoints.
+
+## Idle / ralentí (v0.30)
+
+Detenido + ignición ON → aviso por tiempo:
+
+- Bandas idle / warn / alert · DriveViz `IDLE · m:ss` · TTS + inbox
+- Heartbeat envía `idle_sec` · SenseFlow `idle_warn` / `idle_alert`
+- Prefs `idle_warn_sec` (120) · `idle_alert_sec` (300) · cmd `set_idle_warn`
+
+```bash
+npm run veplayer:idle-alert-smoke
+```
+
+**Fase 5 (siguiente):** panic/SOS · mapa live flota · waypoints.
 
 ## Device Owner (kiosk duro · v0.12)
 

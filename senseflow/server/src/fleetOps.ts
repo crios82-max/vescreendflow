@@ -38,6 +38,7 @@ const DISPATCH_CMDS = new Set([
   'set_driver',
   'set_speed_limit',
   'set_fuel_warn',
+  'set_idle_warn',
   'service_done',
   'set_maintenance',
 ])

@@ -308,6 +308,31 @@ class RemoteCommandExecutor(
                             onStatus("set_fuel_warn inválido")
                         }
                     }
+                    "set_idle_warn" -> {
+                        val warnSec =
+                            when {
+                                cmd.payload?.has("warn_sec") == true -> cmd.payload.optInt("warn_sec")
+                                cmd.payload?.has("sec") == true -> cmd.payload.optInt("sec")
+                                else -> -1
+                            }
+                        val alertSec =
+                            when {
+                                cmd.payload?.has("alert_sec") == true -> cmd.payload.optInt("alert_sec")
+                                else -> if (warnSec > 0) warnSec * 2 else -1
+                            }
+                        if (warnSec in 30..3600) {
+                            prefs.idleWarnSec = warnSec
+                            prefs.idleAlertSec = alertSec.coerceIn(warnSec, 7200)
+                            prefs.idleAlertEnabled = true
+                            onStatus("Cmd set_idle_warn → ${warnSec}s / ${prefs.idleAlertSec}s")
+                            RemoteCommandBus.publish("Idle warn ${warnSec}s")
+                            com.veplayer.app.nav.NavTts.speakNow(
+                                "Aviso de ralentí a $warnSec segundos.",
+                            )
+                        } else {
+                            onStatus("set_idle_warn inválido")
+                        }
+                    }
                     "service_done" -> {
                         val kind = cmd.payload?.optString("kind").orEmpty().trim().lowercase()
                         val odo =

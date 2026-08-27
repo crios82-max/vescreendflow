@@ -69,6 +69,30 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("fuel_tts_warn", true)
         set(value) = sp.edit().putBoolean("fuel_tts_warn", value).apply()
 
+    /** Idle (stopped + ignition) alerts. */
+    var idleAlertEnabled: Boolean
+        get() = sp.getBoolean("idle_alert", true)
+        set(value) = sp.edit().putBoolean("idle_alert", value).apply()
+
+    /** Seconds stopped before warn band. */
+    var idleWarnSec: Int
+        get() = sp.getInt("idle_warn_sec", 120)
+        set(value) = sp.edit().putInt("idle_warn_sec", value.coerceIn(30, 3600)).apply()
+
+    /** Seconds stopped before alert band. */
+    var idleAlertSec: Int
+        get() = sp.getInt("idle_alert_sec", 300)
+        set(value) = sp.edit().putInt("idle_alert_sec", value.coerceIn(60, 7200)).apply()
+
+    /** Max speed (km/h) still considered stopped. */
+    var idleSpeedMaxKmh: Float
+        get() = sp.getFloat("idle_speed_max", 1.5f)
+        set(value) = sp.edit().putFloat("idle_speed_max", value.coerceIn(0.5f, 5f)).apply()
+
+    var idleTtsWarn: Boolean
+        get() = sp.getBoolean("idle_tts_warn", true)
+        set(value) = sp.edit().putBoolean("idle_tts_warn", value).apply()
+
     var mockReverse: Boolean
         get() = sp.getBoolean("mock_reverse", false)
         set(value) = sp.edit().putBoolean("mock_reverse", value).apply()

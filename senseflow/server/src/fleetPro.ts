@@ -149,6 +149,38 @@ export function evaluateFleetAlerts(
       })
       raised.push('range_low')
     }
+    const idleSec = signals.idle_sec
+    const ignition = typeof signals.ignition === 'string' ? signals.ignition : ''
+    const ignOn = ignition === 'on' || ignition === 'acc' || ignition === 'start'
+    if (
+      typeof idleSec === 'number' &&
+      idleSec >= 300 &&
+      ignOn &&
+      !recentlyAlerted(deviceId, 'idle_alert', 600)
+    ) {
+      const mins = Math.round(idleSec / 60)
+      insertAlert(
+        deviceId,
+        'idle_alert',
+        'warn',
+        `Ralentí prolongado (~${mins} min)`,
+        { idle_sec: idleSec, ignition },
+      )
+      raised.push('idle_alert')
+    } else if (
+      typeof idleSec === 'number' &&
+      idleSec >= 120 &&
+      idleSec < 300 &&
+      ignOn &&
+      !recentlyAlerted(deviceId, 'idle_warn', 600)
+    ) {
+      const mins = Math.round(idleSec / 60)
+      insertAlert(deviceId, 'idle_warn', 'info', `Ralentí (~${mins} min)`, {
+        idle_sec: idleSec,
+        ignition,
+      })
+      raised.push('idle_warn')
+    }
   }
 
   return raised

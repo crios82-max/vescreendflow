@@ -95,6 +95,8 @@ class SenseBridgeService : Service() {
                                 vehicleSignals =
                                     snap.toJsonMap() +
                                         mapOf(
+                                            "idle_sec" to com.veplayer.app.vehicle.IdleMonitor.state.value.idleForSec.toDouble(),
+                                            "idle_band" to com.veplayer.app.vehicle.IdleMonitor.state.value.band,
                                             "kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService),
                                             "field" to
                                                 mapOf(
@@ -142,6 +144,8 @@ class SenseBridgeService : Service() {
                         vehicleSignals =
                             snap.toJsonMap() +
                                 mapOf(
+                                    "idle_sec" to com.veplayer.app.vehicle.IdleMonitor.state.value.idleForSec.toDouble(),
+                                    "idle_band" to com.veplayer.app.vehicle.IdleMonitor.state.value.band,
                                     "kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService),
                                     "field" to
                                         mapOf(
