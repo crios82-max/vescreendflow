@@ -575,6 +575,41 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Continuous driving rest break
+    const restDriveSec =
+      typeof signals.rest_drive_sec === 'number' ? (signals.rest_drive_sec as number) : null
+    if (typeof restDriveSec === 'number' && restDriveSec > 0) {
+      const restWarn =
+        typeof signals.rest_warn_sec === 'number' ? (signals.rest_warn_sec as number) : 2 * 3600
+      const restAlert =
+        typeof signals.rest_alert_sec === 'number' ? (signals.rest_alert_sec as number) : 2.5 * 3600
+      const hours = restDriveSec / 3600
+      const hLabel = hours >= 1 ? `${hours.toFixed(1)} h` : `${Math.round(restDriveSec / 60)} min`
+      if (restDriveSec >= restAlert && !recentlyAlerted(deviceId, 'rest_break', 900)) {
+        insertAlert(
+          deviceId,
+          'rest_break',
+          'critical',
+          `Descanso obligatorio · ${hLabel} al volante`,
+          { rest_drive_sec: restDriveSec, alert_sec: restAlert },
+        )
+        raised.push('rest_break')
+      } else if (
+        restDriveSec >= restWarn &&
+        restDriveSec < restAlert &&
+        !recentlyAlerted(deviceId, 'rest_warn', 900)
+      ) {
+        insertAlert(
+          deviceId,
+          'rest_warn',
+          'warn',
+          `Pausa recomendada · ${hLabel} conduciendo`,
+          { rest_drive_sec: restDriveSec, warn_sec: restWarn },
+        )
+        raised.push('rest_warn')
+      }
+    }
+
     // Cabin overtemp — hvac.cabin_c or top-level cabin_c
     const hvac = signals.hvac as Record<string, unknown> | undefined
     let cabinC: number | null =

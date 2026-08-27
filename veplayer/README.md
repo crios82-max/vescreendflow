@@ -694,6 +694,18 @@ Candidato a colisión: decel extrema o yaw spike (sobre umbrales harsh):
 npm run veplayer:impact-detect-smoke
 ```
 
+## Rest break (v0.56 · Fase 10)
+
+Pausa tras conducción continua (no turno total):
+
+- Default **2 h warn / 2.5 h alert** · reset tras **15 min** parado (≥5 km/h = conduciendo)
+- DriveViz chip · TTS + inbox
+- Flota `rest_warn` / `rest_break` · sim min en Ajustes
+
+```bash
+npm run veplayer:rest-break-smoke
+```
+
 **Fase 10 (en curso):** battery 12V · impact detect · rest break · route deviation · driver scorecard.
 
 ## Device Owner (kiosk duro · v0.12)
