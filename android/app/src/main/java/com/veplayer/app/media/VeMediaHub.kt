@@ -261,6 +261,27 @@ object VeMediaHub {
         }
     }
 
+    /** External phone / CarPlay / Android Auto now-playing mirror. */
+    fun publishPhone(
+        title: String,
+        artist: String,
+        playing: Boolean,
+        status: String,
+    ) {
+        val cur = _now.value.source
+        if (cur != MediaSource.NONE && cur != MediaSource.PHONE) return
+        _now.value =
+            NowPlaying(
+                source = MediaSource.PHONE,
+                title = title,
+                artist = artist,
+                subtitle = "Phone Link",
+                playing = playing,
+                progress = -1f,
+                status = status,
+            )
+    }
+
     private fun pauseSpotifyQuiet() {
         runCatching { spotify?.pause { } }
     }
@@ -282,6 +303,9 @@ object VeMediaHub {
             MediaSource.SPOTIFY -> {
                 if (_now.value.playing) pauseSpotify() else resumeSpotify()
             }
+            MediaSource.PHONE -> {
+                _now.update { it.copy(playing = !it.playing, status = "Phone Link (AVRCP HU)") }
+            }
             MediaSource.NONE -> {
                 val mode = prefs?.radioMode ?: "stream"
                 if (mode == "fm") playFm() else playRadio(RadioStations.all.first())
@@ -298,6 +322,7 @@ object VeMediaHub {
             }
             MediaSource.FM -> fmSeek(up = true)
             MediaSource.SPOTIFY -> spotify?.skipNext { msg -> _now.update { it.copy(status = msg) } }
+            MediaSource.PHONE -> _now.update { it.copy(status = "Skip · phone") }
             MediaSource.NONE -> playRadio(RadioStations.all.first())
         }
     }
@@ -311,6 +336,7 @@ object VeMediaHub {
             }
             MediaSource.FM -> fmSeek(up = false)
             MediaSource.SPOTIFY -> spotify?.skipPrevious { msg -> _now.update { it.copy(status = msg) } }
+            MediaSource.PHONE -> _now.update { it.copy(status = "Prev · phone") }
             MediaSource.NONE -> playRadio(RadioStations.all.last())
         }
     }

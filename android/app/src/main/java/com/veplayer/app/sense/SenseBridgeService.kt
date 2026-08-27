@@ -97,6 +97,9 @@ class SenseBridgeService : Service() {
                                         mapOf(
                                             "idle_sec" to com.veplayer.app.vehicle.IdleMonitor.state.value.idleForSec.toDouble(),
                                             "idle_band" to com.veplayer.app.vehicle.IdleMonitor.state.value.band,
+                                            "speed_limit_kmh" to
+                                                com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
+                                            "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),
                                             "kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService),
                                             "field" to
                                                 mapOf(
@@ -162,6 +165,9 @@ class SenseBridgeService : Service() {
                                 mapOf(
                                     "idle_sec" to com.veplayer.app.vehicle.IdleMonitor.state.value.idleForSec.toDouble(),
                                     "idle_band" to com.veplayer.app.vehicle.IdleMonitor.state.value.band,
+                                    "speed_limit_kmh" to
+                                        com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
+                                    "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),
                                     "kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService),
                                     "field" to
                                         mapOf(

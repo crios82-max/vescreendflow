@@ -19,6 +19,10 @@ data class ShiftSnapshot(
     val startedAt: Long = 0,
     val driverCode: String = "",
     val driverName: String = "",
+    val ecoScore: Int? = null,
+    val ecoBand: String = "",
+    val idleSec: Double = 0.0,
+    val overspeedSec: Double = 0.0,
 )
 
 /**
@@ -152,5 +156,9 @@ object ShiftTracker {
             startedAt = o.optLong("started_at") * 1000L,
             driverCode = o.optString("driver_code", ""),
             driverName = o.optString("driver_name", ""),
+            ecoScore = if (o.has("eco_score") && !o.isNull("eco_score")) o.optInt("eco_score") else null,
+            ecoBand = o.optString("eco_band", ""),
+            idleSec = o.optDouble("idle_sec", 0.0),
+            overspeedSec = o.optDouble("overspeed_sec", 0.0),
         )
 }

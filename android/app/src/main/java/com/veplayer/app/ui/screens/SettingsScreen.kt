@@ -1223,9 +1223,11 @@ fun SettingsScreen() {
             val shift by com.veplayer.app.fleet.ShiftTracker.shift.collectAsState()
             Text(
                 if (shift.status == "open") {
-                    "Turno #${shift.id} · ${"%.1f".format(shift.distanceKm)} km"
+                    "Turno #${shift.id} · ${"%.1f".format(shift.distanceKm)} km" +
+                        (shift.ecoScore?.let { " · eco $it (${shift.ecoBand})" } ?: "")
                 } else if (shift.status == "closed") {
-                    "Último turno cerrado · ${"%.1f".format(shift.distanceKm)} km"
+                    "Último turno cerrado · ${"%.1f".format(shift.distanceKm)} km" +
+                        (shift.ecoScore?.let { " · eco $it" } ?: "")
                 } else {
                     "Turno: —"
                 },
@@ -1256,6 +1258,85 @@ fun SettingsScreen() {
                         }
                     },
                 ) { Text("Cerrar turno") }
+            }
+        }
+
+        PanelBlock("Phone Link · Android Auto / CarPlay") {
+            var phoneOn by remember { mutableStateOf(prefs.phoneLinkEnabled) }
+            val phone by com.veplayer.app.phone.PhoneLinkBus.state.collectAsState()
+            Text(
+                "BT media ahora. Host AA/CarPlay completo requiere ROM OEM / MFi — aquí: detección, sim demo y estado flota.",
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Phone Link", color = Mist)
+                Switch(
+                    checked = phoneOn,
+                    onCheckedChange = {
+                        phoneOn = it
+                        prefs.phoneLinkEnabled = it
+                        com.veplayer.app.phone.PhoneLinkManager.tick()
+                    },
+                )
+            }
+            Text(phone.statusText, color = if (phone.connected) Teal else Mute)
+            if (phone.connected) {
+                Text(
+                    "${phone.protocol.name} · ${phone.deviceName}" +
+                        if (phone.mediaTitle.isNotBlank()) " · ${phone.mediaTitle}" else "",
+                    color = Mute,
+                    fontSize = 12.sp,
+                )
+            }
+            Text(
+                "Host AA: ${if (phone.aaHostAvailable) "sí" else "no"} · CarPlay pkg: ${if (phone.carplayHostAvailable) "sí" else "no"}",
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.phone.PhoneLinkManager.simulate(
+                            com.veplayer.app.phone.PhoneLinkBus.Protocol.ANDROID_AUTO,
+                        )
+                        status = "Sim Android Auto"
+                    },
+                ) { Text("Sim AA") }
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.phone.PhoneLinkManager.simulate(
+                            com.veplayer.app.phone.PhoneLinkBus.Protocol.CARPLAY,
+                        )
+                        status = "Sim CarPlay"
+                    },
+                ) { Text("Sim CarPlay") }
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.phone.PhoneLinkManager.simulate(
+                            com.veplayer.app.phone.PhoneLinkBus.Protocol.BT_MEDIA,
+                        )
+                        status = "Sim BT"
+                    },
+                ) { Text("Sim BT") }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.phone.PhoneLinkManager.clearSim()
+                        status = "Sim off"
+                    },
+                ) { Text("Limpiar sim") }
+                OutlinedButton(
+                    onClick = {
+                        val ok = com.veplayer.app.phone.PhoneLinkManager.openAndroidAutoSettings()
+                        status = if (ok) "Abriendo AA/BT" else "Sin AA — BT settings"
+                    },
+                ) { Text("Abrir AA / BT") }
             }
         }
 

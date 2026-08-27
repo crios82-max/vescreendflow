@@ -409,6 +409,27 @@ npm run veplayer:obd-dtc-smoke
 
 **Fase 6 (siguiente):** scorecards eco · OSM prefetch · parking HUD.
 
+## Eco scorecards + Phone Link (v0.36 · Fase 6)
+
+### Scorecards eco
+Acumuladores en turno (`idle_sec` · `overspeed_sec` · `abs_events` · throttle) → `eco_score` 0–100 / band good|fair|poor.
+
+```bash
+npm run veplayer:eco-score-smoke
+```
+
+### Phone Link · Android Auto / CarPlay
+- BT media + detección paquetes host AA/CarPlay
+- Sim demo (Ajustes → Sim AA / Sim CarPlay) · Now Playing `PHONE`
+- Heartbeat `phone_link` · flota muestra protocolo
+- **Host completo AA/CarPlay = OEM / MFi** (no se finge proyección certificada)
+
+```bash
+npm run veplayer:phone-link-smoke
+```
+
+**Fase 6 (siguiente):** OSM prefetch · parking HUD.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
