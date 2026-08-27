@@ -65,6 +65,7 @@ import com.veplayer.app.ui.theme.Road
 import com.veplayer.app.vehicle.FuelRangeHud
 import com.veplayer.app.vehicle.FuelRangeHudMonitor
 import com.veplayer.app.vehicle.FuelRateMonitor
+import com.veplayer.app.vehicle.MafAirflowMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -128,6 +129,7 @@ fun DriveVizPanel(
     val maint by MaintenanceMonitor.state.collectAsState()
     val fuelHud by FuelRangeHudMonitor.state.collectAsState()
     val fuelRate by FuelRateMonitor.state.collectAsState()
+    val mafFlow by MafAirflowMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -175,6 +177,7 @@ fun DriveVizPanel(
             MaintenanceMonitor.tick(prefs, snap.odometerKm)
             FuelRangeHudMonitor.tick(prefs, snap.fuelPct, snap.batterySocPct, snap.rangeKm)
             FuelRateMonitor.tick(prefs, snap)
+            MafAirflowMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -568,6 +571,21 @@ fun DriveVizPanel(
                     Text(
                         fuelRate.label,
                         color = Color(com.veplayer.app.vehicle.FuelRate.accentArgb(fuelRate.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (
+                    mafFlow.showWarn ||
+                        (
+                            prefs.mafEnabled &&
+                                mafFlow.band == "ok" &&
+                                (mafFlow.mafGps ?: 0f) >= 25f &&
+                                mafFlow.label.isNotBlank()
+                        )
+                ) {
+                    Text(
+                        mafFlow.label,
+                        color = Color(com.veplayer.app.vehicle.MafAirflow.accentArgb(mafFlow.band)),
                         fontSize = 11.sp,
                     )
                 }

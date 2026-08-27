@@ -120,6 +120,7 @@ class MockCanAdapter(
             fuelTrimLtftPct = (sin(t / 22.0).toFloat() * 5f).coerceIn(-25f, 25f),
             mapKpa = (40f + kmh / 90f * 55f).coerceIn(25f, 100f),
             catalystTempC = (450f + kmh / 90f * 200f).coerceIn(350f, 700f),
+            mafGps = (10f + kmh / 90f * 60f).coerceIn(3f, 100f),
             runtimeSec = t.toInt().coerceAtLeast(0),
             source = sourceTag,
             updatedAtMs = System.currentTimeMillis(),

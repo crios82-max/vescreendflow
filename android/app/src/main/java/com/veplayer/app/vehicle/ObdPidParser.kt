@@ -24,6 +24,8 @@ object ObdPidParser {
         val mapKpa: Float? = null,
         /** Catalyst temperature (OBD PID 0134), °C. */
         val catalystTempC: Float? = null,
+        /** Mass air flow (OBD PID 0110), grams/sec. */
+        val mafGps: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -90,6 +92,10 @@ object ObdPidParser {
                         data.getOrNull(0)?.let { (it - 128) * 100f / 128f },
                 )
             0x0B -> PidValues(mapKpa = data.getOrNull(0)?.toFloat())
+            0x10 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(mafGps = ((data[0] * 256) + data[1]) / 100f)
+            }
             0x34 -> {
                 if (data.size < 2) PidValues()
                 else PidValues(catalystTempC = ((data[0] * 256) + data[1]) / 10f - 40f)
@@ -130,6 +136,7 @@ object ObdPidParser {
             fuelTrimLtftPct = add.fuelTrimLtftPct ?: base.fuelTrimLtftPct,
             mapKpa = add.mapKpa ?: base.mapKpa,
             catalystTempC = add.catalystTempC ?: base.catalystTempC,
+            mafGps = add.mafGps ?: base.mafGps,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,
