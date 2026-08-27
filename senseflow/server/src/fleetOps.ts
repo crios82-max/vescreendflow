@@ -1071,7 +1071,7 @@ fleetOpsRouter.get('/map', requireRole('viewer'), (req, res) => {
 
   const geofences = db
     .prepare(
-      `SELECT id, name, lat, lng, radius_m, active FROM fleet_geofences WHERE active = 1 ORDER BY id`,
+      `SELECT id, name, lat, lng, radius_m, max_kmh, active FROM fleet_geofences WHERE active = 1 ORDER BY id`,
     )
     .all()
 

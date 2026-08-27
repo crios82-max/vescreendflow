@@ -136,6 +136,7 @@
         <input id="gf-lat" placeholder="lat" value="10.496" style="width:90px" />
         <input id="gf-lng" placeholder="lng" value="-66.898" style="width:90px" />
         <input id="gf-r" placeholder="m" value="300" style="width:70px" />
+        <input id="gf-max" placeholder="max km/h" value="40" style="width:80px" title="Límite zona" />
         <button id="gf-add">Add fence</button>
       </div>
     </div>
@@ -274,10 +275,12 @@
         for (const g of j.geofences || []) {
           L.circle([g.lat, g.lng], {
             radius: g.radius_m,
-            color: '#d97706',
+            color: g.max_kmh != null ? '#d97706' : '#0d9488',
             weight: 1,
             fillOpacity: 0.08,
-          }).bindTooltip(g.name).addTo(mapLayers.fences)
+          }).bindTooltip(
+            g.name + (g.max_kmh != null ? ` · ${Math.round(g.max_kmh)} km/h` : ''),
+          ).addTo(mapLayers.fences)
           pts.push([g.lat, g.lng])
         }
       }
@@ -474,7 +477,9 @@
       const j = await fetch('/api/fleet/geofences').then(r => r.json())
       const el = document.getElementById('geofences')
       el.innerHTML = (j.geofences || []).map(g =>
-        `<div>· <b>${g.name}</b> ${g.lat.toFixed(3)},${g.lng.toFixed(3)} · r=${g.radius_m}m ${g.active ? '' : '(off)'}</div>`
+        `<div>· <b>${g.name}</b> ${g.lat.toFixed(3)},${g.lng.toFixed(3)} · r=${g.radius_m}m` +
+        (g.max_kmh != null ? ` · <span style="color:var(--amber)">${Math.round(g.max_kmh)} km/h</span>` : '') +
+        ` ${g.active ? '' : '(off)'}</div>`
       ).join('') || '<span class="muted">Sin geofences</span>'
     }
     async function spark(deviceId, cell) {
@@ -641,6 +646,10 @@
         lat: Number(document.getElementById('gf-lat').value),
         lng: Number(document.getElementById('gf-lng').value),
         radius_m: Number(document.getElementById('gf-r').value) || 250,
+        max_kmh: (() => {
+          const v = Number(document.getElementById('gf-max').value)
+          return Number.isFinite(v) && v > 0 ? v : null
+        })(),
       }
       const r = await fetch('/api/fleet/geofences', {
         method: 'POST', headers: hdrs(), body: JSON.stringify(body),

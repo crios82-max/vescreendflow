@@ -697,6 +697,27 @@ fun SettingsScreen() {
                     ) { Text("$v") }
                 }
             }
+            var zoneOn by remember { mutableStateOf(prefs.geofenceSpeedEnabled) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Límite por geofence", color = Mist)
+                Switch(
+                    checked = zoneOn,
+                    onCheckedChange = {
+                        zoneOn = it
+                        prefs.geofenceSpeedEnabled = it
+                    },
+                )
+            }
+            val zone by com.veplayer.app.vehicle.SpeedZoneBus.zone.collectAsState()
+            Text(
+                zone?.let { "Zona activa · ${it.name} · ${it.maxKmh} km/h" } ?: "Sin zona de velocidad",
+                color = Mute,
+                fontSize = 12.sp,
+            )
         }
 
         PanelBlock("Fuel / Range HUD") {

@@ -7,6 +7,7 @@ import {
   openPanicForDevice,
   raisePanic,
   ackPanicsForDevice,
+  activeSpeedZone,
   recordTelemetrySample,
 } from './fleetPro.js'
 import {
@@ -179,11 +180,13 @@ fleetRouter.post('/heartbeat', (req, res) => {
     d.lat,
     d.lng,
     signals as Record<string, unknown> | undefined,
+    speed,
   )
   const maintRaised = evaluateMaintenanceAlerts(d.device_id, odoKm)
   raised.push(...maintRaised)
   const openAlerts = openAlertsForDevice(d.device_id)
   const maintenance = maintenanceSummary(d.device_id, odoKm)
+  const speedZone = activeSpeedZone(d.lat, d.lng)
 
   const latest = db
     .prepare(`SELECT version_name, version_code, apk_url, notes FROM ota_releases ORDER BY version_code DESC LIMIT 1`)
@@ -235,6 +238,7 @@ fleetRouter.post('/heartbeat', (req, res) => {
         ? { open: true, id: p.id, message: p.message, created_at: p.created_at }
         : { open: false }
     })(),
+    speed_zone: speedZone,
     ota: latest
       ? {
           update_available: updateAvailable,
@@ -597,7 +601,9 @@ fleetRouter.post('/command/ack', (req, res) => {
 
 fleetRouter.get('/geofences', (_req, res) => {
   const rows = db
-    .prepare(`SELECT id, name, lat, lng, radius_m, active, created_at FROM fleet_geofences ORDER BY id`)
+    .prepare(
+      `SELECT id, name, lat, lng, radius_m, max_kmh, active, created_at FROM fleet_geofences ORDER BY id`,
+    )
     .all()
   res.json({ geofences: rows })
 })
@@ -607,6 +613,7 @@ const geofenceSchema = z.object({
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180),
   radius_m: z.number().positive().max(50_000).default(250),
+  max_kmh: z.number().positive().max(160).nullable().optional(),
   active: z.boolean().optional(),
 })
 
@@ -618,17 +625,62 @@ fleetRouter.post('/geofences', (req, res) => {
   }
   const info = db
     .prepare(
-      `INSERT INTO fleet_geofences (name, lat, lng, radius_m, active)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO fleet_geofences (name, lat, lng, radius_m, max_kmh, active)
+       VALUES (?, ?, ?, ?, ?, ?)`,
     )
     .run(
       parsed.data.name,
       parsed.data.lat,
       parsed.data.lng,
       parsed.data.radius_m,
+      parsed.data.max_kmh ?? null,
       parsed.data.active === false ? 0 : 1,
     )
   res.status(201).json({ ok: true, id: Number(info.lastInsertRowid) })
+})
+
+const geofencePatchSchema = z.object({
+  max_kmh: z.number().positive().max(160).nullable().optional(),
+  name: z.string().min(1).max(80).optional(),
+  radius_m: z.number().positive().max(50_000).optional(),
+  active: z.boolean().optional(),
+})
+
+fleetRouter.patch('/geofences/:id', (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: 'id inválido' })
+    return
+  }
+  const parsed = geofencePatchSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'payload inválido' })
+    return
+  }
+  const row = db.prepare(`SELECT id FROM fleet_geofences WHERE id = ?`).get(id)
+  if (!row) {
+    res.status(404).json({ error: 'geofence no encontrada' })
+    return
+  }
+  const d = parsed.data
+  if (d.max_kmh !== undefined) {
+    db.prepare(`UPDATE fleet_geofences SET max_kmh = ? WHERE id = ?`).run(d.max_kmh, id)
+  }
+  if (d.name != null) {
+    db.prepare(`UPDATE fleet_geofences SET name = ? WHERE id = ?`).run(d.name, id)
+  }
+  if (d.radius_m != null) {
+    db.prepare(`UPDATE fleet_geofences SET radius_m = ? WHERE id = ?`).run(d.radius_m, id)
+  }
+  if (d.active != null) {
+    db.prepare(`UPDATE fleet_geofences SET active = ? WHERE id = ?`).run(d.active ? 1 : 0, id)
+  }
+  const updated = db
+    .prepare(
+      `SELECT id, name, lat, lng, radius_m, max_kmh, active, created_at FROM fleet_geofences WHERE id = ?`,
+    )
+    .get(id)
+  res.json({ ok: true, geofence: updated })
 })
 
 fleetRouter.get('/alerts', (req, res) => {

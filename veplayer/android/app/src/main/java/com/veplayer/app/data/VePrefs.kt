@@ -42,6 +42,11 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("speed_tts_warn", true)
         set(value) = sp.edit().putBoolean("speed_tts_warn", value).apply()
 
+    /** Apply geofence max_kmh from SenseFlow heartbeat to HUD. */
+    var geofenceSpeedEnabled: Boolean
+        get() = sp.getBoolean("geofence_speed", true)
+        set(value) = sp.edit().putBoolean("geofence_speed", value).apply()
+
     /** Fuel / SOC / range HUD. */
     var fuelHudEnabled: Boolean
         get() = sp.getBoolean("fuel_hud", true)

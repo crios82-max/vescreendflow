@@ -143,6 +143,8 @@ object FleetInbox {
     ): String {
         val body = text.trim().trimEnd('.')
         return when {
+            kind.startsWith("geofence_speed") || kind == "geofence_speed" ->
+                "Atención. Exceso en zona. $body."
             kind.startsWith("geofence") -> "Alerta de zona. $body."
             kind == "abs" -> "Atención. Sistema ABS activo."
             kind == "tpms_low" -> "Atención. Presión de neumáticos baja."

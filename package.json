@@ -31,6 +31,7 @@
     "veplayer:idle-alert-smoke": "node veplayer/scripts/idle-alert-smoke.mjs",
     "veplayer:panic-sos-smoke": "node veplayer/scripts/panic-sos-smoke.mjs",
     "veplayer:fleet-map-smoke": "node veplayer/scripts/fleet-map-smoke.mjs",
+    "veplayer:geofence-speed-smoke": "node veplayer/scripts/geofence-speed-smoke.mjs",
     "veplayer:fleet-ops-smoke": "node veplayer/scripts/fleet-ops-smoke.mjs",
     "veplayer:fleet-auth-smoke": "node veplayer/scripts/fleet-auth-smoke.mjs",
     "db:up": "docker compose up -d",

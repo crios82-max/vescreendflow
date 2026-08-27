@@ -119,6 +119,12 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_fleet_telem_dev_ts ON fleet_telemetry(device_id, ts DESC);
 `)
 
+try {
+  db.exec(`ALTER TABLE fleet_geofences ADD COLUMN max_kmh REAL`)
+} catch {
+  /* exists */
+}
+
 // Widen fleet_commands.command CHECK to allow new remote ops (SQLite: rebuild table)
 const cmdTable = db
   .prepare(`SELECT sql FROM sqlite_master WHERE type='table' AND name='fleet_commands'`)
@@ -148,9 +154,17 @@ if (cmdTable?.sql && !cmdTable.sql.includes('set_source')) {
 const geoCount = db.prepare('SELECT COUNT(*) AS n FROM fleet_geofences').get() as { n: number }
 if (geoCount.n === 0) {
   db.prepare(
-    `INSERT INTO fleet_geofences (name, lat, lng, radius_m, active)
-     VALUES ('Base Caracas ego', 10.496, -66.898, 400, 1),
-            ('Altamira hub', 10.4965, -66.8492, 350, 1)`,
+    `INSERT INTO fleet_geofences (name, lat, lng, radius_m, max_kmh, active)
+     VALUES ('Base Caracas ego', 10.496, -66.898, 400, 40, 1),
+            ('Altamira hub', 10.4965, -66.8492, 350, 50, 1)`,
+  ).run()
+} else {
+  // Backfill demo limits when null
+  db.prepare(
+    `UPDATE fleet_geofences SET max_kmh = 40 WHERE name LIKE 'Base Caracas%' AND max_kmh IS NULL`,
+  ).run()
+  db.prepare(
+    `UPDATE fleet_geofences SET max_kmh = 50 WHERE name LIKE 'Altamira%' AND max_kmh IS NULL`,
   ).run()
 }
 

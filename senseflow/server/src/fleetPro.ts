@@ -93,31 +93,113 @@ export function recordTelemetrySample(
   ).run(deviceId, deviceId)
 }
 
+export type SpeedZone = {
+  id: number
+  name: string
+  max_kmh: number
+  distance_m: number
+}
+
+/** Most restrictive active fence with max_kmh containing the point. */
+export function activeSpeedZone(
+  lat: number | null | undefined,
+  lng: number | null | undefined,
+): SpeedZone | null {
+  if (typeof lat !== 'number' || typeof lng !== 'number') return null
+  const fences = db
+    .prepare(
+      `SELECT id, name, lat, lng, radius_m, max_kmh FROM fleet_geofences
+       WHERE active = 1 AND max_kmh IS NOT NULL AND max_kmh > 0`,
+    )
+    .all() as Array<{
+    id: number
+    name: string
+    lat: number
+    lng: number
+    radius_m: number
+    max_kmh: number
+  }>
+  let best: SpeedZone | null = null
+  for (const f of fences) {
+    const d = haversineM(lat, lng, f.lat, f.lng)
+    if (d > f.radius_m) continue
+    const zone: SpeedZone = {
+      id: f.id,
+      name: f.name,
+      max_kmh: Math.round(Number(f.max_kmh)),
+      distance_m: Math.round(d),
+    }
+    if (!best || zone.max_kmh < best.max_kmh) best = zone
+  }
+  return best
+}
+
 export function evaluateFleetAlerts(
   deviceId: string,
   lat: number | null | undefined,
   lng: number | null | undefined,
   signals: Record<string, unknown> | null | undefined,
+  speedMps?: number | null,
 ): string[] {
   const raised: string[] = []
 
   if (typeof lat === 'number' && typeof lng === 'number') {
     const fences = db
-      .prepare(`SELECT id, name, lat, lng, radius_m FROM fleet_geofences WHERE active = 1`)
-      .all() as Array<{ id: number; name: string; lat: number; lng: number; radius_m: number }>
+      .prepare(
+        `SELECT id, name, lat, lng, radius_m, max_kmh FROM fleet_geofences WHERE active = 1`,
+      )
+      .all() as Array<{
+      id: number
+      name: string
+      lat: number
+      lng: number
+      radius_m: number
+      max_kmh: number | null
+    }>
     for (const f of fences) {
       const d = haversineM(lat, lng, f.lat, f.lng)
       if (d <= f.radius_m) {
         const kind = `geofence_enter:${f.id}`
         if (!recentlyAlerted(deviceId, kind, 300)) {
+          const lim =
+            f.max_kmh != null && Number(f.max_kmh) > 0
+              ? ` · límite ${Math.round(Number(f.max_kmh))} km/h`
+              : ''
           insertAlert(
             deviceId,
             kind,
             'info',
-            `Entró a geofence «${f.name}» (${Math.round(d)} m)`,
-            { geofence_id: f.id, distance_m: Math.round(d) },
+            `Entró a geofence «${f.name}» (${Math.round(d)} m)${lim}`,
+            {
+              geofence_id: f.id,
+              distance_m: Math.round(d),
+              max_kmh: f.max_kmh != null ? Number(f.max_kmh) : null,
+            },
           )
           raised.push(kind)
+        }
+        if (f.max_kmh != null && Number(f.max_kmh) > 0) {
+          const speedFromSignals =
+            typeof signals?.speed_mps === 'number' ? (signals.speed_mps as number) : undefined
+          const spdMps = speedMps ?? speedFromSignals
+          if (typeof spdMps === 'number') {
+            const kmh = spdMps * 3.6
+            const lim = Number(f.max_kmh)
+            if (kmh > lim + 2 && !recentlyAlerted(deviceId, `geofence_speed:${f.id}`, 120)) {
+              insertAlert(
+                deviceId,
+                `geofence_speed:${f.id}`,
+                'warn',
+                `Exceso en zona «${f.name}»: ${Math.round(kmh)} > ${Math.round(lim)} km/h`,
+                {
+                  geofence_id: f.id,
+                  speed_kmh: Math.round(kmh),
+                  max_kmh: lim,
+                },
+              )
+              raised.push(`geofence_speed:${f.id}`)
+            }
+          }
         }
       }
     }
