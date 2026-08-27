@@ -75,6 +75,7 @@ import com.veplayer.app.vehicle.HarshDrivingMonitor
 import com.veplayer.app.vehicle.ImpactDetectMonitor
 import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
+import com.veplayer.app.vehicle.RestBreakMonitor
 import com.veplayer.app.vehicle.SeatbeltMonitor
 import com.veplayer.app.vehicle.ShiftFatigueMonitor
 import com.veplayer.app.vehicle.BatteryVoltageMonitor
@@ -109,6 +110,7 @@ fun DriveVizPanel(
     val parking by ParkingDistanceMonitor.state.collectAsState()
     val doorAjar by DoorAjarMonitor.state.collectAsState()
     val fatigue by ShiftFatigueMonitor.state.collectAsState()
+    val restBreak by RestBreakMonitor.state.collectAsState()
     val hvac by HvacClimateMonitor.state.collectAsState()
     val cabinHot by CabinOvertempMonitor.state.collectAsState()
     val coolantHot by CoolantOverheatMonitor.state.collectAsState()
@@ -136,6 +138,7 @@ fun DriveVizPanel(
             HarshDrivingMonitor.tick(prefs, snap)
             ImpactDetectMonitor.tick(prefs, snap)
             ShiftFatigueMonitor.tick(prefs)
+            RestBreakMonitor.tick(prefs, snap)
             HvacClimateMonitor.tick(prefs, snap)
             CabinOvertempMonitor.tick(prefs, snap)
             CoolantOverheatMonitor.tick(prefs, snap)
@@ -225,6 +228,13 @@ fun DriveVizPanel(
                     Text(
                         shiftSum.label,
                         color = Color(com.veplayer.app.fleet.ShiftSummary.accentArgb()),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (restBreak.showWarn || (prefs.restBreakEnabled && restBreak.band == "ok" && restBreak.drivingSec >= 600f)) {
+                    Text(
+                        restBreak.label,
+                        color = Color(com.veplayer.app.vehicle.RestBreak.accentArgb(restBreak.band)),
                         fontSize = 11.sp,
                     )
                 }

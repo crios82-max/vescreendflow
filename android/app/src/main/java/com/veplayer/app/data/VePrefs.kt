@@ -546,6 +546,40 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("fatigue_sim_h", 0f)
         set(value) = sp.edit().putFloat("fatigue_sim_h", value.coerceIn(0f, 16f)).apply()
 
+    /** Continuous driving rest-break reminder. */
+    var restBreakEnabled: Boolean
+        get() = sp.getBoolean("rest_break", true)
+        set(value) = sp.edit().putBoolean("rest_break", value).apply()
+
+    var restBreakTts: Boolean
+        get() = sp.getBoolean("rest_break_tts", true)
+        set(value) = sp.edit().putBoolean("rest_break_tts", value).apply()
+
+    /** Minutes continuous driving → warn. */
+    var restDriveWarnMin: Float
+        get() = sp.getFloat("rest_drive_warn_min", 120f)
+        set(value) = sp.edit().putFloat("rest_drive_warn_min", value.coerceIn(15f, 360f)).apply()
+
+    /** Minutes continuous driving → alert. */
+    var restDriveAlertMin: Float
+        get() = sp.getFloat("rest_drive_alert_min", 150f)
+        set(value) = sp.edit().putFloat("rest_drive_alert_min", value.coerceIn(20f, 480f)).apply()
+
+    /** Minutes stopped to reset driving accumulator. */
+    var restResetMin: Float
+        get() = sp.getFloat("rest_reset_min", 15f)
+        set(value) = sp.edit().putFloat("rest_reset_min", value.coerceIn(5f, 60f)).apply()
+
+    /** Speed ≥ this counts as driving. */
+    var restSpeedMinKmh: Float
+        get() = sp.getFloat("rest_speed_min", 5f)
+        set(value) = sp.edit().putFloat("rest_speed_min", value.coerceIn(1f, 20f)).apply()
+
+    /** Demo: pretend continuous driving this many minutes (0 = live). */
+    var restSimDriveMin: Float
+        get() = sp.getFloat("rest_sim_drive_min", 0f)
+        set(value) = sp.edit().putFloat("rest_sim_drive_min", value.coerceIn(0f, 480f)).apply()
+
     /** End-of-shift summary HUD / TTS. */
     var shiftSummaryEnabled: Boolean
         get() = sp.getBoolean("shift_summary", true)

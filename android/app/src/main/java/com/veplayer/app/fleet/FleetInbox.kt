@@ -182,6 +182,9 @@ object FleetInbox {
             kind == "impact_alert" -> "Atención. Posible impacto. $body."
             kind == "impact_warn" || kind.startsWith("impact_") ->
                 "Cuidado. Maniobra extrema. $body."
+            kind == "rest_break" -> "Atención. Es hora de un descanso. $body."
+            kind == "rest_warn" || kind.startsWith("rest_") ->
+                "Cuidado. Pausa recomendada. $body."
             kind == "shift_summary" -> "Turno cerrado. $body."
             kind == "shift_fatigue" -> "Atención. Turno prolongado. $body."
             kind == "shift_warn" || kind.startsWith("shift_") ->

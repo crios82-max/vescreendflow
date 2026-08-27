@@ -1857,6 +1857,65 @@ fun SettingsScreen() {
                 color = if (fatigue.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var restOn by remember { mutableStateOf(prefs.restBreakEnabled) }
+            var restTts by remember { mutableStateOf(prefs.restBreakTts) }
+            var restSim by remember {
+                mutableStateOf(
+                    if (prefs.restSimDriveMin > 0f) prefs.restSimDriveMin.toInt().toString() else "0",
+                )
+            }
+            val restSt by com.veplayer.app.vehicle.RestBreakMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso descanso (conducción continua)", color = Mist)
+                Switch(
+                    checked = restOn,
+                    onCheckedChange = {
+                        restOn = it
+                        prefs.restBreakEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS descanso", color = Mist)
+                Switch(
+                    checked = restTts,
+                    onCheckedChange = {
+                        restTts = it
+                        prefs.restBreakTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = restSim,
+                onValueChange = { restSim = it.filter { c -> c.isDigit() || c == '.' }.take(4) },
+                label = { Text("Sim min conduciendo (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.restSimDriveMin = restSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Rest sim ${prefs.restSimDriveMin.toInt()} min · warn ${prefs.restDriveWarnMin.toInt()} / alert ${prefs.restDriveAlertMin.toInt()} · reset ${prefs.restResetMin.toInt()} min"
+                },
+            ) { Text("Aplicar sim descanso") }
+            Text(
+                if (restSt.drivingSec > 0f || restSt.showWarn) {
+                    "${restSt.label} · ${restSt.band}"
+                } else {
+                    "Rest idle (reset tras ${prefs.restResetMin.toInt()} min parado)"
+                },
+                color = if (restSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
         }
 
         PanelBlock("Clima HVAC") {

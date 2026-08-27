@@ -100,6 +100,10 @@ class SenseBridgeService : Service() {
                                             "shift_duration_sec" to
                                                 com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.durationSec.toDouble(),
                                             "shift_band" to com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.band,
+                                    "rest_drive_sec" to
+                                        com.veplayer.app.vehicle.RestBreakMonitor.state.value.drivingSec.toDouble(),
+                                    "rest_warn_sec" to (prefs.restDriveWarnMin * 60f).toDouble(),
+                                    "rest_alert_sec" to (prefs.restDriveAlertMin * 60f).toDouble(),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                     "coolant_warn_c" to prefs.coolantWarnC.toDouble(),
@@ -213,6 +217,10 @@ class SenseBridgeService : Service() {
                                     "shift_duration_sec" to
                                         com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.durationSec.toDouble(),
                                     "shift_band" to com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.band,
+                                    "rest_drive_sec" to
+                                        com.veplayer.app.vehicle.RestBreakMonitor.state.value.drivingSec.toDouble(),
+                                    "rest_warn_sec" to (prefs.restDriveWarnMin * 60f).toDouble(),
+                                    "rest_alert_sec" to (prefs.restDriveAlertMin * 60f).toDouble(),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                     "coolant_warn_c" to prefs.coolantWarnC.toDouble(),
