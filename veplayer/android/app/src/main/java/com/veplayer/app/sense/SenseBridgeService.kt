@@ -275,6 +275,69 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.O2Voltage.toJsonMap(
                                             com.veplayer.app.vehicle.O2VoltageMonitor.state.value,
                                         ),
+                                    "abs_load_warn_pct" to prefs.absLoadWarnPct.toDouble(),
+                                    "abs_load_alert_pct" to prefs.absLoadAlertPct.toDouble(),
+                                    "abs_load_speed_min_kmh" to prefs.absLoadSpeedMinKmh.toDouble(),
+                                    "absolute_load_pct" to
+                                        (if (prefs.absLoadSimPct > 0f) prefs.absLoadSimPct
+                                        else com.veplayer.app.vehicle.AbsoluteLoadMonitor.state.value.loadPct
+                                            ?: snap.absoluteLoadPct
+                                        )?.toDouble(),
+                                    "absolute_load" to
+                                        com.veplayer.app.vehicle.AbsoluteLoad.toJsonMap(
+                                            com.veplayer.app.vehicle.AbsoluteLoadMonitor.state.value,
+                                        ),
+                                    "rel_thr_warn_pct" to prefs.relThrWarnPct.toDouble(),
+                                    "rel_thr_alert_pct" to prefs.relThrAlertPct.toDouble(),
+                                    "rel_thr_speed_min_kmh" to prefs.relThrSpeedMinKmh.toDouble(),
+                                    "relative_throttle_pct" to
+                                        (if (prefs.relThrSimPct > 0f) prefs.relThrSimPct
+                                        else com.veplayer.app.vehicle.RelativeThrottleMonitor.state.value.throttlePct
+                                            ?: snap.relativeThrottlePct
+                                        )?.toDouble(),
+                                    "relative_throttle" to
+                                        com.veplayer.app.vehicle.RelativeThrottle.toJsonMap(
+                                            com.veplayer.app.vehicle.RelativeThrottleMonitor.state.value,
+                                        ),
+                                    "accel_pedal_warn_pct" to prefs.accelPedalWarnPct.toDouble(),
+                                    "accel_pedal_alert_pct" to prefs.accelPedalAlertPct.toDouble(),
+                                    "accel_pedal_speed_min_kmh" to prefs.accelPedalSpeedMinKmh.toDouble(),
+                                    "accel_pedal_pct" to
+                                        (if (prefs.accelPedalSimPct > 0f) prefs.accelPedalSimPct
+                                        else com.veplayer.app.vehicle.AccelPedalMonitor.state.value.pedalPct
+                                            ?: snap.accelPedalPct
+                                        )?.toDouble(),
+                                    "accel_pedal" to
+                                        com.veplayer.app.vehicle.AccelPedal.toJsonMap(
+                                            com.veplayer.app.vehicle.AccelPedalMonitor.state.value,
+                                        ),
+                                    "o2_b2_warn_low_v" to prefs.o2B2WarnLowV.toDouble(),
+                                    "o2_b2_alert_low_v" to prefs.o2B2AlertLowV.toDouble(),
+                                    "o2_b2_warn_high_v" to prefs.o2B2WarnHighV.toDouble(),
+                                    "o2_b2_alert_high_v" to prefs.o2B2AlertHighV.toDouble(),
+                                    "o2_b2_speed_min_kmh" to prefs.o2B2SpeedMinKmh.toDouble(),
+                                    "o2_b2_rpm_min" to prefs.o2B2RpmMin.toDouble(),
+                                    "o2_b1s2_volts" to
+                                        (if (prefs.o2B2SimVolts > 0f) prefs.o2B2SimVolts
+                                        else com.veplayer.app.vehicle.O2B2VoltageMonitor.state.value.o2Volts
+                                            ?: snap.o2B1s2Volts
+                                        )?.toDouble(),
+                                    "o2_b2_voltage" to
+                                        com.veplayer.app.vehicle.O2B2Voltage.toJsonMap(
+                                            com.veplayer.app.vehicle.O2B2VoltageMonitor.state.value,
+                                        ),
+                                    "egr_warn_pct" to prefs.egrWarnPct.toDouble(),
+                                    "egr_alert_pct" to prefs.egrAlertPct.toDouble(),
+                                    "egr_speed_min_kmh" to prefs.egrSpeedMinKmh.toDouble(),
+                                    "egr_error_pct" to
+                                        (if (prefs.egrSimPct != 0f) prefs.egrSimPct
+                                        else com.veplayer.app.vehicle.EgrErrorMonitor.state.value.errorPct
+                                            ?: snap.egrErrorPct
+                                        )?.toDouble(),
+                                    "egr_error" to
+                                        com.veplayer.app.vehicle.EgrError.toJsonMap(
+                                            com.veplayer.app.vehicle.EgrErrorMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -691,6 +754,69 @@ class SenseBridgeService : Service() {
                                     "o2_voltage" to
                                         com.veplayer.app.vehicle.O2Voltage.toJsonMap(
                                             com.veplayer.app.vehicle.O2VoltageMonitor.state.value,
+                                        ),
+                                    "abs_load_warn_pct" to prefs.absLoadWarnPct.toDouble(),
+                                    "abs_load_alert_pct" to prefs.absLoadAlertPct.toDouble(),
+                                    "abs_load_speed_min_kmh" to prefs.absLoadSpeedMinKmh.toDouble(),
+                                    "absolute_load_pct" to
+                                        (if (prefs.absLoadSimPct > 0f) prefs.absLoadSimPct
+                                        else com.veplayer.app.vehicle.AbsoluteLoadMonitor.state.value.loadPct
+                                            ?: snap.absoluteLoadPct
+                                        )?.toDouble(),
+                                    "absolute_load" to
+                                        com.veplayer.app.vehicle.AbsoluteLoad.toJsonMap(
+                                            com.veplayer.app.vehicle.AbsoluteLoadMonitor.state.value,
+                                        ),
+                                    "rel_thr_warn_pct" to prefs.relThrWarnPct.toDouble(),
+                                    "rel_thr_alert_pct" to prefs.relThrAlertPct.toDouble(),
+                                    "rel_thr_speed_min_kmh" to prefs.relThrSpeedMinKmh.toDouble(),
+                                    "relative_throttle_pct" to
+                                        (if (prefs.relThrSimPct > 0f) prefs.relThrSimPct
+                                        else com.veplayer.app.vehicle.RelativeThrottleMonitor.state.value.throttlePct
+                                            ?: snap.relativeThrottlePct
+                                        )?.toDouble(),
+                                    "relative_throttle" to
+                                        com.veplayer.app.vehicle.RelativeThrottle.toJsonMap(
+                                            com.veplayer.app.vehicle.RelativeThrottleMonitor.state.value,
+                                        ),
+                                    "accel_pedal_warn_pct" to prefs.accelPedalWarnPct.toDouble(),
+                                    "accel_pedal_alert_pct" to prefs.accelPedalAlertPct.toDouble(),
+                                    "accel_pedal_speed_min_kmh" to prefs.accelPedalSpeedMinKmh.toDouble(),
+                                    "accel_pedal_pct" to
+                                        (if (prefs.accelPedalSimPct > 0f) prefs.accelPedalSimPct
+                                        else com.veplayer.app.vehicle.AccelPedalMonitor.state.value.pedalPct
+                                            ?: snap.accelPedalPct
+                                        )?.toDouble(),
+                                    "accel_pedal" to
+                                        com.veplayer.app.vehicle.AccelPedal.toJsonMap(
+                                            com.veplayer.app.vehicle.AccelPedalMonitor.state.value,
+                                        ),
+                                    "o2_b2_warn_low_v" to prefs.o2B2WarnLowV.toDouble(),
+                                    "o2_b2_alert_low_v" to prefs.o2B2AlertLowV.toDouble(),
+                                    "o2_b2_warn_high_v" to prefs.o2B2WarnHighV.toDouble(),
+                                    "o2_b2_alert_high_v" to prefs.o2B2AlertHighV.toDouble(),
+                                    "o2_b2_speed_min_kmh" to prefs.o2B2SpeedMinKmh.toDouble(),
+                                    "o2_b2_rpm_min" to prefs.o2B2RpmMin.toDouble(),
+                                    "o2_b1s2_volts" to
+                                        (if (prefs.o2B2SimVolts > 0f) prefs.o2B2SimVolts
+                                        else com.veplayer.app.vehicle.O2B2VoltageMonitor.state.value.o2Volts
+                                            ?: snap.o2B1s2Volts
+                                        )?.toDouble(),
+                                    "o2_b2_voltage" to
+                                        com.veplayer.app.vehicle.O2B2Voltage.toJsonMap(
+                                            com.veplayer.app.vehicle.O2B2VoltageMonitor.state.value,
+                                        ),
+                                    "egr_warn_pct" to prefs.egrWarnPct.toDouble(),
+                                    "egr_alert_pct" to prefs.egrAlertPct.toDouble(),
+                                    "egr_speed_min_kmh" to prefs.egrSpeedMinKmh.toDouble(),
+                                    "egr_error_pct" to
+                                        (if (prefs.egrSimPct != 0f) prefs.egrSimPct
+                                        else com.veplayer.app.vehicle.EgrErrorMonitor.state.value.errorPct
+                                            ?: snap.egrErrorPct
+                                        )?.toDouble(),
+                                    "egr_error" to
+                                        com.veplayer.app.vehicle.EgrError.toJsonMap(
+                                            com.veplayer.app.vehicle.EgrErrorMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

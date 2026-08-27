@@ -1224,6 +1224,130 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("o2_sim_speed", 40f)
         set(value) = sp.edit().putFloat("o2_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Absolute load (OBD 0143). */
+    var absLoadEnabled: Boolean
+        get() = sp.getBoolean("abs_load", true)
+        set(value) = sp.edit().putBoolean("abs_load", value).apply()
+    var absLoadTts: Boolean
+        get() = sp.getBoolean("abs_load_tts", true)
+        set(value) = sp.edit().putBoolean("abs_load_tts", value).apply()
+    var absLoadWarnPct: Float
+        get() = sp.getFloat("abs_load_warn_pct", 85f)
+        set(value) = sp.edit().putFloat("abs_load_warn_pct", value.coerceIn(50f, 98f)).apply()
+    var absLoadAlertPct: Float
+        get() = sp.getFloat("abs_load_alert_pct", 95f)
+        set(value) = sp.edit().putFloat("abs_load_alert_pct", value.coerceIn(55f, 100f)).apply()
+    var absLoadSpeedMinKmh: Float
+        get() = sp.getFloat("abs_load_speed_min", 20f)
+        set(value) = sp.edit().putFloat("abs_load_speed_min", value.coerceIn(0f, 60f)).apply()
+    var absLoadSimPct: Float
+        get() = sp.getFloat("abs_load_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("abs_load_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var absLoadSimSpeedKmh: Float
+        get() = sp.getFloat("abs_load_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("abs_load_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Relative throttle (OBD 0145). */
+    var relThrEnabled: Boolean
+        get() = sp.getBoolean("rel_thr", true)
+        set(value) = sp.edit().putBoolean("rel_thr", value).apply()
+    var relThrTts: Boolean
+        get() = sp.getBoolean("rel_thr_tts", true)
+        set(value) = sp.edit().putBoolean("rel_thr_tts", value).apply()
+    var relThrWarnPct: Float
+        get() = sp.getFloat("rel_thr_warn_pct", 75f)
+        set(value) = sp.edit().putFloat("rel_thr_warn_pct", value.coerceIn(40f, 95f)).apply()
+    var relThrAlertPct: Float
+        get() = sp.getFloat("rel_thr_alert_pct", 90f)
+        set(value) = sp.edit().putFloat("rel_thr_alert_pct", value.coerceIn(50f, 100f)).apply()
+    var relThrSpeedMinKmh: Float
+        get() = sp.getFloat("rel_thr_speed_min", 20f)
+        set(value) = sp.edit().putFloat("rel_thr_speed_min", value.coerceIn(0f, 60f)).apply()
+    var relThrSimPct: Float
+        get() = sp.getFloat("rel_thr_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("rel_thr_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var relThrSimSpeedKmh: Float
+        get() = sp.getFloat("rel_thr_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("rel_thr_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Accel pedal D (OBD 0149). */
+    var accelPedalEnabled: Boolean
+        get() = sp.getBoolean("accel_pedal", true)
+        set(value) = sp.edit().putBoolean("accel_pedal", value).apply()
+    var accelPedalTts: Boolean
+        get() = sp.getBoolean("accel_pedal_tts", true)
+        set(value) = sp.edit().putBoolean("accel_pedal_tts", value).apply()
+    var accelPedalWarnPct: Float
+        get() = sp.getFloat("accel_pedal_warn_pct", 80f)
+        set(value) = sp.edit().putFloat("accel_pedal_warn_pct", value.coerceIn(50f, 95f)).apply()
+    var accelPedalAlertPct: Float
+        get() = sp.getFloat("accel_pedal_alert_pct", 92f)
+        set(value) = sp.edit().putFloat("accel_pedal_alert_pct", value.coerceIn(55f, 100f)).apply()
+    var accelPedalSpeedMinKmh: Float
+        get() = sp.getFloat("accel_pedal_speed_min", 20f)
+        set(value) = sp.edit().putFloat("accel_pedal_speed_min", value.coerceIn(0f, 60f)).apply()
+    var accelPedalSimPct: Float
+        get() = sp.getFloat("accel_pedal_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("accel_pedal_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var accelPedalSimSpeedKmh: Float
+        get() = sp.getFloat("accel_pedal_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("accel_pedal_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** O2 B1S2 (OBD 014B). */
+    var o2B2Enabled: Boolean
+        get() = sp.getBoolean("o2_b2", true)
+        set(value) = sp.edit().putBoolean("o2_b2", value).apply()
+    var o2B2Tts: Boolean
+        get() = sp.getBoolean("o2_b2_tts", true)
+        set(value) = sp.edit().putBoolean("o2_b2_tts", value).apply()
+    var o2B2WarnLowV: Float
+        get() = sp.getFloat("o2_b2_warn_low_v", 0.10f)
+        set(value) = sp.edit().putFloat("o2_b2_warn_low_v", value.coerceIn(0.02f, 0.5f)).apply()
+    var o2B2AlertLowV: Float
+        get() = sp.getFloat("o2_b2_alert_low_v", 0.06f)
+        set(value) = sp.edit().putFloat("o2_b2_alert_low_v", value.coerceIn(0.01f, 0.2f)).apply()
+    var o2B2WarnHighV: Float
+        get() = sp.getFloat("o2_b2_warn_high_v", 0.88f)
+        set(value) = sp.edit().putFloat("o2_b2_warn_high_v", value.coerceIn(0.5f, 1.2f)).apply()
+    var o2B2AlertHighV: Float
+        get() = sp.getFloat("o2_b2_alert_high_v", 0.95f)
+        set(value) = sp.edit().putFloat("o2_b2_alert_high_v", value.coerceIn(0.6f, 1.275f)).apply()
+    var o2B2SpeedMinKmh: Float
+        get() = sp.getFloat("o2_b2_speed_min", 20f)
+        set(value) = sp.edit().putFloat("o2_b2_speed_min", value.coerceIn(0f, 60f)).apply()
+    var o2B2RpmMin: Float
+        get() = sp.getFloat("o2_b2_rpm_min", 800f)
+        set(value) = sp.edit().putFloat("o2_b2_rpm_min", value.coerceIn(400f, 3000f)).apply()
+    var o2B2SimVolts: Float
+        get() = sp.getFloat("o2_b2_sim_v", 0f)
+        set(value) = sp.edit().putFloat("o2_b2_sim_v", value.coerceIn(0f, 1.275f)).apply()
+    var o2B2SimSpeedKmh: Float
+        get() = sp.getFloat("o2_b2_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("o2_b2_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** EGR error (OBD 014D). */
+    var egrEnabled: Boolean
+        get() = sp.getBoolean("egr_error", true)
+        set(value) = sp.edit().putBoolean("egr_error", value).apply()
+    var egrTts: Boolean
+        get() = sp.getBoolean("egr_error_tts", true)
+        set(value) = sp.edit().putBoolean("egr_error_tts", value).apply()
+    var egrWarnPct: Float
+        get() = sp.getFloat("egr_warn_pct", 15f)
+        set(value) = sp.edit().putFloat("egr_warn_pct", value.coerceIn(5f, 40f)).apply()
+    var egrAlertPct: Float
+        get() = sp.getFloat("egr_alert_pct", 25f)
+        set(value) = sp.edit().putFloat("egr_alert_pct", value.coerceIn(8f, 50f)).apply()
+    var egrSpeedMinKmh: Float
+        get() = sp.getFloat("egr_speed_min", 20f)
+        set(value) = sp.edit().putFloat("egr_speed_min", value.coerceIn(0f, 60f)).apply()
+    var egrSimPct: Float
+        get() = sp.getFloat("egr_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("egr_sim_pct", value.coerceIn(-50f, 50f)).apply()
+    var egrSimSpeedKmh: Float
+        get() = sp.getFloat("egr_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("egr_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
