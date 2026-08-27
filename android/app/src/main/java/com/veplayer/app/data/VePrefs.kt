@@ -491,6 +491,35 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("harsh_accel_alert", 15f)
         set(value) = sp.edit().putFloat("harsh_accel_alert", value.coerceIn(8f, 35f)).apply()
 
+    /** Collision / impact candidate (extreme decel or yaw). */
+    var impactEnabled: Boolean
+        get() = sp.getBoolean("impact", true)
+        set(value) = sp.edit().putBoolean("impact", value).apply()
+
+    var impactTts: Boolean
+        get() = sp.getBoolean("impact_tts", true)
+        set(value) = sp.edit().putBoolean("impact_tts", value).apply()
+
+    var impactDecelWarnKmhS: Float
+        get() = sp.getFloat("impact_decel_warn", 28f)
+        set(value) = sp.edit().putFloat("impact_decel_warn", value.coerceIn(15f, 60f)).apply()
+
+    var impactDecelAlertKmhS: Float
+        get() = sp.getFloat("impact_decel_alert", 40f)
+        set(value) = sp.edit().putFloat("impact_decel_alert", value.coerceIn(20f, 80f)).apply()
+
+    var impactYawWarnDegS: Float
+        get() = sp.getFloat("impact_yaw_warn", 80f)
+        set(value) = sp.edit().putFloat("impact_yaw_warn", value.coerceIn(40f, 200f)).apply()
+
+    var impactYawAlertDegS: Float
+        get() = sp.getFloat("impact_yaw_alert", 120f)
+        set(value) = sp.edit().putFloat("impact_yaw_alert", value.coerceIn(60f, 300f)).apply()
+
+    var impactSpeedMinKmh: Float
+        get() = sp.getFloat("impact_speed_min", 8f)
+        set(value) = sp.edit().putFloat("impact_speed_min", value.coerceIn(0f, 40f)).apply()
+
     /** Shift duration / fatigue HUD. */
     var fatigueEnabled: Boolean
         get() = sp.getBoolean("fatigue", true)

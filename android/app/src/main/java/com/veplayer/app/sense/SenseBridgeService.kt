@@ -138,6 +138,9 @@ class SenseBridgeService : Service() {
                                     "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
                                         com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
                                     ),
+                                    "impact" to com.veplayer.app.vehicle.ImpactDetect.toJsonMap(
+                                        com.veplayer.app.vehicle.ImpactDetectMonitor.state.value,
+                                    ),
                                     "speed_limit_kmh" to
                                         com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
                                             "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),
@@ -247,6 +250,9 @@ class SenseBridgeService : Service() {
                                         },
                                     "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
                                         com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
+                                    ),
+                                    "impact" to com.veplayer.app.vehicle.ImpactDetect.toJsonMap(
+                                        com.veplayer.app.vehicle.ImpactDetectMonitor.state.value,
                                     ),
                                     "speed_limit_kmh" to
                                         com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),

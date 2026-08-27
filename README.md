@@ -682,6 +682,20 @@ npm run veplayer:battery-voltage-smoke
 
 **Fase 10 (en curso):** battery 12V · impact detect · rest break · route deviation · driver scorecard.
 
+## Impact detect (v0.55 · Fase 10)
+
+Candidato a colisión: decel extrema o yaw spike (sobre umbrales harsh):
+
+- Default decel **28/40 km/h/s** · yaw **80/120 °/s** · min **8 km/h**
+- DriveViz chip `Impacto · …` · TTS + inbox
+- Flota `impact_warn` / `impact_alert` · sim en Ajustes
+
+```bash
+npm run veplayer:impact-detect-smoke
+```
+
+**Fase 10 (en curso):** battery 12V · impact detect · rest break · route deviation · driver scorecard.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
