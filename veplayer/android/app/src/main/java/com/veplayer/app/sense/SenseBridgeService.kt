@@ -515,6 +515,65 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.CatalystB1S4.toJsonMap(
                                             com.veplayer.app.vehicle.CatalystB1S4Monitor.state.value,
                                         ),
+                                    "cat_b2s4_warn_c" to prefs.catB2s4WarnC.toDouble(),
+                                    "cat_b2s4_alert_c" to prefs.catB2s4AlertC.toDouble(),
+                                    "catalyst_b2s4_temp_c" to
+                                        (if (prefs.catB2s4SimC > 0f) prefs.catB2s4SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S4Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s4TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s4" to
+                                        com.veplayer.app.vehicle.CatalystB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S4Monitor.state.value,
+                                        ),
+                                    "stft2_b1_warn_pct" to prefs.stft2B1WarnPct.toDouble(),
+                                    "stft2_b1_alert_pct" to prefs.stft2B1AlertPct.toDouble(),
+                                    "stft2_b1_speed_min_kmh" to prefs.stft2B1SpeedMinKmh.toDouble(),
+                                    "fuel_trim_stft2_b1_pct" to
+                                        (if (prefs.stft2B1SimPct != 0f) prefs.stft2B1SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimStft2B1Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimStft2B1Pct
+                                        )?.toDouble(),
+                                    "stft2_b1" to
+                                        com.veplayer.app.vehicle.FuelTrimStft2B1.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimStft2B1Monitor.state.value,
+                                        ),
+                                    "ltft2_b1_warn_pct" to prefs.ltft2B1WarnPct.toDouble(),
+                                    "ltft2_b1_alert_pct" to prefs.ltft2B1AlertPct.toDouble(),
+                                    "ltft2_b1_speed_min_kmh" to prefs.ltft2B1SpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft2_b1_pct" to
+                                        (if (prefs.ltft2B1SimPct != 0f) prefs.ltft2B1SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtft2B1Pct
+                                        )?.toDouble(),
+                                    "ltft2_b1" to
+                                        com.veplayer.app.vehicle.FuelTrimLtft2B1.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor.state.value,
+                                        ),
+                                    "stft2_b2_warn_pct" to prefs.stft2B2WarnPct.toDouble(),
+                                    "stft2_b2_alert_pct" to prefs.stft2B2AlertPct.toDouble(),
+                                    "stft2_b2_speed_min_kmh" to prefs.stft2B2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_stft2_b2_pct" to
+                                        (if (prefs.stft2B2SimPct != 0f) prefs.stft2B2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimStft2B2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimStft2B2Pct
+                                        )?.toDouble(),
+                                    "stft2_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimStft2B2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimStft2B2Monitor.state.value,
+                                        ),
+                                    "ltft2_b2_warn_pct" to prefs.ltft2B2WarnPct.toDouble(),
+                                    "ltft2_b2_alert_pct" to prefs.ltft2B2AlertPct.toDouble(),
+                                    "ltft2_b2_speed_min_kmh" to prefs.ltft2B2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft2_b2_pct" to
+                                        (if (prefs.ltft2B2SimPct != 0f) prefs.ltft2B2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtft2B2Pct
+                                        )?.toDouble(),
+                                    "ltft2_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimLtft2B2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -1171,6 +1230,65 @@ class SenseBridgeService : Service() {
                                     "catalyst_b1s4" to
                                         com.veplayer.app.vehicle.CatalystB1S4.toJsonMap(
                                             com.veplayer.app.vehicle.CatalystB1S4Monitor.state.value,
+                                        ),
+                                    "cat_b2s4_warn_c" to prefs.catB2s4WarnC.toDouble(),
+                                    "cat_b2s4_alert_c" to prefs.catB2s4AlertC.toDouble(),
+                                    "catalyst_b2s4_temp_c" to
+                                        (if (prefs.catB2s4SimC > 0f) prefs.catB2s4SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S4Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s4TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s4" to
+                                        com.veplayer.app.vehicle.CatalystB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S4Monitor.state.value,
+                                        ),
+                                    "stft2_b1_warn_pct" to prefs.stft2B1WarnPct.toDouble(),
+                                    "stft2_b1_alert_pct" to prefs.stft2B1AlertPct.toDouble(),
+                                    "stft2_b1_speed_min_kmh" to prefs.stft2B1SpeedMinKmh.toDouble(),
+                                    "fuel_trim_stft2_b1_pct" to
+                                        (if (prefs.stft2B1SimPct != 0f) prefs.stft2B1SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimStft2B1Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimStft2B1Pct
+                                        )?.toDouble(),
+                                    "stft2_b1" to
+                                        com.veplayer.app.vehicle.FuelTrimStft2B1.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimStft2B1Monitor.state.value,
+                                        ),
+                                    "ltft2_b1_warn_pct" to prefs.ltft2B1WarnPct.toDouble(),
+                                    "ltft2_b1_alert_pct" to prefs.ltft2B1AlertPct.toDouble(),
+                                    "ltft2_b1_speed_min_kmh" to prefs.ltft2B1SpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft2_b1_pct" to
+                                        (if (prefs.ltft2B1SimPct != 0f) prefs.ltft2B1SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtft2B1Pct
+                                        )?.toDouble(),
+                                    "ltft2_b1" to
+                                        com.veplayer.app.vehicle.FuelTrimLtft2B1.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor.state.value,
+                                        ),
+                                    "stft2_b2_warn_pct" to prefs.stft2B2WarnPct.toDouble(),
+                                    "stft2_b2_alert_pct" to prefs.stft2B2AlertPct.toDouble(),
+                                    "stft2_b2_speed_min_kmh" to prefs.stft2B2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_stft2_b2_pct" to
+                                        (if (prefs.stft2B2SimPct != 0f) prefs.stft2B2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimStft2B2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimStft2B2Pct
+                                        )?.toDouble(),
+                                    "stft2_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimStft2B2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimStft2B2Monitor.state.value,
+                                        ),
+                                    "ltft2_b2_warn_pct" to prefs.ltft2B2WarnPct.toDouble(),
+                                    "ltft2_b2_alert_pct" to prefs.ltft2B2AlertPct.toDouble(),
+                                    "ltft2_b2_speed_min_kmh" to prefs.ltft2B2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft2_b2_pct" to
+                                        (if (prefs.ltft2B2SimPct != 0f) prefs.ltft2B2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtft2B2Pct
+                                        )?.toDouble(),
+                                    "ltft2_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimLtft2B2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

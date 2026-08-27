@@ -1199,6 +1199,32 @@ Catalizador banco 1 sensor 4 (**OBD PID 0175**), °C · `cat_b1s4_warn` / `cat_b
 npm run veplayer:fase19-smoke
 ```
 
+**Fase 20 (completa):** catalizador B2S4 · trims O2 secundarios ST/LT B1/B2.
+
+## Catalyst B2S4 (v1.05 · Fase 20)
+
+Catalizador banco 2 sensor 4 (**OBD PID 0176**), °C · `cat_b2s4_warn` / `cat_b2s4_alert` · HUD `CatB2S4 · XXX°C`
+
+## STFT O2 sec B1 (v1.06 · Fase 20)
+
+Trim corto O2 secundario B1 (**OBD PID 0155**), % · `stft2_b1_warn` / `stft2_b1_alert` · HUD `ST2B1 · ±XX%`
+
+## LTFT O2 sec B1 (v1.07 · Fase 20)
+
+Trim largo O2 secundario B1 (**OBD PID 0156**), % · `ltft2_b1_warn` / `ltft2_b1_alert` · HUD `LT2B1 · ±XX%`
+
+## STFT O2 sec B2 (v1.08 · Fase 20)
+
+Trim corto O2 secundario B2 (**OBD PID 0157**), % · `stft2_b2_warn` / `stft2_b2_alert` · HUD `ST2B2 · ±XX%`
+
+## LTFT O2 sec B2 (v1.09 · Fase 20)
+
+Trim largo O2 secundario B2 (**OBD PID 0158**), % · `ltft2_b2_warn` / `ltft2_b2_alert` · HUD `LT2B2 · ±XX%`
+
+```bash
+npm run veplayer:fase20-smoke
+```
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

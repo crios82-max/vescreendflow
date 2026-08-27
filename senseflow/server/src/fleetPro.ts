@@ -2456,6 +2456,196 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Catalyst temp B2S4 (OBD PID 0176)
+    const catB2s4Obj = signals.catalyst_b2s4 as Record<string, unknown> | undefined
+    const catalystB2s4TempC =
+      typeof catB2s4Obj?.catalyst_temp_c === 'number'
+        ? (catB2s4Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b2s4_temp_c === 'number'
+          ? (signals.catalyst_b2s4_temp_c as number)
+          : null
+    if (typeof catalystB2s4TempC === 'number') {
+      const warnC = typeof signals.cat_b2s4_warn_c === 'number' ? (signals.cat_b2s4_warn_c as number) : 750
+      const alertC = typeof signals.cat_b2s4_alert_c === 'number' ? (signals.cat_b2s4_alert_c as number) : 850
+      if (catalystB2s4TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b2s4_alert', 300)) {
+        insertAlert(deviceId, 'cat_b2s4_alert', 'critical', `Catalizador B2S4 crítico · ${Math.round(catalystB2s4TempC)} °C`, {
+          catalyst_b2s4_temp_c: catalystB2s4TempC,
+          catalyst_b2s4: catB2s4Obj ?? null,
+        })
+        raised.push('cat_b2s4_alert')
+      } else if (
+        catalystB2s4TempC >= warnC &&
+        catalystB2s4TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b2s4_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b2s4_warn', 'warn', `Catalizador B2S4 caliente · ${Math.round(catalystB2s4TempC)} °C`, {
+          catalyst_b2s4_temp_c: catalystB2s4TempC,
+          catalyst_b2s4: catB2s4Obj ?? null,
+        })
+        raised.push('cat_b2s4_warn')
+      }
+    }
+
+    // STFT secondary O2 B1 (OBD PID 0155)
+    const stft2B1Obj = signals.stft2_b1 as Record<string, unknown> | undefined
+    let stft2B1Pct: number | null =
+      typeof stft2B1Obj?.trim_pct === 'number'
+        ? (stft2B1Obj.trim_pct as number)
+        : typeof signals.fuel_trim_stft2_b1_pct === 'number'
+          ? (signals.fuel_trim_stft2_b1_pct as number)
+          : null
+    const stft2B1Speed =
+      typeof stft2B1Obj?.speed_kmh === 'number'
+        ? (stft2B1Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof stft2B1Pct === 'number') {
+      const warnPct = typeof signals.stft2_b1_warn_pct === 'number' ? (signals.stft2_b1_warn_pct as number) : 12
+      const alertPct = typeof signals.stft2_b1_alert_pct === 'number' ? (signals.stft2_b1_alert_pct as number) : 20
+      const minSpd = typeof signals.stft2_b1_speed_min_kmh === 'number' ? (signals.stft2_b1_speed_min_kmh as number) : 20
+      const spdOk = typeof stft2B1Speed === 'number' && stft2B1Speed >= minSpd
+      const absT = Math.abs(stft2B1Pct)
+      if (spdOk && absT >= alertPct && !recentlyAlerted(deviceId, 'stft2_b1_alert', 120)) {
+        insertAlert(deviceId, 'stft2_b1_alert', 'critical', `STFT O2 sec B1 crítico · ${Math.round(stft2B1Pct)}%`, {
+          fuel_trim_stft2_b1_pct: stft2B1Pct,
+          stft2_b1: stft2B1Obj ?? null,
+        })
+        raised.push('stft2_b1_alert')
+      } else if (
+        spdOk &&
+        absT >= warnPct &&
+        absT < alertPct &&
+        !recentlyAlerted(deviceId, 'stft2_b1_warn', 120)
+      ) {
+        insertAlert(deviceId, 'stft2_b1_warn', 'warn', `STFT O2 sec B1 alto · ${Math.round(stft2B1Pct)}%`, {
+          fuel_trim_stft2_b1_pct: stft2B1Pct,
+          stft2_b1: stft2B1Obj ?? null,
+        })
+        raised.push('stft2_b1_warn')
+      }
+    }
+
+    // LTFT secondary O2 B1 (OBD PID 0156)
+    const ltft2B1Obj = signals.ltft2_b1 as Record<string, unknown> | undefined
+    let ltft2B1Pct: number | null =
+      typeof ltft2B1Obj?.trim_pct === 'number'
+        ? (ltft2B1Obj.trim_pct as number)
+        : typeof signals.fuel_trim_ltft2_b1_pct === 'number'
+          ? (signals.fuel_trim_ltft2_b1_pct as number)
+          : null
+    const ltft2B1Speed =
+      typeof ltft2B1Obj?.speed_kmh === 'number'
+        ? (ltft2B1Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof ltft2B1Pct === 'number') {
+      const warnPct = typeof signals.ltft2_b1_warn_pct === 'number' ? (signals.ltft2_b1_warn_pct as number) : 12
+      const alertPct = typeof signals.ltft2_b1_alert_pct === 'number' ? (signals.ltft2_b1_alert_pct as number) : 20
+      const minSpd = typeof signals.ltft2_b1_speed_min_kmh === 'number' ? (signals.ltft2_b1_speed_min_kmh as number) : 20
+      const spdOk = typeof ltft2B1Speed === 'number' && ltft2B1Speed >= minSpd
+      const absT = Math.abs(ltft2B1Pct)
+      if (spdOk && absT >= alertPct && !recentlyAlerted(deviceId, 'ltft2_b1_alert', 120)) {
+        insertAlert(deviceId, 'ltft2_b1_alert', 'critical', `LTFT O2 sec B1 crítico · ${Math.round(ltft2B1Pct)}%`, {
+          fuel_trim_ltft2_b1_pct: ltft2B1Pct,
+          ltft2_b1: ltft2B1Obj ?? null,
+        })
+        raised.push('ltft2_b1_alert')
+      } else if (
+        spdOk &&
+        absT >= warnPct &&
+        absT < alertPct &&
+        !recentlyAlerted(deviceId, 'ltft2_b1_warn', 120)
+      ) {
+        insertAlert(deviceId, 'ltft2_b1_warn', 'warn', `LTFT O2 sec B1 alto · ${Math.round(ltft2B1Pct)}%`, {
+          fuel_trim_ltft2_b1_pct: ltft2B1Pct,
+          ltft2_b1: ltft2B1Obj ?? null,
+        })
+        raised.push('ltft2_b1_warn')
+      }
+    }
+
+    // STFT secondary O2 B2 (OBD PID 0157)
+    const stft2B2Obj = signals.stft2_b2 as Record<string, unknown> | undefined
+    let stft2B2Pct: number | null =
+      typeof stft2B2Obj?.trim_pct === 'number'
+        ? (stft2B2Obj.trim_pct as number)
+        : typeof signals.fuel_trim_stft2_b2_pct === 'number'
+          ? (signals.fuel_trim_stft2_b2_pct as number)
+          : null
+    const stft2B2Speed =
+      typeof stft2B2Obj?.speed_kmh === 'number'
+        ? (stft2B2Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof stft2B2Pct === 'number') {
+      const warnPct = typeof signals.stft2_b2_warn_pct === 'number' ? (signals.stft2_b2_warn_pct as number) : 12
+      const alertPct = typeof signals.stft2_b2_alert_pct === 'number' ? (signals.stft2_b2_alert_pct as number) : 20
+      const minSpd = typeof signals.stft2_b2_speed_min_kmh === 'number' ? (signals.stft2_b2_speed_min_kmh as number) : 20
+      const spdOk = typeof stft2B2Speed === 'number' && stft2B2Speed >= minSpd
+      const absT = Math.abs(stft2B2Pct)
+      if (spdOk && absT >= alertPct && !recentlyAlerted(deviceId, 'stft2_b2_alert', 120)) {
+        insertAlert(deviceId, 'stft2_b2_alert', 'critical', `STFT O2 sec B2 crítico · ${Math.round(stft2B2Pct)}%`, {
+          fuel_trim_stft2_b2_pct: stft2B2Pct,
+          stft2_b2: stft2B2Obj ?? null,
+        })
+        raised.push('stft2_b2_alert')
+      } else if (
+        spdOk &&
+        absT >= warnPct &&
+        absT < alertPct &&
+        !recentlyAlerted(deviceId, 'stft2_b2_warn', 120)
+      ) {
+        insertAlert(deviceId, 'stft2_b2_warn', 'warn', `STFT O2 sec B2 alto · ${Math.round(stft2B2Pct)}%`, {
+          fuel_trim_stft2_b2_pct: stft2B2Pct,
+          stft2_b2: stft2B2Obj ?? null,
+        })
+        raised.push('stft2_b2_warn')
+      }
+    }
+
+    // LTFT secondary O2 B2 (OBD PID 0158)
+    const ltft2B2Obj = signals.ltft2_b2 as Record<string, unknown> | undefined
+    let ltft2B2Pct: number | null =
+      typeof ltft2B2Obj?.trim_pct === 'number'
+        ? (ltft2B2Obj.trim_pct as number)
+        : typeof signals.fuel_trim_ltft2_b2_pct === 'number'
+          ? (signals.fuel_trim_ltft2_b2_pct as number)
+          : null
+    const ltft2B2Speed =
+      typeof ltft2B2Obj?.speed_kmh === 'number'
+        ? (ltft2B2Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof ltft2B2Pct === 'number') {
+      const warnPct = typeof signals.ltft2_b2_warn_pct === 'number' ? (signals.ltft2_b2_warn_pct as number) : 12
+      const alertPct = typeof signals.ltft2_b2_alert_pct === 'number' ? (signals.ltft2_b2_alert_pct as number) : 20
+      const minSpd = typeof signals.ltft2_b2_speed_min_kmh === 'number' ? (signals.ltft2_b2_speed_min_kmh as number) : 20
+      const spdOk = typeof ltft2B2Speed === 'number' && ltft2B2Speed >= minSpd
+      const absT = Math.abs(ltft2B2Pct)
+      if (spdOk && absT >= alertPct && !recentlyAlerted(deviceId, 'ltft2_b2_alert', 120)) {
+        insertAlert(deviceId, 'ltft2_b2_alert', 'critical', `LTFT O2 sec B2 crítico · ${Math.round(ltft2B2Pct)}%`, {
+          fuel_trim_ltft2_b2_pct: ltft2B2Pct,
+          ltft2_b2: ltft2B2Obj ?? null,
+        })
+        raised.push('ltft2_b2_alert')
+      } else if (
+        spdOk &&
+        absT >= warnPct &&
+        absT < alertPct &&
+        !recentlyAlerted(deviceId, 'ltft2_b2_warn', 120)
+      ) {
+        insertAlert(deviceId, 'ltft2_b2_warn', 'warn', `LTFT O2 sec B2 alto · ${Math.round(ltft2B2Pct)}%`, {
+          fuel_trim_ltft2_b2_pct: ltft2B2Pct,
+          ltft2_b2: ltft2B2Obj ?? null,
+        })
+        raised.push('ltft2_b2_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

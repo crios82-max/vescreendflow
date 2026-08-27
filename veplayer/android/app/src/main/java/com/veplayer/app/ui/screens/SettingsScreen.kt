@@ -3644,6 +3644,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 20 OBD (0176/55/56/57/58):", color = Mist)
+            val catB2s4St by com.veplayer.app.vehicle.CatalystB2S4Monitor.state.collectAsState()
+            val stft2B1St by com.veplayer.app.vehicle.FuelTrimStft2B1Monitor.state.collectAsState()
+            val ltft2B1St by com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor.state.collectAsState()
+            val stft2B2St by com.veplayer.app.vehicle.FuelTrimStft2B2Monitor.state.collectAsState()
+            val ltft2B2St by com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor.state.collectAsState()
+            var f20B2s4 by remember {
+                mutableStateOf(if (prefs.catB2s4SimC > 0f) prefs.catB2s4SimC.toInt().toString() else "0")
+            }
+            var f20St2B1 by remember {
+                mutableStateOf(if (prefs.stft2B1SimPct != 0f) prefs.stft2B1SimPct.toInt().toString() else "0")
+            }
+            var f20Lt2B1 by remember {
+                mutableStateOf(if (prefs.ltft2B1SimPct != 0f) prefs.ltft2B1SimPct.toInt().toString() else "0")
+            }
+            var f20St2B2 by remember {
+                mutableStateOf(if (prefs.stft2B2SimPct != 0f) prefs.stft2B2SimPct.toInt().toString() else "0")
+            }
+            var f20Lt2B2 by remember {
+                mutableStateOf(if (prefs.ltft2B2SimPct != 0f) prefs.ltft2B2SimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f20B2s4,
+                    onValueChange = { f20B2s4 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S4 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f20St2B1,
+                    onValueChange = { f20St2B1 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("ST2B1 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f20Lt2B1,
+                    onValueChange = { f20Lt2B1 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("LT2B1 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f20St2B2,
+                    onValueChange = { f20St2B2 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("ST2B2 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f20Lt2B2,
+                    onValueChange = { f20Lt2B2 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("LT2B2 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB2s4SimC = f20B2s4.toFloatOrNull() ?: 0f
+                    prefs.stft2B1SimPct = f20St2B1.toFloatOrNull() ?: 0f
+                    prefs.ltft2B1SimPct = f20Lt2B1.toFloatOrNull() ?: 0f
+                    prefs.stft2B2SimPct = f20St2B2.toFloatOrNull() ?: 0f
+                    prefs.ltft2B2SimPct = f20Lt2B2.toFloatOrNull() ?: 0f
+                    status = "Fase 20 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 20") }
+            Text(
+                listOfNotNull(
+                    catB2s4St.label.takeIf { it.isNotBlank() },
+                    stft2B1St.label.takeIf { it.isNotBlank() },
+                    ltft2B1St.label.takeIf { it.isNotBlank() },
+                    stft2B2St.label.takeIf { it.isNotBlank() },
+                    ltft2B2St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 20 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

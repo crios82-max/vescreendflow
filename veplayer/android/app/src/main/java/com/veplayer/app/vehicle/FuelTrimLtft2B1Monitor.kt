@@ -1,0 +1,33 @@
+package com.veplayer.app.vehicle
+
+import com.veplayer.app.data.VePrefs
+import com.veplayer.app.fleet.FleetInbox
+import com.veplayer.app.nav.NavTts
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+object FuelTrimLtft2B1Monitor {
+    private val _state = MutableStateFlow(FuelTrimLtft2B1.State())
+    val state: StateFlow<FuelTrimLtft2B1.State> = _state.asStateFlow()
+    private var warnSinceMs = 0L; private var lastSpokenMs = 0L; private var lastKey = ""
+
+    fun tick(prefs: VePrefs, signals: VehicleSignals, nowMs: Long = System.currentTimeMillis()) {
+        val t = if (prefs.ltft2B1SimPct != 0f) prefs.ltft2B1SimPct else signals.fuelTrimLtft2B1Pct
+        val speed = if (prefs.ltft2B1SimPct != 0f && prefs.ltft2B1SimSpeedKmh > 0f) prefs.ltft2B1SimSpeedKmh
+        else if (prefs.ltft2B1SimPct != 0f) signals.speedKmh.coerceAtLeast(prefs.ltft2B1SpeedMinKmh + 1f) else signals.speedKmh
+        val st = FuelTrimLtft2B1.evaluate(t, speed, prefs.ltft2B1WarnPct, prefs.ltft2B1AlertPct, prefs.ltft2B1SpeedMinKmh)
+        if (!prefs.ltft2B1Enabled) { _state.value = st.copy(showWarn = false); return }
+        _state.value = st
+        if (!st.showWarn) { warnSinceMs = 0L; lastKey = ""; return }
+        if (warnSinceMs == 0L) warnSinceMs = nowMs
+        val key = "${st.band}:${(st.trimPct ?: 0f).toInt() / 4}"
+        if (nowMs - warnSinceMs >= 2000 && (nowMs - lastSpokenMs >= 30000 || key != lastKey) && prefs.ltft2B1Tts) {
+            lastSpokenMs = nowMs; lastKey = key
+            val phrase = FuelTrimLtft2B1.voicePhrase(st)
+            NavTts.speakNow(phrase)
+            FleetInbox.push(prefs, if (st.band == "alert") "ltft2_b1_alert" else "ltft2_b1_warn", phrase,
+                if (st.band == "alert") "critical" else "warn", "ltft2_b1:${st.band}:${nowMs / 60000}", false)
+        }
+    }
+}

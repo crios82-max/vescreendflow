@@ -149,6 +149,16 @@ data class VehicleSignals(
         val catalystB2s3TempC: Float? = null,
         /** Catalyst temp bank 1 sensor 4 °C (OBD PID 0175). */
         val catalystB1s4TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 4 °C (OBD PID 0176). */
+        val catalystB2s4TempC: Float? = null,
+        /** STFT secondary O2 B1 % (OBD PID 0155), signed. */
+        val fuelTrimStft2B1Pct: Float? = null,
+        /** LTFT secondary O2 B1 % (OBD PID 0156), signed. */
+        val fuelTrimLtft2B1Pct: Float? = null,
+        /** STFT secondary O2 B2 % (OBD PID 0157), signed. */
+        val fuelTrimStft2B2Pct: Float? = null,
+        /** LTFT secondary O2 B2 % (OBD PID 0158), signed. */
+        val fuelTrimLtft2B2Pct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -258,6 +268,11 @@ data class VehicleSignals(
             "catalyst_b1s3_temp_c" to catalystB1s3TempC?.toDouble(),
             "catalyst_b2s3_temp_c" to catalystB2s3TempC?.toDouble(),
             "catalyst_b1s4_temp_c" to catalystB1s4TempC?.toDouble(),
+            "catalyst_b2s4_temp_c" to catalystB2s4TempC?.toDouble(),
+            "fuel_trim_stft2_b1_pct" to fuelTrimStft2B1Pct?.toDouble(),
+            "fuel_trim_ltft2_b1_pct" to fuelTrimLtft2B1Pct?.toDouble(),
+            "fuel_trim_stft2_b2_pct" to fuelTrimStft2B2Pct?.toDouble(),
+            "fuel_trim_ltft2_b2_pct" to fuelTrimLtft2B2Pct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),
