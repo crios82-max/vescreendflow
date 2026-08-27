@@ -110,6 +110,11 @@ class SenseBridgeService : Service() {
                             ).getOrThrow()
                         remote.handle(hb.commands)
                         remote.handleAlerts(hb.alerts)
+                        com.veplayer.app.fleet.PanicBus.applyFromHeartbeat(
+                            hb.panicOpen,
+                            hb.panicAlertId,
+                            hb.panicMessage,
+                        )
                         com.veplayer.app.fleet.ShiftTracker.tickLocal(prefs)
                         com.veplayer.app.fleet.ShiftTracker.applyFromHeartbeat(hb.shiftJson)
                         SilentOtaCoordinator.maybeApply(this@SenseBridgeService, hb.ota)
@@ -159,6 +164,11 @@ class SenseBridgeService : Service() {
                     ).getOrThrow()
                 remote.handle(hb.commands)
                 remote.handleAlerts(hb.alerts)
+                com.veplayer.app.fleet.PanicBus.applyFromHeartbeat(
+                    hb.panicOpen,
+                    hb.panicAlertId,
+                    hb.panicMessage,
+                )
                 com.veplayer.app.fleet.ShiftTracker.tickLocal(prefs)
                 com.veplayer.app.fleet.ShiftTracker.applyFromHeartbeat(hb.shiftJson)
                 SilentOtaCoordinator.maybeApply(this@SenseBridgeService, hb.ota)

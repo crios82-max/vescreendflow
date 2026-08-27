@@ -2,6 +2,9 @@ package com.veplayer.app.ui.shell
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
@@ -27,7 +31,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,11 +43,14 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.veplayer.app.data.VePrefs
+import com.veplayer.app.fleet.FleetClient
+import com.veplayer.app.fleet.PanicBus
 import com.veplayer.app.media.MediaSource
 import com.veplayer.app.media.VeMediaHub
 import com.veplayer.app.surround.ActorKind
@@ -61,7 +72,9 @@ import com.veplayer.app.vehicle.SpeedHud
 import com.veplayer.app.vehicle.SpeedHudMonitor
 import com.veplayer.app.vehicle.TurnSignal
 import com.veplayer.app.vehicle.VehicleSnapshot
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun DriveVizPanel(
@@ -71,10 +84,15 @@ fun DriveVizPanel(
     val surround by SurroundEngine.snapshot.collectAsState()
     val media by VeMediaHub.nowPlaying.collectAsState()
     val prefs = remember { VePrefs(LocalContext.current) }
+    val fleet = remember { FleetClient(prefs) }
+    val scope = rememberCoroutineScope()
     val hud by SpeedHudMonitor.state.collectAsState()
     val maint by MaintenanceMonitor.state.collectAsState()
     val fuelHud by FuelRangeHudMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
+    val panic by PanicBus.state.collectAsState()
+    var holdProgress by remember { mutableFloatStateOf(0f) }
+    var holdJob by remember { mutableStateOf<Job?>(null) }
     LaunchedEffect(Unit) {
         while (true) {
             val snap = com.veplayer.app.vehicle.VehicleState.state.value
@@ -179,6 +197,68 @@ fun DriveVizPanel(
                     modifier = Modifier.padding(bottom = 8.dp),
                 )
             }
+            if (prefs.panicEnabled) {
+                val sosColor =
+                    when {
+                        panic.active -> Color(0xFFE11D48)
+                        holdProgress > 0f -> Color(0xFFF59E0B)
+                        else -> Color(0xFF7F1D1D)
+                    }
+                Box(
+                    modifier =
+                        Modifier
+                            .padding(bottom = 8.dp, start = 6.dp)
+                            .size(52.dp)
+                            .clip(CircleShape)
+                            .background(sosColor)
+                            .pointerInput(panic.active) {
+                                awaitEachGesture {
+                                    awaitFirstDown(requireUnconsumed = false)
+                                    holdJob?.cancel()
+                                    holdProgress = 0f
+                                    PanicBus.setHolding(true, 0f)
+                                    holdJob =
+                                        scope.launch {
+                                            val total = 1200L
+                                            val step = 50L
+                                            var t = 0L
+                                            while (t < total) {
+                                                delay(step)
+                                                t += step
+                                                holdProgress = t / total.toFloat()
+                                                PanicBus.setHolding(true, holdProgress)
+                                            }
+                                            holdProgress = 1f
+                                        }
+                                    waitForUpOrCancellation()
+                                    val fired = holdProgress >= 0.99f
+                                    holdJob?.cancel()
+                                    holdJob = null
+                                    holdProgress = 0f
+                                    PanicBus.setHolding(false, 0f)
+                                    if (fired && !panic.active) {
+                                        scope.launch { PanicBus.trigger(prefs, fleet) }
+                                    }
+                                }
+                            },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        if (panic.active) "SOS!" else "SOS",
+                        color = Mist,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                    )
+                }
+            }
+        }
+        if (panic.active) {
+            Text(
+                "SOS activo · flota notificada",
+                color = Color(0xFFE11D48),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
         }
         if (prefs.fuelHudEnabled && (vehicle.fuelPct != null || vehicle.batterySocPct != null || vehicle.rangeKm != null)) {
             Text(

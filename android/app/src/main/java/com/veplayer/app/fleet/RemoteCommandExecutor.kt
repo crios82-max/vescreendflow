@@ -333,6 +333,11 @@ class RemoteCommandExecutor(
                             onStatus("set_idle_warn inválido")
                         }
                     }
+                    "panic_ack" -> {
+                        PanicBus.clear(speak = true)
+                        onStatus("Cmd panic_ack")
+                        RemoteCommandBus.publish("SOS confirmado por flota")
+                    }
                     "service_done" -> {
                         val kind = cmd.payload?.optString("kind").orEmpty().trim().lowercase()
                         val odo =

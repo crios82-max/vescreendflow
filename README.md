@@ -337,6 +337,21 @@ npm run veplayer:idle-alert-smoke
 
 **Fase 5 (siguiente):** panic/SOS · mapa live flota · waypoints.
 
+## Panic / SOS (v0.31)
+
+Botón de emergencia conductor → alerta crítica flota:
+
+- DriveViz: mantener SOS 1.2s · banner activo · TTS
+- `POST /api/fleet/panic` · severity `critical` · dedupe 30s
+- Heartbeat `panic.open` · cmd `panic_ack` limpia en device + servidor
+- Fleet UI: alerta rosa + Ack SOS
+
+```bash
+npm run veplayer:panic-sos-smoke
+```
+
+**Fase 5 (siguiente):** mapa live flota · waypoints.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

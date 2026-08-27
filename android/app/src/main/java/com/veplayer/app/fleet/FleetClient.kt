@@ -29,6 +29,15 @@ data class HeartbeatResult(
     val commands: List<FleetCommand>,
     val alerts: List<FleetAlert> = emptyList(),
     val shiftJson: JSONObject? = null,
+    val panicOpen: Boolean = false,
+    val panicAlertId: Long? = null,
+    val panicMessage: String? = null,
+)
+
+data class PanicResult(
+    val alertId: Long?,
+    val message: String,
+    val deduped: Boolean,
 )
 
 data class FleetAlert(
@@ -143,11 +152,51 @@ class FleetClient(private val prefs: VePrefs) {
                             message = a.optString("message"),
                         )
                 }
+                val panicJson = json.optJSONObject("panic")
                 HeartbeatResult(
                     ota = ota,
                     commands = cmds,
                     alerts = alerts,
                     shiftJson = json.optJSONObject("shift"),
+                    panicOpen = panicJson?.optBoolean("open") == true,
+                    panicAlertId =
+                        if (panicJson != null && panicJson.has("id")) panicJson.optLong("id") else null,
+                    panicMessage = panicJson?.optString("message"),
+                )
+            }
+        }
+
+    fun panic(
+        lat: Double? = null,
+        lng: Double? = null,
+        note: String? = null,
+        driverCode: String? = null,
+        driverName: String? = null,
+    ): Result<PanicResult> =
+        runCatching {
+            val payload =
+                JSONObject()
+                    .put("device_id", prefs.deviceId())
+                    .put("source", "veplayer")
+            if (lat != null) payload.put("lat", lat)
+            if (lng != null) payload.put("lng", lng)
+            if (!note.isNullOrBlank()) payload.put("note", note.trim())
+            if (!driverCode.isNullOrBlank()) payload.put("driver_code", driverCode)
+            if (!driverName.isNullOrBlank()) payload.put("driver_name", driverName)
+            val req =
+                Request.Builder()
+                    .url(base() + "/api/fleet/panic")
+                    .post(payload.toString().toRequestBody(JSON))
+                    .build()
+            client.newCall(req).execute().use { resp ->
+                val text = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) error("panic HTTP ${resp.code}: $text")
+                val json = JSONObject(text)
+                val alert = json.optJSONObject("alert")
+                PanicResult(
+                    alertId = alert?.optLong("id"),
+                    message = alert?.optString("message") ?: "SOS enviado",
+                    deduped = json.optBoolean("deduped"),
                 )
             }
         }
