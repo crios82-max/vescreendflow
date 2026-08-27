@@ -129,6 +129,16 @@ data class VehicleSignals(
         val evapVaporPa: Float? = null,
         /** Fuel rail absolute pressure kPa (OBD PID 0159). */
         val fuelRailAbsKpa: Float? = null,
+        /** Commanded EGR % (OBD PID 014C). */
+        val egrCmdPct: Float? = null,
+        /** Relative accelerator pedal % (OBD PID 015A). */
+        val relAccelPedalPct: Float? = null,
+        /** Driver demand torque % (OBD PID 0161), signed. */
+        val driverTorquePct: Float? = null,
+        /** Actual engine torque % (OBD PID 0162), signed. */
+        val actualTorquePct: Float? = null,
+        /** Catalyst temperature bank 2 °C (OBD PID 0170). */
+        val catalystB2TempC: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -228,6 +238,11 @@ data class VehicleSignals(
             "ethanol_pct" to ethanolPct?.toDouble(),
             "evap_vapor_pa" to evapVaporPa?.toDouble(),
             "fuel_rail_abs_kpa" to fuelRailAbsKpa?.toDouble(),
+            "egr_cmd_pct" to egrCmdPct?.toDouble(),
+            "rel_accel_pedal_pct" to relAccelPedalPct?.toDouble(),
+            "driver_torque_pct" to driverTorquePct?.toDouble(),
+            "actual_torque_pct" to actualTorquePct?.toDouble(),
+            "catalyst_b2_temp_c" to catalystB2TempC?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

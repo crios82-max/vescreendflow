@@ -54,6 +54,16 @@ object ObdPidParser {
         val evapVaporPa: Float? = null,
         /** Fuel rail absolute pressure kPa (OBD PID 0159). */
         val fuelRailAbsKpa: Float? = null,
+        /** Commanded EGR % (OBD PID 014C). */
+        val egrCmdPct: Float? = null,
+        /** Relative accelerator pedal % (OBD PID 015A). */
+        val relAccelPedalPct: Float? = null,
+        /** Driver demand torque % (OBD PID 0161), signed. */
+        val driverTorquePct: Float? = null,
+        /** Actual engine torque % (OBD PID 0162), signed. */
+        val actualTorquePct: Float? = null,
+        /** Catalyst temperature bank 2 °C (OBD PID 0170). */
+        val catalystB2TempC: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -171,6 +181,20 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(fuelRailAbsKpa = ((data[0] * 256) + data[1]) * 10f)
             }
+            0x4C -> PidValues(egrCmdPct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x5A -> PidValues(relAccelPedalPct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x61 ->
+                PidValues(
+                    driverTorquePct = data.getOrNull(0)?.let { (it - 125).toFloat() },
+                )
+            0x62 ->
+                PidValues(
+                    actualTorquePct = data.getOrNull(0)?.let { (it - 125).toFloat() },
+                )
+            0x70 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -222,6 +246,11 @@ object ObdPidParser {
             ethanolPct = add.ethanolPct ?: base.ethanolPct,
             evapVaporPa = add.evapVaporPa ?: base.evapVaporPa,
             fuelRailAbsKpa = add.fuelRailAbsKpa ?: base.fuelRailAbsKpa,
+            egrCmdPct = add.egrCmdPct ?: base.egrCmdPct,
+            relAccelPedalPct = add.relAccelPedalPct ?: base.relAccelPedalPct,
+            driverTorquePct = add.driverTorquePct ?: base.driverTorquePct,
+            actualTorquePct = add.actualTorquePct ?: base.actualTorquePct,
+            catalystB2TempC = add.catalystB2TempC ?: base.catalystB2TempC,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

@@ -1147,6 +1147,32 @@ Rail absoluto (**OBD PID 0159**), kPa · `rail_abs_warn` / `rail_abs_alert` · H
 npm run veplayer:fase17-smoke
 ```
 
+**Fase 18 (completa):** EGR comandado · pedal relativo · torque demanda/real · catalizador B2.
+
+## Commanded EGR (v0.95 · Fase 18)
+
+EGR comandado (**OBD PID 014C**), % · `egr_cmd_warn` / `egr_cmd_alert` · HUD `EGRcmd · XX%`
+
+## Relative accel pedal (v0.96 · Fase 18)
+
+Pedal relativo (**OBD PID 015A**), % · `rel_aped_warn` / `rel_aped_alert` · HUD `RelAP · XX%`
+
+## Driver torque (v0.97 · Fase 18)
+
+Demanda torque (**OBD PID 0161**), % (A−125) · `drv_torque_warn` / `drv_torque_alert` · HUD `DrvT · XX%`
+
+## Actual torque (v0.98 · Fase 18)
+
+Torque real (**OBD PID 0162**), % (A−125) · `act_torque_warn` / `act_torque_alert` · HUD `ActT · XX%`
+
+## Catalyst B2 (v0.99 · Fase 18)
+
+Catalizador banco 2 (**OBD PID 0170**), °C · `cat_b2_warn` / `cat_b2_alert` · HUD `CatB2 · XXX°C`
+
+```bash
+npm run veplayer:fase18-smoke
+```
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
