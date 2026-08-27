@@ -17,7 +17,13 @@ object VehicleState {
     val state: StateFlow<VehicleSignals> = _state.asStateFlow()
 
     fun applySignals(signals: VehicleSignals) {
-        _state.value = signals
+        val d = DtcBus.snap.value
+        _state.value =
+            signals.copy(
+                mil = d.mil,
+                dtcCount = if (d.dtcCount > 0) d.dtcCount else d.codes.size,
+                dtcs = d.codes,
+            )
     }
 
     fun updateSpeed(speedMps: Float?, source: String = "gps") {

@@ -47,6 +47,20 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("geofence_speed", true)
         set(value) = sp.edit().putBoolean("geofence_speed", value).apply()
 
+    /** MIL / DTC alerts (inbox + TTS). */
+    var dtcAlertsEnabled: Boolean
+        get() = sp.getBoolean("dtc_alerts", true)
+        set(value) = sp.edit().putBoolean("dtc_alerts", value).apply()
+
+    var dtcTts: Boolean
+        get() = sp.getBoolean("dtc_tts", true)
+        set(value) = sp.edit().putBoolean("dtc_tts", value).apply()
+
+    /** When OBD sim (no dongle), seed demo P0420/P0301 + MIL. */
+    var dtcDemoSeed: Boolean
+        get() = sp.getBoolean("dtc_demo_seed", true)
+        set(value) = sp.edit().putBoolean("dtc_demo_seed", value).apply()
+
     /** Fuel / SOC / range HUD. */
     var fuelHudEnabled: Boolean
         get() = sp.getBoolean("fuel_hud", true)

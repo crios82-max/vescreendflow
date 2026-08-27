@@ -207,6 +207,39 @@ class ObdBluetoothClient(private val context: Context) {
             acc
         }
 
+    /** Mode 01 status + Modes 03/07/0A trouble codes. */
+    suspend fun pollDtc(): ObdDtc.Snapshot =
+        withContext(Dispatchers.IO) {
+            var mil = false
+            var count = 0
+            val statusRaw = sendCommand("0101", 1500L)
+            if (statusRaw != null) {
+                ObdDtc.parseMonitorStatus(statusRaw)?.let {
+                    mil = it.first
+                    count = it.second
+                }
+            }
+            delay(40)
+            val codes = mutableListOf<ObdDtc.Code>()
+            for ((cmd, mode) in listOf("03" to 0x03, "07" to 0x07, "0A" to 0x0A)) {
+                val raw = sendCommand(cmd, 2000L) ?: continue
+                codes += ObdDtc.parseDtcResponse(raw, mode)
+                delay(60)
+            }
+            val unique = codes.distinctBy { "${it.code}:${it.status}" }
+            ObdDtc.Snapshot(
+                mil = mil || unique.any { it.status == "stored" },
+                dtcCount = if (count > 0) count else unique.size,
+                codes = unique,
+            )
+        }
+
+    /** Mode 04 clear DTCs (live ELM only). */
+    fun clearDtcs(): Boolean {
+        val raw = sendCommand("04", 2500L) ?: return false
+        return raw.uppercase().contains("44") || raw.uppercase().contains("OK")
+    }
+
     companion object {
         private const val TAG = "ObdBt"
         private val SPP_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")

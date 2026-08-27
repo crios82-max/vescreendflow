@@ -105,4 +105,36 @@ object CanBusManager {
         val ctx = appContext ?: return emptyList()
         return UsbSlcanTransport(ctx).listCandidates()
     }
+
+    fun obdAdapter(): ObdElm327Adapter? = adapter as? ObdElm327Adapter
+
+    fun seedDtc(
+        codes: List<ObdDtc.Code>,
+        mil: Boolean,
+    ) {
+        DtcBus.seed(codes, mil)
+        _stateRefreshFromBus()
+    }
+
+    fun clearDtc() {
+        val obd = obdAdapter()
+        if (obd != null) obd.requestClearDtc() else DtcBus.clear()
+        _stateRefreshFromBus()
+    }
+
+    fun readDtc() {
+        val obd = obdAdapter()
+        if (obd != null) {
+            obd.requestReadDtc()
+        } else {
+            val p = prefs
+            if (p?.dtcDemoSeed == true) DtcBus.seedDemo()
+        }
+        _stateRefreshFromBus()
+    }
+
+    private fun _stateRefreshFromBus() {
+        val cur = VehicleState.state.value
+        VehicleState.applySignals(cur)
+    }
 }

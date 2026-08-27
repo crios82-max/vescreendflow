@@ -394,6 +394,21 @@ npm run veplayer:geofence-speed-smoke
 
 **Fase 6 (siguiente):** DTC/OBD · scorecards · OSM prefetch · parking HUD.
 
+## DTC / MIL OBD (v0.35 · Fase 6)
+
+Fallos OBD-II (MIL + códigos):
+
+- Parser Modes `0101` / `03` / `07` / `0A` · `obd_sim` seed P0420/P0301
+- Heartbeat `mil` · `dtcs[]` · alertas `mil_on` / `dtc:P0420`
+- Cmds flota `seed_dtc` · `read_dtc` · `clear_dtc` · Ajustes Leer/Simular/Limpiar
+- DriveViz muestra `MIL · P0420` · TTS inbox
+
+```bash
+npm run veplayer:obd-dtc-smoke
+```
+
+**Fase 6 (siguiente):** scorecards eco · OSM prefetch · parking HUD.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
