@@ -941,6 +941,20 @@ npm run veplayer:mil-distance-smoke
 
 **Fase 13 (completa):** engine load · oil temp · intake air · fuel rate · MIL distance.
 
+## Dist since clear (v0.74 · Fase 14)
+
+Km desde limpiar códigos (**OBD PID 0131**) con falla activa:
+
+- Warn **≥100 km** / alert **≥200 km** (MIL o DTC presente)
+- DriveViz `Clear · XX km` · TTS + inbox
+- Flota `dist_clear_warn` / `dist_clear_alert` · sim km en Ajustes (DTC)
+
+```bash
+npm run veplayer:dist-since-clear-smoke
+```
+
+**Fase 14 (en curso):** dist since clear · fuel trim STFT · fuel trim LTFT · MAP · catalyst temp.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

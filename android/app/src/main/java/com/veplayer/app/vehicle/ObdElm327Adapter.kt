@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
  * 2. On failure / no MAC → PID simulator (`obd_sim`) so UI/fleet keep working
  * 3. DTC: live Modes 03/07/0A (+0101 MIL) every ~8s · sim seeds demo codes when enabled
  *
- * PIDs: 010D speed · 010C RPM · 0104 load · 0105 coolant · 010F intake · 015C oil · 012F fuel · 015E fuel rate · 0146 ambient · 0111 throttle · 011F runtime · 0121 MIL dist · 0142 voltage
+ * PIDs: 010D speed · 010C RPM · 0104 load · 0105 coolant · 010F intake · 015C oil · 012F fuel · 015E fuel rate · 0146 ambient · 0111 throttle · 011F runtime · 0121 MIL dist · 0131 clear dist · 0142 voltage
  */
 class ObdElm327Adapter(
     context: Context,
@@ -186,6 +186,7 @@ class ObdElm327Adapter(
                 engineLoadPct = p.engineLoadPct ?: prev.engineLoadPct,
                 runtimeSec = p.runtimeSec ?: prev.runtimeSec,
                 milDistanceKm = p.milDistanceKm ?: prev.milDistanceKm,
+                distSinceClearKm = p.distSinceClearKm ?: prev.distSinceClearKm,
                 source = if (live) "obd" else "obd_sim",
                 updatedAtMs = System.currentTimeMillis(),
             ),
@@ -205,6 +206,7 @@ class ObdElm327Adapter(
         val fuelGps = (kmh / 90f * 18f + 2f).coerceIn(0.5f, 40f)
         val milActive = DtcBus.snap.value.mil
         val milKm = if (milActive) (t * 0.4f).coerceAtMost(150f) else null
+        val clearKm = if (milActive) (t * 0.35f).coerceAtMost(250f) else null
         val gear =
             when {
                 forceReverse -> Gear.R
@@ -245,6 +247,7 @@ class ObdElm327Adapter(
                 engineLoadPct = (kmh / 90f * 85f).coerceIn(0f, 100f),
                 runtimeSec = t.toInt().coerceAtLeast(0),
                 milDistanceKm = milKm,
+                distSinceClearKm = clearKm,
                 source = "obd_sim",
                 updatedAtMs = System.currentTimeMillis(),
                 ),

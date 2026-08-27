@@ -172,6 +172,9 @@ object FleetInbox {
             kind == "mil_dist_alert" -> "Atención. Muchos kilómetros con MIL encendida. $body."
             kind == "mil_dist_warn" || kind.startsWith("mil_dist") ->
                 "Cuidado. Distancia con luz de motor. $body."
+            kind == "dist_clear_alert" -> "Atención. Muchos km desde limpiar fallas. $body."
+            kind == "dist_clear_warn" || kind.startsWith("dist_clear") ->
+                "Cuidado. Falla activa desde el último clear. $body."
             kind == "parking_crit" || kind == "parking_near" || kind.startsWith("parking_") ->
                 "Atención. Estacionamiento. $body."
             kind == "door_moving" -> "Atención. Puerta abierta en movimiento. $body."

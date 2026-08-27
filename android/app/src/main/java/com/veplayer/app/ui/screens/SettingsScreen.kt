@@ -631,6 +631,65 @@ fun SettingsScreen() {
                 color = if (milDistSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var clearOn by remember { mutableStateOf(prefs.distClearEnabled) }
+            var clearTts by remember { mutableStateOf(prefs.distClearTts) }
+            var clearSim by remember {
+                mutableStateOf(
+                    if (prefs.distClearSimKm > 0f) prefs.distClearSimKm.toInt().toString() else "0",
+                )
+            }
+            val clearSt by com.veplayer.app.vehicle.DistSinceClearMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso km desde clear (0131)", color = Mist)
+                Switch(
+                    checked = clearOn,
+                    onCheckedChange = {
+                        clearOn = it
+                        prefs.distClearEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS km clear", color = Mist)
+                Switch(
+                    checked = clearTts,
+                    onCheckedChange = {
+                        clearTts = it
+                        prefs.distClearTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = clearSim,
+                onValueChange = { clearSim = it.filter { c -> c.isDigit() }.take(4) },
+                label = { Text("Sim km clear (0=OBD)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.distClearSimKm = clearSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Clear sim ${prefs.distClearSimKm.toInt()} km · warn ${prefs.distClearWarnKm.toInt()} / alert ${prefs.distClearAlertKm.toInt()}"
+                },
+            ) { Text("Aplicar sim clear") }
+            Text(
+                if (clearSt.distanceKm != null && clearSt.faultActive) {
+                    "${clearSt.label} · ${clearSt.band}"
+                } else {
+                    "Clear idle (warn ${prefs.distClearWarnKm.toInt()} / alert ${prefs.distClearAlertKm.toInt()} km)"
+                },
+                color = if (clearSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = {
