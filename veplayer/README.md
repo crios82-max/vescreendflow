@@ -1003,6 +1003,20 @@ npm run veplayer:catalyst-temp-smoke
 
 **Fase 14 (completa):** dist since clear · fuel trim STFT · fuel trim LTFT · MAP · catalyst temp.
 
+## MAF airflow (v0.79 · Fase 15)
+
+Flujo de aire (**OBD PID 0110**), g/s:
+
+- Warn **≥80 g/s** / alert **≥110 g/s** (en movimiento ≥20 km/h)
+- DriveViz `MAF · XX g/s` · TTS + inbox
+- Flota `maf_warn` / `maf_alert` · sim g/s en Ajustes (motor)
+
+```bash
+npm run veplayer:maf-airflow-smoke
+```
+
+**Fase 15 (en curso):** MAF airflow · fuel pressure · barometric · timing advance · O2 voltage.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

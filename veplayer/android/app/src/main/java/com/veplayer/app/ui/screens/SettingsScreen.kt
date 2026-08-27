@@ -2972,6 +2972,65 @@ fun SettingsScreen() {
                 color = if (fuelRateSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var mafOn by remember { mutableStateOf(prefs.mafEnabled) }
+            var mafTts by remember { mutableStateOf(prefs.mafTts) }
+            var mafSim by remember {
+                mutableStateOf(
+                    if (prefs.mafSimGps > 0f) prefs.mafSimGps.toInt().toString() else "0",
+                )
+            }
+            val mafSt by com.veplayer.app.vehicle.MafAirflowMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso flujo MAF (0110)", color = Mist)
+                Switch(
+                    checked = mafOn,
+                    onCheckedChange = {
+                        mafOn = it
+                        prefs.mafEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS MAF", color = Mist)
+                Switch(
+                    checked = mafTts,
+                    onCheckedChange = {
+                        mafTts = it
+                        prefs.mafTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = mafSim,
+                onValueChange = { mafSim = it.filter { c -> c.isDigit() }.take(3) },
+                label = { Text("Sim MAF g/s (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.mafSimGps = mafSim.toFloatOrNull() ?: 0f
+                    status =
+                        "MAF sim ${prefs.mafSimGps.toInt()} g/s · warn ${prefs.mafWarnGps.toInt()} / alert ${prefs.mafAlertGps.toInt()}"
+                },
+            ) { Text("Aplicar sim MAF") }
+            Text(
+                if (mafSt.mafGps != null) {
+                    "${mafSt.label} · ${mafSt.band}"
+                } else {
+                    "MAF idle (warn ${prefs.mafWarnGps.toInt()} / alert ${prefs.mafAlertGps.toInt()} g/s)"
+                },
+                color = if (mafSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

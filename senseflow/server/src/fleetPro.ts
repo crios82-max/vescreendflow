@@ -1256,6 +1256,72 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Mass air flow (OBD PID 0110)
+    const mafObj = signals.maf_airflow as Record<string, unknown> | undefined
+    let mafGps: number | null =
+      typeof mafObj?.maf_gps === 'number'
+        ? (mafObj.maf_gps as number)
+        : typeof signals.maf_gps === 'number'
+          ? (signals.maf_gps as number)
+          : null
+    const mafSpeedKmh =
+      typeof mafObj?.speed_kmh === 'number'
+        ? (mafObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof mafGps === 'number') {
+      const warnMafGps =
+        typeof signals.maf_warn_gps === 'number'
+          ? (signals.maf_warn_gps as number)
+          : 80
+      const alertMafGps =
+        typeof signals.maf_alert_gps === 'number'
+          ? (signals.maf_alert_gps as number)
+          : 110
+      const mafMinSpd =
+        typeof signals.maf_speed_min_kmh === 'number'
+          ? (signals.maf_speed_min_kmh as number)
+          : 20
+      const mafSpdOk = typeof mafSpeedKmh === 'number' && mafSpeedKmh >= mafMinSpd
+      if (
+        mafSpdOk &&
+        mafGps >= alertMafGps &&
+        !recentlyAlerted(deviceId, 'maf_alert', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'maf_alert',
+          'critical',
+          `MAF crítico · ${Math.round(mafGps)} g/s`,
+          {
+            maf_gps: mafGps,
+            alert_gps: alertMafGps,
+            maf_airflow: mafObj ?? null,
+          },
+        )
+        raised.push('maf_alert')
+      } else if (
+        mafSpdOk &&
+        mafGps >= warnMafGps &&
+        mafGps < alertMafGps &&
+        !recentlyAlerted(deviceId, 'maf_warn', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'maf_warn',
+          'warn',
+          `MAF alto · ${Math.round(mafGps)} g/s`,
+          {
+            maf_gps: mafGps,
+            warn_gps: warnMafGps,
+            maf_airflow: mafObj ?? null,
+          },
+        )
+        raised.push('maf_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

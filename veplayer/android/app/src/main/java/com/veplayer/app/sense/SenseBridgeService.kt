@@ -209,6 +209,18 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.FuelRate.toJsonMap(
                                             com.veplayer.app.vehicle.FuelRateMonitor.state.value,
                                         ),
+                                    "maf_warn_gps" to prefs.mafWarnGps.toDouble(),
+                                    "maf_alert_gps" to prefs.mafAlertGps.toDouble(),
+                                    "maf_speed_min_kmh" to prefs.mafSpeedMinKmh.toDouble(),
+                                    "maf_gps" to
+                                        (if (prefs.mafSimGps > 0f) prefs.mafSimGps
+                                        else com.veplayer.app.vehicle.MafAirflowMonitor.state.value.mafGps
+                                            ?: snap.mafGps
+                                        )?.toDouble(),
+                                    "maf_airflow" to
+                                        com.veplayer.app.vehicle.MafAirflow.toJsonMap(
+                                            com.veplayer.app.vehicle.MafAirflowMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -558,6 +570,18 @@ class SenseBridgeService : Service() {
                                     "fuel_rate" to
                                         com.veplayer.app.vehicle.FuelRate.toJsonMap(
                                             com.veplayer.app.vehicle.FuelRateMonitor.state.value,
+                                        ),
+                                    "maf_warn_gps" to prefs.mafWarnGps.toDouble(),
+                                    "maf_alert_gps" to prefs.mafAlertGps.toDouble(),
+                                    "maf_speed_min_kmh" to prefs.mafSpeedMinKmh.toDouble(),
+                                    "maf_gps" to
+                                        (if (prefs.mafSimGps > 0f) prefs.mafSimGps
+                                        else com.veplayer.app.vehicle.MafAirflowMonitor.state.value.mafGps
+                                            ?: snap.mafGps
+                                        )?.toDouble(),
+                                    "maf_airflow" to
+                                        com.veplayer.app.vehicle.MafAirflow.toJsonMap(
+                                            com.veplayer.app.vehicle.MafAirflowMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

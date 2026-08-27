@@ -1036,6 +1036,36 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("fuel_rate_sim_speed", 40f)
         set(value) = sp.edit().putFloat("fuel_rate_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Mass air flow (OBD 0110). */
+    var mafEnabled: Boolean
+        get() = sp.getBoolean("maf", true)
+        set(value) = sp.edit().putBoolean("maf", value).apply()
+
+    var mafTts: Boolean
+        get() = sp.getBoolean("maf_tts", true)
+        set(value) = sp.edit().putBoolean("maf_tts", value).apply()
+
+    var mafWarnGps: Float
+        get() = sp.getFloat("maf_warn_gps", 80f)
+        set(value) = sp.edit().putFloat("maf_warn_gps", value.coerceIn(20f, 300f)).apply()
+
+    var mafAlertGps: Float
+        get() = sp.getFloat("maf_alert_gps", 110f)
+        set(value) = sp.edit().putFloat("maf_alert_gps", value.coerceIn(30f, 400f)).apply()
+
+    var mafSpeedMinKmh: Float
+        get() = sp.getFloat("maf_speed_min", 20f)
+        set(value) = sp.edit().putFloat("maf_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    /** Demo MAF g/s (0 = live OBD). */
+    var mafSimGps: Float
+        get() = sp.getFloat("maf_sim_gps", 0f)
+        set(value) = sp.edit().putFloat("maf_sim_gps", value.coerceIn(0f, 400f)).apply()
+
+    var mafSimSpeedKmh: Float
+        get() = sp.getFloat("maf_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("maf_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
