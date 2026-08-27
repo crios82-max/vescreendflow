@@ -395,6 +395,40 @@ export function evaluateFleetAlerts(
         raised.push('shift_warn')
       }
     }
+
+    // Cabin overtemp — hvac.cabin_c or top-level cabin_c
+    const hvac = signals.hvac as Record<string, unknown> | undefined
+    let cabinC: number | null =
+      typeof hvac?.cabin_c === 'number'
+        ? (hvac.cabin_c as number)
+        : typeof signals.cabin_c === 'number'
+          ? (signals.cabin_c as number)
+          : null
+    if (typeof cabinC === 'number') {
+      const warnC = typeof signals.cabin_warn_c === 'number' ? (signals.cabin_warn_c as number) : 32
+      const alertC =
+        typeof signals.cabin_alert_c === 'number' ? (signals.cabin_alert_c as number) : 38
+      if (cabinC >= alertC && !recentlyAlerted(deviceId, 'cabin_overtemp', 300)) {
+        insertAlert(
+          deviceId,
+          'cabin_overtemp',
+          'critical',
+          `Cabina crítica · ${Math.round(cabinC)} °C`,
+          { cabin_c: cabinC, alert_c: alertC },
+        )
+        raised.push('cabin_overtemp')
+      } else if (
+        cabinC >= warnC &&
+        cabinC < alertC &&
+        !recentlyAlerted(deviceId, 'cabin_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cabin_warn', 'warn', `Cabina caliente · ${Math.round(cabinC)} °C`, {
+          cabin_c: cabinC,
+          warn_c: warnC,
+        })
+        raised.push('cabin_warn')
+      }
+    }
   }
 
   return raised

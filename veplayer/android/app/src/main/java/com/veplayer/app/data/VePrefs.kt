@@ -349,6 +349,28 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("hvac_comfort_delta", 2.5f)
         set(value) = sp.edit().putFloat("hvac_comfort_delta", value.coerceIn(0.5f, 6f)).apply()
 
+    /** Cabin over-temperature alerts. */
+    var cabinOvertempEnabled: Boolean
+        get() = sp.getBoolean("cabin_overtemp", true)
+        set(value) = sp.edit().putBoolean("cabin_overtemp", value).apply()
+
+    var cabinOvertempTts: Boolean
+        get() = sp.getBoolean("cabin_overtemp_tts", true)
+        set(value) = sp.edit().putBoolean("cabin_overtemp_tts", value).apply()
+
+    var cabinWarnC: Float
+        get() = sp.getFloat("cabin_warn_c", 32f)
+        set(value) = sp.edit().putFloat("cabin_warn_c", value.coerceIn(25f, 45f)).apply()
+
+    var cabinAlertC: Float
+        get() = sp.getFloat("cabin_alert_c", 38f)
+        set(value) = sp.edit().putFloat("cabin_alert_c", value.coerceIn(28f, 55f)).apply()
+
+    /** Demo: force cabin °C (0 = live). */
+    var cabinOvertempSimC: Float
+        get() = sp.getFloat("cabin_overtemp_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cabin_overtemp_sim_c", value.coerceIn(0f, 55f)).apply()
+
     /** Collect fleet alerts into inbox. */
     var fleetAlertsEnabled: Boolean
         get() = sp.getBoolean("fleet_alerts", true)

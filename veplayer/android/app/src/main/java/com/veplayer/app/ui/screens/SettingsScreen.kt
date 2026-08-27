@@ -1400,6 +1400,61 @@ fun SettingsScreen() {
             if (hvacOn) {
                 com.veplayer.app.ui.climate.HvacClimatePanel()
             }
+            var cabinOn by remember { mutableStateOf(prefs.cabinOvertempEnabled) }
+            var cabinTts by remember { mutableStateOf(prefs.cabinOvertempTts) }
+            var cabinSim by remember { mutableStateOf(if (prefs.cabinOvertempSimC > 0f) prefs.cabinOvertempSimC.toInt().toString() else "0") }
+            val cabinHot by com.veplayer.app.vehicle.CabinOvertempMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso cabina caliente", color = Mist)
+                Switch(
+                    checked = cabinOn,
+                    onCheckedChange = {
+                        cabinOn = it
+                        prefs.cabinOvertempEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS overtemp", color = Mist)
+                Switch(
+                    checked = cabinTts,
+                    onCheckedChange = {
+                        cabinTts = it
+                        prefs.cabinOvertempTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = cabinSim,
+                onValueChange = { cabinSim = it.filter { c -> c.isDigit() || c == '.' }.take(4) },
+                label = { Text("Sim cabina °C (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.cabinOvertempSimC = cabinSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Cabina sim ${prefs.cabinOvertempSimC}° · warn ${prefs.cabinWarnC.toInt()} / alert ${prefs.cabinAlertC.toInt()}"
+                },
+            ) { Text("Aplicar sim cabina") }
+            Text(
+                if (cabinHot.cabinC != null) {
+                    "Overtemp · ${cabinHot.label} · ${cabinHot.band}"
+                } else {
+                    "Overtemp idle"
+                },
+                color = if (cabinHot.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
         }
 
         PanelBlock("Phone Link · Android Auto / CarPlay") {
