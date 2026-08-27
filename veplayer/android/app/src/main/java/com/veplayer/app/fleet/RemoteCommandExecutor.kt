@@ -214,9 +214,45 @@ class RemoteCommandExecutor(
                             prefs.navDestName = name
                             prefs.navToLat = lat
                             prefs.navToLng = lng
+                            val viaArr = cmd.payload?.optJSONArray("via")
+                            if (viaArr != null) {
+                                val list = mutableListOf<com.veplayer.app.nav.NavDestination>()
+                                for (i in 0 until viaArr.length()) {
+                                    val o = viaArr.optJSONObject(i) ?: continue
+                                    val vLat = o.optDouble("lat")
+                                    val vLng = o.optDouble("lng")
+                                    if (vLat.isNaN() || vLng.isNaN()) continue
+                                    list +=
+                                        com.veplayer.app.nav.NavDestination(
+                                            id = o.optString("id").ifBlank { "via-$i" },
+                                            name = o.optString("name").ifBlank { "Parada ${i + 1}" },
+                                            lat = vLat,
+                                            lng = vLng,
+                                        )
+                                }
+                                prefs.navWaypointsJson =
+                                    org.json.JSONArray()
+                                        .also { arr ->
+                                            list.forEach { d ->
+                                                arr.put(
+                                                    org.json.JSONObject()
+                                                        .put("id", d.id)
+                                                        .put("name", d.name)
+                                                        .put("lat", d.lat)
+                                                        .put("lng", d.lng),
+                                                )
+                                            }
+                                        }.toString()
+                                NavEngine.loadWaypoints(prefs)
+                            } else {
+                                NavEngine.clearWaypoints(persist = true)
+                            }
                             CoroutineScope(Dispatchers.IO).launch { NavEngine.refresh() }
-                            onStatus("Cmd nav_dest → $name")
-                            RemoteCommandBus.publish("Nav → $name")
+                            val viaN = viaArr?.length() ?: 0
+                            onStatus("Cmd nav_dest → $name" + if (viaN > 0) " (+$viaN vías)" else "")
+                            RemoteCommandBus.publish(
+                                if (viaN > 0) "Nav → $viaN vías → $name" else "Nav → $name",
+                            )
                         } else {
                             onStatus("nav_dest sin lat/lng")
                         }

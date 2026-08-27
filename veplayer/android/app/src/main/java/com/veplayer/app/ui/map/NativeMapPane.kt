@@ -70,6 +70,8 @@ fun NativeMapPane() {
     val scope = rememberCoroutineScope()
     val route by NavEngine.route.collectAsState()
     val destinations by NavEngine.destinations.collectAsState()
+    val viaStops by NavEngine.waypoints.collectAsState()
+    var viaMode by remember { mutableStateOf(false) }
     val vehicle by VehicleState.state.collectAsState()
     val surround by SurroundEngine.snapshot.collectAsState()
 
@@ -142,7 +144,12 @@ fun NativeMapPane() {
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Destino", color = Mute, fontSize = 12.sp)
+            Text(if (viaMode) "+ Vía" else "Destino", color = Mute, fontSize = 12.sp)
+            if (viaMode) {
+                Button(onClick = { viaMode = false }) { Text("Modo vía", fontSize = 12.sp) }
+            } else {
+                OutlinedButton(onClick = { viaMode = true }) { Text("+ Vía", fontSize = 12.sp) }
+            }
             val chips =
                 destinations.ifEmpty {
                     listOf(
@@ -152,16 +159,33 @@ fun NativeMapPane() {
                     )
                 }
             chips.forEach { d ->
-                val selected = prefs.navDestName == d.name
+                val isDest = prefs.navDestName == d.name
+                val isVia = viaStops.any { it.id == d.id || it.name == d.name }
+                val selected = isDest || isVia
+                val label = if (isVia && !isDest) "vía ${d.name}" else d.name
                 if (selected) {
                     Button(
-                        onClick = { NavEngine.setDestination(d, scope) },
-                    ) { Text(d.name, fontSize = 12.sp) }
+                        onClick = {
+                            if (viaMode) NavEngine.addWaypoint(d, scope)
+                            else NavEngine.setDestination(d, scope)
+                        },
+                    ) { Text(label, fontSize = 12.sp) }
                 } else {
                     OutlinedButton(
-                        onClick = { NavEngine.setDestination(d, scope) },
-                    ) { Text(d.name, fontSize = 12.sp) }
+                        onClick = {
+                            if (viaMode) NavEngine.addWaypoint(d, scope)
+                            else NavEngine.setDestination(d, scope)
+                        },
+                    ) { Text(label, fontSize = 12.sp) }
                 }
+            }
+            if (viaStops.isNotEmpty()) {
+                OutlinedButton(
+                    onClick = {
+                        NavEngine.clearWaypoints(persist = true, scope = scope)
+                        viaMode = false
+                    },
+                ) { Text("Limpiar vías", fontSize = 12.sp) }
             }
             if (crowdOn) {
                 Button(
@@ -261,6 +285,12 @@ fun NativeMapPane() {
                 }
 
                 val dxy = xy(dest)
+                // Intermediate vias (amber)
+                for (v in viaStops) {
+                    val vxy = xy(LatLng(v.lat, v.lng))
+                    drawCircle(Color(0x55F59E0B), radius = 14f, center = vxy)
+                    drawCircle(Color(0xFFF59E0B), radius = 7f, center = vxy)
+                }
                 drawCircle(Color(0xFFE11D48), radius = 10f, center = dxy)
                 drawCircle(Color(0xFFFFF1F2), radius = 4f, center = dxy)
 
@@ -335,7 +365,8 @@ fun NativeMapPane() {
                     fontWeight = FontWeight.Medium,
                 )
                 Text(
-                    "${pathPts.size} pts · ${route.destinationName.ifBlank { "—" }}" +
+                    "${pathPts.size} pts · ${route.stopsLabel}" +
+                        (if (route.viaCount > 0) " · ${route.viaCount} vía(s)" else "") +
                         if (crowdOn) " · crowd ${surround.actors.size}" else "",
                     color = Mute,
                     fontSize = 11.sp,

@@ -26,15 +26,20 @@ data class NavDestination(
 
 /**
  * Polls SenseFlow `/api/nav/route` (OSRM proxy) + destinations for native map.
+ * Supports intermediate waypoints via prefs `nav_waypoints_json`.
  */
 object NavEngine {
     private const val TAG = "NavEngine"
+    private const val MAX_VIAS = 5
 
     private val _route = MutableStateFlow(NavRoute())
     val route: StateFlow<NavRoute> = _route.asStateFlow()
 
     private val _destinations = MutableStateFlow<List<NavDestination>>(emptyList())
     val destinations: StateFlow<List<NavDestination>> = _destinations.asStateFlow()
+
+    private val _waypoints = MutableStateFlow<List<NavDestination>>(emptyList())
+    val waypoints: StateFlow<List<NavDestination>> = _waypoints.asStateFlow()
 
     private var prefs: VePrefs? = null
     private var job: Job? = null
@@ -49,6 +54,7 @@ object NavEngine {
         scope: CoroutineScope,
     ) {
         this.prefs = prefs
+        _waypoints.value = loadWaypoints(prefs)
         if (job?.isActive == true) return
         job =
             scope.launch(Dispatchers.IO) {
@@ -72,6 +78,7 @@ object NavEngine {
         }
     }
 
+    /** Set final destination and clear intermediate vias. */
     fun setDestination(
         dest: NavDestination,
         scope: CoroutineScope? = null,
@@ -81,7 +88,79 @@ object NavEngine {
         p.navDestName = dest.name
         p.navToLat = dest.lat
         p.navToLng = dest.lng
+        clearWaypoints(persist = true)
         if (scope != null) refreshAsync(scope) else refresh()
+    }
+
+    /** Append intermediate stop (before final dest). Max [MAX_VIAS]. */
+    fun addWaypoint(
+        dest: NavDestination,
+        scope: CoroutineScope? = null,
+    ) {
+        val p = prefs ?: return
+        val cur = loadWaypoints(p).toMutableList()
+        // Don't duplicate final dest as via
+        if (dest.name == p.navDestName &&
+            kotlin.math.abs(dest.lat - p.navToLat) < 1e-5 &&
+            kotlin.math.abs(dest.lng - p.navToLng) < 1e-5
+        ) {
+            return
+        }
+        if (cur.any { it.id == dest.id || (it.lat == dest.lat && it.lng == dest.lng) }) return
+        if (cur.size >= MAX_VIAS) cur.removeAt(0)
+        cur += dest
+        saveWaypoints(p, cur)
+        p.navEnabled = true
+        if (scope != null) refreshAsync(scope) else refresh()
+    }
+
+    fun clearWaypoints(
+        persist: Boolean = true,
+        scope: CoroutineScope? = null,
+    ) {
+        val p = prefs
+        _waypoints.value = emptyList()
+        if (persist && p != null) p.navWaypointsJson = "[]"
+        if (scope != null) refreshAsync(scope)
+    }
+
+    fun loadWaypoints(p: VePrefs = prefs ?: return emptyList()): List<NavDestination> {
+        val raw = p.navWaypointsJson
+        if (raw.isBlank()) return emptyList()
+        return runCatching {
+            val arr = JSONArray(raw)
+            buildList {
+                for (i in 0 until arr.length()) {
+                    val o = arr.getJSONObject(i)
+                    add(
+                        NavDestination(
+                            id = o.optString("id").ifBlank { "via-$i" },
+                            name = o.optString("name").ifBlank { "Parada ${i + 1}" },
+                            lat = o.optDouble("lat"),
+                            lng = o.optDouble("lng"),
+                        ),
+                    )
+                }
+            }
+        }.getOrElse { emptyList() }.also { _waypoints.value = it }
+    }
+
+    private fun saveWaypoints(
+        p: VePrefs,
+        list: List<NavDestination>,
+    ) {
+        val arr = JSONArray()
+        for (d in list.take(MAX_VIAS)) {
+            arr.put(
+                JSONObject()
+                    .put("id", d.id)
+                    .put("name", d.name)
+                    .put("lat", d.lat)
+                    .put("lng", d.lng),
+            )
+        }
+        p.navWaypointsJson = arr.toString()
+        _waypoints.value = list.take(MAX_VIAS)
     }
 
     fun refreshDestinations() {
@@ -120,10 +199,19 @@ object NavEngine {
         val toLat = p.navToLat
         val toLng = p.navToLng
         val name = p.navDestName
-        val url =
+        val vias = loadWaypoints(p)
+        var url =
             p.senseflowUrl.trimEnd('/') +
                 "/api/nav/route?from_lat=$fromLat&from_lng=$fromLng&to_lat=$toLat&to_lng=$toLng" +
                 "&dest_name=${java.net.URLEncoder.encode(name, "UTF-8")}"
+        if (vias.isNotEmpty()) {
+            val via = vias.joinToString(";") { "${it.lat},${it.lng}" }
+            val viaNames =
+                vias.joinToString(";") {
+                    java.net.URLEncoder.encode(it.name, "UTF-8")
+                }
+            url += "&via=$via&via_names=$viaNames"
+        }
         runCatching {
             val req = Request.Builder().url(url).get().build()
             client.newCall(req).execute().use { resp ->
@@ -168,12 +256,41 @@ object NavEngine {
                 geom += c.getDouble(1) to c.getDouble(0)
             }
         }
+        val wps = mutableListOf<NavWaypoint>()
+        val wpArr = json.optJSONArray("waypoints")
+        if (wpArr != null) {
+            for (i in 0 until wpArr.length()) {
+                val o = wpArr.getJSONObject(i)
+                wps +=
+                    NavWaypoint(
+                        name = o.optString("name"),
+                        lat = o.optDouble("lat"),
+                        lng = o.optDouble("lng"),
+                        role = o.optString("role", "via"),
+                    )
+            }
+        }
+        val legs = mutableListOf<NavLeg>()
+        val legArr = json.optJSONArray("legs")
+        if (legArr != null) {
+            for (i in 0 until legArr.length()) {
+                val o = legArr.getJSONObject(i)
+                legs +=
+                    NavLeg(
+                        distanceM = o.optDouble("distance_m"),
+                        durationS = o.optDouble("duration_s"),
+                        toName = o.optString("to_name"),
+                    )
+            }
+        }
         return NavRoute(
             distanceM = json.optDouble("distance_m"),
             durationS = json.optDouble("duration_s"),
             destinationName = json.optString("dest_name", fallbackName),
             steps = steps,
             geometry = geom,
+            waypoints = wps,
+            legs = legs,
             source = json.optString("source", "osrm"),
             updatedAtMs = System.currentTimeMillis(),
         )

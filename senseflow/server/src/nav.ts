@@ -24,7 +24,39 @@ const routeQuery = z.object({
   to_lat: z.coerce.number().min(-90).max(90),
   to_lng: z.coerce.number().min(-180).max(180),
   dest_name: z.string().max(80).optional(),
+  /** Intermediate stops: "lat,lng;lat,lng" (max 5). */
+  via: z.string().max(400).optional(),
+  /** Labels matching via count: "Chacao;Bellas Artes" */
+  via_names: z.string().max(400).optional(),
 })
+
+export type NavPoint = { name: string; lat: number; lng: number; role: 'via' | 'dest' }
+
+export function parseViaParam(
+  viaRaw: string | undefined,
+  viaNamesRaw: string | undefined,
+): Array<{ name: string; lat: number; lng: number }> {
+  if (!viaRaw || !viaRaw.trim()) return []
+  const names = (viaNamesRaw || '')
+    .split(';')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  const parts = viaRaw.split(';').map((s) => s.trim()).filter(Boolean)
+  const out: Array<{ name: string; lat: number; lng: number }> = []
+  for (let i = 0; i < parts.length && out.length < 5; i++) {
+    const [latS, lngS] = parts[i].split(',').map((x) => x.trim())
+    const lat = Number(latS)
+    const lng = Number(lngS)
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) continue
+    out.push({
+      name: names[i] || `Parada ${i + 1}`,
+      lat,
+      lng,
+    })
+  }
+  return out
+}
 
 function maneuverInstruction(step: {
   manoeuvre?: { type?: string; modifier?: string }
@@ -73,44 +105,77 @@ function haversineM(aLat: number, aLng: number, bLat: number, bLng: number): num
   return 2 * R * Math.asin(Math.sqrt(x))
 }
 
+function buildWaypoints(
+  vias: Array<{ name: string; lat: number; lng: number }>,
+  destName: string,
+  toLat: number,
+  toLng: number,
+): NavPoint[] {
+  return [
+    ...vias.map((v) => ({ ...v, role: 'via' as const })),
+    { name: destName, lat: toLat, lng: toLng, role: 'dest' },
+  ]
+}
+
 function fallbackRoute(
   fromLat: number,
   fromLng: number,
   toLat: number,
   toLng: number,
   destName: string,
+  vias: Array<{ name: string; lat: number; lng: number }> = [],
 ) {
-  const distance_m = haversineM(fromLat, fromLng, toLat, toLng)
-  const duration_s = distance_m / 8.3 // ~30 km/h urban
+  const points = [{ lat: fromLat, lng: fromLng }, ...vias, { lat: toLat, lng: toLng }]
+  let distance_m = 0
+  const legs: Array<{ distance_m: number; duration_s: number; to_name: string }> = []
+  const steps: Array<{
+    instruction: string
+    distance_m: number
+    name: string
+    type: string
+    modifier: string
+  }> = []
+  const names = [...vias.map((v) => v.name), destName]
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i]
+    const b = points[i + 1]
+    const d = haversineM(a.lat, a.lng, b.lat, b.lng)
+    const dur = d / 8.3
+    distance_m += d
+    const toName = names[i] || destName
+    legs.push({
+      distance_m: Math.round(d),
+      duration_s: Math.round(dur),
+      to_name: toName,
+    })
+    steps.push({
+      instruction: i === 0 ? `Dirigite a ${toName}` : `Continuar hacia ${toName}`,
+      distance_m: Math.round(d),
+      name: toName,
+      type: i === 0 ? 'depart' : 'continue',
+      modifier: '',
+    })
+    steps.push({
+      instruction: i === points.length - 2 ? 'Llegaste al destino' : `Pasá por ${toName}`,
+      distance_m: 0,
+      name: toName,
+      type: 'arrive',
+      modifier: '',
+    })
+  }
   return {
     ok: true,
     source: 'fallback',
     dest_name: destName,
     distance_m: Math.round(distance_m),
-    duration_s: Math.round(duration_s),
+    duration_s: Math.round(distance_m / 8.3),
     geometry: {
       type: 'LineString',
-      coordinates: [
-        [fromLng, fromLat],
-        [toLng, toLat],
-      ],
+      coordinates: points.map((p) => [p.lng, p.lat]),
     },
-    steps: [
-      {
-        instruction: `Dirigite a ${destName}`,
-        distance_m: Math.round(distance_m),
-        name: destName,
-        type: 'depart',
-        modifier: '',
-      },
-      {
-        instruction: 'Llegaste al destino',
-        distance_m: 0,
-        name: destName,
-        type: 'arrive',
-        modifier: '',
-      },
-    ],
+    steps,
+    waypoints: buildWaypoints(vias, destName, toLat, toLng),
+    legs,
   }
 }
 
@@ -122,10 +187,17 @@ navRouter.get('/route', async (req, res) => {
   }
   const { from_lat, from_lng, to_lat, to_lng } = parsed.data
   const destName = parsed.data.dest_name || 'Destino'
+  const vias = parseViaParam(parsed.data.via, parsed.data.via_names)
+  const waypoints = buildWaypoints(vias, destName, to_lat, to_lng)
 
+  const coordParts = [
+    `${from_lng},${from_lat}`,
+    ...vias.map((v) => `${v.lng},${v.lat}`),
+    `${to_lng},${to_lat}`,
+  ]
   const osrmUrl =
     `${OSRM_BASE}/route/v1/driving/` +
-    `${from_lng},${from_lat};${to_lng},${to_lat}` +
+    coordParts.join(';') +
     `?overview=full&geometries=geojson&steps=true&annotations=false`
 
   try {
@@ -139,6 +211,8 @@ navRouter.get('/route', async (req, res) => {
         duration: number
         geometry: { type: string; coordinates: number[][] }
         legs: Array<{
+          distance: number
+          duration: number
           steps: Array<{
             distance: number
             name: string
@@ -161,6 +235,12 @@ navRouter.get('/route', async (req, res) => {
       }))
       .filter((s, i, arr) => !(s.type === 'arrive' && i < arr.length - 1))
 
+    const legs = route.legs.map((leg, i) => ({
+      distance_m: Math.round(leg.distance),
+      duration_s: Math.round(leg.duration),
+      to_name: waypoints[i]?.name || destName,
+    }))
+
     res.json({
       ok: true,
       source: 'osrm',
@@ -169,9 +249,11 @@ navRouter.get('/route', async (req, res) => {
       duration_s: Math.round(route.duration),
       geometry: route.geometry,
       steps,
+      waypoints,
+      legs,
     })
   } catch (e) {
     console.warn('nav OSRM fail → fallback', e)
-    res.json(fallbackRoute(from_lat, from_lng, to_lat, to_lng, destName))
+    res.json(fallbackRoute(from_lat, from_lng, to_lat, to_lng, destName, vias))
   }
 })
