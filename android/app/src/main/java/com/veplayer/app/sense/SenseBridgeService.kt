@@ -104,6 +104,14 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.RestBreakMonitor.state.value.drivingSec.toDouble(),
                                     "rest_warn_sec" to (prefs.restDriveWarnMin * 60f).toDouble(),
                                     "rest_alert_sec" to (prefs.restDriveAlertMin * 60f).toDouble(),
+                                    "route_off_m" to
+                                        com.veplayer.app.vehicle.RouteDeviationMonitor.state.value.distanceM.toDouble(),
+                                    "route_warn_m" to prefs.routeDevWarnM.toDouble(),
+                                    "route_alert_m" to prefs.routeDevAlertM.toDouble(),
+                                    "route_dev" to
+                                        com.veplayer.app.vehicle.RouteDeviation.toJsonMap(
+                                            com.veplayer.app.vehicle.RouteDeviationMonitor.state.value,
+                                        ),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                     "coolant_warn_c" to prefs.coolantWarnC.toDouble(),
@@ -221,6 +229,14 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.RestBreakMonitor.state.value.drivingSec.toDouble(),
                                     "rest_warn_sec" to (prefs.restDriveWarnMin * 60f).toDouble(),
                                     "rest_alert_sec" to (prefs.restDriveAlertMin * 60f).toDouble(),
+                                    "route_off_m" to
+                                        com.veplayer.app.vehicle.RouteDeviationMonitor.state.value.distanceM.toDouble(),
+                                    "route_warn_m" to prefs.routeDevWarnM.toDouble(),
+                                    "route_alert_m" to prefs.routeDevAlertM.toDouble(),
+                                    "route_dev" to
+                                        com.veplayer.app.vehicle.RouteDeviation.toJsonMap(
+                                            com.veplayer.app.vehicle.RouteDeviationMonitor.state.value,
+                                        ),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                     "coolant_warn_c" to prefs.coolantWarnC.toDouble(),

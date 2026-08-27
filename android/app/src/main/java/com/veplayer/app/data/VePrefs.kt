@@ -390,6 +390,35 @@ class VePrefs(context: Context) {
         get() = sp.getInt("map_prefetch_max", 2000)
         set(value) = sp.edit().putInt("map_prefetch_max", value.coerceIn(100, 8000)).apply()
 
+    /** Off-route / route deviation vs active nav polyline. */
+    var routeDevEnabled: Boolean
+        get() = sp.getBoolean("route_dev", true)
+        set(value) = sp.edit().putBoolean("route_dev", value).apply()
+
+    var routeDevTts: Boolean
+        get() = sp.getBoolean("route_dev_tts", true)
+        set(value) = sp.edit().putBoolean("route_dev_tts", value).apply()
+
+    /** Meters off polyline → warn. */
+    var routeDevWarnM: Float
+        get() = sp.getFloat("route_dev_warn_m", 80f)
+        set(value) = sp.edit().putFloat("route_dev_warn_m", value.coerceIn(20f, 500f)).apply()
+
+    /** Meters off polyline → alert. */
+    var routeDevAlertM: Float
+        get() = sp.getFloat("route_dev_alert_m", 150f)
+        set(value) = sp.edit().putFloat("route_dev_alert_m", value.coerceIn(40f, 800f)).apply()
+
+    /** Seconds continuously off-route before showWarn / TTS. */
+    var routeDevHoldSec: Float
+        get() = sp.getFloat("route_dev_hold_sec", 8f)
+        set(value) = sp.edit().putFloat("route_dev_hold_sec", value.coerceIn(0f, 120f)).apply()
+
+    /** Demo: pretend this many meters off route (0 = live). */
+    var routeDevSimM: Float
+        get() = sp.getFloat("route_dev_sim_m", 0f)
+        set(value) = sp.edit().putFloat("route_dev_sim_m", value.coerceIn(0f, 1000f)).apply()
+
     /** Parking guidelines on reverse camera. */
     var reverseGuidesEnabled: Boolean
         get() = sp.getBoolean("reverse_guides", true)

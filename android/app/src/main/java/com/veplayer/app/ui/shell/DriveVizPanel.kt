@@ -76,6 +76,7 @@ import com.veplayer.app.vehicle.ImpactDetectMonitor
 import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.RestBreakMonitor
+import com.veplayer.app.vehicle.RouteDeviationMonitor
 import com.veplayer.app.vehicle.SeatbeltMonitor
 import com.veplayer.app.vehicle.ShiftFatigueMonitor
 import com.veplayer.app.vehicle.BatteryVoltageMonitor
@@ -111,6 +112,7 @@ fun DriveVizPanel(
     val doorAjar by DoorAjarMonitor.state.collectAsState()
     val fatigue by ShiftFatigueMonitor.state.collectAsState()
     val restBreak by RestBreakMonitor.state.collectAsState()
+    val routeDev by RouteDeviationMonitor.state.collectAsState()
     val hvac by HvacClimateMonitor.state.collectAsState()
     val cabinHot by CabinOvertempMonitor.state.collectAsState()
     val coolantHot by CoolantOverheatMonitor.state.collectAsState()
@@ -139,6 +141,7 @@ fun DriveVizPanel(
             ImpactDetectMonitor.tick(prefs, snap)
             ShiftFatigueMonitor.tick(prefs)
             RestBreakMonitor.tick(prefs, snap)
+            RouteDeviationMonitor.tick(prefs)
             HvacClimateMonitor.tick(prefs, snap)
             CabinOvertempMonitor.tick(prefs, snap)
             CoolantOverheatMonitor.tick(prefs, snap)
@@ -235,6 +238,13 @@ fun DriveVizPanel(
                     Text(
                         restBreak.label,
                         color = Color(com.veplayer.app.vehicle.RestBreak.accentArgb(restBreak.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (routeDev.showWarn || (prefs.routeDevEnabled && routeDev.hasRoute && routeDev.band == "ok" && routeDev.distanceM >= 15f)) {
+                    Text(
+                        routeDev.label,
+                        color = Color(com.veplayer.app.vehicle.RouteDeviation.accentArgb(routeDev.band)),
                         fontSize = 11.sp,
                     )
                 }

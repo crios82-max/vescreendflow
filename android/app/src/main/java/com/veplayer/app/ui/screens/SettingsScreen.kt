@@ -779,6 +779,66 @@ fun SettingsScreen() {
                     status = "Ruta refrescada"
                 },
             ) { Text("Recalcular ruta") }
+            var routeDevOn by remember { mutableStateOf(prefs.routeDevEnabled) }
+            var routeDevTts by remember { mutableStateOf(prefs.routeDevTts) }
+            var routeDevSim by remember {
+                mutableStateOf(
+                    if (prefs.routeDevSimM > 0f) prefs.routeDevSimM.toInt().toString() else "0",
+                )
+            }
+            val routeDevSt by com.veplayer.app.vehicle.RouteDeviationMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso desvío de ruta", color = Mist)
+                Switch(
+                    checked = routeDevOn,
+                    onCheckedChange = {
+                        routeDevOn = it
+                        prefs.routeDevEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS desvío", color = Mist)
+                Switch(
+                    checked = routeDevTts,
+                    onCheckedChange = {
+                        routeDevTts = it
+                        prefs.routeDevTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = routeDevSim,
+                onValueChange = { routeDevSim = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                label = { Text("Sim metros fuera ruta (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.routeDevSimM = routeDevSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Route sim ${prefs.routeDevSimM.toInt()} m · warn ${prefs.routeDevWarnM.toInt()} / alert ${prefs.routeDevAlertM.toInt()} · hold ${prefs.routeDevHoldSec.toInt()} s"
+                },
+            ) { Text("Aplicar sim desvío") }
+            Text(
+                if (routeDevSt.hasRoute || routeDevSt.showWarn) {
+                    "${routeDevSt.label} · ${routeDevSt.band}" +
+                        if (routeDevSt.offRouteSec > 0f) " · ${routeDevSt.offRouteSec.toInt()}s" else ""
+                } else {
+                    "Route idle (warn ${prefs.routeDevWarnM.toInt()} / alert ${prefs.routeDevAlertM.toInt()} m · hold ${prefs.routeDevHoldSec.toInt()} s)"
+                },
+                color = if (routeDevSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
         }
 
         PanelBlock("Speed HUD") {

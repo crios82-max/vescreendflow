@@ -706,6 +706,18 @@ Pausa tras conducción continua (no turno total):
 npm run veplayer:rest-break-smoke
 ```
 
+## Route deviation (v0.57 · Fase 10)
+
+Desvío respecto a la polyline de nav activa:
+
+- Default **80 m warn / 150 m alert** · hold **8 s** (anti-jitter GPS)
+- DriveViz chip `Desvío · Xm` / `Fuera ruta · Xm` · TTS + inbox
+- Flota `route_warn` / `route_deviate` · sim m en Ajustes (Navegación)
+
+```bash
+npm run veplayer:route-deviation-smoke
+```
+
 **Fase 10 (en curso):** battery 12V · impact detect · rest break · route deviation · driver scorecard.
 
 ## Device Owner (kiosk duro · v0.12)
