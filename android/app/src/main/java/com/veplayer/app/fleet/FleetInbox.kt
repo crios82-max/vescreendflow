@@ -221,6 +221,9 @@ object FleetInbox {
             kind == "turn_stuck_alert" -> "Atención. Intermitente olvidado. $body."
             kind == "turn_stuck_warn" || kind.startsWith("turn_stuck") ->
                 "Cuidado. Intermitente encendido. $body."
+            kind == "hazard_stuck_alert" -> "Atención. Luces de emergencia olvidadas. $body."
+            kind == "hazard_stuck_warn" || kind.startsWith("hazard_stuck") ->
+                "Cuidado. Luces de emergencia encendidas. $body."
             kind == "fuel_drop_alert" -> "Atención. Caída brusca de combustible. $body."
             kind == "fuel_drop_warn" || kind.startsWith("fuel_drop") ->
                 "Cuidado. Combustible bajando rápido. $body."

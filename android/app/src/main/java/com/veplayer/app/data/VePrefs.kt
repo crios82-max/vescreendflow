@@ -222,6 +222,32 @@ class VePrefs(context: Context) {
                 value.trim().lowercase().let { if (it == "right") "right" else "left" },
             ).apply()
 
+    /** Hazard lights forgotten while moving. */
+    var hazardStuckEnabled: Boolean
+        get() = sp.getBoolean("hazard_stuck", true)
+        set(value) = sp.edit().putBoolean("hazard_stuck", value).apply()
+
+    var hazardStuckTts: Boolean
+        get() = sp.getBoolean("hazard_stuck_tts", true)
+        set(value) = sp.edit().putBoolean("hazard_stuck_tts", value).apply()
+
+    var hazardStuckWarnSec: Float
+        get() = sp.getFloat("hazard_stuck_warn_sec", 45f)
+        set(value) = sp.edit().putFloat("hazard_stuck_warn_sec", value.coerceIn(15f, 300f)).apply()
+
+    var hazardStuckAlertSec: Float
+        get() = sp.getFloat("hazard_stuck_alert_sec", 90f)
+        set(value) = sp.edit().putFloat("hazard_stuck_alert_sec", value.coerceIn(30f, 600f)).apply()
+
+    var hazardStuckSpeedMinKmh: Float
+        get() = sp.getFloat("hazard_stuck_speed_min", 5f)
+        set(value) = sp.edit().putFloat("hazard_stuck_speed_min", value.coerceIn(0f, 40f)).apply()
+
+    /** Demo: pretend hazards held this many seconds (0 = live). */
+    var hazardStuckSimSec: Float
+        get() = sp.getFloat("hazard_stuck_sim_sec", 0f)
+        set(value) = sp.edit().putFloat("hazard_stuck_sim_sec", value.coerceIn(0f, 600f)).apply()
+
     /** ABS / ESC intervention HUD. */
     var absHudEnabled: Boolean
         get() = sp.getBoolean("abs_hud", true)

@@ -1348,6 +1348,65 @@ fun SettingsScreen() {
                 color = if (turnStuckSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var hazardOn by remember { mutableStateOf(prefs.hazardStuckEnabled) }
+            var hazardTtsOn by remember { mutableStateOf(prefs.hazardStuckTts) }
+            var hazardSim by remember {
+                mutableStateOf(
+                    if (prefs.hazardStuckSimSec > 0f) prefs.hazardStuckSimSec.toInt().toString() else "0",
+                )
+            }
+            val hazardSt by com.veplayer.app.vehicle.HazardStuckMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Hazard olvidado", color = Mist)
+                Switch(
+                    checked = hazardOn,
+                    onCheckedChange = {
+                        hazardOn = it
+                        prefs.hazardStuckEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS hazard", color = Mist)
+                Switch(
+                    checked = hazardTtsOn,
+                    onCheckedChange = {
+                        hazardTtsOn = it
+                        prefs.hazardStuckTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = hazardSim,
+                onValueChange = { hazardSim = it.filter { c -> c.isDigit() }.take(4) },
+                label = { Text("Sim segundos hazard (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.hazardStuckSimSec = hazardSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Hazard sim ${prefs.hazardStuckSimSec.toInt()}s · warn ${prefs.hazardStuckWarnSec.toInt()} / alert ${prefs.hazardStuckAlertSec.toInt()}"
+                },
+            ) { Text("Aplicar sim hazard") }
+            Text(
+                if (hazardSt.active) {
+                    "${hazardSt.label} · ${hazardSt.band}"
+                } else {
+                    "Hazard idle (warn ${prefs.hazardStuckWarnSec.toInt()}s / alert ${prefs.hazardStuckAlertSec.toInt()}s)"
+                },
+                color = if (hazardSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
         }
 
         PanelBlock("Caída brusca de combustible") {
