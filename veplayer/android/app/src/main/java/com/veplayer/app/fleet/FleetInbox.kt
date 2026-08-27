@@ -193,6 +193,9 @@ object FleetInbox {
             kind == "score_alert" -> "Atención. Puntaje de conducción bajo. $body."
             kind == "score_warn" || kind.startsWith("score_") ->
                 "Cuidado. Puntaje de conducción. $body."
+            kind == "eco_alert" -> "Atención. Puntaje eco bajo. $body."
+            kind == "eco_warn" || kind.startsWith("eco_") ->
+                "Cuidado. Conducción eco. $body."
             kind == "shift_summary" -> "Turno cerrado. $body."
             kind == "shift_fatigue" -> "Atención. Turno prolongado. $body."
             kind == "shift_warn" || kind.startsWith("shift_") ->

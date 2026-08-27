@@ -727,6 +727,28 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("driver_score_sim", 0f)
         set(value) = sp.edit().putFloat("driver_score_sim", value.coerceIn(0f, 100f)).apply()
 
+    /** Live eco score alerts during shift. */
+    var ecoLiveEnabled: Boolean
+        get() = sp.getBoolean("eco_live", true)
+        set(value) = sp.edit().putBoolean("eco_live", value).apply()
+
+    var ecoLiveTts: Boolean
+        get() = sp.getBoolean("eco_live_tts", true)
+        set(value) = sp.edit().putBoolean("eco_live_tts", value).apply()
+
+    var ecoLiveWarn: Float
+        get() = sp.getFloat("eco_live_warn", 70f)
+        set(value) = sp.edit().putFloat("eco_live_warn", value.coerceIn(30f, 95f)).apply()
+
+    var ecoLiveAlert: Float
+        get() = sp.getFloat("eco_live_alert", 50f)
+        set(value) = sp.edit().putFloat("eco_live_alert", value.coerceIn(10f, 80f)).apply()
+
+    /** Demo eco score 1–100 (0 = live from shift). */
+    var ecoLiveSimScore: Float
+        get() = sp.getFloat("eco_live_sim", 0f)
+        set(value) = sp.edit().putFloat("eco_live_sim", value.coerceIn(0f, 100f)).apply()
+
     /** Shift duration / fatigue HUD. */
     var fatigueEnabled: Boolean
         get() = sp.getBoolean("fatigue", true)

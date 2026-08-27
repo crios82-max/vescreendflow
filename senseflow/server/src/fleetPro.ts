@@ -753,6 +753,44 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Live eco score (shift efficiency)
+    const ecoLive = signals.eco_live as Record<string, unknown> | undefined
+    let ecoScoreVal: number | null =
+      typeof ecoLive?.score === 'number'
+        ? (ecoLive.score as number)
+        : typeof signals.eco_score === 'number'
+          ? (signals.eco_score as number)
+          : null
+    if (typeof ecoScoreVal === 'number' && ecoLive?.active !== false) {
+      const warnScore =
+        typeof signals.eco_warn_score === 'number' ? (signals.eco_warn_score as number) : 70
+      const alertScore =
+        typeof signals.eco_alert_score === 'number' ? (signals.eco_alert_score as number) : 50
+      if (ecoScoreVal <= alertScore && !recentlyAlerted(deviceId, 'eco_alert', 300)) {
+        insertAlert(
+          deviceId,
+          'eco_alert',
+          'critical',
+          `Eco bajo · ${Math.round(ecoScoreVal)}`,
+          { eco_score: ecoScoreVal, eco_live: ecoLive ?? null, alert: alertScore },
+        )
+        raised.push('eco_alert')
+      } else if (
+        ecoScoreVal < warnScore &&
+        ecoScoreVal > alertScore &&
+        !recentlyAlerted(deviceId, 'eco_warn', 300)
+      ) {
+        insertAlert(
+          deviceId,
+          'eco_warn',
+          'warn',
+          `Eco en baja · ${Math.round(ecoScoreVal)}`,
+          { eco_score: ecoScoreVal, eco_live: ecoLive ?? null, warn: warnScore },
+        )
+        raised.push('eco_warn')
+      }
+    }
+
     // Cabin overtemp — hvac.cabin_c or top-level cabin_c
     const hvac = signals.hvac as Record<string, unknown> | undefined
     let cabinC: number | null =

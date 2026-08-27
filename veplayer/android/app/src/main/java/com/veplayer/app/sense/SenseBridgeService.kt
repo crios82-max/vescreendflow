@@ -118,6 +118,20 @@ class SenseBridgeService : Service() {
                                         ),
                                     "driver_score_warn" to prefs.driverScoreWarn.toDouble(),
                                     "driver_score_alert" to prefs.driverScoreAlert.toDouble(),
+                                    "eco_live" to
+                                        com.veplayer.app.vehicle.EcoLive.toJsonMap(
+                                            com.veplayer.app.vehicle.EcoLiveMonitor.state.value,
+                                        ),
+                                    "eco_score" to
+                                        com.veplayer.app.vehicle.EcoLiveMonitor.state.value.score.takeIf {
+                                            com.veplayer.app.vehicle.EcoLiveMonitor.state.value.active
+                                        },
+                                    "eco_band" to
+                                        com.veplayer.app.vehicle.EcoLiveMonitor.state.value.band.takeIf {
+                                            com.veplayer.app.vehicle.EcoLiveMonitor.state.value.active
+                                        },
+                                    "eco_warn_score" to prefs.ecoLiveWarn.toDouble(),
+                                    "eco_alert_score" to prefs.ecoLiveAlert.toDouble(),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                     "ice_warn_c" to prefs.iceWarnC.toDouble(),
@@ -320,6 +334,20 @@ class SenseBridgeService : Service() {
                                         ),
                                     "driver_score_warn" to prefs.driverScoreWarn.toDouble(),
                                     "driver_score_alert" to prefs.driverScoreAlert.toDouble(),
+                                    "eco_live" to
+                                        com.veplayer.app.vehicle.EcoLive.toJsonMap(
+                                            com.veplayer.app.vehicle.EcoLiveMonitor.state.value,
+                                        ),
+                                    "eco_score" to
+                                        com.veplayer.app.vehicle.EcoLiveMonitor.state.value.score.takeIf {
+                                            com.veplayer.app.vehicle.EcoLiveMonitor.state.value.active
+                                        },
+                                    "eco_band" to
+                                        com.veplayer.app.vehicle.EcoLiveMonitor.state.value.band.takeIf {
+                                            com.veplayer.app.vehicle.EcoLiveMonitor.state.value.active
+                                        },
+                                    "eco_warn_score" to prefs.ecoLiveWarn.toDouble(),
+                                    "eco_alert_score" to prefs.ecoLiveAlert.toDouble(),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                     "ice_warn_c" to prefs.iceWarnC.toDouble(),

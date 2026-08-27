@@ -2167,6 +2167,65 @@ fun SettingsScreen() {
                 color = if (scoreSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var ecoLiveOn by remember { mutableStateOf(prefs.ecoLiveEnabled) }
+            var ecoLiveTtsOn by remember { mutableStateOf(prefs.ecoLiveTts) }
+            var ecoLiveSim by remember {
+                mutableStateOf(
+                    if (prefs.ecoLiveSimScore > 0f) prefs.ecoLiveSimScore.toInt().toString() else "0",
+                )
+            }
+            val ecoLiveSt by com.veplayer.app.vehicle.EcoLiveMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso eco en vivo", color = Mist)
+                Switch(
+                    checked = ecoLiveOn,
+                    onCheckedChange = {
+                        ecoLiveOn = it
+                        prefs.ecoLiveEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS eco", color = Mist)
+                Switch(
+                    checked = ecoLiveTtsOn,
+                    onCheckedChange = {
+                        ecoLiveTtsOn = it
+                        prefs.ecoLiveTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = ecoLiveSim,
+                onValueChange = { ecoLiveSim = it.filter { c -> c.isDigit() }.take(3) },
+                label = { Text("Sim eco 1–100 (0=turno)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.ecoLiveSimScore = ecoLiveSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Eco sim ${prefs.ecoLiveSimScore.toInt()} · warn ${prefs.ecoLiveWarn.toInt()} / alert ${prefs.ecoLiveAlert.toInt()}"
+                },
+            ) { Text("Aplicar sim eco") }
+            Text(
+                if (ecoLiveSt.active) {
+                    ecoLiveSt.label
+                } else {
+                    "Eco idle (abrir turno · warn ${prefs.ecoLiveWarn.toInt()} / alert ${prefs.ecoLiveAlert.toInt()})"
+                },
+                color = if (ecoLiveSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var fatigueOn by remember { mutableStateOf(prefs.fatigueEnabled) }
             var fatigueTts by remember { mutableStateOf(prefs.fatigueTts) }
             var fatigueSim by remember { mutableStateOf(prefs.fatigueSimHours.toInt().toString()) }
