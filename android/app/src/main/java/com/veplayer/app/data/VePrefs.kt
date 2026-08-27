@@ -1569,6 +1569,91 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("cat_b2_sim_c", 0f)
         set(value) = sp.edit().putFloat("cat_b2_sim_c", value.coerceIn(0f, 1200f)).apply()
 
+    /** Catalyst temp B1S2 °C (OBD 0171). */
+    var catB1s2Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s2", true)
+        set(value) = sp.edit().putBoolean("cat_b1s2", value).apply()
+    var catB1s2Tts: Boolean
+        get() = sp.getBoolean("cat_b1s2_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s2_tts", value).apply()
+    var catB1s2WarnC: Float
+        get() = sp.getFloat("cat_b1s2_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s2_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s2AlertC: Float
+        get() = sp.getFloat("cat_b1s2_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s2_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s2SimC: Float
+        get() = sp.getFloat("cat_b1s2_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s2_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B2S2 °C (OBD 0172). */
+    var catB2s2Enabled: Boolean
+        get() = sp.getBoolean("cat_b2s2", true)
+        set(value) = sp.edit().putBoolean("cat_b2s2", value).apply()
+    var catB2s2Tts: Boolean
+        get() = sp.getBoolean("cat_b2s2_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2s2_tts", value).apply()
+    var catB2s2WarnC: Float
+        get() = sp.getFloat("cat_b2s2_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2s2_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2s2AlertC: Float
+        get() = sp.getFloat("cat_b2s2_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2s2_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2s2SimC: Float
+        get() = sp.getFloat("cat_b2s2_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2s2_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B1S3 °C (OBD 0173). */
+    var catB1s3Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s3", true)
+        set(value) = sp.edit().putBoolean("cat_b1s3", value).apply()
+    var catB1s3Tts: Boolean
+        get() = sp.getBoolean("cat_b1s3_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s3_tts", value).apply()
+    var catB1s3WarnC: Float
+        get() = sp.getFloat("cat_b1s3_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s3_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s3AlertC: Float
+        get() = sp.getFloat("cat_b1s3_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s3_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s3SimC: Float
+        get() = sp.getFloat("cat_b1s3_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s3_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B2S3 °C (OBD 0174). */
+    var catB2s3Enabled: Boolean
+        get() = sp.getBoolean("cat_b2s3", true)
+        set(value) = sp.edit().putBoolean("cat_b2s3", value).apply()
+    var catB2s3Tts: Boolean
+        get() = sp.getBoolean("cat_b2s3_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2s3_tts", value).apply()
+    var catB2s3WarnC: Float
+        get() = sp.getFloat("cat_b2s3_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2s3_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2s3AlertC: Float
+        get() = sp.getFloat("cat_b2s3_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2s3_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2s3SimC: Float
+        get() = sp.getFloat("cat_b2s3_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2s3_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B1S4 °C (OBD 0175). */
+    var catB1s4Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s4", true)
+        set(value) = sp.edit().putBoolean("cat_b1s4", value).apply()
+    var catB1s4Tts: Boolean
+        get() = sp.getBoolean("cat_b1s4_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s4_tts", value).apply()
+    var catB1s4WarnC: Float
+        get() = sp.getFloat("cat_b1s4_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s4_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s4AlertC: Float
+        get() = sp.getFloat("cat_b1s4_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s4_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s4SimC: Float
+        get() = sp.getFloat("cat_b1s4_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s4_sim_c", value.coerceIn(0f, 1200f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

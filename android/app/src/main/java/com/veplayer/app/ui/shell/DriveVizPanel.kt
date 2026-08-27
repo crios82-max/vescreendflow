@@ -87,6 +87,11 @@ import com.veplayer.app.vehicle.RelAccelPedalMonitor
 import com.veplayer.app.vehicle.DriverTorqueMonitor
 import com.veplayer.app.vehicle.ActualTorqueMonitor
 import com.veplayer.app.vehicle.CatalystB2Monitor
+import com.veplayer.app.vehicle.CatalystB1S2Monitor
+import com.veplayer.app.vehicle.CatalystB2S2Monitor
+import com.veplayer.app.vehicle.CatalystB1S3Monitor
+import com.veplayer.app.vehicle.CatalystB2S3Monitor
+import com.veplayer.app.vehicle.CatalystB1S4Monitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -170,6 +175,11 @@ fun DriveVizPanel(
     val drvTorque by DriverTorqueMonitor.state.collectAsState()
     val actTorque by ActualTorqueMonitor.state.collectAsState()
     val catB2 by CatalystB2Monitor.state.collectAsState()
+    val catB1s2 by CatalystB1S2Monitor.state.collectAsState()
+    val catB2s2 by CatalystB2S2Monitor.state.collectAsState()
+    val catB1s3 by CatalystB1S3Monitor.state.collectAsState()
+    val catB2s3 by CatalystB2S3Monitor.state.collectAsState()
+    val catB1s4 by CatalystB1S4Monitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -239,6 +249,11 @@ fun DriveVizPanel(
             DriverTorqueMonitor.tick(prefs, snap)
             ActualTorqueMonitor.tick(prefs, snap)
             CatalystB2Monitor.tick(prefs, snap)
+            CatalystB1S2Monitor.tick(prefs, snap)
+            CatalystB2S2Monitor.tick(prefs, snap)
+            CatalystB1S3Monitor.tick(prefs, snap)
+            CatalystB2S3Monitor.tick(prefs, snap)
+            CatalystB1S4Monitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -771,6 +786,21 @@ fun DriveVizPanel(
                 }
                 if (catB2.showWarn || (prefs.catB2Enabled && catB2.band == "ok" && catB2.label.isNotBlank())) {
                     Text(catB2.label, color = Color(com.veplayer.app.vehicle.CatalystB2.accentArgb(catB2.band)), fontSize = 11.sp)
+                }
+                if (catB1s2.showWarn || (prefs.catB1s2Enabled && catB1s2.band == "ok" && catB1s2.label.isNotBlank())) {
+                    Text(catB1s2.label, color = Color(com.veplayer.app.vehicle.CatalystB1S2.accentArgb(catB1s2.band)), fontSize = 11.sp)
+                }
+                if (catB2s2.showWarn || (prefs.catB2s2Enabled && catB2s2.band == "ok" && catB2s2.label.isNotBlank())) {
+                    Text(catB2s2.label, color = Color(com.veplayer.app.vehicle.CatalystB2S2.accentArgb(catB2s2.band)), fontSize = 11.sp)
+                }
+                if (catB1s3.showWarn || (prefs.catB1s3Enabled && catB1s3.band == "ok" && catB1s3.label.isNotBlank())) {
+                    Text(catB1s3.label, color = Color(com.veplayer.app.vehicle.CatalystB1S3.accentArgb(catB1s3.band)), fontSize = 11.sp)
+                }
+                if (catB2s3.showWarn || (prefs.catB2s3Enabled && catB2s3.band == "ok" && catB2s3.label.isNotBlank())) {
+                    Text(catB2s3.label, color = Color(com.veplayer.app.vehicle.CatalystB2S3.accentArgb(catB2s3.band)), fontSize = 11.sp)
+                }
+                if (catB1s4.showWarn || (prefs.catB1s4Enabled && catB1s4.band == "ok" && catB1s4.label.isNotBlank())) {
+                    Text(catB1s4.label, color = Color(com.veplayer.app.vehicle.CatalystB1S4.accentArgb(catB1s4.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(
