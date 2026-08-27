@@ -775,6 +775,20 @@ npm run veplayer:pbrake-moving-smoke
 
 **Fase 11 (en curso):** RPM over-rev · ice/frost · parking-brake moving · turn stuck · ABS HUD.
 
+## Turn signal stuck (v0.62 · Fase 11)
+
+Intermitente LEFT/RIGHT olvidado en marcha (no hazards):
+
+- Default **≥30 s warn / ≥60 s alert** · min **5 km/h** · reset al apagar o viraje fuerte
+- DriveViz `Inter · Izq/Der` · TTS + inbox
+- Flota `turn_stuck_warn` / `turn_stuck_alert` · sim s en Ajustes (Remolque)
+
+```bash
+npm run veplayer:turn-stuck-smoke
+```
+
+**Fase 11 (en curso):** RPM · ice · p-brake · turn stuck · ABS HUD.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

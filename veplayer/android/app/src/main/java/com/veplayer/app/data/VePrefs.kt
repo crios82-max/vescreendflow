@@ -183,6 +183,45 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("pbrake_sim_kmh", 20f)
         set(value) = sp.edit().putFloat("pbrake_sim_kmh", value.coerceIn(0f, 80f)).apply()
 
+    /** Forgotten turn signal (LEFT/RIGHT held). */
+    var turnStuckEnabled: Boolean
+        get() = sp.getBoolean("turn_stuck", true)
+        set(value) = sp.edit().putBoolean("turn_stuck", value).apply()
+
+    var turnStuckTts: Boolean
+        get() = sp.getBoolean("turn_stuck_tts", true)
+        set(value) = sp.edit().putBoolean("turn_stuck_tts", value).apply()
+
+    var turnStuckWarnSec: Float
+        get() = sp.getFloat("turn_stuck_warn_sec", 30f)
+        set(value) = sp.edit().putFloat("turn_stuck_warn_sec", value.coerceIn(10f, 180f)).apply()
+
+    var turnStuckAlertSec: Float
+        get() = sp.getFloat("turn_stuck_alert_sec", 60f)
+        set(value) = sp.edit().putFloat("turn_stuck_alert_sec", value.coerceIn(20f, 300f)).apply()
+
+    var turnStuckSpeedMinKmh: Float
+        get() = sp.getFloat("turn_stuck_speed_min", 5f)
+        set(value) = sp.edit().putFloat("turn_stuck_speed_min", value.coerceIn(0f, 30f)).apply()
+
+    /** |steering| ≥ this cancels held timer (deg). */
+    var turnStuckSteerCancelDeg: Float
+        get() = sp.getFloat("turn_stuck_steer_cancel", 35f)
+        set(value) = sp.edit().putFloat("turn_stuck_steer_cancel", value.coerceIn(10f, 90f)).apply()
+
+    /** Demo: pretend blinker held this many seconds (0 = live). */
+    var turnStuckSimSec: Float
+        get() = sp.getFloat("turn_stuck_sim_sec", 0f)
+        set(value) = sp.edit().putFloat("turn_stuck_sim_sec", value.coerceIn(0f, 300f)).apply()
+
+    var turnStuckSimSide: String
+        get() = sp.getString("turn_stuck_sim_side", "left") ?: "left"
+        set(value) =
+            sp.edit().putString(
+                "turn_stuck_sim_side",
+                value.trim().lowercase().let { if (it == "right") "right" else "left" },
+            ).apply()
+
     /** Sudden fuel drop (theft / leak) in a short window. */
     var fuelDropEnabled: Boolean
         get() = sp.getBoolean("fuel_drop", true)

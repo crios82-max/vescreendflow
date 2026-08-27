@@ -942,6 +942,46 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Turn signal stuck (forgotten blinker)
+    const turnStuckSec =
+      typeof signals.turn_stuck_sec === 'number' ? (signals.turn_stuck_sec as number) : null
+    if (typeof turnStuckSec === 'number' && turnStuckSec > 0) {
+      const warnSec =
+        typeof signals.turn_stuck_warn_sec === 'number'
+          ? (signals.turn_stuck_warn_sec as number)
+          : 30
+      const alertSec =
+        typeof signals.turn_stuck_alert_sec === 'number'
+          ? (signals.turn_stuck_alert_sec as number)
+          : 60
+      const side =
+        typeof signals.turn_stuck_side === 'string' ? (signals.turn_stuck_side as string) : ''
+      const sideLabel = side === 'right' ? 'derecha' : side === 'left' ? 'izquierda' : ''
+      if (turnStuckSec >= alertSec && !recentlyAlerted(deviceId, 'turn_stuck_alert', 180)) {
+        insertAlert(
+          deviceId,
+          'turn_stuck_alert',
+          'critical',
+          `Intermitente olvidado${sideLabel ? ` · ${sideLabel}` : ''} · ${Math.round(turnStuckSec)}s`,
+          { turn_stuck_sec: turnStuckSec, side, alert_sec: alertSec },
+        )
+        raised.push('turn_stuck_alert')
+      } else if (
+        turnStuckSec >= warnSec &&
+        turnStuckSec < alertSec &&
+        !recentlyAlerted(deviceId, 'turn_stuck_warn', 180)
+      ) {
+        insertAlert(
+          deviceId,
+          'turn_stuck_warn',
+          'warn',
+          `Intermitente encendido${sideLabel ? ` · ${sideLabel}` : ''} · ${Math.round(turnStuckSec)}s`,
+          { turn_stuck_sec: turnStuckSec, side, warn_sec: warnSec },
+        )
+        raised.push('turn_stuck_warn')
+      }
+    }
+
     // Sudden fuel drop (theft / leak)
     const fuelDropPct =
       typeof signals.fuel_drop_pct === 'number' ? (signals.fuel_drop_pct as number) : null

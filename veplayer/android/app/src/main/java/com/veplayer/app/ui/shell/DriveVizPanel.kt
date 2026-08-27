@@ -86,6 +86,7 @@ import com.veplayer.app.vehicle.ShiftFatigueMonitor
 import com.veplayer.app.vehicle.BatteryVoltageMonitor
 import com.veplayer.app.vehicle.SuddenFuelDropMonitor
 import com.veplayer.app.vehicle.TpmsHudMonitor
+import com.veplayer.app.vehicle.TurnStuckMonitor
 import com.veplayer.app.vehicle.UnauthorizedMoveMonitor
 import com.veplayer.app.vehicle.MaintenanceMonitor
 import com.veplayer.app.vehicle.SpeedHud
@@ -125,6 +126,7 @@ fun DriveVizPanel(
     val rpmHot by RpmOverRevMonitor.state.collectAsState()
     val tow by UnauthorizedMoveMonitor.state.collectAsState()
     val pbrake by ParkingBrakeMovingMonitor.state.collectAsState()
+    val turnStuck by TurnStuckMonitor.state.collectAsState()
     val fuelDrop by SuddenFuelDropMonitor.state.collectAsState()
     val tpmsHud by TpmsHudMonitor.state.collectAsState()
     val battV by BatteryVoltageMonitor.state.collectAsState()
@@ -158,6 +160,7 @@ fun DriveVizPanel(
             RpmOverRevMonitor.tick(prefs, snap)
             UnauthorizedMoveMonitor.tick(prefs, snap)
             ParkingBrakeMovingMonitor.tick(prefs, snap)
+            TurnStuckMonitor.tick(prefs, snap)
             SuddenFuelDropMonitor.tick(prefs, snap)
             TpmsHudMonitor.tick(prefs, snap)
             BatteryVoltageMonitor.tick(prefs, snap)
@@ -375,6 +378,13 @@ fun DriveVizPanel(
                     Text(
                         pbrake.label,
                         color = Color(com.veplayer.app.vehicle.ParkingBrakeMoving.accentArgb(pbrake.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (turnStuck.showWarn || (prefs.turnStuckEnabled && turnStuck.band == "ok")) {
+                    Text(
+                        turnStuck.label,
+                        color = Color(com.veplayer.app.vehicle.TurnStuck.accentArgb(turnStuck.band)),
                         fontSize = 11.sp,
                     )
                 }
