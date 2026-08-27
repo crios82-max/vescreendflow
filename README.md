@@ -533,6 +533,20 @@ npm run veplayer:sos-dashcam-smoke
 
 **Fase 7 completa** (door ajar · shift fatigue · HVAC · cabin overtemp · SOS dashcam).
 
+## Seatbelt HUD (v0.44 · Fase 8)
+
+Cinturón conductor desabrochado:
+
+- Bands `unlatched` (parado) · `warn` (≥5 km/h) · `alert` (≥15 km/h o reverse)
+- DriveViz chip · TTS + inbox · flota `seatbelt_warn` / `seatbelt_alert`
+- Sim en mock (`seatbeltSim`)
+
+```bash
+npm run veplayer:seatbelt-smoke
+```
+
+**Fase 8 (en curso):** seatbelt · harsh brake · geofence exit · coolant · incident report.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

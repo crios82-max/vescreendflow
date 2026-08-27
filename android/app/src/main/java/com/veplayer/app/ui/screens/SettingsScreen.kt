@@ -1712,6 +1712,59 @@ fun SettingsScreen() {
                 color = if (door.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var beltOn by remember { mutableStateOf(prefs.seatbeltEnabled) }
+            var beltTts by remember { mutableStateOf(prefs.seatbeltTts) }
+            var beltSim by remember { mutableStateOf(prefs.seatbeltSim) }
+            val belt by com.veplayer.app.vehicle.SeatbeltMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("HUD cinturón", color = Mist)
+                Switch(
+                    checked = beltOn,
+                    onCheckedChange = {
+                        beltOn = it
+                        prefs.seatbeltEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS cinturón", color = Mist)
+                Switch(
+                    checked = beltTts,
+                    onCheckedChange = {
+                        beltTts = it
+                        prefs.seatbeltTts = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Sim cinturón suelto (mock)", color = Mist)
+                Switch(
+                    checked = beltSim,
+                    onCheckedChange = {
+                        beltSim = it
+                        prefs.seatbeltSim = it
+                        CanBusManager.rebind()
+                        status = if (it) "Cinturón sim OFF (suelto)" else "Cinturón sim ON (abrochado)"
+                    },
+                )
+            }
+            Text(
+                if (belt.label.isNotBlank()) "${belt.label} · ${belt.band}" else "Cinturón OK",
+                color = if (belt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             OutlinedTextField(
                 value = mockSpeed,
                 onValueChange = { mockSpeed = it.filter { c -> c.isDigit() || c == '.' } },

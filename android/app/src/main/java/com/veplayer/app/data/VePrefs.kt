@@ -328,6 +328,28 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("door_ajar_sim", false)
         set(value) = sp.edit().putBoolean("door_ajar_sim", value).apply()
 
+    /** Seatbelt unlatched while moving. */
+    var seatbeltEnabled: Boolean
+        get() = sp.getBoolean("seatbelt", true)
+        set(value) = sp.edit().putBoolean("seatbelt", value).apply()
+
+    var seatbeltTts: Boolean
+        get() = sp.getBoolean("seatbelt_tts", true)
+        set(value) = sp.edit().putBoolean("seatbelt_tts", value).apply()
+
+    var seatbeltWarnKmh: Float
+        get() = sp.getFloat("seatbelt_warn_kmh", 5f)
+        set(value) = sp.edit().putFloat("seatbelt_warn_kmh", value.coerceIn(1f, 30f)).apply()
+
+    var seatbeltAlertKmh: Float
+        get() = sp.getFloat("seatbelt_alert_kmh", 15f)
+        set(value) = sp.edit().putFloat("seatbelt_alert_kmh", value.coerceIn(5f, 80f)).apply()
+
+    /** Demo: driver seatbelt unlatched in mock/obd_sim. */
+    var seatbeltSim: Boolean
+        get() = sp.getBoolean("seatbelt_sim", false)
+        set(value) = sp.edit().putBoolean("seatbelt_sim", value).apply()
+
     /** Shift duration / fatigue HUD. */
     var fatigueEnabled: Boolean
         get() = sp.getBoolean("fatigue", true)

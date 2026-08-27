@@ -154,6 +154,9 @@ object FleetInbox {
             kind == "door_moving" -> "Atención. Puerta abierta en movimiento. $body."
             kind == "door_ajar" || kind.startsWith("door_") ->
                 "Cuidado. Puerta abierta. $body."
+            kind == "seatbelt_alert" -> "Atención. Abróchate el cinturón. $body."
+            kind == "seatbelt_warn" || kind.startsWith("seatbelt_") ->
+                "Cuidado. Cinturón desabrochado. $body."
             kind == "shift_fatigue" -> "Atención. Turno prolongado. $body."
             kind == "shift_warn" || kind.startsWith("shift_") ->
                 "Cuidado. Duración de turno. $body."
