@@ -113,6 +113,10 @@ class SenseBridgeService : Service() {
                                     "tow_speed_min_kmh" to prefs.towSpeedMinKmh.toDouble(),
                                     "tow_warn_sec" to prefs.towWarnSec.toDouble(),
                                     "tow_alert_sec" to prefs.towAlertSec.toDouble(),
+                                    "fuel_drop_pct" to
+                                        com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
+                                    "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),
+                                    "fuel_drop_alert_pct" to prefs.fuelDropAlertPct.toDouble(),
                                     "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
                                         com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
                                     ),
@@ -201,6 +205,10 @@ class SenseBridgeService : Service() {
                                     "tow_speed_min_kmh" to prefs.towSpeedMinKmh.toDouble(),
                                     "tow_warn_sec" to prefs.towWarnSec.toDouble(),
                                     "tow_alert_sec" to prefs.towAlertSec.toDouble(),
+                                    "fuel_drop_pct" to
+                                        com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
+                                    "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),
+                                    "fuel_drop_alert_pct" to prefs.fuelDropAlertPct.toDouble(),
                                     "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
                                         com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
                                     ),

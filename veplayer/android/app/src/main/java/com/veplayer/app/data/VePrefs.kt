@@ -157,6 +157,35 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("tow_sim_kmh", 12f)
         set(value) = sp.edit().putFloat("tow_sim_kmh", value.coerceIn(0f, 80f)).apply()
 
+    /** Sudden fuel drop (theft / leak) in a short window. */
+    var fuelDropEnabled: Boolean
+        get() = sp.getBoolean("fuel_drop", true)
+        set(value) = sp.edit().putBoolean("fuel_drop", value).apply()
+
+    var fuelDropTts: Boolean
+        get() = sp.getBoolean("fuel_drop_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_drop_tts", value).apply()
+
+    /** Drop % in window → warn. */
+    var fuelDropWarnPct: Float
+        get() = sp.getFloat("fuel_drop_warn", 8f)
+        set(value) = sp.edit().putFloat("fuel_drop_warn", value.coerceIn(2f, 40f)).apply()
+
+    /** Drop % in window → alert. */
+    var fuelDropAlertPct: Float
+        get() = sp.getFloat("fuel_drop_alert", 15f)
+        set(value) = sp.edit().putFloat("fuel_drop_alert", value.coerceIn(5f, 60f)).apply()
+
+    /** Sliding window seconds for peak→current drop. */
+    var fuelDropWindowSec: Float
+        get() = sp.getFloat("fuel_drop_window", 60f)
+        set(value) = sp.edit().putFloat("fuel_drop_window", value.coerceIn(10f, 600f)).apply()
+
+    /** Demo: force a drop of N% (0 = off). */
+    var fuelDropSimDropPct: Float
+        get() = sp.getFloat("fuel_drop_sim", 0f)
+        set(value) = sp.edit().putFloat("fuel_drop_sim", value.coerceIn(0f, 80f)).apply()
+
     /** Driver incident reports (non-SOS). */
     var incidentEnabled: Boolean
         get() = sp.getBoolean("incident_enabled", true)

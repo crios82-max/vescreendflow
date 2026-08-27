@@ -614,6 +614,55 @@ export function evaluateFleetAlerts(
         raised.push('tow_warn')
       }
     }
+
+    // Sudden fuel drop (theft / leak)
+    const fuelDropPct =
+      typeof signals.fuel_drop_pct === 'number' ? (signals.fuel_drop_pct as number) : null
+    if (typeof fuelDropPct === 'number' && fuelDropPct > 0) {
+      const dropWarn =
+        typeof signals.fuel_drop_warn_pct === 'number'
+          ? (signals.fuel_drop_warn_pct as number)
+          : 8
+      const dropAlert =
+        typeof signals.fuel_drop_alert_pct === 'number'
+          ? (signals.fuel_drop_alert_pct as number)
+          : 15
+      const fuelNow =
+        typeof signals.fuel_pct === 'number' ? Math.round(signals.fuel_pct as number) : null
+      if (fuelDropPct >= dropAlert && !recentlyAlerted(deviceId, 'fuel_drop_alert', 300)) {
+        insertAlert(
+          deviceId,
+          'fuel_drop_alert',
+          'critical',
+          `Caída brusca de combustible · −${Math.round(fuelDropPct)}%` +
+            (fuelNow != null ? ` (ahora ${fuelNow}%)` : ''),
+          {
+            fuel_drop_pct: fuelDropPct,
+            fuel_pct: fuelNow,
+            alert_pct: dropAlert,
+          },
+        )
+        raised.push('fuel_drop_alert')
+      } else if (
+        fuelDropPct >= dropWarn &&
+        fuelDropPct < dropAlert &&
+        !recentlyAlerted(deviceId, 'fuel_drop_warn', 300)
+      ) {
+        insertAlert(
+          deviceId,
+          'fuel_drop_warn',
+          'warn',
+          `Combustible bajando rápido · −${Math.round(fuelDropPct)}%` +
+            (fuelNow != null ? ` (ahora ${fuelNow}%)` : ''),
+          {
+            fuel_drop_pct: fuelDropPct,
+            fuel_pct: fuelNow,
+            warn_pct: dropWarn,
+          },
+        )
+        raised.push('fuel_drop_warn')
+      }
+    }
   }
 
   return raised

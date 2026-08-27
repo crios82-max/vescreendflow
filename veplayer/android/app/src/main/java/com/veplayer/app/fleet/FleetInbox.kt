@@ -175,6 +175,9 @@ object FleetInbox {
             kind == "tow_alert" -> "Atención. Posible remolque. $body."
             kind == "tow_warn" || kind.startsWith("tow_") ->
                 "Cuidado. Movimiento sin ignición. $body."
+            kind == "fuel_drop_alert" -> "Atención. Caída brusca de combustible. $body."
+            kind == "fuel_drop_warn" || kind.startsWith("fuel_drop") ->
+                "Cuidado. Combustible bajando rápido. $body."
             kind.startsWith("dtc:") || kind == "dtc" ->
                 "Atención. Código de falla. $body."
             kind == "soc_low" -> "Atención. Batería baja. $body."
