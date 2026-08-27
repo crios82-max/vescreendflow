@@ -733,6 +733,20 @@ npm run veplayer:driver-scorecard-smoke
 
 **Fase 10 completa** (battery 12V · impact · rest break · route deviation · driver scorecard).
 
+## RPM over-rev (v0.59 · Fase 11)
+
+Régimen motor alto (OBD **010C**):
+
+- Default **≥4500 warn / ≥5500 alert**
+- DriveViz `RPM · Nnnn` · TTS + inbox
+- Flota `rpm_warn` / `rpm_alert` · sim en Ajustes (Clima HVAC)
+
+```bash
+npm run veplayer:rpm-overrev-smoke
+```
+
+**Fase 11 (en curso):** RPM over-rev · ice/frost outdoor · parking-brake moving · turn stuck · ABS HUD.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

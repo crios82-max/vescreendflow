@@ -770,6 +770,36 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // RPM over-rev
+    const rpm =
+      typeof signals.rpm === 'number' ? (signals.rpm as number) : null
+    if (typeof rpm === 'number' && rpm > 0) {
+      const warnRpm =
+        typeof signals.rpm_warn === 'number' ? (signals.rpm_warn as number) : 4500
+      const alertRpm =
+        typeof signals.rpm_alert === 'number' ? (signals.rpm_alert as number) : 5500
+      if (rpm >= alertRpm && !recentlyAlerted(deviceId, 'rpm_alert', 120)) {
+        insertAlert(
+          deviceId,
+          'rpm_alert',
+          'critical',
+          `RPM críticas · ${Math.round(rpm)}`,
+          { rpm, alert_rpm: alertRpm },
+        )
+        raised.push('rpm_alert')
+      } else if (
+        rpm >= warnRpm &&
+        rpm < alertRpm &&
+        !recentlyAlerted(deviceId, 'rpm_warn', 120)
+      ) {
+        insertAlert(deviceId, 'rpm_warn', 'warn', `RPM altas · ${Math.round(rpm)}`, {
+          rpm,
+          warn_rpm: warnRpm,
+        })
+        raised.push('rpm_warn')
+      }
+    }
+
     // Unauthorized movement / tow — ignition off (or parking) + speed
     const parkingBrake = signals.parking_brake === true
     const secured = !ignOn || parkingBrake

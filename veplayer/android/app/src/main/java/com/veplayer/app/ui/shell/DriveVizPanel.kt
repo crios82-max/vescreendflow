@@ -78,6 +78,7 @@ import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.RestBreakMonitor
 import com.veplayer.app.vehicle.RouteDeviationMonitor
+import com.veplayer.app.vehicle.RpmOverRevMonitor
 import com.veplayer.app.vehicle.SeatbeltMonitor
 import com.veplayer.app.vehicle.ShiftFatigueMonitor
 import com.veplayer.app.vehicle.BatteryVoltageMonitor
@@ -118,6 +119,7 @@ fun DriveVizPanel(
     val hvac by HvacClimateMonitor.state.collectAsState()
     val cabinHot by CabinOvertempMonitor.state.collectAsState()
     val coolantHot by CoolantOverheatMonitor.state.collectAsState()
+    val rpmHot by RpmOverRevMonitor.state.collectAsState()
     val tow by UnauthorizedMoveMonitor.state.collectAsState()
     val fuelDrop by SuddenFuelDropMonitor.state.collectAsState()
     val tpmsHud by TpmsHudMonitor.state.collectAsState()
@@ -148,6 +150,7 @@ fun DriveVizPanel(
             HvacClimateMonitor.tick(prefs, snap)
             CabinOvertempMonitor.tick(prefs, snap)
             CoolantOverheatMonitor.tick(prefs, snap)
+            RpmOverRevMonitor.tick(prefs, snap)
             UnauthorizedMoveMonitor.tick(prefs, snap)
             SuddenFuelDropMonitor.tick(prefs, snap)
             TpmsHudMonitor.tick(prefs, snap)
@@ -338,6 +341,13 @@ fun DriveVizPanel(
                     Text(
                         "Motor · ${coolantHot.label}",
                         color = Color(com.veplayer.app.vehicle.CoolantOverheat.accentArgb(coolantHot.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (rpmHot.showWarn || (prefs.rpmEnabled && rpmHot.band == "ok" && (rpmHot.rpm ?: 0f) >= 2000f)) {
+                    Text(
+                        "RPM · ${rpmHot.label}",
+                        color = Color(com.veplayer.app.vehicle.RpmOverRev.accentArgb(rpmHot.band)),
                         fontSize = 11.sp,
                     )
                 }

@@ -696,6 +696,28 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("coolant_sim_c", 0f)
         set(value) = sp.edit().putFloat("coolant_sim_c", value.coerceIn(0f, 140f)).apply()
 
+    /** Engine RPM over-rev (OBD 010C). */
+    var rpmEnabled: Boolean
+        get() = sp.getBoolean("rpm_over", true)
+        set(value) = sp.edit().putBoolean("rpm_over", value).apply()
+
+    var rpmTts: Boolean
+        get() = sp.getBoolean("rpm_over_tts", true)
+        set(value) = sp.edit().putBoolean("rpm_over_tts", value).apply()
+
+    var rpmWarn: Float
+        get() = sp.getFloat("rpm_warn", 4500f)
+        set(value) = sp.edit().putFloat("rpm_warn", value.coerceIn(2500f, 7000f)).apply()
+
+    var rpmAlert: Float
+        get() = sp.getFloat("rpm_alert", 5500f)
+        set(value) = sp.edit().putFloat("rpm_alert", value.coerceIn(3000f, 8000f)).apply()
+
+    /** Demo: force RPM (0 = live). */
+    var rpmSim: Float
+        get() = sp.getFloat("rpm_sim", 0f)
+        set(value) = sp.edit().putFloat("rpm_sim", value.coerceIn(0f, 8000f)).apply()
+
     /** Collect fleet alerts into inbox. */
     var fleetAlertsEnabled: Boolean
         get() = sp.getBoolean("fleet_alerts", true)

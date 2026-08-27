@@ -126,6 +126,13 @@ class SenseBridgeService : Service() {
                                         (if (prefs.coolantSimC > 0f) prefs.coolantSimC
                                         else com.veplayer.app.vehicle.VehicleState.state.value.coolantC
                                         )?.toDouble(),
+                                    "rpm_warn" to prefs.rpmWarn.toDouble(),
+                                    "rpm_alert" to prefs.rpmAlert.toDouble(),
+                                    "rpm" to
+                                        (if (prefs.rpmSim > 0f) prefs.rpmSim
+                                        else com.veplayer.app.vehicle.RpmOverRevMonitor.state.value.rpm
+                                            ?: snap.rpm
+                                        )?.toDouble(),
                                     "tow_moving_sec" to
                                         com.veplayer.app.vehicle.UnauthorizedMoveMonitor.state.value.movingForSec.toDouble(),
                                     "tow_speed_min_kmh" to prefs.towSpeedMinKmh.toDouble(),
@@ -256,6 +263,13 @@ class SenseBridgeService : Service() {
                                     "coolant_c" to
                                         (if (prefs.coolantSimC > 0f) prefs.coolantSimC
                                         else com.veplayer.app.vehicle.VehicleState.state.value.coolantC
+                                        )?.toDouble(),
+                                    "rpm_warn" to prefs.rpmWarn.toDouble(),
+                                    "rpm_alert" to prefs.rpmAlert.toDouble(),
+                                    "rpm" to
+                                        (if (prefs.rpmSim > 0f) prefs.rpmSim
+                                        else com.veplayer.app.vehicle.RpmOverRevMonitor.state.value.rpm
+                                            ?: snap.rpm
                                         )?.toDouble(),
                                     "tow_moving_sec" to
                                         com.veplayer.app.vehicle.UnauthorizedMoveMonitor.state.value.movingForSec.toDouble(),

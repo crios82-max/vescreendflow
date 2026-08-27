@@ -43,6 +43,7 @@
     "veplayer:rest-break-smoke": "node veplayer/scripts/rest-break-smoke.mjs",
     "veplayer:route-deviation-smoke": "node veplayer/scripts/route-deviation-smoke.mjs",
     "veplayer:driver-scorecard-smoke": "node veplayer/scripts/driver-scorecard-smoke.mjs",
+    "veplayer:rpm-overrev-smoke": "node veplayer/scripts/rpm-overrev-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",
