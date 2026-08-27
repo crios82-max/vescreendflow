@@ -1,0 +1,15 @@
+{
+  "name": "@ride-app/web-shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@ride-app/shared": "*",
+    "@vis.gl/react-google-maps": "^1.5.2",
+    "socket.io-client": "^4.8.1"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  }
+}
