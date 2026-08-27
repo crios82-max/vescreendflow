@@ -549,6 +549,30 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("impact_speed_min", 8f)
         set(value) = sp.edit().putFloat("impact_speed_min", value.coerceIn(0f, 40f)).apply()
 
+    /** Safety driver scorecard (shift). */
+    var driverScoreEnabled: Boolean
+        get() = sp.getBoolean("driver_score", true)
+        set(value) = sp.edit().putBoolean("driver_score", value).apply()
+
+    var driverScoreTts: Boolean
+        get() = sp.getBoolean("driver_score_tts", true)
+        set(value) = sp.edit().putBoolean("driver_score_tts", value).apply()
+
+    /** Score below this → warn. */
+    var driverScoreWarn: Float
+        get() = sp.getFloat("driver_score_warn", 70f)
+        set(value) = sp.edit().putFloat("driver_score_warn", value.coerceIn(30f, 95f)).apply()
+
+    /** Score at/below this → alert. */
+    var driverScoreAlert: Float
+        get() = sp.getFloat("driver_score_alert", 50f)
+        set(value) = sp.edit().putFloat("driver_score_alert", value.coerceIn(10f, 80f)).apply()
+
+    /** Demo: force score 1–100 (0 = live). */
+    var driverScoreSimScore: Float
+        get() = sp.getFloat("driver_score_sim", 0f)
+        set(value) = sp.edit().putFloat("driver_score_sim", value.coerceIn(0f, 100f)).apply()
+
     /** Shift duration / fatigue HUD. */
     var fatigueEnabled: Boolean
         get() = sp.getBoolean("fatigue", true)

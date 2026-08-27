@@ -661,6 +661,48 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Driver safety scorecard
+    const driverScore = signals.driver_score as Record<string, unknown> | undefined
+    let scoreVal: number | null =
+      typeof driverScore?.score === 'number'
+        ? (driverScore.score as number)
+        : typeof signals.driver_score_value === 'number'
+          ? (signals.driver_score_value as number)
+          : null
+    if (typeof scoreVal === 'number' && driverScore?.active !== false) {
+      const warnScore =
+        typeof signals.driver_score_warn === 'number'
+          ? (signals.driver_score_warn as number)
+          : 70
+      const alertScore =
+        typeof signals.driver_score_alert === 'number'
+          ? (signals.driver_score_alert as number)
+          : 50
+      if (scoreVal <= alertScore && !recentlyAlerted(deviceId, 'score_alert', 300)) {
+        insertAlert(
+          deviceId,
+          'score_alert',
+          'critical',
+          `Puntaje bajo · ${Math.round(scoreVal)}`,
+          { driver_score: driverScore ?? { score: scoreVal }, alert: alertScore },
+        )
+        raised.push('score_alert')
+      } else if (
+        scoreVal < warnScore &&
+        scoreVal > alertScore &&
+        !recentlyAlerted(deviceId, 'score_warn', 300)
+      ) {
+        insertAlert(
+          deviceId,
+          'score_warn',
+          'warn',
+          `Puntaje en baja · ${Math.round(scoreVal)}`,
+          { driver_score: driverScore ?? { score: scoreVal }, warn: warnScore },
+        )
+        raised.push('score_warn')
+      }
+    }
+
     // Cabin overtemp — hvac.cabin_c or top-level cabin_c
     const hvac = signals.hvac as Record<string, unknown> | undefined
     let cabinC: number | null =

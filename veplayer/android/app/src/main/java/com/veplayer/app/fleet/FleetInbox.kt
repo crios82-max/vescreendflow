@@ -188,6 +188,9 @@ object FleetInbox {
             kind == "route_deviate" -> "Atención. Fuera de ruta. $body."
             kind == "route_warn" || kind.startsWith("route_") ->
                 "Cuidado. Desvío de ruta. $body."
+            kind == "score_alert" -> "Atención. Puntaje de conducción bajo. $body."
+            kind == "score_warn" || kind.startsWith("score_") ->
+                "Cuidado. Puntaje de conducción. $body."
             kind == "shift_summary" -> "Turno cerrado. $body."
             kind == "shift_fatigue" -> "Atención. Turno prolongado. $body."
             kind == "shift_warn" || kind.startsWith("shift_") ->

@@ -1863,6 +1863,70 @@ fun SettingsScreen() {
                     },
                 ) { Text("Cerrar turno") }
             }
+            var scoreOn by remember { mutableStateOf(prefs.driverScoreEnabled) }
+            var scoreTts by remember { mutableStateOf(prefs.driverScoreTts) }
+            var scoreSim by remember {
+                mutableStateOf(
+                    if (prefs.driverScoreSimScore > 0f) prefs.driverScoreSimScore.toInt().toString() else "0",
+                )
+            }
+            val scoreSt by com.veplayer.app.vehicle.DriverScoreMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Scorecard seguridad", color = Mist)
+                Switch(
+                    checked = scoreOn,
+                    onCheckedChange = {
+                        scoreOn = it
+                        prefs.driverScoreEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS scorecard", color = Mist)
+                Switch(
+                    checked = scoreTts,
+                    onCheckedChange = {
+                        scoreTts = it
+                        prefs.driverScoreTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = scoreSim,
+                onValueChange = { scoreSim = it.filter { c -> c.isDigit() }.take(3) },
+                label = { Text("Sim score 1–100 (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.driverScoreSimScore = scoreSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Score sim ${prefs.driverScoreSimScore.toInt()} · warn ${prefs.driverScoreWarn.toInt()} / alert ${prefs.driverScoreAlert.toInt()}"
+                },
+            ) { Text("Aplicar sim score") }
+            Text(
+                if (scoreSt.active) {
+                    "${scoreSt.label}" +
+                        if (scoreSt.harshBrakeEvents + scoreSt.harshAccelEvents + scoreSt.seatbeltEvents + scoreSt.impactEvents > 0) {
+                            " · h${scoreSt.harshBrakeEvents}/${scoreSt.harshAccelEvents} b${scoreSt.seatbeltEvents} i${scoreSt.impactEvents}"
+                        } else {
+                            ""
+                        }
+                } else {
+                    "Score idle (abrir turno · warn ${prefs.driverScoreWarn.toInt()} / alert ${prefs.driverScoreAlert.toInt()})"
+                },
+                color = if (scoreSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var fatigueOn by remember { mutableStateOf(prefs.fatigueEnabled) }
             var fatigueTts by remember { mutableStateOf(prefs.fatigueTts) }
             var fatigueSim by remember { mutableStateOf(prefs.fatigueSimHours.toInt().toString()) }
