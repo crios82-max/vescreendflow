@@ -2736,6 +2736,65 @@ fun SettingsScreen() {
                 color = if (iatSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var fuelRateOn by remember { mutableStateOf(prefs.fuelRateEnabled) }
+            var fuelRateTts by remember { mutableStateOf(prefs.fuelRateTts) }
+            var fuelRateSim by remember {
+                mutableStateOf(
+                    if (prefs.fuelRateSimLph > 0f) prefs.fuelRateSimLph.toInt().toString() else "0",
+                )
+            }
+            val fuelRateSt by com.veplayer.app.vehicle.FuelRateMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso consumo (015E)", color = Mist)
+                Switch(
+                    checked = fuelRateOn,
+                    onCheckedChange = {
+                        fuelRateOn = it
+                        prefs.fuelRateEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS consumo", color = Mist)
+                Switch(
+                    checked = fuelRateTts,
+                    onCheckedChange = {
+                        fuelRateTts = it
+                        prefs.fuelRateTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = fuelRateSim,
+                onValueChange = { fuelRateSim = it.filter { c -> c.isDigit() }.take(3) },
+                label = { Text("Sim L/h (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.fuelRateSimLph = fuelRateSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Fuel rate sim ${prefs.fuelRateSimLph.toInt()} L/h · warn ${prefs.fuelRateWarnLph.toInt()} / alert ${prefs.fuelRateAlertLph.toInt()}"
+                },
+            ) { Text("Aplicar sim consumo") }
+            Text(
+                if (fuelRateSt.fuelRateLph != null) {
+                    "${fuelRateSt.label} · ${fuelRateSt.band}"
+                } else {
+                    "Consumo idle (warn ${prefs.fuelRateWarnLph.toInt()} / alert ${prefs.fuelRateAlertLph.toInt()} L/h)"
+                },
+                color = if (fuelRateSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

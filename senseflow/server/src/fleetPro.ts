@@ -1032,6 +1032,74 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Engine fuel rate (OBD PID 015E)
+    const fuelRateObj = signals.fuel_rate as Record<string, unknown> | undefined
+    let fuelRateLph: number | null =
+      typeof fuelRateObj?.fuel_rate_lph === 'number'
+        ? (fuelRateObj.fuel_rate_lph as number)
+        : typeof signals.fuel_rate_lph === 'number'
+          ? (signals.fuel_rate_lph as number)
+          : typeof signals.fuel_rate_gps === 'number'
+            ? ((signals.fuel_rate_gps as number) * 3600) / 740
+            : null
+    const fuelRateSpeedKmh =
+      typeof fuelRateObj?.speed_kmh === 'number'
+        ? (fuelRateObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof fuelRateLph === 'number') {
+      const warnLph =
+        typeof signals.fuel_rate_warn_lph === 'number'
+          ? (signals.fuel_rate_warn_lph as number)
+          : 55
+      const alertLph =
+        typeof signals.fuel_rate_alert_lph === 'number'
+          ? (signals.fuel_rate_alert_lph as number)
+          : 80
+      const frMinSpd =
+        typeof signals.fuel_rate_speed_min_kmh === 'number'
+          ? (signals.fuel_rate_speed_min_kmh as number)
+          : 20
+      const frSpdOk = typeof fuelRateSpeedKmh === 'number' && fuelRateSpeedKmh >= frMinSpd
+      if (
+        frSpdOk &&
+        fuelRateLph >= alertLph &&
+        !recentlyAlerted(deviceId, 'fuel_rate_alert', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'fuel_rate_alert',
+          'critical',
+          `Consumo crítico · ${Math.round(fuelRateLph)} L/h`,
+          {
+            fuel_rate_lph: fuelRateLph,
+            alert_lph: alertLph,
+            fuel_rate: fuelRateObj ?? null,
+          },
+        )
+        raised.push('fuel_rate_alert')
+      } else if (
+        frSpdOk &&
+        fuelRateLph >= warnLph &&
+        fuelRateLph < alertLph &&
+        !recentlyAlerted(deviceId, 'fuel_rate_warn', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'fuel_rate_warn',
+          'warn',
+          `Consumo alto · ${Math.round(fuelRateLph)} L/h`,
+          {
+            fuel_rate_lph: fuelRateLph,
+            warn_lph: warnLph,
+            fuel_rate: fuelRateObj ?? null,
+          },
+        )
+        raised.push('fuel_rate_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

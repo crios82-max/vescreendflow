@@ -56,6 +56,7 @@
     "veplayer:engine-load-smoke": "node veplayer/scripts/engine-load-smoke.mjs",
     "veplayer:oil-temp-smoke": "node veplayer/scripts/oil-temp-smoke.mjs",
     "veplayer:intake-air-smoke": "node veplayer/scripts/intake-air-smoke.mjs",
+    "veplayer:fuel-rate-smoke": "node veplayer/scripts/fuel-rate-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",
