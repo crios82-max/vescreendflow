@@ -1289,6 +1289,65 @@ fun SettingsScreen() {
                 color = if (pbrakeSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var turnStuckOn by remember { mutableStateOf(prefs.turnStuckEnabled) }
+            var turnStuckTtsOn by remember { mutableStateOf(prefs.turnStuckTts) }
+            var turnStuckSim by remember {
+                mutableStateOf(
+                    if (prefs.turnStuckSimSec > 0f) prefs.turnStuckSimSec.toInt().toString() else "0",
+                )
+            }
+            val turnStuckSt by com.veplayer.app.vehicle.TurnStuckMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Intermitente olvidado", color = Mist)
+                Switch(
+                    checked = turnStuckOn,
+                    onCheckedChange = {
+                        turnStuckOn = it
+                        prefs.turnStuckEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS intermitente", color = Mist)
+                Switch(
+                    checked = turnStuckTtsOn,
+                    onCheckedChange = {
+                        turnStuckTtsOn = it
+                        prefs.turnStuckTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = turnStuckSim,
+                onValueChange = { turnStuckSim = it.filter { c -> c.isDigit() }.take(4) },
+                label = { Text("Sim segundos inter (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.turnStuckSimSec = turnStuckSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Turn stuck sim ${prefs.turnStuckSimSec.toInt()}s · warn ${prefs.turnStuckWarnSec.toInt()} / alert ${prefs.turnStuckAlertSec.toInt()}"
+                },
+            ) { Text("Aplicar sim intermitente") }
+            Text(
+                if (turnStuckSt.side.isNotBlank()) {
+                    "${turnStuckSt.label} · ${turnStuckSt.band}"
+                } else {
+                    "Inter idle (warn ${prefs.turnStuckWarnSec.toInt()}s / alert ${prefs.turnStuckAlertSec.toInt()}s)"
+                },
+                color = if (turnStuckSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
         }
 
         PanelBlock("Caída brusca de combustible") {

@@ -157,6 +157,12 @@ class SenseBridgeService : Service() {
                                         } else {
                                             snap.speedKmh
                                         }).toDouble(),
+                                    "turn_stuck_sec" to
+                                        com.veplayer.app.vehicle.TurnStuckMonitor.state.value.heldSec.toDouble(),
+                                    "turn_stuck_side" to
+                                        com.veplayer.app.vehicle.TurnStuckMonitor.state.value.side.ifBlank { null },
+                                    "turn_stuck_warn_sec" to prefs.turnStuckWarnSec.toDouble(),
+                                    "turn_stuck_alert_sec" to prefs.turnStuckAlertSec.toDouble(),
                                     "fuel_drop_pct" to
                                         com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
                                     "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),
@@ -314,6 +320,12 @@ class SenseBridgeService : Service() {
                                         } else {
                                             snap.speedKmh
                                         }).toDouble(),
+                                    "turn_stuck_sec" to
+                                        com.veplayer.app.vehicle.TurnStuckMonitor.state.value.heldSec.toDouble(),
+                                    "turn_stuck_side" to
+                                        com.veplayer.app.vehicle.TurnStuckMonitor.state.value.side.ifBlank { null },
+                                    "turn_stuck_warn_sec" to prefs.turnStuckWarnSec.toDouble(),
+                                    "turn_stuck_alert_sec" to prefs.turnStuckAlertSec.toDouble(),
                                     "fuel_drop_pct" to
                                         com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
                                     "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),
