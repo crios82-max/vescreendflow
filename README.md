@@ -845,6 +845,20 @@ npm run veplayer:gear-roll-smoke
 
 **Fase 12 (en curso):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
 
+## Eco live (v0.67 · Fase 12)
+
+Avisos en vivo del **eco_score** del turno (aparte del score de seguridad):
+
+- Warn **&lt;70** / alert **≤50** · bands good/fair/poor
+- DriveViz `Eco XX · band` · TTS + inbox
+- Flota `eco_warn` / `eco_alert` · sim en Ajustes (Conductor)
+
+```bash
+npm run veplayer:eco-live-smoke
+```
+
+**Fase 12 (en curso):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
