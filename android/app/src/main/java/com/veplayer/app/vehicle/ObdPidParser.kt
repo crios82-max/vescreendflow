@@ -28,6 +28,12 @@ object ObdPidParser {
         val mafGps: Float? = null,
         /** Fuel rail pressure (OBD PID 010A), kPa. */
         val fuelPressureKpa: Float? = null,
+        /** Barometric pressure (OBD PID 0133), kPa. */
+        val baroKpa: Float? = null,
+        /** Ignition timing advance (OBD PID 010E), degrees. */
+        val timingAdvanceDeg: Float? = null,
+        /** O2 sensor voltage B1S1 (OBD PID 014A), volts. */
+        val o2B1s1Volts: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -89,6 +95,11 @@ object ObdPidParser {
                         data.getOrNull(0)?.let { (it - 128) * 100f / 128f },
                 )
             0x0A -> PidValues(fuelPressureKpa = data.getOrNull(0)?.let { it * 3f })
+            0x0E ->
+                PidValues(
+                    timingAdvanceDeg =
+                        data.getOrNull(0)?.let { (it / 2f) - 64f },
+                )
             0x07 ->
                 PidValues(
                     fuelTrimLtftPct =
@@ -103,6 +114,11 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(catalystTempC = ((data[0] * 256) + data[1]) / 10f - 40f)
             }
+            0x33 -> PidValues(baroKpa = data.getOrNull(0)?.toFloat())
+            0x4A ->
+                PidValues(
+                    o2B1s1Volts = data.getOrNull(0)?.let { it / 200f },
+                )
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -141,6 +157,9 @@ object ObdPidParser {
             catalystTempC = add.catalystTempC ?: base.catalystTempC,
             mafGps = add.mafGps ?: base.mafGps,
             fuelPressureKpa = add.fuelPressureKpa ?: base.fuelPressureKpa,
+            baroKpa = add.baroKpa ?: base.baroKpa,
+            timingAdvanceDeg = add.timingAdvanceDeg ?: base.timingAdvanceDeg,
+            o2B1s1Volts = add.o2B1s1Volts ?: base.o2B1s1Volts,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

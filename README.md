@@ -1054,7 +1054,43 @@ curl -I http://127.0.0.1:4100/brands/demo/logo.png
 }
 ```
 
-**Fase 15 (en curso):** MAF airflow · fuel pressure · barometric · timing advance · O2 voltage.
+**Fase 15 (completa):** MAF airflow · fuel pressure · barometric · timing advance · O2 voltage.
+
+## Barometric (v0.82 · Fase 15)
+
+Presión barométrica (**OBD PID 0133**), kPa — alerta fuera de rango:
+
+- Warn **≤88 / ≥108 kPa** · alert **≤82 / ≥112 kPa** (en movimiento ≥20 km/h)
+- DriveViz `Baro · XX kPa` · TTS + inbox
+- Flota `baro_warn` / `baro_alert` · sim kPa en Ajustes (motor)
+
+```bash
+npm run veplayer:barometric-smoke
+```
+
+## Timing advance (v0.83 · Fase 15)
+
+Adelanto de encendido (**OBD PID 010E**), °:
+
+- Warn **≥38°** / alert **≥45°** (movimiento ≥20 km/h, RPM ≥800)
+- DriveViz `Timing · XX°` · TTS + inbox
+- Flota `timing_warn` / `timing_alert` · sim ° en Ajustes (motor)
+
+```bash
+npm run veplayer:timing-advance-smoke
+```
+
+## O2 voltage B1S1 (v0.84 · Fase 15)
+
+Voltaje sensor O2 (**OBD PID 014A**), V — stuck lean/rich:
+
+- Warn **≤0.10 / ≥0.88 V** · alert **≤0.06 / ≥0.95 V** (movimiento ≥20 km/h, RPM ≥800)
+- DriveViz `O2 · X.XX V` · TTS + inbox
+- Flota `o2_warn` / `o2_alert` · sim V en Ajustes (motor)
+
+```bash
+npm run veplayer:o2-voltage-smoke
+```
 
 ## Device Owner (kiosk duro · v0.12)
 

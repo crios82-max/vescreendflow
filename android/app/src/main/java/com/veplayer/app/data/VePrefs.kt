@@ -1113,6 +1113,117 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("fuel_press_sim_speed", 40f)
         set(value) = sp.edit().putFloat("fuel_press_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Barometric pressure (OBD 0133). */
+    var baroEnabled: Boolean
+        get() = sp.getBoolean("baro", true)
+        set(value) = sp.edit().putBoolean("baro", value).apply()
+
+    var baroTts: Boolean
+        get() = sp.getBoolean("baro_tts", true)
+        set(value) = sp.edit().putBoolean("baro_tts", value).apply()
+
+    var baroWarnLowKpa: Float
+        get() = sp.getFloat("baro_warn_low_kpa", 88f)
+        set(value) = sp.edit().putFloat("baro_warn_low_kpa", value.coerceIn(50f, 120f)).apply()
+
+    var baroAlertLowKpa: Float
+        get() = sp.getFloat("baro_alert_low_kpa", 82f)
+        set(value) = sp.edit().putFloat("baro_alert_low_kpa", value.coerceIn(40f, 115f)).apply()
+
+    var baroWarnHighKpa: Float
+        get() = sp.getFloat("baro_warn_high_kpa", 108f)
+        set(value) = sp.edit().putFloat("baro_warn_high_kpa", value.coerceIn(100f, 200f)).apply()
+
+    var baroAlertHighKpa: Float
+        get() = sp.getFloat("baro_alert_high_kpa", 112f)
+        set(value) = sp.edit().putFloat("baro_alert_high_kpa", value.coerceIn(105f, 255f)).apply()
+
+    var baroSpeedMinKmh: Float
+        get() = sp.getFloat("baro_speed_min", 20f)
+        set(value) = sp.edit().putFloat("baro_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    var baroSimKpa: Float
+        get() = sp.getFloat("baro_sim_kpa", 0f)
+        set(value) = sp.edit().putFloat("baro_sim_kpa", value.coerceIn(0f, 255f)).apply()
+
+    var baroSimSpeedKmh: Float
+        get() = sp.getFloat("baro_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("baro_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Ignition timing advance (OBD 010E). */
+    var timingEnabled: Boolean
+        get() = sp.getBoolean("timing", true)
+        set(value) = sp.edit().putBoolean("timing", value).apply()
+
+    var timingTts: Boolean
+        get() = sp.getBoolean("timing_tts", true)
+        set(value) = sp.edit().putBoolean("timing_tts", value).apply()
+
+    var timingWarnDeg: Float
+        get() = sp.getFloat("timing_warn_deg", 38f)
+        set(value) = sp.edit().putFloat("timing_warn_deg", value.coerceIn(10f, 60f)).apply()
+
+    var timingAlertDeg: Float
+        get() = sp.getFloat("timing_alert_deg", 45f)
+        set(value) = sp.edit().putFloat("timing_alert_deg", value.coerceIn(15f, 64f)).apply()
+
+    var timingSpeedMinKmh: Float
+        get() = sp.getFloat("timing_speed_min", 20f)
+        set(value) = sp.edit().putFloat("timing_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    var timingRpmMin: Float
+        get() = sp.getFloat("timing_rpm_min", 800f)
+        set(value) = sp.edit().putFloat("timing_rpm_min", value.coerceIn(400f, 3000f)).apply()
+
+    var timingSimDeg: Float
+        get() = sp.getFloat("timing_sim_deg", 0f)
+        set(value) = sp.edit().putFloat("timing_sim_deg", value.coerceIn(-64f, 64f)).apply()
+
+    var timingSimSpeedKmh: Float
+        get() = sp.getFloat("timing_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("timing_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** O2 sensor voltage B1S1 (OBD 014A). */
+    var o2Enabled: Boolean
+        get() = sp.getBoolean("o2_volt", true)
+        set(value) = sp.edit().putBoolean("o2_volt", value).apply()
+
+    var o2Tts: Boolean
+        get() = sp.getBoolean("o2_volt_tts", true)
+        set(value) = sp.edit().putBoolean("o2_volt_tts", value).apply()
+
+    var o2WarnLowV: Float
+        get() = sp.getFloat("o2_warn_low_v", 0.10f)
+        set(value) = sp.edit().putFloat("o2_warn_low_v", value.coerceIn(0.02f, 0.5f)).apply()
+
+    var o2AlertLowV: Float
+        get() = sp.getFloat("o2_alert_low_v", 0.06f)
+        set(value) = sp.edit().putFloat("o2_alert_low_v", value.coerceIn(0.01f, 0.2f)).apply()
+
+    var o2WarnHighV: Float
+        get() = sp.getFloat("o2_warn_high_v", 0.88f)
+        set(value) = sp.edit().putFloat("o2_warn_high_v", value.coerceIn(0.5f, 1.2f)).apply()
+
+    var o2AlertHighV: Float
+        get() = sp.getFloat("o2_alert_high_v", 0.95f)
+        set(value) = sp.edit().putFloat("o2_alert_high_v", value.coerceIn(0.6f, 1.275f)).apply()
+
+    var o2SpeedMinKmh: Float
+        get() = sp.getFloat("o2_speed_min", 20f)
+        set(value) = sp.edit().putFloat("o2_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    var o2RpmMin: Float
+        get() = sp.getFloat("o2_rpm_min", 800f)
+        set(value) = sp.edit().putFloat("o2_rpm_min", value.coerceIn(400f, 3000f)).apply()
+
+    var o2SimVolts: Float
+        get() = sp.getFloat("o2_sim_v", 0f)
+        set(value) = sp.edit().putFloat("o2_sim_v", value.coerceIn(0f, 1.275f)).apply()
+
+    var o2SimSpeedKmh: Float
+        get() = sp.getFloat("o2_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("o2_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

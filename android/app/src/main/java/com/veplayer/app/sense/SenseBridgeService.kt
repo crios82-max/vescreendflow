@@ -233,6 +233,48 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.FuelPressure.toJsonMap(
                                             com.veplayer.app.vehicle.FuelPressureMonitor.state.value,
                                         ),
+                                    "baro_warn_low_kpa" to prefs.baroWarnLowKpa.toDouble(),
+                                    "baro_alert_low_kpa" to prefs.baroAlertLowKpa.toDouble(),
+                                    "baro_warn_high_kpa" to prefs.baroWarnHighKpa.toDouble(),
+                                    "baro_alert_high_kpa" to prefs.baroAlertHighKpa.toDouble(),
+                                    "baro_speed_min_kmh" to prefs.baroSpeedMinKmh.toDouble(),
+                                    "baro_kpa" to
+                                        (if (prefs.baroSimKpa > 0f) prefs.baroSimKpa
+                                        else com.veplayer.app.vehicle.BarometricPressureMonitor.state.value.baroKpa
+                                            ?: snap.baroKpa
+                                        )?.toDouble(),
+                                    "barometric" to
+                                        com.veplayer.app.vehicle.BarometricPressure.toJsonMap(
+                                            com.veplayer.app.vehicle.BarometricPressureMonitor.state.value,
+                                        ),
+                                    "timing_warn_deg" to prefs.timingWarnDeg.toDouble(),
+                                    "timing_alert_deg" to prefs.timingAlertDeg.toDouble(),
+                                    "timing_speed_min_kmh" to prefs.timingSpeedMinKmh.toDouble(),
+                                    "timing_rpm_min" to prefs.timingRpmMin.toDouble(),
+                                    "timing_advance_deg" to
+                                        (if (prefs.timingSimDeg != 0f) prefs.timingSimDeg
+                                        else com.veplayer.app.vehicle.TimingAdvanceMonitor.state.value.timingDeg
+                                            ?: snap.timingAdvanceDeg
+                                        )?.toDouble(),
+                                    "timing_advance" to
+                                        com.veplayer.app.vehicle.TimingAdvance.toJsonMap(
+                                            com.veplayer.app.vehicle.TimingAdvanceMonitor.state.value,
+                                        ),
+                                    "o2_warn_low_v" to prefs.o2WarnLowV.toDouble(),
+                                    "o2_alert_low_v" to prefs.o2AlertLowV.toDouble(),
+                                    "o2_warn_high_v" to prefs.o2WarnHighV.toDouble(),
+                                    "o2_alert_high_v" to prefs.o2AlertHighV.toDouble(),
+                                    "o2_speed_min_kmh" to prefs.o2SpeedMinKmh.toDouble(),
+                                    "o2_rpm_min" to prefs.o2RpmMin.toDouble(),
+                                    "o2_b1s1_volts" to
+                                        (if (prefs.o2SimVolts > 0f) prefs.o2SimVolts
+                                        else com.veplayer.app.vehicle.O2VoltageMonitor.state.value.o2Volts
+                                            ?: snap.o2B1s1Volts
+                                        )?.toDouble(),
+                                    "o2_voltage" to
+                                        com.veplayer.app.vehicle.O2Voltage.toJsonMap(
+                                            com.veplayer.app.vehicle.O2VoltageMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -607,6 +649,48 @@ class SenseBridgeService : Service() {
                                     "fuel_pressure" to
                                         com.veplayer.app.vehicle.FuelPressure.toJsonMap(
                                             com.veplayer.app.vehicle.FuelPressureMonitor.state.value,
+                                        ),
+                                    "baro_warn_low_kpa" to prefs.baroWarnLowKpa.toDouble(),
+                                    "baro_alert_low_kpa" to prefs.baroAlertLowKpa.toDouble(),
+                                    "baro_warn_high_kpa" to prefs.baroWarnHighKpa.toDouble(),
+                                    "baro_alert_high_kpa" to prefs.baroAlertHighKpa.toDouble(),
+                                    "baro_speed_min_kmh" to prefs.baroSpeedMinKmh.toDouble(),
+                                    "baro_kpa" to
+                                        (if (prefs.baroSimKpa > 0f) prefs.baroSimKpa
+                                        else com.veplayer.app.vehicle.BarometricPressureMonitor.state.value.baroKpa
+                                            ?: snap.baroKpa
+                                        )?.toDouble(),
+                                    "barometric" to
+                                        com.veplayer.app.vehicle.BarometricPressure.toJsonMap(
+                                            com.veplayer.app.vehicle.BarometricPressureMonitor.state.value,
+                                        ),
+                                    "timing_warn_deg" to prefs.timingWarnDeg.toDouble(),
+                                    "timing_alert_deg" to prefs.timingAlertDeg.toDouble(),
+                                    "timing_speed_min_kmh" to prefs.timingSpeedMinKmh.toDouble(),
+                                    "timing_rpm_min" to prefs.timingRpmMin.toDouble(),
+                                    "timing_advance_deg" to
+                                        (if (prefs.timingSimDeg != 0f) prefs.timingSimDeg
+                                        else com.veplayer.app.vehicle.TimingAdvanceMonitor.state.value.timingDeg
+                                            ?: snap.timingAdvanceDeg
+                                        )?.toDouble(),
+                                    "timing_advance" to
+                                        com.veplayer.app.vehicle.TimingAdvance.toJsonMap(
+                                            com.veplayer.app.vehicle.TimingAdvanceMonitor.state.value,
+                                        ),
+                                    "o2_warn_low_v" to prefs.o2WarnLowV.toDouble(),
+                                    "o2_alert_low_v" to prefs.o2AlertLowV.toDouble(),
+                                    "o2_warn_high_v" to prefs.o2WarnHighV.toDouble(),
+                                    "o2_alert_high_v" to prefs.o2AlertHighV.toDouble(),
+                                    "o2_speed_min_kmh" to prefs.o2SpeedMinKmh.toDouble(),
+                                    "o2_rpm_min" to prefs.o2RpmMin.toDouble(),
+                                    "o2_b1s1_volts" to
+                                        (if (prefs.o2SimVolts > 0f) prefs.o2SimVolts
+                                        else com.veplayer.app.vehicle.O2VoltageMonitor.state.value.o2Volts
+                                            ?: snap.o2B1s1Volts
+                                        )?.toDouble(),
+                                    "o2_voltage" to
+                                        com.veplayer.app.vehicle.O2Voltage.toJsonMap(
+                                            com.veplayer.app.vehicle.O2VoltageMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
