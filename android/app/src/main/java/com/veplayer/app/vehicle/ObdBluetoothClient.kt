@@ -247,6 +247,7 @@ class ObdBluetoothClient(private val context: Context) {
             listOf(
                 "010D", // speed
                 "010C", // rpm
+                "0104", // calculated engine load
                 "0105", // coolant
                 "012F", // fuel
                 "0146", // ambient

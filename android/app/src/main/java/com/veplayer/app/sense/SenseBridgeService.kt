@@ -167,6 +167,18 @@ class SenseBridgeService : Service() {
                                         else com.veplayer.app.vehicle.RpmOverRevMonitor.state.value.rpm
                                             ?: snap.rpm
                                         )?.toDouble(),
+                                    "engine_load_pct" to
+                                        (if (prefs.engineLoadSimPct > 0f) prefs.engineLoadSimPct
+                                        else com.veplayer.app.vehicle.EngineLoadMonitor.state.value.loadPct
+                                            ?: snap.engineLoadPct
+                                        )?.toDouble(),
+                                    "engine_load_warn_pct" to prefs.engineLoadWarnPct.toDouble(),
+                                    "engine_load_alert_pct" to prefs.engineLoadAlertPct.toDouble(),
+                                    "engine_load_speed_min_kmh" to prefs.engineLoadSpeedMinKmh.toDouble(),
+                                    "engine_load" to
+                                        com.veplayer.app.vehicle.EngineLoad.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineLoadMonitor.state.value,
+                                        ),
                                     "throttle_pct" to
                                         (if (prefs.throttleSimPct > 0f) prefs.throttleSimPct
                                         else com.veplayer.app.vehicle.HighThrottleMonitor.state.value.throttlePct
@@ -396,6 +408,18 @@ class SenseBridgeService : Service() {
                                         else com.veplayer.app.vehicle.RpmOverRevMonitor.state.value.rpm
                                             ?: snap.rpm
                                         )?.toDouble(),
+                                    "engine_load_pct" to
+                                        (if (prefs.engineLoadSimPct > 0f) prefs.engineLoadSimPct
+                                        else com.veplayer.app.vehicle.EngineLoadMonitor.state.value.loadPct
+                                            ?: snap.engineLoadPct
+                                        )?.toDouble(),
+                                    "engine_load_warn_pct" to prefs.engineLoadWarnPct.toDouble(),
+                                    "engine_load_alert_pct" to prefs.engineLoadAlertPct.toDouble(),
+                                    "engine_load_speed_min_kmh" to prefs.engineLoadSpeedMinKmh.toDouble(),
+                                    "engine_load" to
+                                        com.veplayer.app.vehicle.EngineLoad.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineLoadMonitor.state.value,
+                                        ),
                                     "throttle_pct" to
                                         (if (prefs.throttleSimPct > 0f) prefs.throttleSimPct
                                         else com.veplayer.app.vehicle.HighThrottleMonitor.state.value.throttlePct

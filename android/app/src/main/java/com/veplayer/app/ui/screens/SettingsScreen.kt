@@ -2675,6 +2675,65 @@ fun SettingsScreen() {
                 color = if (rpmSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var loadOn by remember { mutableStateOf(prefs.engineLoadEnabled) }
+            var loadTts by remember { mutableStateOf(prefs.engineLoadTts) }
+            var loadSim by remember {
+                mutableStateOf(
+                    if (prefs.engineLoadSimPct > 0f) prefs.engineLoadSimPct.toInt().toString() else "0",
+                )
+            }
+            val loadSt by com.veplayer.app.vehicle.EngineLoadMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso carga motor (0104)", color = Mist)
+                Switch(
+                    checked = loadOn,
+                    onCheckedChange = {
+                        loadOn = it
+                        prefs.engineLoadEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS carga motor", color = Mist)
+                Switch(
+                    checked = loadTts,
+                    onCheckedChange = {
+                        loadTts = it
+                        prefs.engineLoadTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = loadSim,
+                onValueChange = { loadSim = it.filter { c -> c.isDigit() }.take(3) },
+                label = { Text("Sim carga % (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.engineLoadSimPct = loadSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Load sim ${prefs.engineLoadSimPct.toInt()}% · warn ${prefs.engineLoadWarnPct.toInt()} / alert ${prefs.engineLoadAlertPct.toInt()}"
+                },
+            ) { Text("Aplicar sim carga") }
+            Text(
+                if (loadSt.loadPct != null) {
+                    "Carga · ${loadSt.label} · ${loadSt.band}"
+                } else {
+                    "Carga idle (warn ${prefs.engineLoadWarnPct.toInt()}% / alert ${prefs.engineLoadAlertPct.toInt()}%)"
+                },
+                color = if (loadSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var thrOn by remember { mutableStateOf(prefs.throttleEnabled) }
             var thrTtsOn by remember { mutableStateOf(prefs.throttleTts) }
             var thrSim by remember {
