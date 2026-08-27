@@ -918,6 +918,28 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("oil_temp_sim_c", 0f)
         set(value) = sp.edit().putFloat("oil_temp_sim_c", value.coerceIn(0f, 160f)).apply()
 
+    /** Intake air temperature (OBD 010F). */
+    var intakeAirEnabled: Boolean
+        get() = sp.getBoolean("intake_air", true)
+        set(value) = sp.edit().putBoolean("intake_air", value).apply()
+
+    var intakeAirTts: Boolean
+        get() = sp.getBoolean("intake_air_tts", true)
+        set(value) = sp.edit().putBoolean("intake_air_tts", value).apply()
+
+    var intakeAirWarnC: Float
+        get() = sp.getFloat("intake_air_warn_c", 50f)
+        set(value) = sp.edit().putFloat("intake_air_warn_c", value.coerceIn(30f, 80f)).apply()
+
+    var intakeAirAlertC: Float
+        get() = sp.getFloat("intake_air_alert_c", 60f)
+        set(value) = sp.edit().putFloat("intake_air_alert_c", value.coerceIn(35f, 100f)).apply()
+
+    /** Demo: force intake °C (0 = live). */
+    var intakeAirSimC: Float
+        get() = sp.getFloat("intake_air_sim_c", 0f)
+        set(value) = sp.edit().putFloat("intake_air_sim_c", value.coerceIn(0f, 120f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

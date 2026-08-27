@@ -899,6 +899,20 @@ npm run veplayer:oil-temp-smoke
 
 **Fase 13 (en curso):** engine load · oil temp · intake air · fuel rate · MIL distance.
 
+## Intake air (v0.71 · Fase 13)
+
+Temperatura de admisión (**OBD PID 010F**) — heat soak:
+
+- Warn **≥50 °C** / alert **≥60 °C**
+- DriveViz `IAT · XX°C` · TTS + inbox
+- Flota `intake_warn` / `intake_alert` · sim °C en Ajustes (Clima HVAC)
+
+```bash
+npm run veplayer:intake-air-smoke
+```
+
+**Fase 13 (en curso):** engine load · oil temp · intake air · fuel rate · MIL distance.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

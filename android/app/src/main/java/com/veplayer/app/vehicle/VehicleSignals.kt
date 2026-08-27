@@ -66,6 +66,8 @@ data class VehicleSignals(
     val coolantC: Float? = null,
     /** Engine oil temperature (OBD PID 015C). */
     val oilTempC: Float? = null,
+    /** Intake air temperature (OBD PID 010F). */
+    val intakeAirC: Float? = null,
     /** 12V system / control module voltage (OBD PID 0142). */
     val batteryVoltageV: Float? = null,
     val outdoorTempC: Float? = null,
@@ -137,6 +139,7 @@ data class VehicleSignals(
             "steering_angle_deg" to steeringAngleDeg?.toDouble(),
             "coolant_c" to coolantC?.toDouble(),
             "oil_temp_c" to oilTempC?.toDouble(),
+            "intake_air_c" to intakeAirC?.toDouble(),
             "battery_voltage_v" to batteryVoltageV?.toDouble(),
             "outdoor_temp_c" to outdoorTempC?.toDouble(),
             "ignition" to ignition.name.lowercase(),

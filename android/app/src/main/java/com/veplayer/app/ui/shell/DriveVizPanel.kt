@@ -82,6 +82,7 @@ import com.veplayer.app.vehicle.HighThrottleMonitor
 import com.veplayer.app.vehicle.ImpactDetectMonitor
 import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.IceFrostMonitor
+import com.veplayer.app.vehicle.IntakeAirMonitor
 import com.veplayer.app.vehicle.OilTempMonitor
 import com.veplayer.app.vehicle.ParkingBrakeMovingMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
@@ -132,6 +133,7 @@ fun DriveVizPanel(
     val hvac by HvacClimateMonitor.state.collectAsState()
     val cabinHot by CabinOvertempMonitor.state.collectAsState()
     val iceFrost by IceFrostMonitor.state.collectAsState()
+    val intakeAir by IntakeAirMonitor.state.collectAsState()
     val coolantHot by CoolantOverheatMonitor.state.collectAsState()
     val oilHot by OilTempMonitor.state.collectAsState()
     val rpmHot by RpmOverRevMonitor.state.collectAsState()
@@ -175,6 +177,7 @@ fun DriveVizPanel(
             HvacClimateMonitor.tick(prefs, snap)
             CabinOvertempMonitor.tick(prefs, snap)
             IceFrostMonitor.tick(prefs, snap)
+            IntakeAirMonitor.tick(prefs, snap)
             CoolantOverheatMonitor.tick(prefs, snap)
             OilTempMonitor.tick(prefs, snap)
             RpmOverRevMonitor.tick(prefs, snap)
@@ -394,6 +397,13 @@ fun DriveVizPanel(
                     Text(
                         "Ext · ${iceFrost.label}",
                         color = Color(com.veplayer.app.vehicle.IceFrost.accentArgb(iceFrost.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (intakeAir.showWarn || (prefs.intakeAirEnabled && intakeAir.band == "ok" && (intakeAir.intakeAirC ?: 0f) >= 40f)) {
+                    Text(
+                        "IAT · ${intakeAir.label}",
+                        color = Color(com.veplayer.app.vehicle.IntakeAir.accentArgb(intakeAir.band)),
                         fontSize = 11.sp,
                     )
                 }

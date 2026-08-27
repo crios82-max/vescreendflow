@@ -97,6 +97,7 @@ class MockCanAdapter(
             steeringAngleDeg = steer,
             coolantC = 86f + Random.nextFloat(),
             oilTempC = 92f + Random.nextFloat() * 4f,
+            intakeAirC = 35f + Random.nextFloat() * 5f,
             batteryVoltageV = 13.6f + Random.nextFloat() * 0.4f,
             outdoorTempC = 28f,
             ignition = IgnitionState.ON,

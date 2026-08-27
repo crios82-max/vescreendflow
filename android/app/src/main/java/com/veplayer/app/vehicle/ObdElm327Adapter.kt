@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
  * 2. On failure / no MAC → PID simulator (`obd_sim`) so UI/fleet keep working
  * 3. DTC: live Modes 03/07/0A (+0101 MIL) every ~8s · sim seeds demo codes when enabled
  *
- * PIDs: 010D speed · 010C RPM · 0104 load · 0105 coolant · 015C oil · 012F fuel · 0146 ambient · 0111 throttle · 011F runtime · 0142 voltage
+ * PIDs: 010D speed · 010C RPM · 0104 load · 0105 coolant · 010F intake · 015C oil · 012F fuel · 0146 ambient · 0111 throttle · 011F runtime · 0142 voltage
  */
 class ObdElm327Adapter(
     context: Context,
@@ -168,6 +168,7 @@ class ObdElm327Adapter(
                 rpm = p.rpm ?: prev.rpm,
                 coolantC = p.coolantC ?: prev.coolantC,
                 oilTempC = p.oilTempC ?: prev.oilTempC,
+                intakeAirC = p.intakeAirC ?: prev.intakeAirC,
                 batteryVoltageV = p.batteryVoltageV ?: prev.batteryVoltageV,
                 outdoorTempC = p.outdoorTempC ?: prev.outdoorTempC,
                 ignition = IgnitionState.ON,
@@ -221,6 +222,7 @@ class ObdElm327Adapter(
                 steeringAngleDeg = (sin(t / 7.0) * 8.0).toFloat(),
                 coolantC = 90f,
                 oilTempC = 95f + (sin(t / 35.0).toFloat() * 3f),
+                intakeAirC = 38f + (sin(t / 25.0).toFloat() * 4f),
                 batteryVoltageV = 13.8f + (sin(t / 40.0).toFloat() * 0.15f),
                 outdoorTempC = 27f,
                 ignition = IgnitionState.ON,

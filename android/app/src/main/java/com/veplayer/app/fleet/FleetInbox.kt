@@ -209,6 +209,9 @@ object FleetInbox {
             kind == "ice_alert" -> "Atención. Riesgo de hielo. $body."
             kind == "ice_warn" || kind.startsWith("ice_") ->
                 "Cuidado. Posible escarcha. $body."
+            kind == "intake_alert" -> "Atención. Admisión muy caliente. $body."
+            kind == "intake_warn" || kind.startsWith("intake_") ->
+                "Cuidado. Aire de admisión caliente. $body."
             kind == "coolant_overheat" -> "Atención. Temperatura del motor crítica. $body."
             kind == "coolant_warn" || kind.startsWith("coolant_") ->
                 "Cuidado. Motor caliente. $body."

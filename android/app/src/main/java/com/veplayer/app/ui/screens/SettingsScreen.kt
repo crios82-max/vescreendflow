@@ -2677,6 +2677,65 @@ fun SettingsScreen() {
                 color = if (oilSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var iatOn by remember { mutableStateOf(prefs.intakeAirEnabled) }
+            var iatTts by remember { mutableStateOf(prefs.intakeAirTts) }
+            var iatSim by remember {
+                mutableStateOf(
+                    if (prefs.intakeAirSimC > 0f) prefs.intakeAirSimC.toInt().toString() else "0",
+                )
+            }
+            val iatSt by com.veplayer.app.vehicle.IntakeAirMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso admisión (010F)", color = Mist)
+                Switch(
+                    checked = iatOn,
+                    onCheckedChange = {
+                        iatOn = it
+                        prefs.intakeAirEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS admisión", color = Mist)
+                Switch(
+                    checked = iatTts,
+                    onCheckedChange = {
+                        iatTts = it
+                        prefs.intakeAirTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = iatSim,
+                onValueChange = { iatSim = it.filter { c -> c.isDigit() || c == '.' }.take(4) },
+                label = { Text("Sim IAT °C (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.intakeAirSimC = iatSim.toFloatOrNull() ?: 0f
+                    status =
+                        "IAT sim ${prefs.intakeAirSimC}° · warn ${prefs.intakeAirWarnC.toInt()} / alert ${prefs.intakeAirAlertC.toInt()}"
+                },
+            ) { Text("Aplicar sim IAT") }
+            Text(
+                if (iatSt.intakeAirC != null) {
+                    "IAT · ${iatSt.label} · ${iatSt.band}"
+                } else {
+                    "IAT idle (warn ${prefs.intakeAirWarnC.toInt()}° / alert ${prefs.intakeAirAlertC.toInt()}°)"
+                },
+                color = if (iatSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {
