@@ -2226,6 +2226,72 @@ fun SettingsScreen() {
                 color = if (ecoLiveSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var runtimeOn by remember { mutableStateOf(prefs.engineRuntimeEnabled) }
+            var runtimeTtsOn by remember { mutableStateOf(prefs.engineRuntimeTts) }
+            var runtimeSim by remember {
+                mutableStateOf(
+                    if (prefs.engineRuntimeSimHours > 0f) {
+                        String.format("%.1f", prefs.engineRuntimeSimHours)
+                    } else {
+                        "0"
+                    },
+                )
+            }
+            val runtimeSt by com.veplayer.app.vehicle.EngineRuntimeMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso tiempo de motor (011F)", color = Mist)
+                Switch(
+                    checked = runtimeOn,
+                    onCheckedChange = {
+                        runtimeOn = it
+                        prefs.engineRuntimeEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS motor", color = Mist)
+                Switch(
+                    checked = runtimeTtsOn,
+                    onCheckedChange = {
+                        runtimeTtsOn = it
+                        prefs.engineRuntimeTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = runtimeSim,
+                onValueChange = {
+                    runtimeSim = it.filter { c -> c.isDigit() || c == '.' }.take(5)
+                },
+                label = { Text("Sim horas motor (0=OBD)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.engineRuntimeSimHours = runtimeSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Runtime sim ${prefs.engineRuntimeSimHours} h · warn ${prefs.engineRuntimeWarnHours} / alert ${prefs.engineRuntimeAlertHours}"
+                },
+            ) { Text("Aplicar sim motor") }
+            Text(
+                if (runtimeSt.runtimeSec != null) {
+                    runtimeSt.label +
+                        if (runtimeSt.showWarn) " · ${runtimeSt.band}" else ""
+                } else {
+                    "Motor idle (OBD 011F · warn ${prefs.engineRuntimeWarnHours} h / alert ${prefs.engineRuntimeAlertHours} h)"
+                },
+                color = if (runtimeSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var fatigueOn by remember { mutableStateOf(prefs.fatigueEnabled) }
             var fatigueTts by remember { mutableStateOf(prefs.fatigueTts) }
             var fatigueSim by remember { mutableStateOf(prefs.fatigueSimHours.toInt().toString()) }

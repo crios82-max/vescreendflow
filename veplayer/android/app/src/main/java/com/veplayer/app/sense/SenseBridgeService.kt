@@ -132,6 +132,19 @@ class SenseBridgeService : Service() {
                                         },
                                     "eco_warn_score" to prefs.ecoLiveWarn.toDouble(),
                                     "eco_alert_score" to prefs.ecoLiveAlert.toDouble(),
+                                    "runtime_sec" to
+                                        (if (prefs.engineRuntimeSimHours > 0f)
+                                            (prefs.engineRuntimeSimHours * 3600f).toInt()
+                                        else
+                                            com.veplayer.app.vehicle.EngineRuntimeMonitor.state.value.runtimeSec
+                                                ?: snap.runtimeSec
+                                        ),
+                                    "runtime_warn_sec" to (prefs.engineRuntimeWarnHours * 3600f).toDouble(),
+                                    "runtime_alert_sec" to (prefs.engineRuntimeAlertHours * 3600f).toDouble(),
+                                    "engine_runtime" to
+                                        com.veplayer.app.vehicle.EngineRuntime.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineRuntimeMonitor.state.value,
+                                        ),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                     "ice_warn_c" to prefs.iceWarnC.toDouble(),
@@ -348,6 +361,19 @@ class SenseBridgeService : Service() {
                                         },
                                     "eco_warn_score" to prefs.ecoLiveWarn.toDouble(),
                                     "eco_alert_score" to prefs.ecoLiveAlert.toDouble(),
+                                    "runtime_sec" to
+                                        (if (prefs.engineRuntimeSimHours > 0f)
+                                            (prefs.engineRuntimeSimHours * 3600f).toInt()
+                                        else
+                                            com.veplayer.app.vehicle.EngineRuntimeMonitor.state.value.runtimeSec
+                                                ?: snap.runtimeSec
+                                        ),
+                                    "runtime_warn_sec" to (prefs.engineRuntimeWarnHours * 3600f).toDouble(),
+                                    "runtime_alert_sec" to (prefs.engineRuntimeAlertHours * 3600f).toDouble(),
+                                    "engine_runtime" to
+                                        com.veplayer.app.vehicle.EngineRuntime.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineRuntimeMonitor.state.value,
+                                        ),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
                                     "ice_warn_c" to prefs.iceWarnC.toDouble(),

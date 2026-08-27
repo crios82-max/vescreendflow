@@ -791,6 +791,51 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Engine runtime since start (OBD PID 011F)
+    const engRt =
+      signals.engine_runtime as Record<string, unknown> | undefined
+    let runtimeSec: number | null =
+      typeof engRt?.runtime_sec === 'number'
+        ? (engRt.runtime_sec as number)
+        : typeof signals.runtime_sec === 'number'
+          ? (signals.runtime_sec as number)
+          : null
+    if (typeof runtimeSec === 'number') {
+      const warnSec =
+        typeof signals.runtime_warn_sec === 'number'
+          ? (signals.runtime_warn_sec as number)
+          : 2 * 3600
+      const alertSec =
+        typeof signals.runtime_alert_sec === 'number'
+          ? (signals.runtime_alert_sec as number)
+          : 4 * 3600
+      if (runtimeSec >= alertSec && !recentlyAlerted(deviceId, 'runtime_alert', 600)) {
+        const h = (runtimeSec / 3600).toFixed(1)
+        insertAlert(
+          deviceId,
+          'runtime_alert',
+          'critical',
+          `Motor encendido · ${h} h`,
+          { runtime_sec: runtimeSec, alert_sec: alertSec, engine_runtime: engRt ?? null },
+        )
+        raised.push('runtime_alert')
+      } else if (
+        runtimeSec >= warnSec &&
+        runtimeSec < alertSec &&
+        !recentlyAlerted(deviceId, 'runtime_warn', 600)
+      ) {
+        const h = (runtimeSec / 3600).toFixed(1)
+        insertAlert(
+          deviceId,
+          'runtime_warn',
+          'warn',
+          `Tiempo de motor · ${h} h`,
+          { runtime_sec: runtimeSec, warn_sec: warnSec, engine_runtime: engRt ?? null },
+        )
+        raised.push('runtime_warn')
+      }
+    }
+
     // Cabin overtemp — hvac.cabin_c or top-level cabin_c
     const hvac = signals.hvac as Record<string, unknown> | undefined
     let cabinC: number | null =

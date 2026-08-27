@@ -74,6 +74,7 @@ import com.veplayer.app.vehicle.CoolantOverheatMonitor
 import com.veplayer.app.vehicle.DoorAjarMonitor
 import com.veplayer.app.vehicle.DriverScoreMonitor
 import com.veplayer.app.vehicle.EcoLiveMonitor
+import com.veplayer.app.vehicle.EngineRuntimeMonitor
 import com.veplayer.app.vehicle.HarshDrivingMonitor
 import com.veplayer.app.vehicle.HazardStuckMonitor
 import com.veplayer.app.vehicle.HighThrottleMonitor
@@ -125,6 +126,7 @@ fun DriveVizPanel(
     val routeDev by RouteDeviationMonitor.state.collectAsState()
     val driverScore by DriverScoreMonitor.state.collectAsState()
     val ecoLive by EcoLiveMonitor.state.collectAsState()
+    val engineRt by EngineRuntimeMonitor.state.collectAsState()
     val hvac by HvacClimateMonitor.state.collectAsState()
     val cabinHot by CabinOvertempMonitor.state.collectAsState()
     val iceFrost by IceFrostMonitor.state.collectAsState()
@@ -165,6 +167,7 @@ fun DriveVizPanel(
             RouteDeviationMonitor.tick(prefs)
             DriverScoreMonitor.tick(prefs)
             EcoLiveMonitor.tick(prefs)
+            EngineRuntimeMonitor.tick(prefs, snap)
             HvacClimateMonitor.tick(prefs, snap)
             CabinOvertempMonitor.tick(prefs, snap)
             IceFrostMonitor.tick(prefs, snap)
@@ -303,6 +306,13 @@ fun DriveVizPanel(
                     Text(
                         "Eco ${shiftHud.ecoScore} · ${shiftHud.ecoBand}",
                         color = Color(com.veplayer.app.vehicle.EcoScore.accentArgb(shiftHud.ecoBand)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (engineRt.showWarn || (prefs.engineRuntimeEnabled && engineRt.band == "ok")) {
+                    Text(
+                        engineRt.label,
+                        color = Color(com.veplayer.app.vehicle.EngineRuntime.accentArgb(engineRt.band)),
                         fontSize = 11.sp,
                     )
                 }
