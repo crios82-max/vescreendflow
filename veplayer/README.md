@@ -352,6 +352,20 @@ npm run veplayer:panic-sos-smoke
 
 **Fase 5 (siguiente):** mapa live flota · waypoints.
 
+## Mapa live flota (v0.32)
+
+Leaflet en `/fleet.html` con unidades, trails y geofences:
+
+- `GET /api/fleet/ops/map` · online/stale · SOS resaltado · fit bounds
+- Trails desde `fleet_telemetry` · toggles trails/geofences
+- Ajustes VePlayer → **Mapa flota** abre el dashboard
+
+```bash
+npm run veplayer:fleet-map-smoke
+```
+
+**Fase 5 (siguiente):** waypoints nav.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

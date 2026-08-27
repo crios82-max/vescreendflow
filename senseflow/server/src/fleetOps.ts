@@ -988,6 +988,109 @@ fleetOpsRouter.get('/reports/export', (req, res) => {
   })
 })
 
+/** Live fleet map payload: units + geofences + optional trails. */
+fleetOpsRouter.get('/map', requireRole('viewer'), (req, res) => {
+  const trailLimit = Math.min(100, Math.max(0, Number(req.query.trail) || 40))
+  const now = Math.floor(Date.now() / 1000)
+  const staleSec = Math.min(900, Math.max(30, Number(req.query.stale_sec) || 180))
+
+  const rows = db
+    .prepare(
+      `SELECT fd.device_id, fd.name, fd.pair_code, fd.app_version, fd.version_code,
+              fd.last_seen_at, fd.last_lat, fd.last_lng, fd.last_speed_mps, fd.reverse,
+              fd.status, fd.telemetry_json, fd.driver_id,
+              dr.code AS driver_code, dr.name AS driver_name
+       FROM fleet_devices fd
+       LEFT JOIN fleet_drivers dr ON dr.id = fd.driver_id
+       ORDER BY fd.last_seen_at DESC`,
+    )
+    .all() as Array<Record<string, unknown>>
+
+  const panicRows = db
+    .prepare(
+      `SELECT device_id, id, message, created_at FROM fleet_alerts
+       WHERE kind = 'panic' AND acked_at IS NULL`,
+    )
+    .all() as Array<{ device_id: string; id: number; message: string; created_at: number }>
+  const panicByDevice = new Map(panicRows.map((p) => [p.device_id, p]))
+
+  const trailStmt =
+    trailLimit > 0
+      ? db.prepare(
+          `SELECT lat, lng, ts, speed_mps FROM fleet_telemetry
+           WHERE device_id = ? AND lat IS NOT NULL AND lng IS NOT NULL
+           ORDER BY ts DESC LIMIT ?`,
+        )
+      : null
+
+  const units = rows.map((r) => {
+    const deviceId = String(r.device_id)
+    const lat = r.last_lat != null ? Number(r.last_lat) : null
+    const lng = r.last_lng != null ? Number(r.last_lng) : null
+    const seen = r.last_seen_at != null ? Number(r.last_seen_at) : null
+    const online = seen != null && now - seen <= staleSec
+    const panic = panicByDevice.get(deviceId)
+    let trail: Array<{ lat: number; lng: number; ts: number; speed_kmh: number | null }> = []
+    if (trailStmt && lat != null && lng != null) {
+      const samples = trailStmt.all(deviceId, trailLimit) as Array<{
+        lat: number
+        lng: number
+        ts: number
+        speed_mps: number | null
+      }>
+      trail = samples
+        .reverse()
+        .map((s) => ({
+          lat: s.lat,
+          lng: s.lng,
+          ts: s.ts,
+          speed_kmh: s.speed_mps != null ? s.speed_mps * 3.6 : null,
+        }))
+    }
+    return {
+      device_id: deviceId,
+      name: r.name,
+      pair_code: r.pair_code,
+      app_version: r.app_version,
+      version_code: r.version_code,
+      last_seen_at: seen,
+      lat,
+      lng,
+      speed_kmh: r.last_speed_mps != null ? Number(r.last_speed_mps) * 3.6 : null,
+      reverse: Number(r.reverse) === 1,
+      status: r.status,
+      online,
+      driver_code: r.driver_code ?? null,
+      driver_name: r.driver_name ?? null,
+      panic: panic
+        ? { id: panic.id, message: panic.message, created_at: panic.created_at }
+        : null,
+      trail,
+    }
+  })
+
+  const geofences = db
+    .prepare(
+      `SELECT id, name, lat, lng, radius_m, active FROM fleet_geofences WHERE active = 1 ORDER BY id`,
+    )
+    .all()
+
+  const withPos = units.filter((u) => u.lat != null && u.lng != null)
+  res.json({
+    ok: true,
+    server_time: now,
+    stale_sec: staleSec,
+    counts: {
+      units: units.length,
+      located: withPos.length,
+      online: units.filter((u) => u.online).length,
+      panic: panicRows.length,
+    },
+    units,
+    geofences,
+  })
+})
+
 function safeJson(raw: string): unknown {
   try {
     return JSON.parse(raw)

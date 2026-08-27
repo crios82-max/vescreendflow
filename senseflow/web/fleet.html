@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SenseFlow Flota Ops</title>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
   <style>
     :root { --ink:#0f1c18; --mist:#e8f2ee; --teal:#0d9488; --panel:#15201c; --amber:#d97706; --rose:#e11d48; }
     body { margin:0; font-family:system-ui,sans-serif; background:var(--ink); color:var(--mist); padding:20px; }
@@ -46,6 +52,20 @@
     #login-gate .card { width:min(380px, 92vw); }
     #app { display:none; }
     #app.ready { display:block; }
+    #fleet-map {
+      height: min(420px, 55vh); width: 100%; border-radius: 10px; background: #0b1411;
+      z-index: 1;
+    }
+    .map-toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px; }
+    .leaflet-container { background: #0b1411; font: inherit; }
+    .unit-marker {
+      width: 14px; height: 14px; border-radius: 50%; border: 2px solid #e8f2ee;
+      box-shadow: 0 0 0 2px rgba(15,28,24,.55);
+    }
+    .unit-marker.online { background: var(--teal); }
+    .unit-marker.offline { background: #64748b; }
+    .unit-marker.panic { background: var(--rose); animation: pulse 1.2s ease infinite; }
+    @keyframes pulse { 50% { transform: scale(1.25); } }
   </style>
 </head>
 <body>
@@ -90,6 +110,17 @@
     <div class="card"><h2>Flota (24h)</h2><div id="rep-fleet" class="muted">…</div></div>
     <div class="card"><h2>Comandos / OTA</h2><div id="rep-cmds" class="muted">…</div></div>
     <div class="card"><h2>Versiones</h2><div id="rep-ver" class="muted">…</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:18px">
+    <h2>Mapa live</h2>
+    <div class="map-toolbar">
+      <span id="map-meta" class="muted">cargando…</span>
+      <label class="muted"><input type="checkbox" id="map-trails" checked /> trails</label>
+      <label class="muted"><input type="checkbox" id="map-fences" checked /> geofences</label>
+      <button class="btn ghost" id="map-fit" type="button">Fit</button>
+    </div>
+    <div id="fleet-map"></div>
   </div>
 
   <div class="grid">
@@ -149,6 +180,11 @@
     </thead>
     <tbody id="rows"></tbody>
   </table>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
   <script>
     const sessionKey = 'veplayer_fleet_session'
     const tokenKey = 'veplayer_fleet_token'
@@ -165,6 +201,93 @@
     }
 
     let me = { role: 'viewer', can_wipe: false, can_dispatch: false, authenticated: false, open_mode: true }
+    let fleetMap = null
+    let mapLayers = { units: null, trails: null, fences: null }
+    let mapFittedOnce = false
+    let lastMapBounds = null
+
+    function ensureFleetMap() {
+      if (fleetMap) return fleetMap
+      const el = document.getElementById('fleet-map')
+      if (!el || typeof L === 'undefined') return null
+      fleetMap = L.map(el, { zoomControl: true }).setView([10.496, -66.898], 12)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap',
+      }).addTo(fleetMap)
+      mapLayers.units = L.layerGroup().addTo(fleetMap)
+      mapLayers.trails = L.layerGroup().addTo(fleetMap)
+      mapLayers.fences = L.layerGroup().addTo(fleetMap)
+      setTimeout(() => fleetMap.invalidateSize(), 80)
+      return fleetMap
+    }
+
+    function unitIcon(u) {
+      const cls = u.panic ? 'panic' : (u.online ? 'online' : 'offline')
+      return L.divIcon({
+        className: '',
+        html: `<div class="unit-marker ${cls}"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      })
+    }
+
+    async function loadFleetMap() {
+      const map = ensureFleetMap()
+      if (!map) return
+      const showTrails = document.getElementById('map-trails')?.checked !== false
+      const showFences = document.getElementById('map-fences')?.checked !== false
+      const j = await fetch('/api/fleet/ops/map?trail=40', { headers: hdrs() }).then(r => r.json())
+      const meta = document.getElementById('map-meta')
+      if (meta && j.counts) {
+        meta.textContent =
+          `${j.counts.located}/${j.counts.units} ubicadas · online ${j.counts.online}` +
+          (j.counts.panic ? ` · SOS ${j.counts.panic}` : '')
+      }
+      mapLayers.units.clearLayers()
+      mapLayers.trails.clearLayers()
+      mapLayers.fences.clearLayers()
+      const pts = []
+      for (const u of j.units || []) {
+        if (u.lat == null || u.lng == null) continue
+        pts.push([u.lat, u.lng])
+        if (showTrails && u.trail && u.trail.length > 1) {
+          const line = u.trail.map(p => [p.lat, p.lng])
+          L.polyline(line, {
+            color: u.panic ? '#e11d48' : '#0d9488',
+            weight: 3,
+            opacity: 0.55,
+          }).addTo(mapLayers.trails)
+        }
+        const speed = u.speed_kmh != null ? Math.round(u.speed_kmh) + ' km/h' : '—'
+        const who = u.driver_code ? `${u.driver_code} · ${u.driver_name || ''}` : 'sin conductor'
+        const pop =
+          `<b>${u.name || u.device_id.slice(0, 10)}</b><br>` +
+          `${speed} · ${u.online ? 'online' : 'stale'}<br>` +
+          `${who}` +
+          (u.panic ? `<br><span style="color:#e11d48">SOS · ${u.panic.message}</span>` : '')
+        L.marker([u.lat, u.lng], { icon: unitIcon(u) })
+          .bindPopup(pop)
+          .addTo(mapLayers.units)
+      }
+      if (showFences) {
+        for (const g of j.geofences || []) {
+          L.circle([g.lat, g.lng], {
+            radius: g.radius_m,
+            color: '#d97706',
+            weight: 1,
+            fillOpacity: 0.08,
+          }).bindTooltip(g.name).addTo(mapLayers.fences)
+          pts.push([g.lat, g.lng])
+        }
+      }
+      lastMapBounds = pts.length ? L.latLngBounds(pts) : null
+      if (!mapFittedOnce && lastMapBounds && lastMapBounds.isValid()) {
+        map.fitBounds(lastMapBounds.pad(0.2))
+        mapFittedOnce = true
+      }
+      setTimeout(() => map.invalidateSize(), 40)
+    }
 
     function showApp() {
       document.getElementById('login-gate').style.display = 'none'
@@ -435,7 +558,7 @@
         if (!me.can_dispatch) cell.textContent = 'viewer · read-only'
         tb.appendChild(tr)
       }
-      await Promise.all([loadAlerts(), loadGeofences(), loadReports(), loadHistory(), loadDrivers(), loadShifts(), loadMaint()])
+      await Promise.all([loadAlerts(), loadGeofences(), loadReports(), loadHistory(), loadDrivers(), loadShifts(), loadMaint(), loadFleetMap()])
     }
     async function loadMaint() {
       const j = await fetch('/api/fleet/ops/maintenance?limit=40', { headers: hdrs() }).then(r => r.json())
@@ -520,7 +643,14 @@
       const j = await r.json()
       toast(r.ok ? `Geofence #${j.id}` : (j.error || 'fail'))
       loadGeofences()
+      loadFleetMap()
     }
+    document.getElementById('map-fit').onclick = () => {
+      const map = ensureFleetMap()
+      if (map && lastMapBounds && lastMapBounds.isValid()) map.fitBounds(lastMapBounds.pad(0.2))
+    }
+    document.getElementById('map-trails').onchange = () => loadFleetMap()
+    document.getElementById('map-fences').onchange = () => loadFleetMap()
     boot()
     setInterval(() => {
       if (document.getElementById('app').classList.contains('ready')) load()
