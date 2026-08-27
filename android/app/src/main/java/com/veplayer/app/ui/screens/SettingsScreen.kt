@@ -781,6 +781,88 @@ fun SettingsScreen() {
             ) { Text("Probar voz energía") }
         }
 
+        PanelBlock("Idle / ralentí") {
+            var idleOn by remember { mutableStateOf(prefs.idleAlertEnabled) }
+            var warnSec by remember { mutableStateOf(prefs.idleWarnSec.toFloat()) }
+            var alertSec by remember { mutableStateOf(prefs.idleAlertSec.toFloat()) }
+            var idleTts by remember { mutableStateOf(prefs.idleTtsWarn) }
+            val idleSt by com.veplayer.app.vehicle.IdleMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso ralentí", color = Mist)
+                Switch(
+                    checked = idleOn,
+                    onCheckedChange = {
+                        idleOn = it
+                        prefs.idleAlertEnabled = it
+                    },
+                )
+            }
+            Text(
+                "Warn ${warnSec.toInt()}s · alert ${alertSec.toInt()}s",
+                color = Mute,
+            )
+            Slider(
+                value = warnSec,
+                onValueChange = {
+                    warnSec = it
+                    prefs.idleWarnSec = it.toInt()
+                    if (alertSec < it) {
+                        alertSec = it
+                        prefs.idleAlertSec = it.toInt()
+                    }
+                },
+                valueRange = 30f..600f,
+                steps = 18,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Slider(
+                value = alertSec,
+                onValueChange = {
+                    alertSec = it.coerceAtLeast(warnSec)
+                    prefs.idleAlertSec = alertSec.toInt()
+                },
+                valueRange = 60f..900f,
+                steps = 27,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS idle", color = Mist)
+                Switch(
+                    checked = idleTts,
+                    onCheckedChange = {
+                        idleTts = it
+                        prefs.idleTtsWarn = it
+                    },
+                )
+            }
+            Text(
+                com.veplayer.app.vehicle.IdleAlert.labelLine(idleSt).ifBlank { "—" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                listOf(60, 120, 180, 300).forEach { v ->
+                    OutlinedButton(
+                        onClick = {
+                            warnSec = v.toFloat()
+                            alertSec = (v * 2).toFloat()
+                            prefs.idleWarnSec = v
+                            prefs.idleAlertSec = v * 2
+                            status = "Idle warn ${v}s"
+                        },
+                    ) { Text("${v}s") }
+                }
+            }
+        }
+
         PanelBlock("Mantenimiento odómetro") {
             var maintOn by remember { mutableStateOf(prefs.maintenanceEnabled) }
             var maintTts by remember { mutableStateOf(prefs.maintenanceTts) }

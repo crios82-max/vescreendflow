@@ -54,6 +54,8 @@ import com.veplayer.app.ui.theme.Road
 import com.veplayer.app.vehicle.FuelRangeHud
 import com.veplayer.app.vehicle.FuelRangeHudMonitor
 import com.veplayer.app.vehicle.Gear
+import com.veplayer.app.vehicle.IdleAlert
+import com.veplayer.app.vehicle.IdleMonitor
 import com.veplayer.app.vehicle.MaintenanceMonitor
 import com.veplayer.app.vehicle.SpeedHud
 import com.veplayer.app.vehicle.SpeedHudMonitor
@@ -72,12 +74,14 @@ fun DriveVizPanel(
     val hud by SpeedHudMonitor.state.collectAsState()
     val maint by MaintenanceMonitor.state.collectAsState()
     val fuelHud by FuelRangeHudMonitor.state.collectAsState()
+    val idle by IdleMonitor.state.collectAsState()
     LaunchedEffect(Unit) {
         while (true) {
             val snap = com.veplayer.app.vehicle.VehicleState.state.value
             SpeedHudMonitor.tick(prefs, snap.speedKmh)
             MaintenanceMonitor.tick(prefs, snap.odometerKm)
             FuelRangeHudMonitor.tick(prefs, snap.fuelPct, snap.batterySocPct, snap.rangeKm)
+            IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             delay(500)
         }
     }
@@ -114,12 +118,19 @@ fun DriveVizPanel(
                 Text(
                     when {
                         vehicle.reverse -> "REVERSE"
+                        idle.showWarn -> IdleAlert.labelLine(idle)
+                        idle.band == "idle" && prefs.idleAlertEnabled -> IdleAlert.labelLine(idle)
                         vehicle.gear == Gear.P -> "PARK"
                         vehicle.gear == Gear.N -> "NEUTRAL"
                         hud.showWarn -> "OVER · +${hud.overBy.toInt()}"
                         else -> "km/h"
                     },
-                    color = if (hud.showWarn) speedColor else Mute,
+                    color =
+                        when {
+                            hud.showWarn -> speedColor
+                            idle.showWarn || idle.band == "idle" -> Color(IdleAlert.accentArgb(idle.band))
+                            else -> Mute
+                        },
                     fontSize = 18.sp,
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {

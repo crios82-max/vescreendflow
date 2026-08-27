@@ -149,6 +149,8 @@ object FleetInbox {
             kind == "soc_low" -> "Atención. Batería baja. $body."
             kind == "fuel_low" -> "Atención. Combustible bajo. $body."
             kind == "range_low" -> "Atención. Autonomía baja. $body."
+            kind == "idle_alert" || kind == "idle_warn" || kind.startsWith("idle_") ->
+                "Atención. Motor en ralentí. $body."
             kind == "message" -> "Mensaje de flota. $body."
             severity == "warn" -> "Alerta. $body."
             else -> "Aviso de flota. $body."
