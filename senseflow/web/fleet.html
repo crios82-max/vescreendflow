@@ -462,6 +462,7 @@
           ? `<button class="btn danger" style="float:right;margin-left:6px" data-panic="1">Ack SOS</button>`
           : `<button class="btn ghost" style="float:right">Ack</button>`
         d.innerHTML = `<b>${a.kind}</b> · ${a.message}<br><span class="muted">${a.device_id.slice(0,12)}… · ${new Date(a.created_at*1000).toLocaleString()}</span>
+          ${a.payload?.clip_url ? `<br><a href="${a.payload.clip_url}" target="_blank" style="color:var(--teal)">Ver clip SOS</a>` : ''}
           ${ackBtn}`
         d.querySelector('button').onclick = async () => {
           if (a.kind === 'panic') {

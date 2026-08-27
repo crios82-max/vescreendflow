@@ -1,5 +1,8 @@
 import { Router } from 'express'
 import { z } from 'zod'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { db } from './db.js'
 import {
   evaluateFleetAlerts,
@@ -7,6 +10,8 @@ import {
   openPanicForDevice,
   raisePanic,
   ackPanicsForDevice,
+  attachPanicClip,
+  panicClipUrlFromAlert,
   activeSpeedZone,
   recordTelemetrySample,
 } from './fleetPro.js'
@@ -236,7 +241,13 @@ fleetRouter.post('/heartbeat', (req, res) => {
     panic: (() => {
       const p = openPanicForDevice(d.device_id)
       return p
-        ? { open: true, id: p.id, message: p.message, created_at: p.created_at }
+        ? {
+            open: true,
+            id: p.id,
+            message: p.message,
+            created_at: p.created_at,
+            clip_url: panicClipUrlFromAlert(p),
+          }
         : { open: false }
     })(),
     speed_zone: speedZone,
@@ -753,8 +764,84 @@ fleetRouter.post('/panic', (req, res) => {
           severity: alert.severity,
           message: alert.message,
           created_at: alert.created_at,
+          clip_url: panicClipUrlFromAlert(alert),
         }
       : { id: result.id },
+  })
+})
+
+const panicClipSchema = z.object({
+  device_id: z.string().min(8).max(64),
+  alert_id: z.number().int().positive().optional(),
+  kind: z.enum(['jpeg', 'jpg', 'mp4', 'png']).default('jpeg'),
+  data_base64: z.string().min(8).max(2_800_000),
+  camera: z.string().max(64).optional(),
+  duration_sec: z.number().min(0).max(120).optional(),
+  sim: z.boolean().optional(),
+  captured_at_ms: z.number().optional(),
+})
+
+fleetRouter.post('/panic/clip', (req, res) => {
+  const parsed = panicClipSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'payload inválido', details: parsed.error.flatten() })
+    return
+  }
+  const exists = db
+    .prepare(`SELECT device_id FROM fleet_devices WHERE device_id = ?`)
+    .get(parsed.data.device_id)
+  if (!exists) {
+    res.status(404).json({ error: 'dispositivo no registrado' })
+    return
+  }
+  const open = openPanicForDevice(parsed.data.device_id)
+  if (!open && parsed.data.alert_id == null) {
+    res.status(409).json({ error: 'no hay SOS abierto — envía panic primero' })
+    return
+  }
+
+  let raw: Buffer
+  try {
+    const b64 = parsed.data.data_base64.replace(/^data:[^;]+;base64,/, '')
+    raw = Buffer.from(b64, 'base64')
+  } catch {
+    res.status(400).json({ error: 'base64 inválido' })
+    return
+  }
+  if (raw.length < 32 || raw.length > 2_500_000) {
+    res.status(400).json({ error: 'clip demasiado pequeño o grande' })
+    return
+  }
+
+  const kind = parsed.data.kind === 'jpg' ? 'jpeg' : parsed.data.kind
+  const ext = kind === 'mp4' ? 'mp4' : kind === 'png' ? 'png' : 'jpg'
+  const stamp = Date.now().toString(36)
+  const safeDev = parsed.data.device_id.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 24)
+  const filename = `sos-${safeDev}-${stamp}.${ext}`
+  const clipsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../clips')
+  fs.mkdirSync(clipsDir, { recursive: true })
+  fs.writeFileSync(path.join(clipsDir, filename), raw)
+
+  const clipUrl = `/clips/${filename}`
+  const updated = attachPanicClip(parsed.data.device_id, {
+    alertId: parsed.data.alert_id ?? open?.id ?? null,
+    clipUrl,
+    kind,
+    camera: parsed.data.camera ?? null,
+    durationSec: parsed.data.duration_sec ?? 8,
+    bytes: raw.length,
+    sim: parsed.data.sim ?? false,
+  })
+  if (!updated) {
+    res.status(409).json({ error: 'no se pudo adjuntar clip al SOS' })
+    return
+  }
+  res.status(201).json({
+    ok: true,
+    clip_url: clipUrl,
+    bytes: raw.length,
+    alert_id: updated.id,
+    kind,
   })
 })
 

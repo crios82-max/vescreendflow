@@ -504,3 +504,64 @@ export function ackPanicsForDevice(deviceId: string): number {
     .run(now, deviceId)
   return info.changes
 }
+
+/** Merge dashcam clip metadata into an open panic alert payload. */
+export function attachPanicClip(
+  deviceId: string,
+  input: {
+    alertId?: number | null
+    clipUrl: string
+    kind?: string | null
+    camera?: string | null
+    durationSec?: number | null
+    bytes?: number | null
+    sim?: boolean | null
+  },
+): FleetAlert | null {
+  let alert: FleetAlert | null = null
+  if (input.alertId != null) {
+    const row = db
+      .prepare(
+        `SELECT id, device_id, kind, severity, message, payload, created_at, acked_at
+         FROM fleet_alerts WHERE id = ? AND device_id = ? AND kind = 'panic' LIMIT 1`,
+      )
+      .get(input.alertId, deviceId) as FleetAlert | undefined
+    alert = row ?? null
+  }
+  if (!alert) alert = openPanicForDevice(deviceId)
+  if (!alert) return null
+
+  let prev: Record<string, unknown> = {}
+  if (typeof alert.payload === 'string' && alert.payload) {
+    try {
+      prev = JSON.parse(alert.payload) as Record<string, unknown>
+    } catch {
+      prev = {}
+    }
+  }
+  const next = {
+    ...prev,
+    clip_url: input.clipUrl,
+    clip_kind: input.kind || 'jpeg',
+    clip_camera: input.camera || null,
+    clip_duration_sec: input.durationSec ?? null,
+    clip_bytes: input.bytes ?? null,
+    clip_sim: input.sim === true,
+    clip_at: Math.floor(Date.now() / 1000),
+  }
+  db.prepare(`UPDATE fleet_alerts SET payload = ? WHERE id = ?`).run(JSON.stringify(next), alert.id)
+  return {
+    ...alert,
+    payload: JSON.stringify(next),
+  }
+}
+
+export function panicClipUrlFromAlert(alert: FleetAlert | null): string | null {
+  if (!alert?.payload) return null
+  try {
+    const p = JSON.parse(alert.payload) as Record<string, unknown>
+    return typeof p.clip_url === 'string' ? p.clip_url : null
+  } catch {
+    return null
+  }
+}

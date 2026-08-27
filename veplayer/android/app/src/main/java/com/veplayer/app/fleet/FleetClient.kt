@@ -32,6 +32,7 @@ data class HeartbeatResult(
     val panicOpen: Boolean = false,
     val panicAlertId: Long? = null,
     val panicMessage: String? = null,
+    val panicClipUrl: String? = null,
     val speedZoneId: Int? = null,
     val speedZoneName: String? = null,
     val speedZoneMaxKmh: Int? = null,
@@ -40,7 +41,15 @@ data class HeartbeatResult(
 data class PanicResult(
     val alertId: Long?,
     val message: String,
-    val deduped: Boolean,
+    val deduped: Boolean = false,
+    val clipUrl: String? = null,
+)
+
+data class PanicClipResult(
+    val clipUrl: String?,
+    val bytes: Int,
+    val sim: Boolean,
+    val alertId: Long?,
 )
 
 data class FleetAlert(
@@ -166,6 +175,7 @@ class FleetClient(private val prefs: VePrefs) {
                     panicAlertId =
                         if (panicJson != null && panicJson.has("id")) panicJson.optLong("id") else null,
                     panicMessage = panicJson?.optString("message"),
+                    panicClipUrl = panicJson?.optString("clip_url")?.takeIf { it.isNotBlank() },
                     speedZoneId =
                         if (zoneJson != null && zoneJson.has("id")) zoneJson.optInt("id") else null,
                     speedZoneName = zoneJson?.optString("name"),
@@ -207,6 +217,44 @@ class FleetClient(private val prefs: VePrefs) {
                     alertId = alert?.optLong("id"),
                     message = alert?.optString("message") ?: "SOS enviado",
                     deduped = json.optBoolean("deduped"),
+                    clipUrl = alert?.optString("clip_url")?.takeIf { it.isNotBlank() },
+                )
+            }
+        }
+
+    fun uploadPanicClip(
+        alertId: Long?,
+        jpegBytes: ByteArray,
+        camera: String = "front",
+        durationSec: Int = 8,
+        sim: Boolean = true,
+    ): Result<PanicClipResult> =
+        runCatching {
+            val b64 = android.util.Base64.encodeToString(jpegBytes, android.util.Base64.NO_WRAP)
+            val payload =
+                JSONObject()
+                    .put("device_id", prefs.deviceId())
+                    .put("kind", "jpeg")
+                    .put("data_base64", b64)
+                    .put("camera", camera)
+                    .put("duration_sec", durationSec)
+                    .put("sim", sim)
+                    .put("captured_at_ms", System.currentTimeMillis())
+            if (alertId != null && alertId > 0) payload.put("alert_id", alertId)
+            val req =
+                Request.Builder()
+                    .url(base() + "/api/fleet/panic/clip")
+                    .post(payload.toString().toRequestBody(JSON))
+                    .build()
+            client.newCall(req).execute().use { resp ->
+                val text = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) error("panic clip HTTP ${resp.code}: $text")
+                val json = JSONObject(text)
+                PanicClipResult(
+                    clipUrl = json.optString("clip_url").takeIf { it.isNotBlank() },
+                    bytes = json.optInt("bytes", jpegBytes.size),
+                    sim = json.optBoolean("sim", sim),
+                    alertId = if (json.has("alert_id")) json.optLong("alert_id") else alertId,
                 )
             }
         }

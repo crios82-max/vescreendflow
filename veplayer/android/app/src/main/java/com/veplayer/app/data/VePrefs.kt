@@ -127,6 +127,21 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("panic_enabled", true)
         set(value) = sp.edit().putBoolean("panic_enabled", value).apply()
 
+    /** Upload dashcam JPEG clip on SOS. */
+    var sosClipEnabled: Boolean
+        get() = sp.getBoolean("sos_clip", true)
+        set(value) = sp.edit().putBoolean("sos_clip", value).apply()
+
+    /** Use synthetic frame (no CameraX yet). */
+    var sosClipSim: Boolean
+        get() = sp.getBoolean("sos_clip_sim", true)
+        set(value) = sp.edit().putBoolean("sos_clip_sim", value).apply()
+
+    /** Declared buffer length metadata (seconds). */
+    var sosClipSec: Int
+        get() = sp.getInt("sos_clip_sec", 8)
+        set(value) = sp.edit().putInt("sos_clip_sec", value.coerceIn(3, 30)).apply()
+
     var mockReverse: Boolean
         get() = sp.getBoolean("mock_reverse", false)
         set(value) = sp.edit().putBoolean("mock_reverse", value).apply()

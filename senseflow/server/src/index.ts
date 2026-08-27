@@ -35,9 +35,11 @@ mountMaintenanceOpsRoutes(fleetOpsRouter)
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const webDir = path.join(rootDir, 'web')
 const otaDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../ota')
+const clipsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../clips')
 const port = Number(process.env.PORT || 4100)
 
 fs.mkdirSync(otaDir, { recursive: true })
+fs.mkdirSync(clipsDir, { recursive: true })
 
 const app = express()
 
@@ -46,7 +48,7 @@ app.use(
     origin: true,
   }),
 )
-app.use(express.json({ limit: '256kb' }))
+app.use(express.json({ limit: '3mb' }))
 
 app.get('/api/health', (_req, res) => {
   const row = db.prepare('SELECT COUNT(*) AS n FROM pings').get() as { n: number }
@@ -63,6 +65,7 @@ app.use('/api/nav', navRouter)
 
 // Fleet OTA APK hosting (publish-ota.sh drops files here)
 app.use('/ota', express.static(otaDir, { fallthrough: true, index: false }))
+app.use('/clips', express.static(clipsDir, { fallthrough: true, index: false }))
 
 const dbcDir = path.join(rootDir, 'dbc')
 fs.mkdirSync(dbcDir, { recursive: true })
@@ -89,4 +92,5 @@ app.use(
 app.listen(port, '0.0.0.0', () => {
   console.log(`SenseFlow API + mapa → http://127.0.0.1:${port}`)
   console.log(`OTA files → http://127.0.0.1:${port}/ota/  (${otaDir})`)
+  console.log(`SOS clips → http://127.0.0.1:${port}/clips/  (${clipsDir})`)
 })
