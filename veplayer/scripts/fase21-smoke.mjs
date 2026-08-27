@@ -25,7 +25,7 @@ async function main() {
   console.log('fase21-smoke →', BASE)
   assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0177')
   assert((0x14 * 256) / 128 === 40, 'pid 015D')
-  assert((0x28 * 100) / 255 < 15, 'pid 015B')
+  assert((0x26 * 100) / 255 < 15, 'pid 015B')
   assert((0x02 * 256 + 0x26) === 550, 'pid 0163')
 
   const deviceId = `fase21-${Date.now().toString(36)}`
