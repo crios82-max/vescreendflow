@@ -100,6 +100,46 @@ object GeoProjection {
         return 2 * r * atan2(sqrt(h), sqrt(1 - h))
     }
 
+    /**
+     * Shortest distance (m) from [ego] to the polyline [path].
+     * Uses local equirectangular projection per segment.
+     */
+    fun distanceToRouteM(
+        path: List<LatLng>,
+        ego: LatLng,
+    ): Double {
+        if (path.isEmpty()) return Double.POSITIVE_INFINITY
+        if (path.size == 1) return haversineM(ego, path[0])
+        var best = Double.MAX_VALUE
+        for (i in 0 until path.lastIndex) {
+            val d = distanceToSegmentM(ego, path[i], path[i + 1])
+            if (d < best) best = d
+        }
+        return best
+    }
+
+    /** Distance (m) from point to segment AB. */
+    fun distanceToSegmentM(
+        p: LatLng,
+        a: LatLng,
+        b: LatLng,
+    ): Double {
+        val cosLat = cos(Math.toRadians(a.lat)).coerceAtLeast(1e-6)
+        fun toXy(ll: LatLng): Pair<Double, Double> {
+            val x = (ll.lng - a.lng) * 111_320.0 * cosLat
+            val y = (ll.lat - a.lat) * 111_320.0
+            return x to y
+        }
+        val (px, py) = toXy(p)
+        val (bx, by) = toXy(b)
+        val len2 = bx * bx + by * by
+        if (len2 < 1e-4) return haversineM(p, a)
+        val t = ((px * bx + py * by) / len2).coerceIn(0.0, 1.0)
+        val dx = px - t * bx
+        val dy = py - t * by
+        return sqrt(dx * dx + dy * dy)
+    }
+
     /** Fraction 0..1 of progress along polyline toward destination. */
     fun progressAlong(
         path: List<LatLng>,

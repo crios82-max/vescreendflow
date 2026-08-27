@@ -610,6 +610,57 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Route deviation / off-route
+    const routeDev = signals.route_dev as Record<string, unknown> | undefined
+    let routeOffM: number | null =
+      typeof routeDev?.distance_m === 'number'
+        ? (routeDev.distance_m as number)
+        : typeof signals.route_off_m === 'number'
+          ? (signals.route_off_m as number)
+          : null
+    if (typeof routeOffM === 'number' && routeOffM > 0) {
+      const warnM =
+        typeof signals.route_warn_m === 'number'
+          ? (signals.route_warn_m as number)
+          : 80
+      const alertM =
+        typeof signals.route_alert_m === 'number'
+          ? (signals.route_alert_m as number)
+          : 150
+      const bandFromClient =
+        typeof routeDev?.band === 'string' ? (routeDev.band as string) : null
+      const band =
+        bandFromClient === 'alert' || bandFromClient === 'warn' || bandFromClient === 'ok'
+          ? bandFromClient
+          : routeOffM >= alertM
+            ? 'alert'
+            : routeOffM >= warnM
+              ? 'warn'
+              : 'ok'
+      if (band === 'alert' && !recentlyAlerted(deviceId, 'route_deviate', 180)) {
+        insertAlert(
+          deviceId,
+          'route_deviate',
+          'critical',
+          `Fuera de ruta · ${Math.round(routeOffM)} m`,
+          { route_off_m: routeOffM, alert_m: alertM, route_dev: routeDev ?? null },
+        )
+        raised.push('route_deviate')
+      } else if (
+        band === 'warn' &&
+        !recentlyAlerted(deviceId, 'route_warn', 180)
+      ) {
+        insertAlert(
+          deviceId,
+          'route_warn',
+          'warn',
+          `Desvío de ruta · ${Math.round(routeOffM)} m`,
+          { route_off_m: routeOffM, warn_m: warnM, route_dev: routeDev ?? null },
+        )
+        raised.push('route_warn')
+      }
+    }
+
     // Cabin overtemp — hvac.cabin_c or top-level cabin_c
     const hvac = signals.hvac as Record<string, unknown> | undefined
     let cabinC: number | null =

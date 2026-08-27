@@ -185,6 +185,9 @@ object FleetInbox {
             kind == "rest_break" -> "Atención. Es hora de un descanso. $body."
             kind == "rest_warn" || kind.startsWith("rest_") ->
                 "Cuidado. Pausa recomendada. $body."
+            kind == "route_deviate" -> "Atención. Fuera de ruta. $body."
+            kind == "route_warn" || kind.startsWith("route_") ->
+                "Cuidado. Desvío de ruta. $body."
             kind == "shift_summary" -> "Turno cerrado. $body."
             kind == "shift_fatigue" -> "Atención. Turno prolongado. $body."
             kind == "shift_warn" || kind.startsWith("shift_") ->
