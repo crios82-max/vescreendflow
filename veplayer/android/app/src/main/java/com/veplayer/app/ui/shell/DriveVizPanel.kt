@@ -70,6 +70,7 @@ import com.veplayer.app.vehicle.IdleMonitor
 import com.veplayer.app.vehicle.DtcMonitor
 import com.veplayer.app.vehicle.CabinOvertempMonitor
 import com.veplayer.app.vehicle.DoorAjarMonitor
+import com.veplayer.app.vehicle.HarshDrivingMonitor
 import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.SeatbeltMonitor
@@ -105,6 +106,7 @@ fun DriveVizPanel(
     val hvac by HvacClimateMonitor.state.collectAsState()
     val cabinHot by CabinOvertempMonitor.state.collectAsState()
     val seatbelt by SeatbeltMonitor.state.collectAsState()
+    val harsh by HarshDrivingMonitor.state.collectAsState()
     val panic by PanicBus.state.collectAsState()
     var holdProgress by remember { mutableFloatStateOf(0f) }
     var holdJob by remember { mutableStateOf<Job?>(null) }
@@ -119,6 +121,7 @@ fun DriveVizPanel(
             ParkingDistanceMonitor.tick(prefs, snap.reverse)
             DoorAjarMonitor.tick(prefs, snap)
             SeatbeltMonitor.tick(prefs, snap)
+            HarshDrivingMonitor.tick(prefs, snap)
             ShiftFatigueMonitor.tick(prefs)
             HvacClimateMonitor.tick(prefs, snap)
             CabinOvertempMonitor.tick(prefs, snap)
@@ -252,6 +255,13 @@ fun DriveVizPanel(
                     Text(
                         seatbelt.label,
                         color = Color(com.veplayer.app.vehicle.Seatbelt.accentArgb(seatbelt.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (harsh.showWarn) {
+                    Text(
+                        harsh.label,
+                        color = Color(com.veplayer.app.vehicle.HarshDriving.accentArgb(harsh.band)),
                         fontSize = 11.sp,
                     )
                 }

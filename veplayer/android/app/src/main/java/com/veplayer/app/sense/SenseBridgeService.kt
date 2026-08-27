@@ -102,8 +102,11 @@ class SenseBridgeService : Service() {
                                             "shift_band" to com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.band,
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
-                                            "speed_limit_kmh" to
-                                                com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
+                                    "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
+                                        com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
+                                    ),
+                                    "speed_limit_kmh" to
+                                        com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
                                             "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),
                                             "kiosk" to com.veplayer.app.kiosk.KioskController.healthSnapshot(this@SenseBridgeService),
                                             "field" to
@@ -176,6 +179,9 @@ class SenseBridgeService : Service() {
                                     "shift_band" to com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.band,
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
+                                    "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
+                                        com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
+                                    ),
                                     "speed_limit_kmh" to
                                         com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
                                     "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),

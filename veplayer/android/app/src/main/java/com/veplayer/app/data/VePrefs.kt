@@ -350,6 +350,31 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("seatbelt_sim", false)
         set(value) = sp.edit().putBoolean("seatbelt_sim", value).apply()
 
+    /** Harsh brake / accel detection. */
+    var harshEnabled: Boolean
+        get() = sp.getBoolean("harsh", true)
+        set(value) = sp.edit().putBoolean("harsh", value).apply()
+
+    var harshTts: Boolean
+        get() = sp.getBoolean("harsh_tts", true)
+        set(value) = sp.edit().putBoolean("harsh_tts", value).apply()
+
+    var harshBrakeWarnKmhS: Float
+        get() = sp.getFloat("harsh_brake_warn", 12f)
+        set(value) = sp.edit().putFloat("harsh_brake_warn", value.coerceIn(6f, 25f)).apply()
+
+    var harshBrakeAlertKmhS: Float
+        get() = sp.getFloat("harsh_brake_alert", 18f)
+        set(value) = sp.edit().putFloat("harsh_brake_alert", value.coerceIn(10f, 40f)).apply()
+
+    var harshAccelWarnKmhS: Float
+        get() = sp.getFloat("harsh_accel_warn", 10f)
+        set(value) = sp.edit().putFloat("harsh_accel_warn", value.coerceIn(5f, 25f)).apply()
+
+    var harshAccelAlertKmhS: Float
+        get() = sp.getFloat("harsh_accel_alert", 15f)
+        set(value) = sp.edit().putFloat("harsh_accel_alert", value.coerceIn(8f, 35f)).apply()
+
     /** Shift duration / fatigue HUD. */
     var fatigueEnabled: Boolean
         get() = sp.getBoolean("fatigue", true)

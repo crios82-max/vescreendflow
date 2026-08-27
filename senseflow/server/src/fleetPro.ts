@@ -319,6 +319,37 @@ export function evaluateFleetAlerts(
         raised.push('seatbelt_warn')
       }
     }
+
+    // Harsh brake / accel from client sample
+    const harsh = signals.harsh as Record<string, unknown> | undefined
+    if (harsh && typeof harsh.band === 'string') {
+      const band = harsh.band as string
+      if (
+        (band === 'brake_alert' || band === 'accel_alert') &&
+        !recentlyAlerted(deviceId, band, 120)
+      ) {
+        const kindLabel = band.startsWith('brake') ? 'Frenada brusca' : 'Aceleración brusca'
+        const mag =
+          typeof harsh.accel_kmh_s === 'number'
+            ? Math.abs(harsh.accel_kmh_s as number)
+            : null
+        insertAlert(
+          deviceId,
+          band,
+          'critical',
+          `${kindLabel}${mag != null ? ` · ${Math.round(mag)} km/h/s` : ''}${harsh.abs === true ? ' · ABS' : ''}`,
+          { harsh },
+        )
+        raised.push(band)
+      } else if (
+        (band === 'brake_warn' || band === 'accel_warn') &&
+        !recentlyAlerted(deviceId, band, 120)
+      ) {
+        const kindLabel = band.startsWith('brake') ? 'Frenada fuerte' : 'Aceleración fuerte'
+        insertAlert(deviceId, band, 'warn', kindLabel, { harsh })
+        raised.push(band)
+      }
+    }
     const dtcs = Array.isArray(signals.dtcs) ? signals.dtcs : []
     for (const raw of dtcs) {
       if (!raw || typeof raw !== 'object') continue
