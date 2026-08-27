@@ -1592,18 +1592,51 @@ fun SettingsScreen() {
             }
             Text("Demo: D001 / 1234 · D002 / 5678 · D003 sin PIN", color = Mute)
             val shift by com.veplayer.app.fleet.ShiftTracker.shift.collectAsState()
+            val shiftSum by com.veplayer.app.fleet.ShiftTracker.summary.collectAsState()
             Text(
                 if (shift.status == "open") {
                     "Turno #${shift.id} · ${"%.1f".format(shift.distanceKm)} km" +
                         (shift.ecoScore?.let { " · eco $it (${shift.ecoBand})" } ?: "")
+                } else if (shiftSum.show) {
+                    shiftSum.message
                 } else if (shift.status == "closed") {
                     "Último turno cerrado · ${"%.1f".format(shift.distanceKm)} km" +
                         (shift.ecoScore?.let { " · eco $it" } ?: "")
                 } else {
                     "Turno: —"
                 },
-                color = Mute,
+                color = if (shiftSum.show) Teal else Mute,
             )
+            var sumOn by remember { mutableStateOf(prefs.shiftSummaryEnabled) }
+            var sumTts by remember { mutableStateOf(prefs.shiftSummaryTts) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Resumen al cerrar turno", color = Mist)
+                Switch(
+                    checked = sumOn,
+                    onCheckedChange = {
+                        sumOn = it
+                        prefs.shiftSummaryEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS resumen turno", color = Mist)
+                Switch(
+                    checked = sumTts,
+                    onCheckedChange = {
+                        sumTts = it
+                        prefs.shiftSummaryTts = it
+                    },
+                )
+            }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = {
@@ -1624,8 +1657,15 @@ fun SettingsScreen() {
                                 withContext(Dispatchers.IO) {
                                     com.veplayer.app.fleet.ShiftTracker.end(prefs)
                                 }
-                            r.onSuccess { status = "Turno cerrado · ${"%.1f".format(it.distanceKm)} km" }
-                                .onFailure { status = "Turno end: ${it.message}" }
+                            r.onSuccess {
+                                val sum = com.veplayer.app.fleet.ShiftTracker.summary.value
+                                status =
+                                    if (sum.show) {
+                                        sum.message
+                                    } else {
+                                        "Turno cerrado · ${"%.1f".format(it.distanceKm)} km"
+                                    }
+                            }.onFailure { status = "Turno end: ${it.message}" }
                         }
                     },
                 ) { Text("Cerrar turno") }

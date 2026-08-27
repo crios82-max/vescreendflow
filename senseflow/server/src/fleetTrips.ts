@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { db } from './db.js'
 import { requireRole } from './fleetOps.js'
+import { insertAlert } from './fleetPro.js'
 
 export type FleetShift = {
   id: number
@@ -248,6 +249,49 @@ export function endShift(input: {
   return rowToShift(row)
 }
 
+/** End-of-shift digest for HUD / TTS / fleet alert. */
+export function buildShiftSummary(shift: FleetShift): Record<string, unknown> {
+  const ended = shift.ended_at ?? Math.floor(Date.now() / 1000)
+  const durationSec = Math.max(0, ended - shift.started_at)
+  const hours = durationSec / 3600
+  const durationLabel =
+    hours >= 1
+      ? `${hours.toFixed(1)} h`
+      : `${Math.max(1, Math.round(durationSec / 60))} min`
+  const idleMin = Math.round(shift.idle_sec / 60)
+  const overMin = Math.round(shift.overspeed_sec / 60)
+  const message = [
+    `Turno #${shift.id}`,
+    durationLabel,
+    `${shift.distance_km.toFixed(1)} km`,
+    shift.eco_score != null ? `eco ${Math.round(shift.eco_score)}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ')
+  return {
+    shift_id: shift.id,
+    device_id: shift.device_id,
+    driver_id: shift.driver_id,
+    driver_code: shift.driver_code,
+    driver_name: shift.driver_name,
+    status: shift.status,
+    started_at: shift.started_at,
+    ended_at: shift.ended_at,
+    duration_sec: durationSec,
+    duration_label: durationLabel,
+    distance_km: Math.round(shift.distance_km * 10) / 10,
+    idle_sec: Math.round(shift.idle_sec),
+    idle_min: idleMin,
+    overspeed_sec: Math.round(shift.overspeed_sec),
+    overspeed_min: overMin,
+    abs_events: shift.abs_events,
+    high_throttle_sec: Math.round(shift.high_throttle_sec),
+    eco_score: shift.eco_score != null ? Math.round(shift.eco_score) : null,
+    eco_band: shift.eco_band,
+    message,
+  }
+}
+
 /**
  * Heartbeat: bump distance + eco accumulators from vehicle_signals.
  * @param dtSec sample interval estimate (default ~25s heartbeat)
@@ -397,7 +441,40 @@ fleetShiftsRouter.post('/end', (req, res) => {
     res.status(404).json({ error: 'sin turno abierto' })
     return
   }
-  res.json({ ok: true, shift })
+  const summary = buildShiftSummary(shift)
+  try {
+    insertAlert(
+      shift.device_id,
+      'shift_summary',
+      'info',
+      String(summary.message),
+      summary,
+    )
+  } catch {
+    /* alert table optional during tests */
+  }
+  res.json({ ok: true, shift, summary })
+})
+
+fleetShiftsRouter.get('/:id/summary', (req, res) => {
+  const id = Number(req.params.id)
+  if (!Number.isFinite(id) || id <= 0) {
+    res.status(400).json({ error: 'id inválido' })
+    return
+  }
+  const row = db.prepare(`${SHIFT_SELECT} WHERE s.id = ?`).get(id) as
+    | Record<string, unknown>
+    | undefined
+  if (!row) {
+    res.status(404).json({ error: 'turno no encontrado' })
+    return
+  }
+  const shift = rowToShift(row)
+  if (shift.status !== 'closed') {
+    res.status(409).json({ error: 'turno aún abierto', shift })
+    return
+  }
+  res.json({ ok: true, shift, summary: buildShiftSummary(shift) })
 })
 
 fleetShiftsRouter.get('/current', (req, res) => {

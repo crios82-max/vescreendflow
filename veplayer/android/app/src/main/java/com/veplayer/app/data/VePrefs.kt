@@ -493,6 +493,15 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("fatigue_sim_h", 0f)
         set(value) = sp.edit().putFloat("fatigue_sim_h", value.coerceIn(0f, 16f)).apply()
 
+    /** End-of-shift summary HUD / TTS. */
+    var shiftSummaryEnabled: Boolean
+        get() = sp.getBoolean("shift_summary", true)
+        set(value) = sp.edit().putBoolean("shift_summary", value).apply()
+
+    var shiftSummaryTts: Boolean
+        get() = sp.getBoolean("shift_summary_tts", true)
+        set(value) = sp.edit().putBoolean("shift_summary_tts", value).apply()
+
     /** HVAC climate panel. */
     var hvacPanelEnabled: Boolean
         get() = sp.getBoolean("hvac_panel", true)

@@ -641,6 +641,18 @@ Presión FL/FR/RL/RR con umbrales:
 npm run veplayer:tpms-hud-smoke
 ```
 
+## End-of-shift summary (v0.52 · Fase 9)
+
+Al cerrar turno: digest duración · km · eco · ralentí:
+
+- `POST /api/fleet/shifts/end` → `{ shift, summary }` · alerta flota `shift_summary`
+- `GET /api/fleet/shifts/:id/summary`
+- DriveViz chip `Resumen · …` · TTS + inbox · toggles en Ajustes
+
+```bash
+npm run veplayer:shift-summary-smoke
+```
+
 **Fase 9 (en curso):** tow · fuel drop · TPMS HUD · shift summary · message reply.
 
 ## Device Owner (kiosk duro · v0.12)
