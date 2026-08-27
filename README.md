@@ -913,6 +913,20 @@ npm run veplayer:intake-air-smoke
 
 **Fase 13 (en curso):** engine load · oil temp · intake air · fuel rate · MIL distance.
 
+## Fuel rate (v0.72 · Fase 13)
+
+Tasa de combustible (**OBD PID 015E**, g/s → L/h):
+
+- Warn **≥55 L/h** / alert **≥80 L/h** en movimiento (≥20 km/h)
+- DriveViz `Comb · XX L/h` · TTS + inbox
+- Flota `fuel_rate_warn` / `fuel_rate_alert` · sim L/h en Ajustes (Clima HVAC)
+
+```bash
+npm run veplayer:fuel-rate-smoke
+```
+
+**Fase 13 (en curso):** engine load · oil temp · intake air · fuel rate · MIL distance.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

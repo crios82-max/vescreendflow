@@ -245,6 +245,9 @@ object FleetInbox {
             kind == "fuel_drop_alert" -> "Atención. Caída brusca de combustible. $body."
             kind == "fuel_drop_warn" || kind.startsWith("fuel_drop") ->
                 "Cuidado. Combustible bajando rápido. $body."
+            kind == "fuel_rate_alert" -> "Atención. Consumo de combustible crítico. $body."
+            kind == "fuel_rate_warn" || kind.startsWith("fuel_rate") ->
+                "Cuidado. Consumo alto. $body."
             kind == "battery_crit" -> "Atención. Batería crítica. $body."
             kind == "battery_warn" || kind.startsWith("battery_") ->
                 "Cuidado. Voltaje de batería bajo. $body."

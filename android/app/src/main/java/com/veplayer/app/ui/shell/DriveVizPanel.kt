@@ -64,6 +64,7 @@ import com.veplayer.app.ui.theme.Night
 import com.veplayer.app.ui.theme.Road
 import com.veplayer.app.vehicle.FuelRangeHud
 import com.veplayer.app.vehicle.FuelRangeHudMonitor
+import com.veplayer.app.vehicle.FuelRateMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -120,6 +121,7 @@ fun DriveVizPanel(
     val hud by SpeedHudMonitor.state.collectAsState()
     val maint by MaintenanceMonitor.state.collectAsState()
     val fuelHud by FuelRangeHudMonitor.state.collectAsState()
+    val fuelRate by FuelRateMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val parking by ParkingDistanceMonitor.state.collectAsState()
@@ -160,6 +162,7 @@ fun DriveVizPanel(
             SpeedHudMonitor.tick(prefs, snap.speedKmh)
             MaintenanceMonitor.tick(prefs, snap.odometerKm)
             FuelRangeHudMonitor.tick(prefs, snap.fuelPct, snap.batterySocPct, snap.rangeKm)
+            FuelRateMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             ParkingDistanceMonitor.tick(prefs, snap.reverse)
@@ -481,6 +484,13 @@ fun DriveVizPanel(
                     Text(
                         "Combustible · ${fuelDrop.label}",
                         color = Color(com.veplayer.app.vehicle.SuddenFuelDrop.accentArgb(fuelDrop.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (fuelRate.showWarn || (prefs.fuelRateEnabled && fuelRate.band == "ok" && (fuelRate.fuelRateLph ?: 0f) >= 35f)) {
+                    Text(
+                        fuelRate.label,
+                        color = Color(com.veplayer.app.vehicle.FuelRate.accentArgb(fuelRate.band)),
                         fontSize = 11.sp,
                     )
                 }

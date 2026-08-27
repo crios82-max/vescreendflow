@@ -940,6 +940,36 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("intake_air_sim_c", 0f)
         set(value) = sp.edit().putFloat("intake_air_sim_c", value.coerceIn(0f, 120f)).apply()
 
+    /** Engine fuel rate (OBD 015E). */
+    var fuelRateEnabled: Boolean
+        get() = sp.getBoolean("fuel_rate", true)
+        set(value) = sp.edit().putBoolean("fuel_rate", value).apply()
+
+    var fuelRateTts: Boolean
+        get() = sp.getBoolean("fuel_rate_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_rate_tts", value).apply()
+
+    var fuelRateWarnLph: Float
+        get() = sp.getFloat("fuel_rate_warn_lph", 55f)
+        set(value) = sp.edit().putFloat("fuel_rate_warn_lph", value.coerceIn(10f, 200f)).apply()
+
+    var fuelRateAlertLph: Float
+        get() = sp.getFloat("fuel_rate_alert_lph", 80f)
+        set(value) = sp.edit().putFloat("fuel_rate_alert_lph", value.coerceIn(15f, 250f)).apply()
+
+    var fuelRateSpeedMinKmh: Float
+        get() = sp.getFloat("fuel_rate_speed_min", 20f)
+        set(value) = sp.edit().putFloat("fuel_rate_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    /** Demo fuel rate L/h (0 = live). */
+    var fuelRateSimLph: Float
+        get() = sp.getFloat("fuel_rate_sim_lph", 0f)
+        set(value) = sp.edit().putFloat("fuel_rate_sim_lph", value.coerceIn(0f, 250f)).apply()
+
+    var fuelRateSimSpeedKmh: Float
+        get() = sp.getFloat("fuel_rate_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("fuel_rate_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

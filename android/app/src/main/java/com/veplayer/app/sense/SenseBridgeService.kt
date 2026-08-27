@@ -182,6 +182,22 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.IntakeAir.toJsonMap(
                                             com.veplayer.app.vehicle.IntakeAirMonitor.state.value,
                                         ),
+                                    "fuel_rate_warn_lph" to prefs.fuelRateWarnLph.toDouble(),
+                                    "fuel_rate_alert_lph" to prefs.fuelRateAlertLph.toDouble(),
+                                    "fuel_rate_speed_min_kmh" to prefs.fuelRateSpeedMinKmh.toDouble(),
+                                    "fuel_rate_gps" to
+                                        (if (prefs.fuelRateSimLph > 0f)
+                                            com.veplayer.app.vehicle.FuelRate.lphToGps(prefs.fuelRateSimLph)
+                                        else
+                                            com.veplayer.app.vehicle.FuelRateMonitor.state.value.fuelRateGps
+                                                ?: snap.fuelRateGps
+                                        )?.toDouble(),
+                                    "fuel_rate_lph" to
+                                        com.veplayer.app.vehicle.FuelRateMonitor.state.value.fuelRateLph?.toDouble(),
+                                    "fuel_rate" to
+                                        com.veplayer.app.vehicle.FuelRate.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelRateMonitor.state.value,
+                                        ),
                                     "rpm_warn" to prefs.rpmWarn.toDouble(),
                                     "rpm_alert" to prefs.rpmAlert.toDouble(),
                                     "rpm" to
@@ -444,6 +460,22 @@ class SenseBridgeService : Service() {
                                     "intake_air" to
                                         com.veplayer.app.vehicle.IntakeAir.toJsonMap(
                                             com.veplayer.app.vehicle.IntakeAirMonitor.state.value,
+                                        ),
+                                    "fuel_rate_warn_lph" to prefs.fuelRateWarnLph.toDouble(),
+                                    "fuel_rate_alert_lph" to prefs.fuelRateAlertLph.toDouble(),
+                                    "fuel_rate_speed_min_kmh" to prefs.fuelRateSpeedMinKmh.toDouble(),
+                                    "fuel_rate_gps" to
+                                        (if (prefs.fuelRateSimLph > 0f)
+                                            com.veplayer.app.vehicle.FuelRate.lphToGps(prefs.fuelRateSimLph)
+                                        else
+                                            com.veplayer.app.vehicle.FuelRateMonitor.state.value.fuelRateGps
+                                                ?: snap.fuelRateGps
+                                        )?.toDouble(),
+                                    "fuel_rate_lph" to
+                                        com.veplayer.app.vehicle.FuelRateMonitor.state.value.fuelRateLph?.toDouble(),
+                                    "fuel_rate" to
+                                        com.veplayer.app.vehicle.FuelRate.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelRateMonitor.state.value,
                                         ),
                                     "rpm_warn" to prefs.rpmWarn.toDouble(),
                                     "rpm_alert" to prefs.rpmAlert.toDouble(),

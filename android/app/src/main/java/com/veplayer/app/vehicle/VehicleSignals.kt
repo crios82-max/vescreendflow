@@ -60,6 +60,8 @@ data class VehicleSignals(
     val seatbeltDriver: Boolean = true,
     val batterySocPct: Float? = null,
     val fuelPct: Float? = null,
+    /** Engine fuel rate (OBD PID 015E), grams/sec. */
+    val fuelRateGps: Float? = null,
     val rangeKm: Float? = null,
     val rpm: Float? = null,
     val steeringAngleDeg: Float? = null,
@@ -134,6 +136,7 @@ data class VehicleSignals(
             "seatbelt_driver" to seatbeltDriver,
             "battery_soc_pct" to batterySocPct?.toDouble(),
             "fuel_pct" to fuelPct?.toDouble(),
+            "fuel_rate_gps" to fuelRateGps?.toDouble(),
             "range_km" to rangeKm?.toDouble(),
             "rpm" to rpm?.toDouble(),
             "steering_angle_deg" to steeringAngleDeg?.toDouble(),

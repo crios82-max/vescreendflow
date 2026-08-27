@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
  * 2. On failure / no MAC → PID simulator (`obd_sim`) so UI/fleet keep working
  * 3. DTC: live Modes 03/07/0A (+0101 MIL) every ~8s · sim seeds demo codes when enabled
  *
- * PIDs: 010D speed · 010C RPM · 0104 load · 0105 coolant · 010F intake · 015C oil · 012F fuel · 0146 ambient · 0111 throttle · 011F runtime · 0142 voltage
+ * PIDs: 010D speed · 010C RPM · 0104 load · 0105 coolant · 010F intake · 015C oil · 012F fuel · 015E fuel rate · 0146 ambient · 0111 throttle · 011F runtime · 0142 voltage
  */
 class ObdElm327Adapter(
     context: Context,
@@ -165,6 +165,7 @@ class ObdElm327Adapter(
                 parkingBrake = gear == Gear.N && kmh < 0.5f,
                 seatbeltDriver = !prefs.seatbeltSim,
                 fuelPct = p.fuelPct ?: prev.fuelPct,
+                fuelRateGps = p.fuelRateGps ?: prev.fuelRateGps,
                 rpm = p.rpm ?: prev.rpm,
                 coolantC = p.coolantC ?: prev.coolantC,
                 oilTempC = p.oilTempC ?: prev.oilTempC,
@@ -200,6 +201,7 @@ class ObdElm327Adapter(
                 (28.0 + 12.0 * sin(t / 10.0)).toFloat()
             }
         val rpm = 900f + kmh * 35f
+        val fuelGps = (kmh / 90f * 18f + 2f).coerceIn(0.5f, 40f)
         val gear =
             when {
                 forceReverse -> Gear.R
@@ -217,6 +219,7 @@ class ObdElm327Adapter(
                 seatbeltDriver = !prefs.seatbeltSim,
                 batterySocPct = null,
                 fuelPct = (55f + 3f * sin(t / 50.0).toFloat()).coerceIn(0f, 100f),
+                fuelRateGps = fuelGps,
                 rangeKm = null,
                 rpm = rpm,
                 steeringAngleDeg = (sin(t / 7.0) * 8.0).toFloat(),

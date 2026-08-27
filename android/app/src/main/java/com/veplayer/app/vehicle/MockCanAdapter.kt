@@ -92,6 +92,7 @@ class MockCanAdapter(
             seatbeltDriver = !prefs.seatbeltSim,
             batterySocPct = soc,
             fuelPct = null,
+            fuelRateGps = (kmh / 90f * 14f + 1.5f).coerceIn(0.5f, 35f),
             rangeKm = soc * 3.2f,
             rpm = if (gear == Gear.D) 1400f + kmh * 28f else 0f,
             steeringAngleDeg = steer,
