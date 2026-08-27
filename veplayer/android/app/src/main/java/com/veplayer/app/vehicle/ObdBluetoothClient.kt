@@ -277,6 +277,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0156", // LTFT sec O2 B1
                 "0157", // STFT sec O2 B2
                 "0158", // LTFT sec O2 B2
+                "0177", // catalyst B1S5 temp
+                "0178", // catalyst B2S5 temp
+                "015D", // fuel injection timing
+                "015B", // hybrid batt life
+                "0163", // engine ref torque
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim

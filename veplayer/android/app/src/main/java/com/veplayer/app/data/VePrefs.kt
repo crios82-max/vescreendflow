@@ -1763,6 +1763,103 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("ltft2_b2_sim_speed", 40f)
         set(value) = sp.edit().putFloat("ltft2_b2_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Catalyst temp B1S5 °C (OBD 0177). */
+    var catB1s5Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s5", true)
+        set(value) = sp.edit().putBoolean("cat_b1s5", value).apply()
+    var catB1s5Tts: Boolean
+        get() = sp.getBoolean("cat_b1s5_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s5_tts", value).apply()
+    var catB1s5WarnC: Float
+        get() = sp.getFloat("cat_b1s5_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s5_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s5AlertC: Float
+        get() = sp.getFloat("cat_b1s5_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s5_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s5SimC: Float
+        get() = sp.getFloat("cat_b1s5_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s5_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B2S5 °C (OBD 0178). */
+    var catB2s5Enabled: Boolean
+        get() = sp.getBoolean("cat_b2s5", true)
+        set(value) = sp.edit().putBoolean("cat_b2s5", value).apply()
+    var catB2s5Tts: Boolean
+        get() = sp.getBoolean("cat_b2s5_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2s5_tts", value).apply()
+    var catB2s5WarnC: Float
+        get() = sp.getFloat("cat_b2s5_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2s5_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2s5AlertC: Float
+        get() = sp.getFloat("cat_b2s5_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2s5_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2s5SimC: Float
+        get() = sp.getFloat("cat_b2s5_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2s5_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Fuel injection timing ° (OBD 015D). */
+    var injectEnabled: Boolean
+        get() = sp.getBoolean("fuel_inject", true)
+        set(value) = sp.edit().putBoolean("fuel_inject", value).apply()
+    var injectTts: Boolean
+        get() = sp.getBoolean("fuel_inject_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_inject_tts", value).apply()
+    var injectWarnDeg: Float
+        get() = sp.getFloat("inject_warn_deg", 28f)
+        set(value) = sp.edit().putFloat("inject_warn_deg", value.coerceIn(10f, 55f)).apply()
+    var injectAlertDeg: Float
+        get() = sp.getFloat("inject_alert_deg", 40f)
+        set(value) = sp.edit().putFloat("inject_alert_deg", value.coerceIn(15f, 64f)).apply()
+    var injectSpeedMinKmh: Float
+        get() = sp.getFloat("inject_speed_min", 20f)
+        set(value) = sp.edit().putFloat("inject_speed_min", value.coerceIn(0f, 60f)).apply()
+    var injectSimDeg: Float
+        get() = sp.getFloat("inject_sim_deg", 0f)
+        set(value) = sp.edit().putFloat("inject_sim_deg", value.coerceIn(-64f, 64f)).apply()
+
+    /** Hybrid pack life % (OBD 015B). */
+    var hybridEnabled: Boolean
+        get() = sp.getBoolean("hybrid_batt", true)
+        set(value) = sp.edit().putBoolean("hybrid_batt", value).apply()
+    var hybridTts: Boolean
+        get() = sp.getBoolean("hybrid_batt_tts", true)
+        set(value) = sp.edit().putBoolean("hybrid_batt_tts", value).apply()
+    var hybridWarnPct: Float
+        get() = sp.getFloat("hybrid_warn_pct", 30f)
+        set(value) = sp.edit().putFloat("hybrid_warn_pct", value.coerceIn(10f, 60f)).apply()
+    var hybridAlertPct: Float
+        get() = sp.getFloat("hybrid_alert_pct", 15f)
+        set(value) = sp.edit().putFloat("hybrid_alert_pct", value.coerceIn(5f, 40f)).apply()
+    var hybridSpeedMinKmh: Float
+        get() = sp.getFloat("hybrid_speed_min", 0f)
+        set(value) = sp.edit().putFloat("hybrid_speed_min", value.coerceIn(0f, 60f)).apply()
+    var hybridSimPct: Float
+        get() = sp.getFloat("hybrid_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("hybrid_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    /** Engine reference torque Nm (OBD 0163). */
+    var refTorqueEnabled: Boolean
+        get() = sp.getBoolean("ref_torque", true)
+        set(value) = sp.edit().putBoolean("ref_torque", value).apply()
+    var refTorqueTts: Boolean
+        get() = sp.getBoolean("ref_torque_tts", true)
+        set(value) = sp.edit().putBoolean("ref_torque_tts", value).apply()
+    var refTorqueWarnLowNm: Float
+        get() = sp.getFloat("ref_torque_warn_low", 100f)
+        set(value) = sp.edit().putFloat("ref_torque_warn_low", value.coerceIn(50f, 300f)).apply()
+    var refTorqueAlertLowNm: Float
+        get() = sp.getFloat("ref_torque_alert_low", 80f)
+        set(value) = sp.edit().putFloat("ref_torque_alert_low", value.coerceIn(40f, 250f)).apply()
+    var refTorqueWarnHighNm: Float
+        get() = sp.getFloat("ref_torque_warn_high", 450f)
+        set(value) = sp.edit().putFloat("ref_torque_warn_high", value.coerceIn(300f, 800f)).apply()
+    var refTorqueAlertHighNm: Float
+        get() = sp.getFloat("ref_torque_alert_high", 520f)
+        set(value) = sp.edit().putFloat("ref_torque_alert_high", value.coerceIn(400f, 1200f)).apply()
+    var refTorqueSimNm: Float
+        get() = sp.getFloat("ref_torque_sim_nm", 0f)
+        set(value) = sp.edit().putFloat("ref_torque_sim_nm", value.coerceIn(0f, 2000f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

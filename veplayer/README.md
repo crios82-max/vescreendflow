@@ -1225,6 +1225,32 @@ Trim largo O2 secundario B2 (**OBD PID 0158**), % · `ltft2_b2_warn` / `ltft2_b2
 npm run veplayer:fase20-smoke
 ```
 
+**Fase 21 (completa):** catalizador B1S5/B2S5 · inyección · batería híbrida · torque ref.
+
+## Catalyst B1S5 (v1.10 · Fase 21)
+
+Catalizador banco 1 sensor 5 (**OBD PID 0177**), °C · `cat_b1s5_warn` / `cat_b1s5_alert` · HUD `CatB1S5 · XXX°C`
+
+## Catalyst B2S5 (v1.11 · Fase 21)
+
+Catalizador banco 2 sensor 5 (**OBD PID 0178**), °C · `cat_b2s5_warn` / `cat_b2s5_alert` · HUD `CatB2S5 · XXX°C`
+
+## Fuel injection timing (v1.12 · Fase 21)
+
+Inyección (**OBD PID 015D**), ° · `inject_warn` / `inject_alert` · HUD `Inject · XX°`
+
+## Hybrid battery life (v1.13 · Fase 21)
+
+Vida batería híbrida (**OBD PID 015B**), % · `hybrid_batt_warn` / `hybrid_batt_alert` · HUD `HyBatt · XX%`
+
+## Engine ref torque (v1.14 · Fase 21)
+
+Torque referencia (**OBD PID 0163**), Nm · `ref_torque_warn` / `ref_torque_alert` · HUD `RefT · XXXNm`
+
+```bash
+npm run veplayer:fase21-smoke
+```
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

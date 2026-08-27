@@ -84,6 +84,16 @@ object ObdPidParser {
         val fuelTrimStft2B2Pct: Float? = null,
         /** LTFT secondary O2 B2 % (OBD PID 0158), signed. */
         val fuelTrimLtft2B2Pct: Float? = null,
+        /** Catalyst temp bank 1 sensor 5 °C (OBD PID 0177). */
+        val catalystB1s5TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 5 °C (OBD PID 0178). */
+        val catalystB2s5TempC: Float? = null,
+        /** Fuel injection timing ° (OBD PID 015D), signed. */
+        val fuelInjectTimingDeg: Float? = null,
+        /** Hybrid pack remaining life % (OBD PID 015B). */
+        val hybridBattLifePct: Float? = null,
+        /** Engine reference torque Nm (OBD PID 0163). */
+        val engineRefTorqueNm: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -255,6 +265,27 @@ object ObdPidParser {
                 PidValues(
                     fuelTrimLtft2B2Pct = data.getOrNull(0)?.let { (it - 128) * 100f / 128f },
                 )
+            0x77 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB1s5TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x78 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2s5TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x5D -> {
+                if (data.size < 2) PidValues()
+                else {
+                    val raw = (data[0] shl 8) or data[1]
+                    val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                    PidValues(fuelInjectTimingDeg = signed / 128f)
+                }
+            }
+            0x5B -> PidValues(hybridBattLifePct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x63 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(engineRefTorqueNm = ((data[0] * 256) + data[1]).toFloat())
+            }
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -321,6 +352,11 @@ object ObdPidParser {
             fuelTrimLtft2B1Pct = add.fuelTrimLtft2B1Pct ?: base.fuelTrimLtft2B1Pct,
             fuelTrimStft2B2Pct = add.fuelTrimStft2B2Pct ?: base.fuelTrimStft2B2Pct,
             fuelTrimLtft2B2Pct = add.fuelTrimLtft2B2Pct ?: base.fuelTrimLtft2B2Pct,
+            catalystB1s5TempC = add.catalystB1s5TempC ?: base.catalystB1s5TempC,
+            catalystB2s5TempC = add.catalystB2s5TempC ?: base.catalystB2s5TempC,
+            fuelInjectTimingDeg = add.fuelInjectTimingDeg ?: base.fuelInjectTimingDeg,
+            hybridBattLifePct = add.hybridBattLifePct ?: base.hybridBattLifePct,
+            engineRefTorqueNm = add.engineRefTorqueNm ?: base.engineRefTorqueNm,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

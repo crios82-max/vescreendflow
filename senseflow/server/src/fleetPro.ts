@@ -2646,6 +2646,178 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Catalyst temp B1S5 (OBD PID 0177)
+    const catB1s5Obj = signals.catalyst_b1s5 as Record<string, unknown> | undefined
+    const catalystB1s5TempC =
+      typeof catB1s5Obj?.catalyst_temp_c === 'number'
+        ? (catB1s5Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b1s5_temp_c === 'number'
+          ? (signals.catalyst_b1s5_temp_c as number)
+          : null
+    if (typeof catalystB1s5TempC === 'number') {
+      const warnC = typeof signals.cat_b1s5_warn_c === 'number' ? (signals.cat_b1s5_warn_c as number) : 750
+      const alertC = typeof signals.cat_b1s5_alert_c === 'number' ? (signals.cat_b1s5_alert_c as number) : 850
+      if (catalystB1s5TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b1s5_alert', 300)) {
+        insertAlert(deviceId, 'cat_b1s5_alert', 'critical', `Catalizador B1S5 crítico · ${Math.round(catalystB1s5TempC)} °C`, {
+          catalyst_b1s5_temp_c: catalystB1s5TempC,
+          catalyst_b1s5: catB1s5Obj ?? null,
+        })
+        raised.push('cat_b1s5_alert')
+      } else if (
+        catalystB1s5TempC >= warnC &&
+        catalystB1s5TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b1s5_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b1s5_warn', 'warn', `Catalizador B1S5 caliente · ${Math.round(catalystB1s5TempC)} °C`, {
+          catalyst_b1s5_temp_c: catalystB1s5TempC,
+          catalyst_b1s5: catB1s5Obj ?? null,
+        })
+        raised.push('cat_b1s5_warn')
+      }
+    }
+
+    // Catalyst temp B2S5 (OBD PID 0178)
+    const catB2s5Obj = signals.catalyst_b2s5 as Record<string, unknown> | undefined
+    const catalystB2s5TempC =
+      typeof catB2s5Obj?.catalyst_temp_c === 'number'
+        ? (catB2s5Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b2s5_temp_c === 'number'
+          ? (signals.catalyst_b2s5_temp_c as number)
+          : null
+    if (typeof catalystB2s5TempC === 'number') {
+      const warnC = typeof signals.cat_b2s5_warn_c === 'number' ? (signals.cat_b2s5_warn_c as number) : 750
+      const alertC = typeof signals.cat_b2s5_alert_c === 'number' ? (signals.cat_b2s5_alert_c as number) : 850
+      if (catalystB2s5TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b2s5_alert', 300)) {
+        insertAlert(deviceId, 'cat_b2s5_alert', 'critical', `Catalizador B2S5 crítico · ${Math.round(catalystB2s5TempC)} °C`, {
+          catalyst_b2s5_temp_c: catalystB2s5TempC,
+          catalyst_b2s5: catB2s5Obj ?? null,
+        })
+        raised.push('cat_b2s5_alert')
+      } else if (
+        catalystB2s5TempC >= warnC &&
+        catalystB2s5TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b2s5_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b2s5_warn', 'warn', `Catalizador B2S5 caliente · ${Math.round(catalystB2s5TempC)} °C`, {
+          catalyst_b2s5_temp_c: catalystB2s5TempC,
+          catalyst_b2s5: catB2s5Obj ?? null,
+        })
+        raised.push('cat_b2s5_warn')
+      }
+    }
+
+    // Fuel injection timing (OBD PID 015D)
+    const injectObj = signals.fuel_inject as Record<string, unknown> | undefined
+    let injectDeg: number | null =
+      typeof injectObj?.timing_deg === 'number'
+        ? (injectObj.timing_deg as number)
+        : typeof signals.fuel_inject_timing_deg === 'number'
+          ? (signals.fuel_inject_timing_deg as number)
+          : null
+    const injectSpeed =
+      typeof injectObj?.speed_kmh === 'number'
+        ? (injectObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof injectDeg === 'number') {
+      const warnDeg = typeof signals.inject_warn_deg === 'number' ? (signals.inject_warn_deg as number) : 28
+      const alertDeg = typeof signals.inject_alert_deg === 'number' ? (signals.inject_alert_deg as number) : 40
+      const minSpd = typeof signals.inject_speed_min_kmh === 'number' ? (signals.inject_speed_min_kmh as number) : 20
+      const spdOk = typeof injectSpeed === 'number' && injectSpeed >= minSpd
+      const absD = Math.abs(injectDeg)
+      if (spdOk && absD >= alertDeg && !recentlyAlerted(deviceId, 'inject_alert', 120)) {
+        insertAlert(deviceId, 'inject_alert', 'critical', `Inyección crítica · ${Math.round(injectDeg)}°`, {
+          fuel_inject_timing_deg: injectDeg,
+          fuel_inject: injectObj ?? null,
+        })
+        raised.push('inject_alert')
+      } else if (
+        spdOk &&
+        absD >= warnDeg &&
+        absD < alertDeg &&
+        !recentlyAlerted(deviceId, 'inject_warn', 120)
+      ) {
+        insertAlert(deviceId, 'inject_warn', 'warn', `Inyección fuera de rango · ${Math.round(injectDeg)}°`, {
+          fuel_inject_timing_deg: injectDeg,
+          fuel_inject: injectObj ?? null,
+        })
+        raised.push('inject_warn')
+      }
+    }
+
+    // Hybrid pack life (OBD PID 015B)
+    const hybridObj = signals.hybrid_batt as Record<string, unknown> | undefined
+    let hybridPct: number | null =
+      typeof hybridObj?.life_pct === 'number'
+        ? (hybridObj.life_pct as number)
+        : typeof signals.hybrid_batt_life_pct === 'number'
+          ? (signals.hybrid_batt_life_pct as number)
+          : null
+    const hybridSpeed =
+      typeof hybridObj?.speed_kmh === 'number'
+        ? (hybridObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof hybridPct === 'number') {
+      const warnPct = typeof signals.hybrid_warn_pct === 'number' ? (signals.hybrid_warn_pct as number) : 30
+      const alertPct = typeof signals.hybrid_alert_pct === 'number' ? (signals.hybrid_alert_pct as number) : 15
+      const minSpd = typeof signals.hybrid_speed_min_kmh === 'number' ? (signals.hybrid_speed_min_kmh as number) : 0
+      const spdOk = typeof hybridSpeed === 'number' && hybridSpeed >= minSpd
+      if (spdOk && hybridPct <= alertPct && !recentlyAlerted(deviceId, 'hybrid_batt_alert', 120)) {
+        insertAlert(deviceId, 'hybrid_batt_alert', 'critical', `Batería híbrida crítica · ${Math.round(hybridPct)}%`, {
+          hybrid_batt_life_pct: hybridPct,
+          hybrid_batt: hybridObj ?? null,
+        })
+        raised.push('hybrid_batt_alert')
+      } else if (
+        spdOk &&
+        hybridPct <= warnPct &&
+        hybridPct > alertPct &&
+        !recentlyAlerted(deviceId, 'hybrid_batt_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hybrid_batt_warn', 'warn', `Batería híbrida baja · ${Math.round(hybridPct)}%`, {
+          hybrid_batt_life_pct: hybridPct,
+          hybrid_batt: hybridObj ?? null,
+        })
+        raised.push('hybrid_batt_warn')
+      }
+    }
+
+    // Engine reference torque (OBD PID 0163)
+    const refTorqueObj = signals.ref_torque as Record<string, unknown> | undefined
+    let refTorqueNm: number | null =
+      typeof refTorqueObj?.torque_nm === 'number'
+        ? (refTorqueObj.torque_nm as number)
+        : typeof signals.engine_ref_torque_nm === 'number'
+          ? (signals.engine_ref_torque_nm as number)
+          : null
+    if (typeof refTorqueNm === 'number') {
+      const warnLo = typeof signals.ref_torque_warn_low_nm === 'number' ? (signals.ref_torque_warn_low_nm as number) : 100
+      const alertLo = typeof signals.ref_torque_alert_low_nm === 'number' ? (signals.ref_torque_alert_low_nm as number) : 80
+      const warnHi = typeof signals.ref_torque_warn_high_nm === 'number' ? (signals.ref_torque_warn_high_nm as number) : 450
+      const alertHi = typeof signals.ref_torque_alert_high_nm === 'number' ? (signals.ref_torque_alert_high_nm as number) : 520
+      if ((refTorqueNm <= alertLo || refTorqueNm >= alertHi) && !recentlyAlerted(deviceId, 'ref_torque_alert', 120)) {
+        insertAlert(deviceId, 'ref_torque_alert', 'critical', `Torque ref crítico · ${Math.round(refTorqueNm)} Nm`, {
+          engine_ref_torque_nm: refTorqueNm,
+          ref_torque: refTorqueObj ?? null,
+        })
+        raised.push('ref_torque_alert')
+      } else if (
+        (refTorqueNm <= warnLo || refTorqueNm >= warnHi) &&
+        refTorqueNm > alertLo &&
+        refTorqueNm < alertHi &&
+        !recentlyAlerted(deviceId, 'ref_torque_warn', 120)
+      ) {
+        insertAlert(deviceId, 'ref_torque_warn', 'warn', `Torque ref anómalo · ${Math.round(refTorqueNm)} Nm`, {
+          engine_ref_torque_nm: refTorqueNm,
+          ref_torque: refTorqueObj ?? null,
+        })
+        raised.push('ref_torque_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
