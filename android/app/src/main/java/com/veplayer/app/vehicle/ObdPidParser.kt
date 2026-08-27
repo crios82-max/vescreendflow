@@ -74,6 +74,16 @@ object ObdPidParser {
         val catalystB2s3TempC: Float? = null,
         /** Catalyst temp bank 1 sensor 4 °C (OBD PID 0175). */
         val catalystB1s4TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 4 °C (OBD PID 0176). */
+        val catalystB2s4TempC: Float? = null,
+        /** STFT secondary O2 B1 % (OBD PID 0155), signed. */
+        val fuelTrimStft2B1Pct: Float? = null,
+        /** LTFT secondary O2 B1 % (OBD PID 0156), signed. */
+        val fuelTrimLtft2B1Pct: Float? = null,
+        /** STFT secondary O2 B2 % (OBD PID 0157), signed. */
+        val fuelTrimStft2B2Pct: Float? = null,
+        /** LTFT secondary O2 B2 % (OBD PID 0158), signed. */
+        val fuelTrimLtft2B2Pct: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -225,6 +235,26 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(catalystB1s4TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
             }
+            0x76 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2s4TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x55 ->
+                PidValues(
+                    fuelTrimStft2B1Pct = data.getOrNull(0)?.let { (it - 128) * 100f / 128f },
+                )
+            0x56 ->
+                PidValues(
+                    fuelTrimLtft2B1Pct = data.getOrNull(0)?.let { (it - 128) * 100f / 128f },
+                )
+            0x57 ->
+                PidValues(
+                    fuelTrimStft2B2Pct = data.getOrNull(0)?.let { (it - 128) * 100f / 128f },
+                )
+            0x58 ->
+                PidValues(
+                    fuelTrimLtft2B2Pct = data.getOrNull(0)?.let { (it - 128) * 100f / 128f },
+                )
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -286,6 +316,11 @@ object ObdPidParser {
             catalystB1s3TempC = add.catalystB1s3TempC ?: base.catalystB1s3TempC,
             catalystB2s3TempC = add.catalystB2s3TempC ?: base.catalystB2s3TempC,
             catalystB1s4TempC = add.catalystB1s4TempC ?: base.catalystB1s4TempC,
+            catalystB2s4TempC = add.catalystB2s4TempC ?: base.catalystB2s4TempC,
+            fuelTrimStft2B1Pct = add.fuelTrimStft2B1Pct ?: base.fuelTrimStft2B1Pct,
+            fuelTrimLtft2B1Pct = add.fuelTrimLtft2B1Pct ?: base.fuelTrimLtft2B1Pct,
+            fuelTrimStft2B2Pct = add.fuelTrimStft2B2Pct ?: base.fuelTrimStft2B2Pct,
+            fuelTrimLtft2B2Pct = add.fuelTrimLtft2B2Pct ?: base.fuelTrimLtft2B2Pct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,
