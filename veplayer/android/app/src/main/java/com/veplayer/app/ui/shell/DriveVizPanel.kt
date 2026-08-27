@@ -77,6 +77,11 @@ import com.veplayer.app.vehicle.RelativeThrottleMonitor
 import com.veplayer.app.vehicle.AccelPedalMonitor
 import com.veplayer.app.vehicle.O2B2VoltageMonitor
 import com.veplayer.app.vehicle.EgrErrorMonitor
+import com.veplayer.app.vehicle.EquivRatioMonitor
+import com.veplayer.app.vehicle.EvapPurgeMonitor
+import com.veplayer.app.vehicle.EthanolPctMonitor
+import com.veplayer.app.vehicle.EvapVaporMonitor
+import com.veplayer.app.vehicle.FuelRailAbsMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -150,6 +155,11 @@ fun DriveVizPanel(
     val accelPedal by AccelPedalMonitor.state.collectAsState()
     val o2B2 by O2B2VoltageMonitor.state.collectAsState()
     val egrErr by EgrErrorMonitor.state.collectAsState()
+    val equiv by EquivRatioMonitor.state.collectAsState()
+    val evapPur by EvapPurgeMonitor.state.collectAsState()
+    val ethanol by EthanolPctMonitor.state.collectAsState()
+    val evapVap by EvapVaporMonitor.state.collectAsState()
+    val railAbs by FuelRailAbsMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -209,6 +219,11 @@ fun DriveVizPanel(
             AccelPedalMonitor.tick(prefs, snap)
             O2B2VoltageMonitor.tick(prefs, snap)
             EgrErrorMonitor.tick(prefs, snap)
+            EquivRatioMonitor.tick(prefs, snap)
+            EvapPurgeMonitor.tick(prefs, snap)
+            EthanolPctMonitor.tick(prefs, snap)
+            EvapVaporMonitor.tick(prefs, snap)
+            FuelRailAbsMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -711,6 +726,21 @@ fun DriveVizPanel(
                         color = Color(com.veplayer.app.vehicle.EgrError.accentArgb(egrErr.band)),
                         fontSize = 11.sp,
                     )
+                }
+                if (equiv.showWarn || (prefs.equivEnabled && equiv.band == "ok" && equiv.label.isNotBlank())) {
+                    Text(equiv.label, color = Color(com.veplayer.app.vehicle.EquivRatio.accentArgb(equiv.band)), fontSize = 11.sp)
+                }
+                if (evapPur.showWarn || (prefs.evapPurgeEnabled && evapPur.band == "ok" && evapPur.label.isNotBlank())) {
+                    Text(evapPur.label, color = Color(com.veplayer.app.vehicle.EvapPurge.accentArgb(evapPur.band)), fontSize = 11.sp)
+                }
+                if (ethanol.showWarn || (prefs.ethanolEnabled && ethanol.band == "ok" && ethanol.label.isNotBlank())) {
+                    Text(ethanol.label, color = Color(com.veplayer.app.vehicle.EthanolPct.accentArgb(ethanol.band)), fontSize = 11.sp)
+                }
+                if (evapVap.showWarn || (prefs.evapVaporEnabled && evapVap.band == "ok" && evapVap.label.isNotBlank())) {
+                    Text(evapVap.label, color = Color(com.veplayer.app.vehicle.EvapVapor.accentArgb(evapVap.band)), fontSize = 11.sp)
+                }
+                if (railAbs.showWarn || (prefs.railAbsEnabled && railAbs.band == "ok" && railAbs.label.isNotBlank())) {
+                    Text(railAbs.label, color = Color(com.veplayer.app.vehicle.FuelRailAbs.accentArgb(railAbs.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

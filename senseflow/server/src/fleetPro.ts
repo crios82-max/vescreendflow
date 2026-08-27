@@ -1896,6 +1896,214 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Equivalence ratio (OBD PID 0144)
+    const equivObj = signals.equiv_ratio_state as Record<string, unknown> | undefined
+    let equivRatio: number | null =
+      typeof equivObj?.ratio === 'number'
+        ? (equivObj.ratio as number)
+        : typeof signals.equiv_ratio === 'number'
+          ? (signals.equiv_ratio as number)
+          : null
+    const equivSpeed =
+      typeof equivObj?.speed_kmh === 'number'
+        ? (equivObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const equivRpm =
+      typeof equivObj?.rpm === 'number'
+        ? (equivObj.rpm as number)
+        : typeof signals.rpm === 'number'
+          ? (signals.rpm as number)
+          : null
+    if (typeof equivRatio === 'number') {
+      const wLo = typeof signals.equiv_warn_low === 'number' ? (signals.equiv_warn_low as number) : 0.88
+      const aLo = typeof signals.equiv_alert_low === 'number' ? (signals.equiv_alert_low as number) : 0.8
+      const wHi = typeof signals.equiv_warn_high === 'number' ? (signals.equiv_warn_high as number) : 1.12
+      const aHi = typeof signals.equiv_alert_high === 'number' ? (signals.equiv_alert_high as number) : 1.2
+      const minSpd = typeof signals.equiv_speed_min_kmh === 'number' ? (signals.equiv_speed_min_kmh as number) : 20
+      const rpmMin = typeof signals.equiv_rpm_min === 'number' ? (signals.equiv_rpm_min as number) : 800
+      const spdOk = typeof equivSpeed === 'number' && equivSpeed >= minSpd
+      const rpmOk = typeof equivRpm !== 'number' || equivRpm >= rpmMin
+      if (spdOk && rpmOk && (equivRatio <= aLo || equivRatio >= aHi) && !recentlyAlerted(deviceId, 'equiv_alert', 120)) {
+        insertAlert(deviceId, 'equiv_alert', 'critical', `Lambda crítica · ${equivRatio.toFixed(2)}`, {
+          equiv_ratio: equivRatio,
+          equiv_ratio_state: equivObj ?? null,
+        })
+        raised.push('equiv_alert')
+      } else if (
+        spdOk &&
+        rpmOk &&
+        (equivRatio <= wLo || equivRatio >= wHi) &&
+        equivRatio > aLo &&
+        equivRatio < aHi &&
+        !recentlyAlerted(deviceId, 'equiv_warn', 120)
+      ) {
+        insertAlert(deviceId, 'equiv_warn', 'warn', `Lambda fuera de rango · ${equivRatio.toFixed(2)}`, {
+          equiv_ratio: equivRatio,
+          equiv_ratio_state: equivObj ?? null,
+        })
+        raised.push('equiv_warn')
+      }
+    }
+
+    // Evap purge (OBD PID 014E)
+    const evapPurObj = signals.evap_purge as Record<string, unknown> | undefined
+    let evapPurPct: number | null =
+      typeof evapPurObj?.purge_pct === 'number'
+        ? (evapPurObj.purge_pct as number)
+        : typeof signals.evap_purge_pct === 'number'
+          ? (signals.evap_purge_pct as number)
+          : null
+    const evapPurSpeed =
+      typeof evapPurObj?.speed_kmh === 'number'
+        ? (evapPurObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof evapPurPct === 'number') {
+      const warnPct = typeof signals.evap_purge_warn_pct === 'number' ? (signals.evap_purge_warn_pct as number) : 55
+      const alertPct = typeof signals.evap_purge_alert_pct === 'number' ? (signals.evap_purge_alert_pct as number) : 75
+      const minSpd = typeof signals.evap_purge_speed_min_kmh === 'number' ? (signals.evap_purge_speed_min_kmh as number) : 20
+      const spdOk = typeof evapPurSpeed === 'number' && evapPurSpeed >= minSpd
+      if (spdOk && evapPurPct >= alertPct && !recentlyAlerted(deviceId, 'evap_purge_alert', 120)) {
+        insertAlert(deviceId, 'evap_purge_alert', 'critical', `Purga evaporativo crítica · ${Math.round(evapPurPct)}%`, {
+          evap_purge_pct: evapPurPct,
+          evap_purge: evapPurObj ?? null,
+        })
+        raised.push('evap_purge_alert')
+      } else if (
+        spdOk &&
+        evapPurPct >= warnPct &&
+        evapPurPct < alertPct &&
+        !recentlyAlerted(deviceId, 'evap_purge_warn', 120)
+      ) {
+        insertAlert(deviceId, 'evap_purge_warn', 'warn', `Purga evaporativo alta · ${Math.round(evapPurPct)}%`, {
+          evap_purge_pct: evapPurPct,
+          evap_purge: evapPurObj ?? null,
+        })
+        raised.push('evap_purge_warn')
+      }
+    }
+
+    // Ethanol % (OBD PID 0152)
+    const ethObj = signals.ethanol as Record<string, unknown> | undefined
+    let ethPct: number | null =
+      typeof ethObj?.ethanol_pct === 'number'
+        ? (ethObj.ethanol_pct as number)
+        : typeof signals.ethanol_pct === 'number'
+          ? (signals.ethanol_pct as number)
+          : null
+    const ethSpeed =
+      typeof ethObj?.speed_kmh === 'number'
+        ? (ethObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof ethPct === 'number') {
+      const warnPct = typeof signals.ethanol_warn_pct === 'number' ? (signals.ethanol_warn_pct as number) : 70
+      const alertPct = typeof signals.ethanol_alert_pct === 'number' ? (signals.ethanol_alert_pct as number) : 85
+      const minSpd = typeof signals.ethanol_speed_min_kmh === 'number' ? (signals.ethanol_speed_min_kmh as number) : 20
+      const spdOk = typeof ethSpeed === 'number' && ethSpeed >= minSpd
+      if (spdOk && ethPct >= alertPct && !recentlyAlerted(deviceId, 'ethanol_alert', 120)) {
+        insertAlert(deviceId, 'ethanol_alert', 'critical', `Etanol crítico · ${Math.round(ethPct)}%`, {
+          ethanol_pct: ethPct,
+          ethanol: ethObj ?? null,
+        })
+        raised.push('ethanol_alert')
+      } else if (
+        spdOk &&
+        ethPct >= warnPct &&
+        ethPct < alertPct &&
+        !recentlyAlerted(deviceId, 'ethanol_warn', 120)
+      ) {
+        insertAlert(deviceId, 'ethanol_warn', 'warn', `Etanol alto · ${Math.round(ethPct)}%`, {
+          ethanol_pct: ethPct,
+          ethanol: ethObj ?? null,
+        })
+        raised.push('ethanol_warn')
+      }
+    }
+
+    // Evap vapor Pa (OBD PID 0153)
+    const vapObj = signals.evap_vapor as Record<string, unknown> | undefined
+    let vapPa: number | null =
+      typeof vapObj?.pressure_pa === 'number'
+        ? (vapObj.pressure_pa as number)
+        : typeof signals.evap_vapor_pa === 'number'
+          ? (signals.evap_vapor_pa as number)
+          : null
+    const vapSpeed =
+      typeof vapObj?.speed_kmh === 'number'
+        ? (vapObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof vapPa === 'number') {
+      const warnPa = typeof signals.evap_vapor_warn_pa === 'number' ? (signals.evap_vapor_warn_pa as number) : 5000
+      const alertPa = typeof signals.evap_vapor_alert_pa === 'number' ? (signals.evap_vapor_alert_pa as number) : 8000
+      const minSpd = typeof signals.evap_vapor_speed_min_kmh === 'number' ? (signals.evap_vapor_speed_min_kmh as number) : 20
+      const spdOk = typeof vapSpeed === 'number' && vapSpeed >= minSpd
+      const absPa = Math.abs(vapPa)
+      if (spdOk && absPa >= alertPa && !recentlyAlerted(deviceId, 'evap_vapor_alert', 120)) {
+        insertAlert(deviceId, 'evap_vapor_alert', 'critical', `Vapor evaporativo crítico · ${Math.round(vapPa)} Pa`, {
+          evap_vapor_pa: vapPa,
+          evap_vapor: vapObj ?? null,
+        })
+        raised.push('evap_vapor_alert')
+      } else if (
+        spdOk &&
+        absPa >= warnPa &&
+        absPa < alertPa &&
+        !recentlyAlerted(deviceId, 'evap_vapor_warn', 120)
+      ) {
+        insertAlert(deviceId, 'evap_vapor_warn', 'warn', `Vapor evaporativo alto · ${Math.round(vapPa)} Pa`, {
+          evap_vapor_pa: vapPa,
+          evap_vapor: vapObj ?? null,
+        })
+        raised.push('evap_vapor_warn')
+      }
+    }
+
+    // Fuel rail abs kPa (OBD PID 0159)
+    const railObj = signals.fuel_rail_abs as Record<string, unknown> | undefined
+    let railKpa: number | null =
+      typeof railObj?.pressure_kpa === 'number'
+        ? (railObj.pressure_kpa as number)
+        : typeof signals.fuel_rail_abs_kpa === 'number'
+          ? (signals.fuel_rail_abs_kpa as number)
+          : null
+    const railSpeed =
+      typeof railObj?.speed_kmh === 'number'
+        ? (railObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof railKpa === 'number') {
+      const warnKpa = typeof signals.rail_abs_warn_kpa === 'number' ? (signals.rail_abs_warn_kpa as number) : 8000
+      const alertKpa = typeof signals.rail_abs_alert_kpa === 'number' ? (signals.rail_abs_alert_kpa as number) : 6000
+      const minSpd = typeof signals.rail_abs_speed_min_kmh === 'number' ? (signals.rail_abs_speed_min_kmh as number) : 20
+      const spdOk = typeof railSpeed === 'number' && railSpeed >= minSpd
+      if (spdOk && railKpa <= alertKpa && !recentlyAlerted(deviceId, 'rail_abs_alert', 120)) {
+        insertAlert(deviceId, 'rail_abs_alert', 'critical', `Rail abs crítico · ${Math.round(railKpa)} kPa`, {
+          fuel_rail_abs_kpa: railKpa,
+          fuel_rail_abs: railObj ?? null,
+        })
+        raised.push('rail_abs_alert')
+      } else if (
+        spdOk &&
+        railKpa <= warnKpa &&
+        railKpa > alertKpa &&
+        !recentlyAlerted(deviceId, 'rail_abs_warn', 120)
+      ) {
+        insertAlert(deviceId, 'rail_abs_warn', 'warn', `Rail abs bajo · ${Math.round(railKpa)} kPa`, {
+          fuel_rail_abs_kpa: railKpa,
+          fuel_rail_abs: railObj ?? null,
+        })
+        raised.push('rail_abs_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

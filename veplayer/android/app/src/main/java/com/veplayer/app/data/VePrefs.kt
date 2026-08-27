@@ -1348,6 +1348,130 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("egr_sim_speed", 40f)
         set(value) = sp.edit().putFloat("egr_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Equivalence ratio / lambda (OBD 0144). */
+    var equivEnabled: Boolean
+        get() = sp.getBoolean("equiv_ratio", true)
+        set(value) = sp.edit().putBoolean("equiv_ratio", value).apply()
+    var equivTts: Boolean
+        get() = sp.getBoolean("equiv_ratio_tts", true)
+        set(value) = sp.edit().putBoolean("equiv_ratio_tts", value).apply()
+    var equivWarnLow: Float
+        get() = sp.getFloat("equiv_warn_low", 0.88f)
+        set(value) = sp.edit().putFloat("equiv_warn_low", value.coerceIn(0.5f, 1.0f)).apply()
+    var equivAlertLow: Float
+        get() = sp.getFloat("equiv_alert_low", 0.80f)
+        set(value) = sp.edit().putFloat("equiv_alert_low", value.coerceIn(0.4f, 0.95f)).apply()
+    var equivWarnHigh: Float
+        get() = sp.getFloat("equiv_warn_high", 1.12f)
+        set(value) = sp.edit().putFloat("equiv_warn_high", value.coerceIn(1.0f, 1.5f)).apply()
+    var equivAlertHigh: Float
+        get() = sp.getFloat("equiv_alert_high", 1.20f)
+        set(value) = sp.edit().putFloat("equiv_alert_high", value.coerceIn(1.05f, 2.0f)).apply()
+    var equivSpeedMinKmh: Float
+        get() = sp.getFloat("equiv_speed_min", 20f)
+        set(value) = sp.edit().putFloat("equiv_speed_min", value.coerceIn(0f, 60f)).apply()
+    var equivRpmMin: Float
+        get() = sp.getFloat("equiv_rpm_min", 800f)
+        set(value) = sp.edit().putFloat("equiv_rpm_min", value.coerceIn(400f, 3000f)).apply()
+    var equivSimRatio: Float
+        get() = sp.getFloat("equiv_sim_ratio", 0f)
+        set(value) = sp.edit().putFloat("equiv_sim_ratio", value.coerceIn(0f, 2.5f)).apply()
+    var equivSimSpeedKmh: Float
+        get() = sp.getFloat("equiv_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("equiv_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Evap purge (OBD 014E). */
+    var evapPurgeEnabled: Boolean
+        get() = sp.getBoolean("evap_purge", true)
+        set(value) = sp.edit().putBoolean("evap_purge", value).apply()
+    var evapPurgeTts: Boolean
+        get() = sp.getBoolean("evap_purge_tts", true)
+        set(value) = sp.edit().putBoolean("evap_purge_tts", value).apply()
+    var evapPurgeWarnPct: Float
+        get() = sp.getFloat("evap_purge_warn_pct", 55f)
+        set(value) = sp.edit().putFloat("evap_purge_warn_pct", value.coerceIn(20f, 90f)).apply()
+    var evapPurgeAlertPct: Float
+        get() = sp.getFloat("evap_purge_alert_pct", 75f)
+        set(value) = sp.edit().putFloat("evap_purge_alert_pct", value.coerceIn(30f, 100f)).apply()
+    var evapPurgeSpeedMinKmh: Float
+        get() = sp.getFloat("evap_purge_speed_min", 20f)
+        set(value) = sp.edit().putFloat("evap_purge_speed_min", value.coerceIn(0f, 60f)).apply()
+    var evapPurgeSimPct: Float
+        get() = sp.getFloat("evap_purge_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("evap_purge_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var evapPurgeSimSpeedKmh: Float
+        get() = sp.getFloat("evap_purge_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("evap_purge_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Ethanol % (OBD 0152). */
+    var ethanolEnabled: Boolean
+        get() = sp.getBoolean("ethanol_pct", true)
+        set(value) = sp.edit().putBoolean("ethanol_pct", value).apply()
+    var ethanolTts: Boolean
+        get() = sp.getBoolean("ethanol_pct_tts", true)
+        set(value) = sp.edit().putBoolean("ethanol_pct_tts", value).apply()
+    var ethanolWarnPct: Float
+        get() = sp.getFloat("ethanol_warn_pct", 70f)
+        set(value) = sp.edit().putFloat("ethanol_warn_pct", value.coerceIn(30f, 95f)).apply()
+    var ethanolAlertPct: Float
+        get() = sp.getFloat("ethanol_alert_pct", 85f)
+        set(value) = sp.edit().putFloat("ethanol_alert_pct", value.coerceIn(40f, 100f)).apply()
+    var ethanolSpeedMinKmh: Float
+        get() = sp.getFloat("ethanol_speed_min", 20f)
+        set(value) = sp.edit().putFloat("ethanol_speed_min", value.coerceIn(0f, 60f)).apply()
+    var ethanolSimPct: Float
+        get() = sp.getFloat("ethanol_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("ethanol_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var ethanolSimSpeedKmh: Float
+        get() = sp.getFloat("ethanol_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("ethanol_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Evap vapor Pa (OBD 0153). */
+    var evapVaporEnabled: Boolean
+        get() = sp.getBoolean("evap_vapor", true)
+        set(value) = sp.edit().putBoolean("evap_vapor", value).apply()
+    var evapVaporTts: Boolean
+        get() = sp.getBoolean("evap_vapor_tts", true)
+        set(value) = sp.edit().putBoolean("evap_vapor_tts", value).apply()
+    var evapVaporWarnPa: Float
+        get() = sp.getFloat("evap_vapor_warn_pa", 5000f)
+        set(value) = sp.edit().putFloat("evap_vapor_warn_pa", value.coerceIn(1000f, 15000f)).apply()
+    var evapVaporAlertPa: Float
+        get() = sp.getFloat("evap_vapor_alert_pa", 8000f)
+        set(value) = sp.edit().putFloat("evap_vapor_alert_pa", value.coerceIn(2000f, 20000f)).apply()
+    var evapVaporSpeedMinKmh: Float
+        get() = sp.getFloat("evap_vapor_speed_min", 20f)
+        set(value) = sp.edit().putFloat("evap_vapor_speed_min", value.coerceIn(0f, 60f)).apply()
+    var evapVaporSimPa: Float
+        get() = sp.getFloat("evap_vapor_sim_pa", 0f)
+        set(value) = sp.edit().putFloat("evap_vapor_sim_pa", value.coerceIn(-20000f, 20000f)).apply()
+    var evapVaporSimSpeedKmh: Float
+        get() = sp.getFloat("evap_vapor_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("evap_vapor_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Fuel rail abs kPa (OBD 0159). */
+    var railAbsEnabled: Boolean
+        get() = sp.getBoolean("rail_abs", true)
+        set(value) = sp.edit().putBoolean("rail_abs", value).apply()
+    var railAbsTts: Boolean
+        get() = sp.getBoolean("rail_abs_tts", true)
+        set(value) = sp.edit().putBoolean("rail_abs_tts", value).apply()
+    var railAbsWarnKpa: Float
+        get() = sp.getFloat("rail_abs_warn_kpa", 8000f)
+        set(value) = sp.edit().putFloat("rail_abs_warn_kpa", value.coerceIn(2000f, 20000f)).apply()
+    var railAbsAlertKpa: Float
+        get() = sp.getFloat("rail_abs_alert_kpa", 6000f)
+        set(value) = sp.edit().putFloat("rail_abs_alert_kpa", value.coerceIn(1000f, 15000f)).apply()
+    var railAbsSpeedMinKmh: Float
+        get() = sp.getFloat("rail_abs_speed_min", 20f)
+        set(value) = sp.edit().putFloat("rail_abs_speed_min", value.coerceIn(0f, 60f)).apply()
+    var railAbsSimKpa: Float
+        get() = sp.getFloat("rail_abs_sim_kpa", 0f)
+        set(value) = sp.edit().putFloat("rail_abs_sim_kpa", value.coerceIn(0f, 655350f)).apply()
+    var railAbsSimSpeedKmh: Float
+        get() = sp.getFloat("rail_abs_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("rail_abs_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
