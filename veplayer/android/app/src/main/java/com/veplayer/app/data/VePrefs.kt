@@ -313,6 +313,32 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("door_ajar_sim", false)
         set(value) = sp.edit().putBoolean("door_ajar_sim", value).apply()
 
+    /** Shift duration / fatigue HUD. */
+    var fatigueEnabled: Boolean
+        get() = sp.getBoolean("fatigue", true)
+        set(value) = sp.edit().putBoolean("fatigue", value).apply()
+
+    var fatigueTts: Boolean
+        get() = sp.getBoolean("fatigue_tts", true)
+        set(value) = sp.edit().putBoolean("fatigue_tts", value).apply()
+
+    /** Hours on shift before warn. */
+    var fatigueWarnHours: Float
+        get() = sp.getFloat("fatigue_warn_h", 4f)
+        set(value) = sp.edit().putFloat("fatigue_warn_h", value.coerceIn(0.5f, 12f)).apply()
+
+    /** Hours on shift before alert. */
+    var fatigueAlertHours: Float
+        get() = sp.getFloat("fatigue_alert_h", 8f)
+        set(value) = sp.edit().putFloat("fatigue_alert_h", value.coerceIn(1f, 16f)).apply()
+
+    /**
+     * Demo override: pretend shift has lasted this many hours (0 = use real started_at).
+     */
+    var fatigueSimHours: Float
+        get() = sp.getFloat("fatigue_sim_h", 0f)
+        set(value) = sp.edit().putFloat("fatigue_sim_h", value.coerceIn(0f, 16f)).apply()
+
     /** Collect fleet alerts into inbox. */
     var fleetAlertsEnabled: Boolean
         get() = sp.getBoolean("fleet_alerts", true)

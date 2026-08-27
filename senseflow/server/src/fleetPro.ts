@@ -354,6 +354,47 @@ export function evaluateFleetAlerts(
       })
       raised.push('idle_warn')
     }
+
+    // Shift fatigue — duration from client, or open shift started_at
+    let shiftDurSec: number | null =
+      typeof signals.shift_duration_sec === 'number' ? (signals.shift_duration_sec as number) : null
+    if (shiftDurSec == null) {
+      const open = db
+        .prepare(
+          `SELECT started_at FROM fleet_shifts WHERE device_id = ? AND status = 'open' LIMIT 1`,
+        )
+        .get(deviceId) as { started_at: number } | undefined
+      if (open && typeof open.started_at === 'number') {
+        shiftDurSec = Math.max(0, Math.floor(Date.now() / 1000) - open.started_at)
+      }
+    }
+    if (typeof shiftDurSec === 'number' && shiftDurSec > 0) {
+      const warnSec =
+        typeof signals.shift_warn_sec === 'number' ? (signals.shift_warn_sec as number) : 4 * 3600
+      const alertSec =
+        typeof signals.shift_alert_sec === 'number' ? (signals.shift_alert_sec as number) : 8 * 3600
+      const hours = shiftDurSec / 3600
+      const hLabel = hours >= 1 ? `${hours.toFixed(1)} h` : `${Math.round(shiftDurSec / 60)} min`
+      if (shiftDurSec >= alertSec && !recentlyAlerted(deviceId, 'shift_fatigue', 900)) {
+        insertAlert(
+          deviceId,
+          'shift_fatigue',
+          'critical',
+          `Turno prolongado (~${hLabel}) — descanso`,
+          { shift_duration_sec: shiftDurSec },
+        )
+        raised.push('shift_fatigue')
+      } else if (
+        shiftDurSec >= warnSec &&
+        shiftDurSec < alertSec &&
+        !recentlyAlerted(deviceId, 'shift_warn', 900)
+      ) {
+        insertAlert(deviceId, 'shift_warn', 'warn', `Turno largo (~${hLabel})`, {
+          shift_duration_sec: shiftDurSec,
+        })
+        raised.push('shift_warn')
+      }
+    }
   }
 
   return raised

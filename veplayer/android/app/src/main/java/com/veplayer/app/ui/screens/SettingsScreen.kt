@@ -1320,6 +1320,60 @@ fun SettingsScreen() {
                     },
                 ) { Text("Cerrar turno") }
             }
+            var fatigueOn by remember { mutableStateOf(prefs.fatigueEnabled) }
+            var fatigueTts by remember { mutableStateOf(prefs.fatigueTts) }
+            var fatigueSim by remember { mutableStateOf(prefs.fatigueSimHours.toInt().toString()) }
+            val fatigue by com.veplayer.app.vehicle.ShiftFatigueMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso fatiga (turno largo)", color = Mist)
+                Switch(
+                    checked = fatigueOn,
+                    onCheckedChange = {
+                        fatigueOn = it
+                        prefs.fatigueEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS fatiga", color = Mist)
+                Switch(
+                    checked = fatigueTts,
+                    onCheckedChange = {
+                        fatigueTts = it
+                        prefs.fatigueTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = fatigueSim,
+                onValueChange = { fatigueSim = it.filter { c -> c.isDigit() || c == '.' }.take(4) },
+                label = { Text("Sim horas turno (0=real)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.fatigueSimHours = fatigueSim.toFloatOrNull() ?: 0f
+                    status = "Fatiga sim ${prefs.fatigueSimHours} h · umbrales ${prefs.fatigueWarnHours}/${prefs.fatigueAlertHours} h"
+                },
+            ) { Text("Aplicar sim fatiga") }
+            Text(
+                if (fatigue.open) {
+                    "Fatiga · ${fatigue.label} · ${fatigue.band}"
+                } else {
+                    "Fatiga idle (abrir turno o sim horas)"
+                },
+                color = if (fatigue.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
         }
 
         PanelBlock("Phone Link · Android Auto / CarPlay") {
