@@ -191,6 +191,11 @@ class VePrefs(context: Context) {
         get() = sp.getString("nav_dest_name", "Altamira") ?: "Altamira"
         set(value) = sp.edit().putString("nav_dest_name", value.trim()).apply()
 
+    /** Intermediate waypoints JSON: [{name,lat,lng},…] (final dest stays in navTo*). */
+    var navWaypointsJson: String
+        get() = sp.getString("nav_waypoints_json", "[]") ?: "[]"
+        set(value) = sp.edit().putString("nav_waypoints_json", value).apply()
+
     /** native | web — cockpit map renderer. */
     var mapMode: String
         get() = sp.getString("map_mode", "native") ?: "native"

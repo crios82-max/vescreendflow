@@ -1,5 +1,19 @@
 package com.veplayer.app.nav
 
+data class NavLeg(
+    val distanceM: Double,
+    val durationS: Double,
+    val toName: String,
+)
+
+data class NavWaypoint(
+    val name: String,
+    val lat: Double,
+    val lng: Double,
+    /** via | dest */
+    val role: String = "via",
+)
+
 /** Live navigation guidance for cockpit chrome. */
 data class NavStep(
     val instruction: String,
@@ -15,9 +29,15 @@ data class NavRoute(
     val destinationName: String = "",
     val steps: List<NavStep> = emptyList(),
     val geometry: List<Pair<Double, Double>> = emptyList(), // lat,lng
+    /** Intermediate + final stops. */
+    val waypoints: List<NavWaypoint> = emptyList(),
+    val legs: List<NavLeg> = emptyList(),
     val source: String = "idle",
     val updatedAtMs: Long = 0L,
 ) {
+    val viaCount: Int
+        get() = waypoints.count { it.role == "via" }
+
     val etaLabel: String
         get() {
             if (durationS <= 0) return "—"
@@ -55,4 +75,13 @@ data class NavRoute(
 
     val nextInstruction: String
         get() = steps.firstOrNull()?.instruction ?: "Sin navegación"
+
+    val stopsLabel: String
+        get() {
+            val vias = waypoints.filter { it.role == "via" }
+            return when {
+                vias.isEmpty() -> destinationName.ifBlank { "—" }
+                else -> vias.joinToString(" → ") { it.name } + " → " + destinationName
+            }
+        }
 }

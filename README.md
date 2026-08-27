@@ -366,6 +366,20 @@ npm run veplayer:fleet-map-smoke
 
 **Fase 5 (siguiente):** waypoints nav.
 
+## Waypoints nav (v0.33)
+
+Ruta multi-parada (vías + destino final):
+
+- SenseFlow `GET /api/nav/route&via=lat,lng;…&via_names=…` · `waypoints` + `legs`
+- Mapa nativo: modo **+ Vía** · puntos ámbar · Limpiar vías
+- Cmd `nav_dest` acepta `via: [{name,lat,lng}]` · demo flota vía Chacao → Aeropuerto
+
+```bash
+npm run veplayer:nav-map-smoke
+```
+
+**Fase 5 completa** (fuel · idle · panic · mapa live · waypoints).
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

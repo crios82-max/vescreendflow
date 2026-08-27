@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Native map projection + SenseFlow nav route/destinations smoke (VePlayer 0.16).
+ * Native map projection + SenseFlow nav route/waypoints smoke (VePlayer 0.33).
  */
 
 function project(lat, lng, bounds, width, height, pad = 28) {
@@ -62,10 +62,12 @@ assert(p > 0.2 && p < 0.9, `progress ${p}`)
 console.log('OK nav-map projection · progress', p.toFixed(2))
 
 const BASE = process.env.SENSEFLOW_URL || 'http://127.0.0.1:4100'
-try {
+
+async function main() {
   const dest = await fetch(BASE + '/api/nav/destinations').then((r) => r.json())
   assert(Array.isArray(dest.destinations) && dest.destinations.length >= 3, 'destinations')
   const d0 = dest.destinations[0]
+  const d1 = dest.destinations[1]
   const route = await fetch(
     `${BASE}/api/nav/route?from_lat=10.496&from_lng=-66.898&to_lat=${d0.lat}&to_lng=${d0.lng}&dest_name=${encodeURIComponent(d0.name)}`,
   ).then((r) => r.json())
@@ -78,7 +80,30 @@ try {
     '→',
     d0.name,
   )
+
+  const multi = await fetch(
+    `${BASE}/api/nav/route?from_lat=10.496&from_lng=-66.898` +
+      `&to_lat=${d0.lat}&to_lng=${d0.lng}&dest_name=${encodeURIComponent(d0.name)}` +
+      `&via=${d1.lat},${d1.lng}&via_names=${encodeURIComponent(d1.name)}`,
+  ).then((r) => r.json())
+  assert(multi.ok, 'multi ok')
+  assert(Array.isArray(multi.waypoints) && multi.waypoints.length >= 2, `waypoints ${JSON.stringify(multi.waypoints)}`)
+  assert(multi.waypoints.some((w) => w.role === 'via'), 'has via')
+  assert(multi.waypoints.some((w) => w.role === 'dest'), 'has dest')
+  assert(Array.isArray(multi.legs) && multi.legs.length >= 2, `legs ${multi.legs?.length}`)
+  assert(multi.geometry?.coordinates?.length >= 2 || multi.distance_m > 0, 'multi geometry')
+  console.log(
+    'SenseFlow multi-stop',
+    multi.source,
+    'legs',
+    multi.legs.length,
+    '→',
+    multi.waypoints.map((w) => w.name).join(' → '),
+  )
   console.log('OK nav-map-smoke')
-} catch (e) {
-  console.log('SenseFlow skip:', e.message)
 }
+
+main().catch((e) => {
+  console.error(e)
+  process.exit(1)
+})
