@@ -99,6 +99,7 @@ import com.veplayer.app.vehicle.TpmsHudMonitor
 import com.veplayer.app.vehicle.TurnStuckMonitor
 import com.veplayer.app.vehicle.UnauthorizedMoveMonitor
 import com.veplayer.app.vehicle.MaintenanceMonitor
+import com.veplayer.app.vehicle.MilDistanceMonitor
 import com.veplayer.app.vehicle.SpeedHud
 import com.veplayer.app.vehicle.SpeedHudMonitor
 import com.veplayer.app.vehicle.TurnSignal
@@ -124,6 +125,7 @@ fun DriveVizPanel(
     val fuelRate by FuelRateMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
+    val milDist by MilDistanceMonitor.state.collectAsState()
     val parking by ParkingDistanceMonitor.state.collectAsState()
     val doorAjar by DoorAjarMonitor.state.collectAsState()
     val fatigue by ShiftFatigueMonitor.state.collectAsState()
@@ -165,6 +167,7 @@ fun DriveVizPanel(
             FuelRateMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
+            MilDistanceMonitor.tick(prefs, snap)
             ParkingDistanceMonitor.tick(prefs, snap.reverse)
             DoorAjarMonitor.tick(prefs, snap)
             SeatbeltMonitor.tick(prefs, snap)
@@ -491,6 +494,13 @@ fun DriveVizPanel(
                     Text(
                         fuelRate.label,
                         color = Color(com.veplayer.app.vehicle.FuelRate.accentArgb(fuelRate.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
+                    Text(
+                        milDist.label,
+                        color = Color(com.veplayer.app.vehicle.MilDistance.accentArgb(milDist.band)),
                         fontSize = 11.sp,
                     )
                 }

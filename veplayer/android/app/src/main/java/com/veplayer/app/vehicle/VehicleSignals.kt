@@ -93,6 +93,8 @@ data class VehicleSignals(
         val engineLoadPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
+    /** Distance with MIL on (OBD PID 0121), km. */
+    val milDistanceKm: Float? = null,
     /** MIL (check engine) from OBD PID 0101. */
     val mil: Boolean = false,
     /** Reported DTC count (PID 0101 or list size). */
@@ -168,6 +170,7 @@ data class VehicleSignals(
             "throttle_pct" to throttlePct?.toDouble(),
             "engine_load_pct" to engineLoadPct?.toDouble(),
             "runtime_sec" to runtimeSec,
+            "mil_distance_km" to milDistanceKm?.toDouble(),
             "mil" to mil,
             "dtc_count" to dtcCount,
             "dtcs" to dtcs.map { it.toJsonMap() },

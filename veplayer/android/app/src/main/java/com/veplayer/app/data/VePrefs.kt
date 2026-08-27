@@ -61,6 +61,28 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("dtc_demo_seed", true)
         set(value) = sp.edit().putBoolean("dtc_demo_seed", value).apply()
 
+    /** Distance with MIL on (OBD 0121). */
+    var milDistEnabled: Boolean
+        get() = sp.getBoolean("mil_dist", true)
+        set(value) = sp.edit().putBoolean("mil_dist", value).apply()
+
+    var milDistTts: Boolean
+        get() = sp.getBoolean("mil_dist_tts", true)
+        set(value) = sp.edit().putBoolean("mil_dist_tts", value).apply()
+
+    var milDistWarnKm: Float
+        get() = sp.getFloat("mil_dist_warn_km", 50f)
+        set(value) = sp.edit().putFloat("mil_dist_warn_km", value.coerceIn(5f, 500f)).apply()
+
+    var milDistAlertKm: Float
+        get() = sp.getFloat("mil_dist_alert_km", 100f)
+        set(value) = sp.edit().putFloat("mil_dist_alert_km", value.coerceIn(10f, 1000f)).apply()
+
+    /** Demo km with MIL (0 = live OBD). */
+    var milDistSimKm: Float
+        get() = sp.getFloat("mil_dist_sim_km", 0f)
+        set(value) = sp.edit().putFloat("mil_dist_sim_km", value.coerceIn(0f, 500f)).apply()
+
     /** Phone Link (BT / Android Auto / CarPlay). */
     var phoneLinkEnabled: Boolean
         get() = sp.getBoolean("phone_link", true)

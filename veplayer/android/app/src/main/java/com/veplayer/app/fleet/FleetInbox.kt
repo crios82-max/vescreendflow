@@ -169,6 +169,9 @@ object FleetInbox {
             kind == "tpms_warn" || kind == "tpms_low" || kind.startsWith("tpms_") ->
                 "Cuidado. Presión de neumáticos baja. $body."
             kind == "mil_on" || kind == "mil" -> "Atención. Luz de motor encendida."
+            kind == "mil_dist_alert" -> "Atención. Muchos kilómetros con MIL encendida. $body."
+            kind == "mil_dist_warn" || kind.startsWith("mil_dist") ->
+                "Cuidado. Distancia con luz de motor. $body."
             kind == "parking_crit" || kind == "parking_near" || kind.startsWith("parking_") ->
                 "Atención. Estacionamiento. $body."
             kind == "door_moving" -> "Atención. Puerta abierta en movimiento. $body."

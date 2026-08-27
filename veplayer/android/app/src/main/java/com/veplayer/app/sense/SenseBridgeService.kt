@@ -198,6 +198,18 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.FuelRate.toJsonMap(
                                             com.veplayer.app.vehicle.FuelRateMonitor.state.value,
                                         ),
+                                    "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
+                                    "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
+                                    "mil_distance_km" to
+                                        (if (prefs.milDistSimKm > 0f) prefs.milDistSimKm
+                                        else
+                                            com.veplayer.app.vehicle.MilDistanceMonitor.state.value.distanceKm
+                                                ?: snap.milDistanceKm
+                                        )?.toDouble(),
+                                    "mil_dist" to
+                                        com.veplayer.app.vehicle.MilDistance.toJsonMap(
+                                            com.veplayer.app.vehicle.MilDistanceMonitor.state.value,
+                                        ),
                                     "rpm_warn" to prefs.rpmWarn.toDouble(),
                                     "rpm_alert" to prefs.rpmAlert.toDouble(),
                                     "rpm" to
@@ -476,6 +488,18 @@ class SenseBridgeService : Service() {
                                     "fuel_rate" to
                                         com.veplayer.app.vehicle.FuelRate.toJsonMap(
                                             com.veplayer.app.vehicle.FuelRateMonitor.state.value,
+                                        ),
+                                    "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
+                                    "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
+                                    "mil_distance_km" to
+                                        (if (prefs.milDistSimKm > 0f) prefs.milDistSimKm
+                                        else
+                                            com.veplayer.app.vehicle.MilDistanceMonitor.state.value.distanceKm
+                                                ?: snap.milDistanceKm
+                                        )?.toDouble(),
+                                    "mil_dist" to
+                                        com.veplayer.app.vehicle.MilDistance.toJsonMap(
+                                            com.veplayer.app.vehicle.MilDistanceMonitor.state.value,
                                         ),
                                     "rpm_warn" to prefs.rpmWarn.toDouble(),
                                     "rpm_alert" to prefs.rpmAlert.toDouble(),

@@ -357,6 +357,58 @@ export function evaluateFleetAlerts(
       })
       raised.push('mil_on')
     }
+
+    // Distance with MIL on (OBD PID 0121)
+    const milDistObj = signals.mil_dist as Record<string, unknown> | undefined
+    const milOn =
+      signals.mil === true || milDistObj?.mil_on === true
+    let milDistKm: number | null =
+      typeof milDistObj?.distance_km === 'number'
+        ? (milDistObj.distance_km as number)
+        : typeof signals.mil_distance_km === 'number'
+          ? (signals.mil_distance_km as number)
+          : null
+    if (milOn && typeof milDistKm === 'number') {
+      const warnKm =
+        typeof signals.mil_dist_warn_km === 'number'
+          ? (signals.mil_dist_warn_km as number)
+          : 50
+      const alertKm =
+        typeof signals.mil_dist_alert_km === 'number'
+          ? (signals.mil_dist_alert_km as number)
+          : 100
+      if (milDistKm >= alertKm && !recentlyAlerted(deviceId, 'mil_dist_alert', 600)) {
+        insertAlert(
+          deviceId,
+          'mil_dist_alert',
+          'critical',
+          `MIL activa · ${Math.round(milDistKm)} km`,
+          {
+            mil_distance_km: milDistKm,
+            alert_km: alertKm,
+            mil_dist: milDistObj ?? null,
+          },
+        )
+        raised.push('mil_dist_alert')
+      } else if (
+        milDistKm >= warnKm &&
+        milDistKm < alertKm &&
+        !recentlyAlerted(deviceId, 'mil_dist_warn', 600)
+      ) {
+        insertAlert(
+          deviceId,
+          'mil_dist_warn',
+          'warn',
+          `MIL · ${Math.round(milDistKm)} km recorridos`,
+          {
+            mil_distance_km: milDistKm,
+            warn_km: warnKm,
+            mil_dist: milDistObj ?? null,
+          },
+        )
+        raised.push('mil_dist_warn')
+      }
+    }
     const uss = signals.uss as Record<string, unknown> | undefined
     if (uss && (signals.reverse === true || signals.gear === 'R')) {
       const vals = [uss.rear_l_m, uss.rear_c_m, uss.rear_r_m]
