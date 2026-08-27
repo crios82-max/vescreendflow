@@ -572,6 +572,65 @@ fun SettingsScreen() {
                 },
                 color = if (dtcSnap.mil) Teal else Mute,
             )
+            var milDistOn by remember { mutableStateOf(prefs.milDistEnabled) }
+            var milDistTts by remember { mutableStateOf(prefs.milDistTts) }
+            var milDistSim by remember {
+                mutableStateOf(
+                    if (prefs.milDistSimKm > 0f) prefs.milDistSimKm.toInt().toString() else "0",
+                )
+            }
+            val milDistSt by com.veplayer.app.vehicle.MilDistanceMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso km con MIL (0121)", color = Mist)
+                Switch(
+                    checked = milDistOn,
+                    onCheckedChange = {
+                        milDistOn = it
+                        prefs.milDistEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS km MIL", color = Mist)
+                Switch(
+                    checked = milDistTts,
+                    onCheckedChange = {
+                        milDistTts = it
+                        prefs.milDistTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = milDistSim,
+                onValueChange = { milDistSim = it.filter { c -> c.isDigit() }.take(4) },
+                label = { Text("Sim km MIL (0=OBD)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.milDistSimKm = milDistSim.toFloatOrNull() ?: 0f
+                    status =
+                        "MIL dist sim ${prefs.milDistSimKm.toInt()} km · warn ${prefs.milDistWarnKm.toInt()} / alert ${prefs.milDistAlertKm.toInt()}"
+                },
+            ) { Text("Aplicar sim MIL km") }
+            Text(
+                if (milDistSt.distanceKm != null && milDistSt.milOn) {
+                    "${milDistSt.label} · ${milDistSt.band}"
+                } else {
+                    "MIL dist idle (warn ${prefs.milDistWarnKm.toInt()} / alert ${prefs.milDistAlertKm.toInt()} km)"
+                },
+                color = if (milDistSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = {

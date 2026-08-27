@@ -883,7 +883,7 @@ Carga calculada del motor (**OBD PID 0104**):
 npm run veplayer:engine-load-smoke
 ```
 
-**Fase 13 (en curso):** engine load · oil temp · intake air · fuel rate · MIL distance.
+**Fase 13 (completa):** engine load · oil temp · intake air · fuel rate · MIL distance.
 
 ## Oil temp (v0.70 · Fase 13)
 
@@ -897,7 +897,7 @@ Temperatura del aceite (**OBD PID 015C**):
 npm run veplayer:oil-temp-smoke
 ```
 
-**Fase 13 (en curso):** engine load · oil temp · intake air · fuel rate · MIL distance.
+**Fase 13 (completa):** engine load · oil temp · intake air · fuel rate · MIL distance.
 
 ## Intake air (v0.71 · Fase 13)
 
@@ -911,7 +911,7 @@ Temperatura de admisión (**OBD PID 010F**) — heat soak:
 npm run veplayer:intake-air-smoke
 ```
 
-**Fase 13 (en curso):** engine load · oil temp · intake air · fuel rate · MIL distance.
+**Fase 13 (completa):** engine load · oil temp · intake air · fuel rate · MIL distance.
 
 ## Fuel rate (v0.72 · Fase 13)
 
@@ -925,7 +925,21 @@ Tasa de combustible (**OBD PID 015E**, g/s → L/h):
 npm run veplayer:fuel-rate-smoke
 ```
 
-**Fase 13 (en curso):** engine load · oil temp · intake air · fuel rate · MIL distance.
+**Fase 13 (completa):** engine load · oil temp · intake air · fuel rate · MIL distance.
+
+## MIL distance (v0.73 · Fase 13)
+
+Distancia con MIL encendida (**OBD PID 0121**):
+
+- Warn **≥50 km** / alert **≥100 km** (requiere MIL activa)
+- DriveViz `MIL · XX km` · TTS + inbox
+- Flota `mil_dist_warn` / `mil_dist_alert` · sim km en Ajustes (DTC)
+
+```bash
+npm run veplayer:mil-distance-smoke
+```
+
+**Fase 13 (completa):** engine load · oil temp · intake air · fuel rate · MIL distance.
 
 ## Device Owner (kiosk duro · v0.12)
 
