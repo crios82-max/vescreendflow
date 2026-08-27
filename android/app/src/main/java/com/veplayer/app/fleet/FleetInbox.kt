@@ -196,6 +196,9 @@ object FleetInbox {
             kind == "eco_alert" -> "Atención. Puntaje eco bajo. $body."
             kind == "eco_warn" || kind.startsWith("eco_") ->
                 "Cuidado. Conducción eco. $body."
+            kind == "runtime_alert" -> "Atención. Motor encendido demasiado tiempo. $body."
+            kind == "runtime_warn" || kind.startsWith("runtime_") ->
+                "Cuidado. Tiempo de motor prolongado. $body."
             kind == "shift_summary" -> "Turno cerrado. $body."
             kind == "shift_fatigue" -> "Atención. Turno prolongado. $body."
             kind == "shift_warn" || kind.startsWith("shift_") ->

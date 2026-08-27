@@ -815,7 +815,7 @@ Acelerador abierto / WOT (OBD **0111**):
 npm run veplayer:high-throttle-smoke
 ```
 
-**Fase 12 (en curso):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
+**Fase 12 (completa):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
 
 ## Hazard stuck (v0.65 · Fase 12)
 
@@ -829,7 +829,7 @@ Luces de emergencia olvidadas en marcha:
 npm run veplayer:hazard-stuck-smoke
 ```
 
-**Fase 12 (en curso):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
+**Fase 12 (completa):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
 
 ## Gear roll (v0.66 · Fase 12)
 
@@ -843,7 +843,7 @@ Rodando en **P** o **N** (sin marcha engarzada):
 npm run veplayer:gear-roll-smoke
 ```
 
-**Fase 12 (en curso):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
+**Fase 12 (completa):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
 
 ## Eco live (v0.67 · Fase 12)
 
@@ -857,7 +857,19 @@ Avisos en vivo del **eco_score** del turno (aparte del score de seguridad):
 npm run veplayer:eco-live-smoke
 ```
 
-**Fase 12 (en curso):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
+## Engine runtime (v0.68 · Fase 12)
+
+Tiempo de motor desde arranque (**OBD PID 011F**):
+
+- Warn **≥2 h** / alert **≥4 h** · DriveViz `Motor · Xh YYm`
+- TTS + inbox · flota `runtime_warn` / `runtime_alert`
+- Sim horas en Ajustes (Conductor)
+
+```bash
+npm run veplayer:engine-runtime-smoke
+```
+
+**Fase 12 (completa):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
 
 ## Device Owner (kiosk duro · v0.12)
 

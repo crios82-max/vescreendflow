@@ -749,6 +749,30 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("eco_live_sim", 0f)
         set(value) = sp.edit().putFloat("eco_live_sim", value.coerceIn(0f, 100f)).apply()
 
+    /** Engine run time since start (OBD 011F). */
+    var engineRuntimeEnabled: Boolean
+        get() = sp.getBoolean("engine_runtime", true)
+        set(value) = sp.edit().putBoolean("engine_runtime", value).apply()
+
+    var engineRuntimeTts: Boolean
+        get() = sp.getBoolean("engine_runtime_tts", true)
+        set(value) = sp.edit().putBoolean("engine_runtime_tts", value).apply()
+
+    /** Hours of continuous engine run before warn. */
+    var engineRuntimeWarnHours: Float
+        get() = sp.getFloat("engine_runtime_warn_h", 2f)
+        set(value) = sp.edit().putFloat("engine_runtime_warn_h", value.coerceIn(0.25f, 12f)).apply()
+
+    /** Hours of continuous engine run before alert. */
+    var engineRuntimeAlertHours: Float
+        get() = sp.getFloat("engine_runtime_alert_h", 4f)
+        set(value) = sp.edit().putFloat("engine_runtime_alert_h", value.coerceIn(0.5f, 16f)).apply()
+
+    /** Demo runtime hours (0 = live OBD/CAN). */
+    var engineRuntimeSimHours: Float
+        get() = sp.getFloat("engine_runtime_sim_h", 0f)
+        set(value) = sp.edit().putFloat("engine_runtime_sim_h", value.coerceIn(0f, 24f)).apply()
+
     /** Shift duration / fatigue HUD. */
     var fatigueEnabled: Boolean
         get() = sp.getBoolean("fatigue", true)
