@@ -2430,6 +2430,66 @@ fun SettingsScreen() {
                 color = if (rpmSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var thrOn by remember { mutableStateOf(prefs.throttleEnabled) }
+            var thrTtsOn by remember { mutableStateOf(prefs.throttleTts) }
+            var thrSim by remember {
+                mutableStateOf(
+                    if (prefs.throttleSimPct > 0f) prefs.throttleSimPct.toInt().toString() else "0",
+                )
+            }
+            val thrSt by com.veplayer.app.vehicle.HighThrottleMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso acelerador alto", color = Mist)
+                Switch(
+                    checked = thrOn,
+                    onCheckedChange = {
+                        thrOn = it
+                        prefs.throttleEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS acelerador", color = Mist)
+                Switch(
+                    checked = thrTtsOn,
+                    onCheckedChange = {
+                        thrTtsOn = it
+                        prefs.throttleTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = thrSim,
+                onValueChange = { thrSim = it.filter { c -> c.isDigit() }.take(3) },
+                label = { Text("Sim throttle % (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.throttleSimPct = thrSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Throttle sim ${prefs.throttleSimPct.toInt()}% · warn ${prefs.throttleWarnPct.toInt()} / alert ${prefs.throttleAlertPct.toInt()} · hold ${prefs.throttleAlertHoldSec.toInt()}s"
+                },
+            ) { Text("Aplicar sim acelerador") }
+            Text(
+                if (thrSt.throttlePct != null) {
+                    "${thrSt.label} · ${thrSt.band}" +
+                        if (thrSt.highForSec > 0f) " · ${thrSt.highForSec.toInt()}s" else ""
+                } else {
+                    "Throttle idle (warn ≥${prefs.throttleWarnPct.toInt()}% · min ${prefs.throttleSpeedMinKmh.toInt()} km/h)"
+                },
+                color = if (thrSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
         }
 
         PanelBlock("Phone Link · Android Auto / CarPlay") {

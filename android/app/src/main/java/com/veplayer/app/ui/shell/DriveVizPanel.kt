@@ -73,6 +73,7 @@ import com.veplayer.app.vehicle.CoolantOverheatMonitor
 import com.veplayer.app.vehicle.DoorAjarMonitor
 import com.veplayer.app.vehicle.DriverScoreMonitor
 import com.veplayer.app.vehicle.HarshDrivingMonitor
+import com.veplayer.app.vehicle.HighThrottleMonitor
 import com.veplayer.app.vehicle.ImpactDetectMonitor
 import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.IceFrostMonitor
@@ -125,6 +126,7 @@ fun DriveVizPanel(
     val iceFrost by IceFrostMonitor.state.collectAsState()
     val coolantHot by CoolantOverheatMonitor.state.collectAsState()
     val rpmHot by RpmOverRevMonitor.state.collectAsState()
+    val highThr by HighThrottleMonitor.state.collectAsState()
     val tow by UnauthorizedMoveMonitor.state.collectAsState()
     val pbrake by ParkingBrakeMovingMonitor.state.collectAsState()
     val turnStuck by TurnStuckMonitor.state.collectAsState()
@@ -161,6 +163,7 @@ fun DriveVizPanel(
             IceFrostMonitor.tick(prefs, snap)
             CoolantOverheatMonitor.tick(prefs, snap)
             RpmOverRevMonitor.tick(prefs, snap)
+            HighThrottleMonitor.tick(prefs, snap)
             UnauthorizedMoveMonitor.tick(prefs, snap)
             ParkingBrakeMovingMonitor.tick(prefs, snap)
             TurnStuckMonitor.tick(prefs, snap)
@@ -374,6 +377,13 @@ fun DriveVizPanel(
                     Text(
                         "RPM · ${rpmHot.label}",
                         color = Color(com.veplayer.app.vehicle.RpmOverRev.accentArgb(rpmHot.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (highThr.showWarn || (prefs.throttleEnabled && highThr.band == "ok" && (highThr.throttlePct ?: 0f) >= 50f)) {
+                    Text(
+                        highThr.label,
+                        color = Color(com.veplayer.app.vehicle.HighThrottle.accentArgb(highThr.band)),
                         fontSize = 11.sp,
                     )
                 }

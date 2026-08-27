@@ -803,6 +803,20 @@ npm run veplayer:abs-hud-smoke
 
 **Fase 11 completa** (RPM · ice/frost · parking-brake · turn stuck · ABS HUD).
 
+## High throttle (v0.64 · Fase 12)
+
+Acelerador abierto / WOT (OBD **0111**):
+
+- Default **≥70% warn / ≥85% alert** · o ≥70% durante **8 s** · min **20 km/h**
+- DriveViz `Acel · N%` · TTS + inbox
+- Flota `throttle_warn` / `throttle_alert` · sim % en Ajustes (Clima HVAC)
+
+```bash
+npm run veplayer:high-throttle-smoke
+```
+
+**Fase 12 (en curso):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
