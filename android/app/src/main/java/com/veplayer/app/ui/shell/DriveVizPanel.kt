@@ -76,6 +76,7 @@ import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.SeatbeltMonitor
 import com.veplayer.app.vehicle.ShiftFatigueMonitor
+import com.veplayer.app.vehicle.SuddenFuelDropMonitor
 import com.veplayer.app.vehicle.UnauthorizedMoveMonitor
 import com.veplayer.app.vehicle.MaintenanceMonitor
 import com.veplayer.app.vehicle.SpeedHud
@@ -109,6 +110,7 @@ fun DriveVizPanel(
     val cabinHot by CabinOvertempMonitor.state.collectAsState()
     val coolantHot by CoolantOverheatMonitor.state.collectAsState()
     val tow by UnauthorizedMoveMonitor.state.collectAsState()
+    val fuelDrop by SuddenFuelDropMonitor.state.collectAsState()
     val seatbelt by SeatbeltMonitor.state.collectAsState()
     val harsh by HarshDrivingMonitor.state.collectAsState()
     val panic by PanicBus.state.collectAsState()
@@ -131,6 +133,7 @@ fun DriveVizPanel(
             CabinOvertempMonitor.tick(prefs, snap)
             CoolantOverheatMonitor.tick(prefs, snap)
             UnauthorizedMoveMonitor.tick(prefs, snap)
+            SuddenFuelDropMonitor.tick(prefs, snap)
             delay(500)
         }
     }
@@ -289,6 +292,13 @@ fun DriveVizPanel(
                     Text(
                         tow.label.ifBlank { "Remolque" },
                         color = Color(com.veplayer.app.vehicle.UnauthorizedMove.accentArgb(tow.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (fuelDrop.showWarn) {
+                    Text(
+                        "Combustible · ${fuelDrop.label}",
+                        color = Color(com.veplayer.app.vehicle.SuddenFuelDrop.accentArgb(fuelDrop.band)),
                         fontSize = 11.sp,
                     )
                 }

@@ -617,6 +617,18 @@ Movimiento con vehículo «asegurado» (ign off o freno de mano):
 npm run veplayer:tow-detect-smoke
 ```
 
+## Sudden fuel drop (v0.50 · Fase 9)
+
+Caída brusca de `fuel_pct` en ventana corta (robo / fuga):
+
+- Umbrales default **−8% warn / −15% alert** · ventana **60s** (pico→actual)
+- DriveViz chip `Combustible · −X% · Y%` · TTS + inbox
+- Flota `fuel_drop_warn` / `fuel_drop_alert` · sim drop % en Ajustes
+
+```bash
+npm run veplayer:fuel-drop-smoke
+```
+
 **Fase 9 (en curso):** tow · fuel drop · TPMS HUD · shift summary · message reply.
 
 ## Device Owner (kiosk duro · v0.12)

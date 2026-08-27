@@ -1170,6 +1170,68 @@ fun SettingsScreen() {
             )
         }
 
+        PanelBlock("Caída brusca de combustible") {
+            var dropOn by remember { mutableStateOf(prefs.fuelDropEnabled) }
+            var dropTts by remember { mutableStateOf(prefs.fuelDropTts) }
+            var dropSim by remember {
+                mutableStateOf(
+                    if (prefs.fuelDropSimDropPct > 0f) prefs.fuelDropSimDropPct.toInt().toString() else "0",
+                )
+            }
+            val dropSt by com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Detectar caída brusca", color = Mist)
+                Switch(
+                    checked = dropOn,
+                    onCheckedChange = {
+                        dropOn = it
+                        prefs.fuelDropEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS caída combustible", color = Mist)
+                Switch(
+                    checked = dropTts,
+                    onCheckedChange = {
+                        dropTts = it
+                        prefs.fuelDropTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = dropSim,
+                onValueChange = { dropSim = it.filter { ch -> ch.isDigit() || ch == '.' }.take(4) },
+                label = { Text("Sim drop % (0 = off)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.fuelDropSimDropPct = dropSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Fuel drop sim −${prefs.fuelDropSimDropPct.toInt()}% · warn ${prefs.fuelDropWarnPct.toInt()} / alert ${prefs.fuelDropAlertPct.toInt()} · ${prefs.fuelDropWindowSec.toInt()}s"
+                },
+            ) { Text("Aplicar sim") }
+            Text(
+                if (dropSt.showWarn || dropSt.dropPct > 0f) {
+                    "${dropSt.label} · ${dropSt.band} · ventana ${dropSt.windowSec.toInt()}s"
+                } else {
+                    "Fuel drop idle (pico→actual en ventana)"
+                },
+                color = if (dropSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
+        }
+
         PanelBlock("Incidente (reporte flota)") {
             var incOn by remember { mutableStateOf(prefs.incidentEnabled) }
             var incClip by remember { mutableStateOf(prefs.incidentClipEnabled) }
