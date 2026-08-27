@@ -1092,6 +1092,35 @@ Voltaje sensor O2 (**OBD PID 014A**), V — stuck lean/rich:
 npm run veplayer:o2-voltage-smoke
 ```
 
+**Fase 16 (completa):** absolute load · relative throttle · accel pedal · O2 B1S2 · EGR error.
+
+## Absolute load (v0.85 · Fase 16)
+
+Carga absoluta (**OBD PID 0143**), %:
+
+- Warn **≥85%** / alert **≥95%** (movimiento ≥20 km/h)
+- DriveViz `AbsL · XX%` · flota `abs_load_warn` / `abs_load_alert`
+
+```bash
+npm run veplayer:fase16-smoke
+```
+
+## Relative throttle (v0.86 · Fase 16)
+
+Acelerador relativo (**OBD PID 0145**), % · `rel_thr_warn` / `rel_thr_alert` · HUD `RelT · XX%`
+
+## Accel pedal D (v0.87 · Fase 16)
+
+Pedal (**OBD PID 0149**), % · `accel_pedal_warn` / `accel_pedal_alert` · HUD `Pedal · XX%`
+
+## O2 B1S2 (v0.88 · Fase 16)
+
+O2 banco 1 sensor 2 (**OBD PID 014B**), V · `o2_b2_warn` / `o2_b2_alert` · HUD `O2B2 · X.XX V`
+
+## EGR error (v0.89 · Fase 16)
+
+Error EGR (**OBD PID 014D**), % · `egr_error_warn` / `egr_error_alert` · HUD `EGR · ±XX%`
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

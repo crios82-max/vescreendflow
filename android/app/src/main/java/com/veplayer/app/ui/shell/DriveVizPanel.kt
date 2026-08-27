@@ -72,6 +72,11 @@ import com.veplayer.app.vehicle.FuelPressureMonitor
 import com.veplayer.app.vehicle.BarometricPressureMonitor
 import com.veplayer.app.vehicle.TimingAdvanceMonitor
 import com.veplayer.app.vehicle.O2VoltageMonitor
+import com.veplayer.app.vehicle.AbsoluteLoadMonitor
+import com.veplayer.app.vehicle.RelativeThrottleMonitor
+import com.veplayer.app.vehicle.AccelPedalMonitor
+import com.veplayer.app.vehicle.O2B2VoltageMonitor
+import com.veplayer.app.vehicle.EgrErrorMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -140,6 +145,11 @@ fun DriveVizPanel(
     val baroPress by BarometricPressureMonitor.state.collectAsState()
     val timingAdv by TimingAdvanceMonitor.state.collectAsState()
     val o2Volt by O2VoltageMonitor.state.collectAsState()
+    val absLoad by AbsoluteLoadMonitor.state.collectAsState()
+    val relThr by RelativeThrottleMonitor.state.collectAsState()
+    val accelPedal by AccelPedalMonitor.state.collectAsState()
+    val o2B2 by O2B2VoltageMonitor.state.collectAsState()
+    val egrErr by EgrErrorMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -194,6 +204,11 @@ fun DriveVizPanel(
             BarometricPressureMonitor.tick(prefs, snap)
             TimingAdvanceMonitor.tick(prefs, snap)
             O2VoltageMonitor.tick(prefs, snap)
+            AbsoluteLoadMonitor.tick(prefs, snap)
+            RelativeThrottleMonitor.tick(prefs, snap)
+            AccelPedalMonitor.tick(prefs, snap)
+            O2B2VoltageMonitor.tick(prefs, snap)
+            EgrErrorMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -659,6 +674,41 @@ fun DriveVizPanel(
                     Text(
                         o2Volt.label,
                         color = Color(com.veplayer.app.vehicle.O2Voltage.accentArgb(o2Volt.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (absLoad.showWarn || (prefs.absLoadEnabled && absLoad.band == "ok" && absLoad.label.isNotBlank())) {
+                    Text(
+                        absLoad.label,
+                        color = Color(com.veplayer.app.vehicle.AbsoluteLoad.accentArgb(absLoad.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (relThr.showWarn || (prefs.relThrEnabled && relThr.band == "ok" && relThr.label.isNotBlank())) {
+                    Text(
+                        relThr.label,
+                        color = Color(com.veplayer.app.vehicle.RelativeThrottle.accentArgb(relThr.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (accelPedal.showWarn || (prefs.accelPedalEnabled && accelPedal.band == "ok" && accelPedal.label.isNotBlank())) {
+                    Text(
+                        accelPedal.label,
+                        color = Color(com.veplayer.app.vehicle.AccelPedal.accentArgb(accelPedal.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (o2B2.showWarn || (prefs.o2B2Enabled && o2B2.band == "ok" && o2B2.label.isNotBlank())) {
+                    Text(
+                        o2B2.label,
+                        color = Color(com.veplayer.app.vehicle.O2B2Voltage.accentArgb(o2B2.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (egrErr.showWarn || (prefs.egrEnabled && egrErr.band == "ok" && egrErr.label.isNotBlank())) {
+                    Text(
+                        egrErr.label,
+                        color = Color(com.veplayer.app.vehicle.EgrError.accentArgb(egrErr.band)),
                         fontSize = 11.sp,
                     )
                 }

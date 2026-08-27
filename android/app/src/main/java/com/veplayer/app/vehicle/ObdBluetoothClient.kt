@@ -252,6 +252,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0133", // barometric
                 "010E", // timing advance
                 "014A", // O2 B1S1 voltage
+                "0143", // absolute load
+                "0145", // relative throttle
+                "0149", // accel pedal D
+                "014B", // O2 B1S2 voltage
+                "014D", // EGR error
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim
