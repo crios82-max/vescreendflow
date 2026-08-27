@@ -257,6 +257,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0149", // accel pedal D
                 "014B", // O2 B1S2 voltage
                 "014D", // EGR error
+                "0144", // equiv ratio
+                "014E", // evap purge
+                "0152", // ethanol
+                "0153", // evap vapor
+                "0159", // fuel rail abs
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim

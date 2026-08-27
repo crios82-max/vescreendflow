@@ -44,6 +44,16 @@ object ObdPidParser {
         val o2B1s2Volts: Float? = null,
         /** EGR error % (OBD PID 014D), signed. */
         val egrErrorPct: Float? = null,
+        /** Commanded equivalence ratio (OBD PID 0144). */
+        val equivRatio: Float? = null,
+        /** Evap purge flow % (OBD PID 014E). */
+        val evapPurgePct: Float? = null,
+        /** Ethanol fuel % (OBD PID 0152). */
+        val ethanolPct: Float? = null,
+        /** Evap vapor pressure Pa (OBD PID 0153), signed. */
+        val evapVaporPa: Float? = null,
+        /** Fuel rail absolute pressure kPa (OBD PID 0159). */
+        val fuelRailAbsKpa: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -143,6 +153,24 @@ object ObdPidParser {
                 PidValues(
                     egrErrorPct = data.getOrNull(0)?.let { (it - 128) * 100f / 128f },
                 )
+            0x44 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(equivRatio = ((data[0] * 256) + data[1]) / 32768f)
+            }
+            0x4E -> PidValues(evapPurgePct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x52 -> PidValues(ethanolPct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x53 -> {
+                if (data.size < 2) PidValues()
+                else {
+                    val raw = (data[0] shl 8) or data[1]
+                    val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                    PidValues(evapVaporPa = signed / 4f)
+                }
+            }
+            0x59 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(fuelRailAbsKpa = ((data[0] * 256) + data[1]) * 10f)
+            }
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -189,6 +217,11 @@ object ObdPidParser {
             accelPedalPct = add.accelPedalPct ?: base.accelPedalPct,
             o2B1s2Volts = add.o2B1s2Volts ?: base.o2B1s2Volts,
             egrErrorPct = add.egrErrorPct ?: base.egrErrorPct,
+            equivRatio = add.equivRatio ?: base.equivRatio,
+            evapPurgePct = add.evapPurgePct ?: base.evapPurgePct,
+            ethanolPct = add.ethanolPct ?: base.ethanolPct,
+            evapVaporPa = add.evapVaporPa ?: base.evapVaporPa,
+            fuelRailAbsKpa = add.fuelRailAbsKpa ?: base.fuelRailAbsKpa,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

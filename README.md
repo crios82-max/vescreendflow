@@ -1121,6 +1121,32 @@ O2 banco 1 sensor 2 (**OBD PID 014B**), V · `o2_b2_warn` / `o2_b2_alert` · HUD
 
 Error EGR (**OBD PID 014D**), % · `egr_error_warn` / `egr_error_alert` · HUD `EGR · ±XX%`
 
+**Fase 17 (completa):** lambda · evap purge · ethanol · evap vapor · fuel rail abs.
+
+## Lambda / equiv ratio (v0.90 · Fase 17)
+
+Mezcla (**OBD PID 0144**) · HUD `Lambda · X.XX` · `equiv_warn` / `equiv_alert`
+
+## Evap purge (v0.91 · Fase 17)
+
+Purga (**OBD PID 014E**), % · `evap_purge_warn` / `evap_purge_alert` · HUD `Evap · XX%`
+
+## Ethanol % (v0.92 · Fase 17)
+
+Etanol (**OBD PID 0152**), % · `ethanol_warn` / `ethanol_alert` · HUD `Etanol · XX%`
+
+## Evap vapor (v0.93 · Fase 17)
+
+Presión vapor (**OBD PID 0153**), Pa · `evap_vapor_warn` / `evap_vapor_alert` · HUD `Vapor · XX Pa`
+
+## Fuel rail abs (v0.94 · Fase 17)
+
+Rail absoluto (**OBD PID 0159**), kPa · `rail_abs_warn` / `rail_abs_alert` · HUD `Rail · XX`
+
+```bash
+npm run veplayer:fase17-smoke
+```
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

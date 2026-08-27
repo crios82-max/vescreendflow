@@ -3401,6 +3401,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 17 OBD (0144/4E/52/53/59):", color = Mist)
+            val equivSt by com.veplayer.app.vehicle.EquivRatioMonitor.state.collectAsState()
+            val evapPurSt by com.veplayer.app.vehicle.EvapPurgeMonitor.state.collectAsState()
+            val ethanolSt by com.veplayer.app.vehicle.EthanolPctMonitor.state.collectAsState()
+            val evapVapSt by com.veplayer.app.vehicle.EvapVaporMonitor.state.collectAsState()
+            val railAbsSt by com.veplayer.app.vehicle.FuelRailAbsMonitor.state.collectAsState()
+            var f17Lambda by remember {
+                mutableStateOf(if (prefs.equivSimRatio > 0f) prefs.equivSimRatio.toString() else "0")
+            }
+            var f17Evap by remember {
+                mutableStateOf(if (prefs.evapPurgeSimPct > 0f) prefs.evapPurgeSimPct.toInt().toString() else "0")
+            }
+            var f17Eth by remember {
+                mutableStateOf(if (prefs.ethanolSimPct > 0f) prefs.ethanolSimPct.toInt().toString() else "0")
+            }
+            var f17Vap by remember {
+                mutableStateOf(if (prefs.evapVaporSimPa != 0f) prefs.evapVaporSimPa.toInt().toString() else "0")
+            }
+            var f17Rail by remember {
+                mutableStateOf(if (prefs.railAbsSimKpa > 0f) prefs.railAbsSimKpa.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f17Lambda,
+                    onValueChange = { f17Lambda = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("Lambda") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f17Evap,
+                    onValueChange = { f17Evap = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("Evap %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f17Eth,
+                    onValueChange = { f17Eth = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("Etanol %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f17Vap,
+                    onValueChange = { f17Vap = it.filter { c -> c.isDigit() || c == '-' }.take(6) },
+                    label = { Text("Vapor Pa") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f17Rail,
+                    onValueChange = { f17Rail = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("Rail kPa") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.equivSimRatio = f17Lambda.toFloatOrNull() ?: 0f
+                    prefs.evapPurgeSimPct = f17Evap.toFloatOrNull() ?: 0f
+                    prefs.ethanolSimPct = f17Eth.toFloatOrNull() ?: 0f
+                    prefs.evapVaporSimPa = f17Vap.toFloatOrNull() ?: 0f
+                    prefs.railAbsSimKpa = f17Rail.toFloatOrNull() ?: 0f
+                    status = "Fase 17 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 17") }
+            Text(
+                listOfNotNull(
+                    equivSt.label.takeIf { it.isNotBlank() },
+                    evapPurSt.label.takeIf { it.isNotBlank() },
+                    ethanolSt.label.takeIf { it.isNotBlank() },
+                    evapVapSt.label.takeIf { it.isNotBlank() },
+                    railAbsSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 17 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

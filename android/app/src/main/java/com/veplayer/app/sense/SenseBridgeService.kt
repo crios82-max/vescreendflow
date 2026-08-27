@@ -338,6 +338,69 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.EgrError.toJsonMap(
                                             com.veplayer.app.vehicle.EgrErrorMonitor.state.value,
                                         ),
+                                    "equiv_warn_low" to prefs.equivWarnLow.toDouble(),
+                                    "equiv_alert_low" to prefs.equivAlertLow.toDouble(),
+                                    "equiv_warn_high" to prefs.equivWarnHigh.toDouble(),
+                                    "equiv_alert_high" to prefs.equivAlertHigh.toDouble(),
+                                    "equiv_speed_min_kmh" to prefs.equivSpeedMinKmh.toDouble(),
+                                    "equiv_rpm_min" to prefs.equivRpmMin.toDouble(),
+                                    "equiv_ratio" to
+                                        (if (prefs.equivSimRatio > 0f) prefs.equivSimRatio
+                                        else com.veplayer.app.vehicle.EquivRatioMonitor.state.value.ratio
+                                            ?: snap.equivRatio
+                                        )?.toDouble(),
+                                    "equiv_ratio_state" to
+                                        com.veplayer.app.vehicle.EquivRatio.toJsonMap(
+                                            com.veplayer.app.vehicle.EquivRatioMonitor.state.value,
+                                        ),
+                                    "evap_purge_warn_pct" to prefs.evapPurgeWarnPct.toDouble(),
+                                    "evap_purge_alert_pct" to prefs.evapPurgeAlertPct.toDouble(),
+                                    "evap_purge_speed_min_kmh" to prefs.evapPurgeSpeedMinKmh.toDouble(),
+                                    "evap_purge_pct" to
+                                        (if (prefs.evapPurgeSimPct > 0f) prefs.evapPurgeSimPct
+                                        else com.veplayer.app.vehicle.EvapPurgeMonitor.state.value.purgePct
+                                            ?: snap.evapPurgePct
+                                        )?.toDouble(),
+                                    "evap_purge" to
+                                        com.veplayer.app.vehicle.EvapPurge.toJsonMap(
+                                            com.veplayer.app.vehicle.EvapPurgeMonitor.state.value,
+                                        ),
+                                    "ethanol_warn_pct" to prefs.ethanolWarnPct.toDouble(),
+                                    "ethanol_alert_pct" to prefs.ethanolAlertPct.toDouble(),
+                                    "ethanol_speed_min_kmh" to prefs.ethanolSpeedMinKmh.toDouble(),
+                                    "ethanol_pct" to
+                                        (if (prefs.ethanolSimPct > 0f) prefs.ethanolSimPct
+                                        else com.veplayer.app.vehicle.EthanolPctMonitor.state.value.ethanolPct
+                                            ?: snap.ethanolPct
+                                        )?.toDouble(),
+                                    "ethanol" to
+                                        com.veplayer.app.vehicle.EthanolPct.toJsonMap(
+                                            com.veplayer.app.vehicle.EthanolPctMonitor.state.value,
+                                        ),
+                                    "evap_vapor_warn_pa" to prefs.evapVaporWarnPa.toDouble(),
+                                    "evap_vapor_alert_pa" to prefs.evapVaporAlertPa.toDouble(),
+                                    "evap_vapor_speed_min_kmh" to prefs.evapVaporSpeedMinKmh.toDouble(),
+                                    "evap_vapor_pa" to
+                                        (if (prefs.evapVaporSimPa != 0f) prefs.evapVaporSimPa
+                                        else com.veplayer.app.vehicle.EvapVaporMonitor.state.value.pressurePa
+                                            ?: snap.evapVaporPa
+                                        )?.toDouble(),
+                                    "evap_vapor" to
+                                        com.veplayer.app.vehicle.EvapVapor.toJsonMap(
+                                            com.veplayer.app.vehicle.EvapVaporMonitor.state.value,
+                                        ),
+                                    "rail_abs_warn_kpa" to prefs.railAbsWarnKpa.toDouble(),
+                                    "rail_abs_alert_kpa" to prefs.railAbsAlertKpa.toDouble(),
+                                    "rail_abs_speed_min_kmh" to prefs.railAbsSpeedMinKmh.toDouble(),
+                                    "fuel_rail_abs_kpa" to
+                                        (if (prefs.railAbsSimKpa > 0f) prefs.railAbsSimKpa
+                                        else com.veplayer.app.vehicle.FuelRailAbsMonitor.state.value.pressureKpa
+                                            ?: snap.fuelRailAbsKpa
+                                        )?.toDouble(),
+                                    "fuel_rail_abs" to
+                                        com.veplayer.app.vehicle.FuelRailAbs.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelRailAbsMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -817,6 +880,69 @@ class SenseBridgeService : Service() {
                                     "egr_error" to
                                         com.veplayer.app.vehicle.EgrError.toJsonMap(
                                             com.veplayer.app.vehicle.EgrErrorMonitor.state.value,
+                                        ),
+                                    "equiv_warn_low" to prefs.equivWarnLow.toDouble(),
+                                    "equiv_alert_low" to prefs.equivAlertLow.toDouble(),
+                                    "equiv_warn_high" to prefs.equivWarnHigh.toDouble(),
+                                    "equiv_alert_high" to prefs.equivAlertHigh.toDouble(),
+                                    "equiv_speed_min_kmh" to prefs.equivSpeedMinKmh.toDouble(),
+                                    "equiv_rpm_min" to prefs.equivRpmMin.toDouble(),
+                                    "equiv_ratio" to
+                                        (if (prefs.equivSimRatio > 0f) prefs.equivSimRatio
+                                        else com.veplayer.app.vehicle.EquivRatioMonitor.state.value.ratio
+                                            ?: snap.equivRatio
+                                        )?.toDouble(),
+                                    "equiv_ratio_state" to
+                                        com.veplayer.app.vehicle.EquivRatio.toJsonMap(
+                                            com.veplayer.app.vehicle.EquivRatioMonitor.state.value,
+                                        ),
+                                    "evap_purge_warn_pct" to prefs.evapPurgeWarnPct.toDouble(),
+                                    "evap_purge_alert_pct" to prefs.evapPurgeAlertPct.toDouble(),
+                                    "evap_purge_speed_min_kmh" to prefs.evapPurgeSpeedMinKmh.toDouble(),
+                                    "evap_purge_pct" to
+                                        (if (prefs.evapPurgeSimPct > 0f) prefs.evapPurgeSimPct
+                                        else com.veplayer.app.vehicle.EvapPurgeMonitor.state.value.purgePct
+                                            ?: snap.evapPurgePct
+                                        )?.toDouble(),
+                                    "evap_purge" to
+                                        com.veplayer.app.vehicle.EvapPurge.toJsonMap(
+                                            com.veplayer.app.vehicle.EvapPurgeMonitor.state.value,
+                                        ),
+                                    "ethanol_warn_pct" to prefs.ethanolWarnPct.toDouble(),
+                                    "ethanol_alert_pct" to prefs.ethanolAlertPct.toDouble(),
+                                    "ethanol_speed_min_kmh" to prefs.ethanolSpeedMinKmh.toDouble(),
+                                    "ethanol_pct" to
+                                        (if (prefs.ethanolSimPct > 0f) prefs.ethanolSimPct
+                                        else com.veplayer.app.vehicle.EthanolPctMonitor.state.value.ethanolPct
+                                            ?: snap.ethanolPct
+                                        )?.toDouble(),
+                                    "ethanol" to
+                                        com.veplayer.app.vehicle.EthanolPct.toJsonMap(
+                                            com.veplayer.app.vehicle.EthanolPctMonitor.state.value,
+                                        ),
+                                    "evap_vapor_warn_pa" to prefs.evapVaporWarnPa.toDouble(),
+                                    "evap_vapor_alert_pa" to prefs.evapVaporAlertPa.toDouble(),
+                                    "evap_vapor_speed_min_kmh" to prefs.evapVaporSpeedMinKmh.toDouble(),
+                                    "evap_vapor_pa" to
+                                        (if (prefs.evapVaporSimPa != 0f) prefs.evapVaporSimPa
+                                        else com.veplayer.app.vehicle.EvapVaporMonitor.state.value.pressurePa
+                                            ?: snap.evapVaporPa
+                                        )?.toDouble(),
+                                    "evap_vapor" to
+                                        com.veplayer.app.vehicle.EvapVapor.toJsonMap(
+                                            com.veplayer.app.vehicle.EvapVaporMonitor.state.value,
+                                        ),
+                                    "rail_abs_warn_kpa" to prefs.railAbsWarnKpa.toDouble(),
+                                    "rail_abs_alert_kpa" to prefs.railAbsAlertKpa.toDouble(),
+                                    "rail_abs_speed_min_kmh" to prefs.railAbsSpeedMinKmh.toDouble(),
+                                    "fuel_rail_abs_kpa" to
+                                        (if (prefs.railAbsSimKpa > 0f) prefs.railAbsSimKpa
+                                        else com.veplayer.app.vehicle.FuelRailAbsMonitor.state.value.pressureKpa
+                                            ?: snap.fuelRailAbsKpa
+                                        )?.toDouble(),
+                                    "fuel_rail_abs" to
+                                        com.veplayer.app.vehicle.FuelRailAbs.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelRailAbsMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
