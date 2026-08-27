@@ -1111,6 +1111,94 @@ fun SettingsScreen() {
             }
         }
 
+        PanelBlock("Incidente (reporte flota)") {
+            var incOn by remember { mutableStateOf(prefs.incidentEnabled) }
+            var incClip by remember { mutableStateOf(prefs.incidentClipEnabled) }
+            var incNote by remember { mutableStateOf("") }
+            var incCat by remember { mutableStateOf("other") }
+            val incSt by com.veplayer.app.fleet.IncidentBus.state.collectAsState()
+            val fleetInc = remember { FleetClient(prefs) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Reportes de incidente", color = Mist)
+                Switch(
+                    checked = incOn,
+                    onCheckedChange = {
+                        incOn = it
+                        prefs.incidentEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Adjuntar clip", color = Mist)
+                Switch(
+                    checked = incClip,
+                    onCheckedChange = {
+                        incClip = it
+                        prefs.incidentClipEnabled = it
+                    },
+                )
+            }
+            Text("Categoría", color = Mute, fontSize = 12.sp)
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                for ((key, label) in com.veplayer.app.fleet.IncidentBus.categories) {
+                    val selected = incCat == key
+                    OutlinedButton(
+                        onClick = { incCat = key },
+                    ) {
+                        Text(
+                            label,
+                            color = if (selected) Teal else Mist,
+                            fontSize = 12.sp,
+                        )
+                    }
+                }
+            }
+            OutlinedTextField(
+                value = incNote,
+                onValueChange = { incNote = it.take(280) },
+                label = { Text("Nota (opcional)") },
+                singleLine = false,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Button(
+                onClick = {
+                    scope.launch {
+                        com.veplayer.app.fleet.IncidentBus.report(
+                            prefs = prefs,
+                            fleet = fleetInc,
+                            context = context,
+                            category = incCat,
+                            note = incNote.ifBlank { null },
+                            withClip = incClip,
+                        ).onSuccess {
+                            status =
+                                "Incidente #${it.lastAlertId ?: "—"}" +
+                                    (it.lastClipUrl?.let { u -> " · $u" } ?: "")
+                            incNote = ""
+                        }.onFailure { status = "Incidente fail: ${it.message}" }
+                    }
+                },
+            ) { Text("Enviar incidente") }
+            Text(
+                if (incSt.lastAlertId != null) {
+                    "Último · ${incSt.lastCategory} · #${incSt.lastAlertId}" +
+                        (incSt.lastClipUrl?.let { " · clip" } ?: "")
+                } else {
+                    "Sin reportes en esta sesión"
+                },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+        }
+
         PanelBlock("Mantenimiento odómetro") {
             var maintOn by remember { mutableStateOf(prefs.maintenanceEnabled) }
             var maintTts by remember { mutableStateOf(prefs.maintenanceTts) }

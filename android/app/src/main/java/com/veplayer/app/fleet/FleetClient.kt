@@ -52,6 +52,14 @@ data class PanicClipResult(
     val alertId: Long?,
 )
 
+data class IncidentResult(
+    val alertId: Long?,
+    val message: String,
+    val category: String,
+    val deduped: Boolean = false,
+    val clipUrl: String? = null,
+)
+
 data class FleetAlert(
     val id: Long,
     val kind: String,
@@ -255,6 +263,55 @@ class FleetClient(private val prefs: VePrefs) {
                     bytes = json.optInt("bytes", jpegBytes.size),
                     sim = json.optBoolean("sim", sim),
                     alertId = if (json.has("alert_id")) json.optLong("alert_id") else alertId,
+                )
+            }
+        }
+
+    fun incident(
+        category: String = "other",
+        note: String? = null,
+        lat: Double? = null,
+        lng: Double? = null,
+        clipJpeg: ByteArray? = null,
+        clipSim: Boolean = true,
+        driverCode: String? = null,
+        driverName: String? = null,
+    ): Result<IncidentResult> =
+        runCatching {
+            val payload =
+                JSONObject()
+                    .put("device_id", prefs.deviceId())
+                    .put("category", category)
+                    .put("source", "veplayer")
+            if (!note.isNullOrBlank()) payload.put("note", note.trim().take(280))
+            if (lat != null) payload.put("lat", lat)
+            if (lng != null) payload.put("lng", lng)
+            if (!driverCode.isNullOrBlank()) payload.put("driver_code", driverCode)
+            if (!driverName.isNullOrBlank()) payload.put("driver_name", driverName)
+            if (clipJpeg != null && clipJpeg.isNotEmpty()) {
+                payload.put("clip_kind", "jpeg")
+                payload.put(
+                    "clip_base64",
+                    android.util.Base64.encodeToString(clipJpeg, android.util.Base64.NO_WRAP),
+                )
+                payload.put("clip_sim", clipSim)
+            }
+            val req =
+                Request.Builder()
+                    .url(base() + "/api/fleet/incident")
+                    .post(payload.toString().toRequestBody(JSON))
+                    .build()
+            client.newCall(req).execute().use { resp ->
+                val text = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) error("incident HTTP ${resp.code}: $text")
+                val json = JSONObject(text)
+                val alert = json.optJSONObject("alert")
+                IncidentResult(
+                    alertId = alert?.optLong("id"),
+                    message = alert?.optString("message") ?: "Incidente enviado",
+                    category = category,
+                    deduped = json.optBoolean("deduped"),
+                    clipUrl = alert?.optString("clip_url")?.takeIf { it.isNotBlank() },
                 )
             }
         }

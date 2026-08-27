@@ -127,6 +127,15 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("panic_enabled", true)
         set(value) = sp.edit().putBoolean("panic_enabled", value).apply()
 
+    /** Driver incident reports (non-SOS). */
+    var incidentEnabled: Boolean
+        get() = sp.getBoolean("incident_enabled", true)
+        set(value) = sp.edit().putBoolean("incident_enabled", value).apply()
+
+    var incidentClipEnabled: Boolean
+        get() = sp.getBoolean("incident_clip", true)
+        set(value) = sp.edit().putBoolean("incident_clip", value).apply()
+
     /** Upload dashcam JPEG clip on SOS. */
     var sosClipEnabled: Boolean
         get() = sp.getBoolean("sos_clip", true)
