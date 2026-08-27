@@ -69,6 +69,7 @@ import com.veplayer.app.vehicle.IdleAlert
 import com.veplayer.app.vehicle.IdleMonitor
 import com.veplayer.app.vehicle.DtcMonitor
 import com.veplayer.app.vehicle.DoorAjarMonitor
+import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.ShiftFatigueMonitor
 import com.veplayer.app.vehicle.MaintenanceMonitor
@@ -98,6 +99,7 @@ fun DriveVizPanel(
     val parking by ParkingDistanceMonitor.state.collectAsState()
     val doorAjar by DoorAjarMonitor.state.collectAsState()
     val fatigue by ShiftFatigueMonitor.state.collectAsState()
+    val hvac by HvacClimateMonitor.state.collectAsState()
     val panic by PanicBus.state.collectAsState()
     var holdProgress by remember { mutableFloatStateOf(0f) }
     var holdJob by remember { mutableStateOf<Job?>(null) }
@@ -112,6 +114,7 @@ fun DriveVizPanel(
             ParkingDistanceMonitor.tick(prefs, snap.reverse)
             DoorAjarMonitor.tick(prefs, snap)
             ShiftFatigueMonitor.tick(prefs)
+            HvacClimateMonitor.tick(prefs, snap)
             delay(500)
         }
     }
@@ -360,12 +363,22 @@ fun DriveVizPanel(
                     if (vehicle.tpmsLow) append("!")
                     append(" · ")
                 }
-                vehicle.hvacCabinC?.let {
-                    append("HVAC ${it.toInt()}°")
-                    if (vehicle.hvacAcOn) append(" AC")
+                if (prefs.hvacPanelEnabled && hvac.label.isNotBlank()) {
+                    append(hvac.label)
+                } else {
+                    vehicle.hvacCabinC?.let {
+                        append("HVAC ${it.toInt()}°")
+                        if (vehicle.hvacAcOn) append(" AC")
+                    }
                 }
             }.ifBlank { "—" },
-            color = if (dtc.mil) Color(0xFFF59E0B) else Mute,
+            color =
+                when {
+                    dtc.mil -> Color(0xFFF59E0B)
+                    prefs.hvacPanelEnabled && hvac.showPanel ->
+                        Color(com.veplayer.app.vehicle.HvacClimate.accentArgb(hvac.band))
+                    else -> Mute
+                },
             fontSize = 12.sp,
         )
         val counts =

@@ -488,6 +488,21 @@ npm run veplayer:shift-fatigue-smoke
 
 **Fase 7 (siguiente):** HVAC climate · cabin overtemp · SOS dashcam.
 
+## HVAC climate panel (v0.41 · Fase 7)
+
+Panel clima cabina / objetivo / AC / ventilador:
+
+- Bands `comfort` · `heat` · `cool` (|Δ| ≤ 2.5 °C = confort)
+- DriveViz label `24° → 22° · AC · fan 2` + color
+- Dock `24° AC` · Ajustes: ± target, AC, fan (override mock/obd_sim)
+- Cabina en sim deriva hacia el objetivo
+
+```bash
+npm run veplayer:hvac-climate-smoke
+```
+
+**Fase 7 (siguiente):** cabin overtemp · SOS dashcam.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

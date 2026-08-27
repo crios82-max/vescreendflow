@@ -62,7 +62,12 @@ fun BottomDock(
     val media by VeMediaHub.nowPlaying.collectAsState()
     val muted by VeMediaHub.muted.collectAsState()
     val vehicle by VehicleState.state.collectAsState()
-    val cabin = vehicle.hvacCabinC?.let { "%.1f°".format(it) } ?: "—"
+    val hvac by HvacClimateMonitor.state.collectAsState()
+    val cabin =
+        if (hvac.showPanel) HvacClimate.dockLabel(hvac)
+        else vehicle.hvacCabinC?.let { "%.1f°".format(it) } ?: "—"
+    val cabinColor =
+        if (hvac.showPanel) Color(HvacClimate.accentArgb(hvac.band)) else Mist
 
     val items =
         listOf(
@@ -90,7 +95,7 @@ fun BottomDock(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Icon(Icons.Default.DirectionsCar, contentDescription = null, tint = Mist, modifier = Modifier.size(22.dp))
-            Text(cabin, color = Mist, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+            Text(cabin, color = cabinColor, fontSize = 15.sp, fontWeight = FontWeight.Medium)
             Icon(
                 if (media.playing) Icons.Default.Pause else Icons.Default.PlayArrow,
                 contentDescription = "Play/Pause",

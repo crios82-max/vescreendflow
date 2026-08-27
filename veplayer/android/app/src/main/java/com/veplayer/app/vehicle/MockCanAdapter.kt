@@ -77,7 +77,8 @@ class MockCanAdapter(
             }
         val soc = (72f + 4f * sin(t / 40.0).toFloat()).coerceIn(5f, 100f)
         val absPulse = phase == 2 && kmh > 40f
-        return VehicleSignals(
+        val base =
+            VehicleSignals(
             speedMps = kmh / 3.6f,
             gear = gear,
             turn = turn,
@@ -113,5 +114,6 @@ class MockCanAdapter(
             source = sourceTag,
             updatedAtMs = System.currentTimeMillis(),
         )
+        return HvacClimateBus.applyToSignals(base)
     }
 }

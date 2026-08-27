@@ -25,6 +25,7 @@
     "veplayer:parking-hud-smoke": "node veplayer/scripts/parking-hud-smoke.mjs",
     "veplayer:door-ajar-smoke": "node veplayer/scripts/door-ajar-smoke.mjs",
     "veplayer:shift-fatigue-smoke": "node veplayer/scripts/shift-fatigue-smoke.mjs",
+    "veplayer:hvac-climate-smoke": "node veplayer/scripts/hvac-climate-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",
