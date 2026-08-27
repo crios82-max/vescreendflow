@@ -1111,6 +1111,65 @@ fun SettingsScreen() {
             }
         }
 
+        PanelBlock("Remolque / movimiento no autorizado") {
+            var towOn by remember { mutableStateOf(prefs.towEnabled) }
+            var towTts by remember { mutableStateOf(prefs.towTts) }
+            var towSim by remember { mutableStateOf(prefs.towSim) }
+            val towSt by com.veplayer.app.vehicle.UnauthorizedMoveMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Detectar remolque", color = Mist)
+                Switch(
+                    checked = towOn,
+                    onCheckedChange = {
+                        towOn = it
+                        prefs.towEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS remolque", color = Mist)
+                Switch(
+                    checked = towTts,
+                    onCheckedChange = {
+                        towTts = it
+                        prefs.towTts = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Sim remolque (ign off + velocidad)", color = Mist)
+                Switch(
+                    checked = towSim,
+                    onCheckedChange = {
+                        towSim = it
+                        prefs.towSim = it
+                        status = if (it) "Tow sim ON" else "Tow sim OFF"
+                    },
+                )
+            }
+            Text(
+                if (towSt.label.isNotBlank()) {
+                    "${towSt.label} · ${towSt.band} · ${towSt.movingForSec.toInt()}s"
+                } else {
+                    "Tow idle (ign off + movimiento)"
+                },
+                color = if (towSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
+        }
+
         PanelBlock("Incidente (reporte flota)") {
             var incOn by remember { mutableStateOf(prefs.incidentEnabled) }
             var incClip by remember { mutableStateOf(prefs.incidentClipEnabled) }

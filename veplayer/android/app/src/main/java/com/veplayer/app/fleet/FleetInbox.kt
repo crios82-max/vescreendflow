@@ -172,6 +172,9 @@ object FleetInbox {
             kind == "coolant_overheat" -> "Atención. Temperatura del motor crítica. $body."
             kind == "coolant_warn" || kind.startsWith("coolant_") ->
                 "Cuidado. Motor caliente. $body."
+            kind == "tow_alert" -> "Atención. Posible remolque. $body."
+            kind == "tow_warn" || kind.startsWith("tow_") ->
+                "Cuidado. Movimiento sin ignición. $body."
             kind.startsWith("dtc:") || kind == "dtc" ->
                 "Atención. Código de falla. $body."
             kind == "soc_low" -> "Atención. Batería baja. $body."

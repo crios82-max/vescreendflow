@@ -554,6 +554,66 @@ export function evaluateFleetAlerts(
         raised.push('coolant_warn')
       }
     }
+
+    // Unauthorized movement / tow — ignition off (or parking) + speed
+    const parkingBrake = signals.parking_brake === true
+    const secured = !ignOn || parkingBrake
+    const towMovingSec =
+      typeof signals.tow_moving_sec === 'number' ? (signals.tow_moving_sec as number) : null
+    const towSpdMps =
+      speedMps ??
+      (typeof signals.speed_mps === 'number'
+        ? (signals.speed_mps as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number) / 3.6
+          : undefined)
+    const towKmh = typeof towSpdMps === 'number' ? towSpdMps * 3.6 : null
+    const towSpeedMin =
+      typeof signals.tow_speed_min_kmh === 'number' ? (signals.tow_speed_min_kmh as number) : 3
+    const towWarnSec =
+      typeof signals.tow_warn_sec === 'number' ? (signals.tow_warn_sec as number) : 3
+    const towAlertSec =
+      typeof signals.tow_alert_sec === 'number' ? (signals.tow_alert_sec as number) : 8
+    if (
+      secured &&
+      typeof towKmh === 'number' &&
+      towKmh >= towSpeedMin &&
+      typeof towMovingSec === 'number'
+    ) {
+      if (towMovingSec >= towAlertSec && !recentlyAlerted(deviceId, 'tow_alert', 180)) {
+        insertAlert(
+          deviceId,
+          'tow_alert',
+          'critical',
+          `Movimiento sin ignición · ${Math.round(towKmh)} km/h (~${Math.round(towMovingSec)}s)`,
+          {
+            speed_kmh: Math.round(towKmh),
+            tow_moving_sec: towMovingSec,
+            ignition,
+            parking_brake: parkingBrake,
+          },
+        )
+        raised.push('tow_alert')
+      } else if (
+        towMovingSec >= towWarnSec &&
+        towMovingSec < towAlertSec &&
+        !recentlyAlerted(deviceId, 'tow_warn', 180)
+      ) {
+        insertAlert(
+          deviceId,
+          'tow_warn',
+          'warn',
+          `Posible remolque · ${Math.round(towKmh)} km/h`,
+          {
+            speed_kmh: Math.round(towKmh),
+            tow_moving_sec: towMovingSec,
+            ignition,
+            parking_brake: parkingBrake,
+          },
+        )
+        raised.push('tow_warn')
+      }
+    }
   }
 
   return raised

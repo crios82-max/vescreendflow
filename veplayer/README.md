@@ -605,6 +605,20 @@ npm run veplayer:incident-report-smoke
 
 **Fase 8 completa** (seatbelt · harsh · geofence exit · coolant · incident).
 
+## Unauthorized movement / tow (v0.49 · Fase 9)
+
+Movimiento con vehículo «asegurado» (ign off o freno de mano):
+
+- Umbrales default **3s warn / 8s alert** · min **3 km/h**
+- DriveViz chip `Remolque · Xm km/h` · TTS + inbox
+- Flota `tow_warn` / `tow_alert` · sim en Ajustes
+
+```bash
+npm run veplayer:tow-detect-smoke
+```
+
+**Fase 9 (en curso):** tow · fuel drop · TPMS HUD · shift summary · message reply.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
