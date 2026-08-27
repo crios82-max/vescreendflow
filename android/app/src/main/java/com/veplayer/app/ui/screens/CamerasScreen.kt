@@ -26,6 +26,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.delay
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.veplayer.app.camera.BirdEyeCalibration
 import com.veplayer.app.camera.CamDevice
@@ -94,6 +96,14 @@ fun CamerasScreen(preferRear: Boolean = false) {
     val vehicle by VehicleState.state.collectAsState()
     var guidesOn by remember { mutableStateOf(prefs.reverseGuidesEnabled) }
     var guideTrack by remember { mutableStateOf(prefs.reverseGuideTrack) }
+    val parking by com.veplayer.app.vehicle.ParkingDistanceMonitor.state.collectAsState()
+    LaunchedEffect(Unit) {
+        while (true) {
+            val rev = VehicleState.state.value.reverse
+            com.veplayer.app.vehicle.ParkingDistanceMonitor.tick(prefs, rev)
+            delay(200)
+        }
+    }
 
     val hasPermission =
         ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
@@ -386,6 +396,8 @@ fun CamerasScreen(preferRear: Boolean = false) {
                             .weight(1f)
                             .fillMaxWidth(),
                         showGuides = guidesOn && (preferRear || vehicle.reverse),
+                        showParkingHud = prefs.parkingHudEnabled && vehicle.reverse,
+                        parkingState = parking,
                         steeringDeg = vehicle.steeringAngleDeg,
                         trackWidth = guideTrack,
                     ) { previewRear = it }
@@ -419,6 +431,11 @@ fun CamerasScreen(preferRear: Boolean = false) {
                         .weight(1f)
                         .fillMaxHeight(),
                     showGuides = showGuides || (guidesOn && vehicle.reverse && isRearFacing(camA)),
+                    showParkingHud =
+                        prefs.parkingHudEnabled &&
+                            vehicle.reverse &&
+                            (isRearFacing(camA) || preferRear || mode == CamMode.SIMPLE),
+                    parkingState = parking,
                     steeringDeg = vehicle.steeringAngleDeg,
                     trackWidth = guideTrack,
                 ) { previewA = it }
@@ -429,6 +446,9 @@ fun CamerasScreen(preferRear: Boolean = false) {
                             .weight(1f)
                             .fillMaxHeight(),
                         showGuides = guidesOn && (vehicle.reverse || preferRear) && isRearFacing(camB),
+                        showParkingHud =
+                            prefs.parkingHudEnabled && vehicle.reverse && isRearFacing(camB),
+                        parkingState = parking,
                         steeringDeg = vehicle.steeringAngleDeg,
                         trackWidth = guideTrack,
                     ) { previewB = it }
@@ -471,6 +491,9 @@ private fun CamSurface(
     label: String,
     modifier: Modifier = Modifier,
     showGuides: Boolean = false,
+    showParkingHud: Boolean = false,
+    parkingState: com.veplayer.app.vehicle.ParkingDistance.State =
+        com.veplayer.app.vehicle.ParkingDistance.State(),
     steeringDeg: Float? = null,
     trackWidth: Float = 0.46f,
     onReady: (PreviewView) -> Unit,
@@ -497,8 +520,16 @@ private fun CamSurface(
             enabled = showGuides,
             modifier = Modifier.fillMaxSize(),
         )
+        if (showParkingHud) {
+            com.veplayer.app.ui.cameras.ParkingDistanceOverlay(
+                state = parkingState,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
         Text(
-            label + if (showGuides) " · guías" else "",
+            label +
+                (if (showGuides) " · guías" else "") +
+                (if (showParkingHud && parkingState.label.isNotBlank()) " · ${parkingState.label}" else ""),
             color = Teal,
             fontWeight = FontWeight.Bold,
             modifier = Modifier

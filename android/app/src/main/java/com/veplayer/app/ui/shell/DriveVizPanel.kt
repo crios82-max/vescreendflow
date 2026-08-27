@@ -68,6 +68,7 @@ import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.IdleAlert
 import com.veplayer.app.vehicle.IdleMonitor
 import com.veplayer.app.vehicle.DtcMonitor
+import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.MaintenanceMonitor
 import com.veplayer.app.vehicle.SpeedHud
 import com.veplayer.app.vehicle.SpeedHudMonitor
@@ -92,6 +93,7 @@ fun DriveVizPanel(
     val fuelHud by FuelRangeHudMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
+    val parking by ParkingDistanceMonitor.state.collectAsState()
     val panic by PanicBus.state.collectAsState()
     var holdProgress by remember { mutableFloatStateOf(0f) }
     var holdJob by remember { mutableStateOf<Job?>(null) }
@@ -103,6 +105,7 @@ fun DriveVizPanel(
             FuelRangeHudMonitor.tick(prefs, snap.fuelPct, snap.batterySocPct, snap.rangeKm)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
+            ParkingDistanceMonitor.tick(prefs, snap.reverse)
             delay(500)
         }
     }
@@ -201,6 +204,13 @@ fun DriveVizPanel(
                             else -> "Phone · ${phone.deviceName.take(14)}"
                         },
                         color = Color(0xFF14B8A6),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (parking.active && parking.label.isNotBlank()) {
+                    Text(
+                        "PDC · ${parking.label}",
+                        color = Color(com.veplayer.app.vehicle.ParkingDistance.accentArgb(parking.band)),
                         fontSize = 11.sp,
                     )
                 }

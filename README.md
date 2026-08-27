@@ -444,6 +444,20 @@ npm run veplayer:osm-prefetch-smoke
 
 **Fase 6 (siguiente):** parking distance HUD.
 
+## Parking distance HUD (v0.38 · Fase 6)
+
+PDC / ultrasonidos atrás en reverse:
+
+- Zonas `uss.rear_l/c/r_m` · bands near/warn/crit (~2.5 / 1.5 / 0.6 m)
+- Overlay barras L/C/R en cámara reverse · DriveViz `PDC · Xm`
+- Sim USS sin sensores · TTS + inbox · alertas flota `parking_near` / `parking_crit`
+
+```bash
+npm run veplayer:parking-hud-smoke
+```
+
+**Fase 6 completa** (geofence speed · DTC · eco · Phone Link · OSM prefetch · parking HUD).
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

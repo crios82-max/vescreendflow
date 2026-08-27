@@ -149,6 +149,8 @@ object FleetInbox {
             kind == "abs" -> "Atención. Sistema ABS activo."
             kind == "tpms_low" -> "Atención. Presión de neumáticos baja."
             kind == "mil_on" || kind == "mil" -> "Atención. Luz de motor encendida."
+            kind == "parking_crit" || kind == "parking_near" || kind.startsWith("parking_") ->
+                "Atención. Estacionamiento. $body."
             kind.startsWith("dtc:") || kind == "dtc" ->
                 "Atención. Código de falla. $body."
             kind == "soc_low" -> "Atención. Batería baja. $body."

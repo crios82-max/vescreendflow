@@ -18,11 +18,15 @@ object VehicleState {
 
     fun applySignals(signals: VehicleSignals) {
         val d = DtcBus.snap.value
+        val uss = ParkingDistanceBus.zones.value
         _state.value =
             signals.copy(
                 mil = d.mil,
                 dtcCount = if (d.dtcCount > 0) d.dtcCount else d.codes.size,
                 dtcs = d.codes,
+                ussRearL = uss.rearL ?: signals.ussRearL,
+                ussRearC = uss.rearC ?: signals.ussRearC,
+                ussRearR = uss.rearR ?: signals.ussRearR,
             )
     }
 
