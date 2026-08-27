@@ -10,6 +10,7 @@
     "senseflow:seed": "npm run seed --prefix senseflow/server",
     "senseflow:smoke": "senseflow/scripts/smoke.sh",
     "veplayer:obd-smoke": "node veplayer/scripts/obd-pid-smoke.mjs",
+    "veplayer:obd-dtc-smoke": "node veplayer/scripts/obd-dtc-smoke.mjs",
     "veplayer:can-smoke": "node veplayer/scripts/can-smoke.mjs",
     "veplayer:kiosk-smoke": "node veplayer/scripts/kiosk-smoke.mjs",
     "veplayer:field-smoke": "node veplayer/scripts/field-smoke.mjs",

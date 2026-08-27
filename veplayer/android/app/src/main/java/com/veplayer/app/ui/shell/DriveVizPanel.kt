@@ -67,6 +67,7 @@ import com.veplayer.app.vehicle.FuelRangeHudMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.IdleAlert
 import com.veplayer.app.vehicle.IdleMonitor
+import com.veplayer.app.vehicle.DtcMonitor
 import com.veplayer.app.vehicle.MaintenanceMonitor
 import com.veplayer.app.vehicle.SpeedHud
 import com.veplayer.app.vehicle.SpeedHudMonitor
@@ -90,6 +91,7 @@ fun DriveVizPanel(
     val maint by MaintenanceMonitor.state.collectAsState()
     val fuelHud by FuelRangeHudMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
+    val dtc by DtcMonitor.state.collectAsState()
     val panic by PanicBus.state.collectAsState()
     var holdProgress by remember { mutableFloatStateOf(0f) }
     var holdJob by remember { mutableStateOf<Job?>(null) }
@@ -100,6 +102,7 @@ fun DriveVizPanel(
             MaintenanceMonitor.tick(prefs, snap.odometerKm)
             FuelRangeHudMonitor.tick(prefs, snap.fuelPct, snap.batterySocPct, snap.rangeKm)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
+            DtcMonitor.tick(prefs, snap)
             delay(500)
         }
     }
@@ -294,6 +297,10 @@ fun DriveVizPanel(
         Text(
             buildString {
                 if (vehicle.absActive) append("ABS · ")
+                if (dtc.label.isNotBlank()) {
+                    append(dtc.label)
+                    append(" · ")
+                }
                 vehicle.tpmsFlPsi?.let {
                     append("TPMS ${it.toInt()}")
                     if (vehicle.tpmsLow) append("!")
@@ -304,7 +311,7 @@ fun DriveVizPanel(
                     if (vehicle.hvacAcOn) append(" AC")
                 }
             }.ifBlank { "—" },
-            color = Mute,
+            color = if (dtc.mil) Color(0xFFF59E0B) else Mute,
             fontSize = 12.sp,
         )
         val counts =

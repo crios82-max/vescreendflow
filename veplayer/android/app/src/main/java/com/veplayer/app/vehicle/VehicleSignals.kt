@@ -82,6 +82,12 @@ data class VehicleSignals(
     val hvacAcOn: Boolean = false,
     val hvacFanLevel: Int = 0,
     val throttlePct: Float? = null,
+    /** MIL (check engine) from OBD PID 0101. */
+    val mil: Boolean = false,
+    /** Reported DTC count (PID 0101 or list size). */
+    val dtcCount: Int = 0,
+    /** Stored / pending / permanent codes. */
+    val dtcs: List<ObdDtc.Code> = emptyList(),
     val source: String = "idle",
     val updatedAtMs: Long = System.currentTimeMillis(),
 ) {
@@ -141,6 +147,9 @@ data class VehicleSignals(
                     "fan" to hvacFanLevel,
                 ),
             "throttle_pct" to throttlePct?.toDouble(),
+            "mil" to mil,
+            "dtc_count" to dtcCount,
+            "dtcs" to dtcs.map { it.toJsonMap() },
             "source" to source,
             "updated_at_ms" to updatedAtMs,
         )

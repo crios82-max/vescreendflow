@@ -215,6 +215,28 @@ export function evaluateFleetAlerts(
       insertAlert(deviceId, 'tpms_low', 'warn', 'TPMS presión baja', tpms)
       raised.push('tpms_low')
     }
+    if (signals.mil === true && !recentlyAlerted(deviceId, 'mil_on', 600)) {
+      insertAlert(deviceId, 'mil_on', 'warn', 'Luz de motor (MIL) encendida', {
+        mil: true,
+        dtc_count: signals.dtc_count ?? null,
+      })
+      raised.push('mil_on')
+    }
+    const dtcs = Array.isArray(signals.dtcs) ? signals.dtcs : []
+    for (const raw of dtcs) {
+      if (!raw || typeof raw !== 'object') continue
+      const row = raw as Record<string, unknown>
+      const code = typeof row.code === 'string' ? row.code.trim().toUpperCase() : ''
+      if (!/^[PCBU][0-9A-F]{4}$/i.test(code)) continue
+      const kind = `dtc:${code}`
+      if (recentlyAlerted(deviceId, kind, 1800)) continue
+      const status = typeof row.status === 'string' ? row.status : 'stored'
+      insertAlert(deviceId, kind, 'warn', `DTC ${code} (${status})`, {
+        code,
+        status,
+      })
+      raised.push(kind)
+    }
     const soc = signals.battery_soc_pct
     if (typeof soc === 'number' && soc < 15 && !recentlyAlerted(deviceId, 'soc_low', 600)) {
       insertAlert(deviceId, 'soc_low', 'warn', `SOC bajo (${Math.round(soc)}%)`, { battery_soc_pct: soc })

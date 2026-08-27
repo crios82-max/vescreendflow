@@ -103,7 +103,7 @@
     <span id="me" class="muted"></span>
     <span id="meta"></span>
   </div>
-  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · nav_dest · set_driver · set_speed_limit · set_fuel_warn · set_idle_warn · panic_ack · service_done · set_maintenance</p>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · read_dtc · clear_dtc · seed_dtc · nav_dest · set_driver · set_speed_limit · set_fuel_warn · set_idle_warn · panic_ack · service_done · set_maintenance</p>
   <div id="toast"></div>
 
   <div class="grid" id="report-cards">
@@ -521,6 +521,10 @@
         if (d.reverse || vs.reverse) sigBits.push('R')
         if (vs.battery_soc_pct != null) sigBits.push(`SOC ${Math.round(vs.battery_soc_pct)}%`)
         if (vs.abs_active) sigBits.push('ABS')
+        if (vs.mil) sigBits.push('MIL')
+        if (Array.isArray(vs.dtcs) && vs.dtcs.length) {
+          sigBits.push(vs.dtcs.map((c) => c.code || c).slice(0, 3).join(' '))
+        }
         if (vs.source) sigBits.push(vs.source)
         const sig = sigBits.length ? sigBits.join(' · ') : '—'
         tr.innerHTML = `<td>${d.name || '—'}</td><td>${d.pair_code || '—'}</td>
@@ -552,6 +556,9 @@
         mk('OTA', 'ota', 'warn', ota.release ? { apk_url: ota.release.apk_url, silent: true, version_code: ota.release.version_code } : null)
         mk('CAN', 'set_source', 'ghost', { source: 'can' })
         mk('OBD', 'reboot_obd', 'ghost')
+        mk('DTC', 'read_dtc', 'ghost')
+        mk('CLR', 'clear_dtc', 'ghost')
+        mk('SeedDTC', 'seed_dtc', 'ghost', { mil: true, codes: ['P0420', 'P0301'] })
         mk('Nav', 'nav_dest', 'ghost', {
           name: 'Aeropuerto Maiquetía',
           lat: 10.6013,

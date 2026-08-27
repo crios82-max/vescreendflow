@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
  *
  * 1. If [VePrefs.obdDeviceAddress] is set → Bluetooth Classic RFCOMM + Mode 01 PIDs
  * 2. On failure / no MAC → PID simulator (`obd_sim`) so UI/fleet keep working
+ * 3. DTC: live Modes 03/07/0A (+0101 MIL) every ~8s · sim seeds demo codes when enabled
  *
  * PIDs: 010D speed · 010C RPM · 0105 coolant · 012F fuel · 0146 ambient · 0111 throttle
  */
@@ -34,6 +35,7 @@ class ObdElm327Adapter(
 
     private var job: Job? = null
     private var t = 0.0
+    private var pollCycles = 0
 
     @Volatile
     var linkState: ObdLinkState = ObdLinkState.IDLE
@@ -71,22 +73,30 @@ class ObdElm327Adapter(
                     ObdLinkBus.publish(linkState, statusText)
                 }
 
+                if (!live && prefs.dtcDemoSeed && DtcBus.snap.value.codes.isEmpty()) {
+                    DtcBus.seedDemo()
+                }
+
                 while (isActive) {
                     t += 0.5
+                    pollCycles++
                     if (live && bt.isConnected()) {
                         linkState = ObdLinkState.POLLING
                         val pids = bt.pollPids()
                         if (pids.speedKmh == null && pids.rpm == null) {
-                            // empty frame streak → maybe dropped
                             if (!bt.isConnected()) {
                                 live = false
                                 linkState = ObdLinkState.FALLBACK_SIM
                                 statusText = "Link caído · sim"
                                 ObdLinkBus.publish(linkState, statusText)
+                                if (prefs.dtcDemoSeed) DtcBus.seedDemo()
                             } else {
                                 _signals.value = fromPids(pids, live = true)
                             }
                         } else {
+                            if (pollCycles % 16 == 1) {
+                                runCatching { DtcBus.apply(bt.pollDtc()) }
+                            }
                             _signals.value = fromPids(pids, live = true)
                             statusText =
                                 "OBD live · ${pids.speedKmh?.toInt() ?: "—"} km/h · ${pids.rpm?.toInt() ?: "—"} rpm"
@@ -110,6 +120,31 @@ class ObdElm327Adapter(
         ObdLinkBus.publish(linkState, statusText)
     }
 
+    fun requestReadDtc() {
+        scope.launch {
+            if (bt.isConnected()) {
+                runCatching { DtcBus.apply(bt.pollDtc()) }
+            } else if (prefs.dtcDemoSeed) {
+                DtcBus.seedDemo()
+            }
+        }
+    }
+
+    fun requestClearDtc(): Boolean {
+        val liveOk = if (bt.isConnected()) bt.clearDtcs() else true
+        DtcBus.clear()
+        return liveOk
+    }
+
+    private fun withDtc(base: VehicleSignals): VehicleSignals {
+        val d = DtcBus.snap.value
+        return base.copy(
+            mil = d.mil,
+            dtcCount = if (d.dtcCount > 0) d.dtcCount else d.codes.size,
+            dtcs = d.codes,
+        )
+    }
+
     private fun fromPids(
         p: ObdPidParser.PidValues,
         live: Boolean,
@@ -122,29 +157,31 @@ class ObdElm327Adapter(
                 kmh < 0.5f -> Gear.N
                 else -> Gear.D
             }
-        return VehicleSignals(
-            speedMps = kmh / 3.6f,
-            gear = gear,
-            turn = TurnSignal.OFF,
-            parkingBrake = gear == Gear.N && kmh < 0.5f,
-            seatbeltDriver = true,
-            fuelPct = p.fuelPct ?: prev.fuelPct,
-            rpm = p.rpm ?: prev.rpm,
-            coolantC = p.coolantC ?: prev.coolantC,
-            outdoorTempC = p.outdoorTempC ?: prev.outdoorTempC,
-            ignition = IgnitionState.ON,
-            absActive = false,
-            tpmsFlPsi = prev.tpmsFlPsi,
-            tpmsFrPsi = prev.tpmsFrPsi,
-            tpmsRlPsi = prev.tpmsRlPsi,
-            tpmsRrPsi = prev.tpmsRrPsi,
-            hvacCabinC = prev.hvacCabinC ?: p.outdoorTempC,
-            hvacTargetC = prev.hvacTargetC,
-            hvacAcOn = prev.hvacAcOn,
-            hvacFanLevel = prev.hvacFanLevel,
-            throttlePct = p.throttlePct ?: prev.throttlePct,
-            source = if (live) "obd" else "obd_sim",
-            updatedAtMs = System.currentTimeMillis(),
+        return withDtc(
+            VehicleSignals(
+                speedMps = kmh / 3.6f,
+                gear = gear,
+                turn = TurnSignal.OFF,
+                parkingBrake = gear == Gear.N && kmh < 0.5f,
+                seatbeltDriver = true,
+                fuelPct = p.fuelPct ?: prev.fuelPct,
+                rpm = p.rpm ?: prev.rpm,
+                coolantC = p.coolantC ?: prev.coolantC,
+                outdoorTempC = p.outdoorTempC ?: prev.outdoorTempC,
+                ignition = IgnitionState.ON,
+                absActive = false,
+                tpmsFlPsi = prev.tpmsFlPsi,
+                tpmsFrPsi = prev.tpmsFrPsi,
+                tpmsRlPsi = prev.tpmsRlPsi,
+                tpmsRrPsi = prev.tpmsRrPsi,
+                hvacCabinC = prev.hvacCabinC ?: p.outdoorTempC,
+                hvacTargetC = prev.hvacTargetC,
+                hvacAcOn = prev.hvacAcOn,
+                hvacFanLevel = prev.hvacFanLevel,
+                throttlePct = p.throttlePct ?: prev.throttlePct,
+                source = if (live) "obd" else "obd_sim",
+                updatedAtMs = System.currentTimeMillis(),
+            ),
         )
     }
 
@@ -165,32 +202,34 @@ class ObdElm327Adapter(
                 else -> Gear.D
             }
         val absPulse = ((t * 2).toInt() % 40) == 0 && kmh > 20f
-        return VehicleSignals(
-            speedMps = kmh / 3.6f,
-            gear = gear,
-            turn = TurnSignal.OFF,
-            parkingBrake = gear == Gear.N && kmh < 0.5f,
-            seatbeltDriver = true,
-            batterySocPct = null,
-            fuelPct = (55f + 3f * sin(t / 50.0).toFloat()).coerceIn(0f, 100f),
-            rangeKm = null,
-            rpm = rpm,
-            steeringAngleDeg = (sin(t / 7.0) * 8.0).toFloat(),
-            coolantC = 90f,
-            outdoorTempC = 27f,
-            ignition = IgnitionState.ON,
-            absActive = absPulse,
-            tpmsFlPsi = 32.5f,
-            tpmsFrPsi = 32.2f,
-            tpmsRlPsi = 33.0f,
-            tpmsRrPsi = 32.8f,
-            hvacCabinC = 24f + sin(t / 30.0).toFloat(),
-            hvacTargetC = 22f,
-            hvacAcOn = true,
-            hvacFanLevel = 2,
-            throttlePct = (kmh / 90f * 100f).coerceIn(0f, 100f),
-            source = "obd_sim",
-            updatedAtMs = System.currentTimeMillis(),
+        return withDtc(
+            VehicleSignals(
+                speedMps = kmh / 3.6f,
+                gear = gear,
+                turn = TurnSignal.OFF,
+                parkingBrake = gear == Gear.N && kmh < 0.5f,
+                seatbeltDriver = true,
+                batterySocPct = null,
+                fuelPct = (55f + 3f * sin(t / 50.0).toFloat()).coerceIn(0f, 100f),
+                rangeKm = null,
+                rpm = rpm,
+                steeringAngleDeg = (sin(t / 7.0) * 8.0).toFloat(),
+                coolantC = 90f,
+                outdoorTempC = 27f,
+                ignition = IgnitionState.ON,
+                absActive = absPulse,
+                tpmsFlPsi = 32.5f,
+                tpmsFrPsi = 32.2f,
+                tpmsRlPsi = 33.0f,
+                tpmsRrPsi = 32.8f,
+                hvacCabinC = 24f + sin(t / 30.0).toFloat(),
+                hvacTargetC = 22f,
+                hvacAcOn = true,
+                hvacFanLevel = 2,
+                throttlePct = (kmh / 90f * 100f).coerceIn(0f, 100f),
+                source = "obd_sim",
+                updatedAtMs = System.currentTimeMillis(),
+            ),
         )
     }
 

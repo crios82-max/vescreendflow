@@ -148,6 +148,9 @@ object FleetInbox {
             kind.startsWith("geofence") -> "Alerta de zona. $body."
             kind == "abs" -> "Atención. Sistema ABS activo."
             kind == "tpms_low" -> "Atención. Presión de neumáticos baja."
+            kind == "mil_on" || kind == "mil" -> "Atención. Luz de motor encendida."
+            kind.startsWith("dtc:") || kind == "dtc" ->
+                "Atención. Código de falla. $body."
             kind == "soc_low" -> "Atención. Batería baja. $body."
             kind == "fuel_low" -> "Atención. Combustible bajo. $body."
             kind == "range_low" -> "Atención. Autonomía baja. $body."

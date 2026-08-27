@@ -205,6 +205,52 @@ class RemoteCommandExecutor(
                         RemoteCommandBus.publish("OBD reiniciado / rebind")
                         notify("Flota", "OBD rebind")
                     }
+                    "seed_dtc" -> {
+                        val arr = cmd.payload?.optJSONArray("codes")
+                        val codes = mutableListOf<com.veplayer.app.vehicle.ObdDtc.Code>()
+                        if (arr != null) {
+                            for (i in 0 until arr.length()) {
+                                val obj = arr.optJSONObject(i)
+                                val c =
+                                    (
+                                        obj?.optString("code")
+                                            ?: arr.optString(i)
+                                    ).trim().uppercase()
+                                if (c.matches(Regex("^[PCBU][0-9A-F]{4}$"))) {
+                                    val st = obj?.optString("status")?.ifBlank { "stored" } ?: "stored"
+                                    codes += com.veplayer.app.vehicle.ObdDtc.Code(c, st)
+                                }
+                            }
+                        }
+                        if (codes.isEmpty()) {
+                            codes += com.veplayer.app.vehicle.ObdDtc.Code("P0420", "stored")
+                            codes += com.veplayer.app.vehicle.ObdDtc.Code("P0301", "pending")
+                        }
+                        val mil = cmd.payload?.optBoolean("mil", true) != false
+                        CanBusManager.seedDtc(codes, mil)
+                        onStatus("Cmd seed_dtc · ${codes.joinToString { it.code }}")
+                        RemoteCommandBus.publish("DTC seed · ${codes.size}")
+                    }
+                    "clear_dtc" -> {
+                        CanBusManager.clearDtc()
+                        onStatus("Cmd clear_dtc")
+                        RemoteCommandBus.publish("DTC limpiados")
+                        notify("Flota", "DTC clear")
+                    }
+                    "read_dtc" -> {
+                        CanBusManager.readDtc()
+                        val s = com.veplayer.app.vehicle.DtcBus.snap.value
+                        onStatus(
+                            "Cmd read_dtc · mil=${s.mil} · ${s.codes.joinToString { it.code }.ifBlank { "none" }}",
+                        )
+                        RemoteCommandBus.publish(
+                            if (s.mil || s.codes.isNotEmpty()) {
+                                "DTC · ${if (s.mil) "MIL " else ""}${s.codes.joinToString { it.code }}"
+                            } else {
+                                "DTC · sin códigos"
+                            },
+                        )
+                    }
                     "nav_dest" -> {
                         val name = cmd.payload?.optString("name") ?: "Destino flota"
                         val lat = cmd.payload?.optDouble("lat")

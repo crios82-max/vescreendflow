@@ -515,6 +515,83 @@ fun SettingsScreen() {
                     color = Mute,
                 )
             }
+            var dtcOn by remember { mutableStateOf(prefs.dtcAlertsEnabled) }
+            var dtcTts by remember { mutableStateOf(prefs.dtcTts) }
+            var dtcSeed by remember { mutableStateOf(prefs.dtcDemoSeed) }
+            val dtcSnap by com.veplayer.app.vehicle.DtcBus.snap.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Alertas DTC / MIL", color = Mist)
+                Switch(
+                    checked = dtcOn,
+                    onCheckedChange = {
+                        dtcOn = it
+                        prefs.dtcAlertsEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS fallas", color = Mist)
+                Switch(
+                    checked = dtcTts,
+                    onCheckedChange = {
+                        dtcTts = it
+                        prefs.dtcTts = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Seed demo (obd_sim)", color = Mist)
+                Switch(
+                    checked = dtcSeed,
+                    onCheckedChange = {
+                        dtcSeed = it
+                        prefs.dtcDemoSeed = it
+                        if (it) com.veplayer.app.vehicle.CanBusManager.readDtc()
+                        else com.veplayer.app.vehicle.CanBusManager.clearDtc()
+                    },
+                )
+            }
+            Text(
+                buildString {
+                    if (dtcSnap.mil) append("MIL · ")
+                    if (dtcSnap.codes.isEmpty()) append("Sin DTC")
+                    else append(dtcSnap.codes.joinToString { "${it.code}(${it.status.take(1)})" })
+                },
+                color = if (dtcSnap.mil) Teal else Mute,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.vehicle.CanBusManager.readDtc()
+                        status = "DTC leídos"
+                    },
+                ) { Text("Leer DTC") }
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.vehicle.DtcBus.seedDemo()
+                        com.veplayer.app.vehicle.CanBusManager.readDtc()
+                        status = "DTC sim P0420/P0301"
+                    },
+                ) { Text("Simular") }
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.vehicle.CanBusManager.clearDtc()
+                        status = "DTC clear"
+                    },
+                ) { Text("Limpiar") }
+            }
         }
 
         PanelBlock("Navegación") {
