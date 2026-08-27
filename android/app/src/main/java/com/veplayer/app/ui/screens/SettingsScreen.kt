@@ -44,6 +44,10 @@ import com.veplayer.app.ui.theme.Mist
 import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Panel
 import com.veplayer.app.ui.theme.Teal
+import com.veplayer.app.brand.BrandBus
+import com.veplayer.app.brand.BrandRepository
+import com.veplayer.app.ui.brand.BrandLogo
+import androidx.compose.ui.graphics.Color
 import com.veplayer.app.vehicle.CanBusManager
 import com.veplayer.app.vehicle.ObdLinkBus
 import com.veplayer.app.vehicle.SignalSourceKind
@@ -434,6 +438,55 @@ fun SettingsScreen() {
                         }
                     },
                 ) { Text("Desde SenseFlow") }
+            }
+            Text("Marca OEM (white-label):", color = Mist)
+            LaunchedEffect(Unit) { BrandBus.refresh(context) }
+            val brand by BrandBus.state.collectAsState()
+            Text(
+                when {
+                    brand.displayName.isNotBlank() -> "Marca · ${brand.displayName} (${brand.brandId})"
+                    brand.brandId.isNotBlank() -> "Marca · ${brand.brandId}"
+                    else -> "Sin marca OEM"
+                },
+                color = Color(brand.accentArgb),
+            )
+            if (brand.hasLogo) {
+                BrandLogo(height = 40.dp)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            status = "Descargando marca demo…"
+                            val base = prefs.senseflowUrl.trimEnd('/')
+                            val url = "$base/brands/demo/logo.png"
+                            val r =
+                                withContext(Dispatchers.IO) {
+                                    runCatching {
+                                        BrandRepository.apply(
+                                            context = context,
+                                            prefs = prefs,
+                                            brandId = "demo",
+                                            name = "Marca Demo",
+                                            logoUrl = url,
+                                            accent = "#E11D48",
+                                        )
+                                    }
+                                }
+                            r.onSuccess {
+                                BrandBus.refresh(context)
+                                status = "Marca demo OK · $it"
+                            }.onFailure { status = it.message ?: "brand fail" }
+                        }
+                    },
+                ) { Text("Demo marca") }
+                OutlinedButton(
+                    onClick = {
+                        BrandRepository.clear(context, prefs)
+                        BrandBus.refresh(context)
+                        status = "Marca OEM limpiada"
+                    },
+                ) { Text("Limpiar") }
             }
             OutlinedTextField(
                 value = obdAddr,

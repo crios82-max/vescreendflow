@@ -165,6 +165,39 @@ class RemoteCommandExecutor(
                             }
                         }
                     }
+                    "set_brand" -> {
+                        val clear = cmd.payload?.optBoolean("clear", false) == true
+                        onStatus("Cmd set_brand")
+                        if (clear) {
+                            com.veplayer.app.brand.BrandRepository.clear(context, prefs)
+                            com.veplayer.app.brand.BrandBus.refresh(context)
+                            RemoteCommandBus.publish("Marca OEM limpiada")
+                        } else {
+                            val id = cmd.payload?.optString("brand_id").orEmpty()
+                            val name = cmd.payload?.optString("name").orEmpty()
+                            val url = cmd.payload?.optString("logo_url").orEmpty()
+                            val b64 = cmd.payload?.optString("logo_base64").orEmpty()
+                            val accent = cmd.payload?.optString("accent").orEmpty()
+                            runCatching {
+                                val label =
+                                    com.veplayer.app.brand.BrandRepository.apply(
+                                        context = context,
+                                        prefs = prefs,
+                                        brandId = id,
+                                        name = name,
+                                        logoUrl = url,
+                                        logoBase64 = b64,
+                                        accent = accent,
+                                    )
+                                com.veplayer.app.brand.BrandBus.refresh(context)
+                                onStatus("Marca → $label")
+                                RemoteCommandBus.publish("Marca OEM · $label")
+                            }.onFailure {
+                                onStatus("set_brand fail: ${it.message}")
+                                throw it
+                            }
+                        }
+                    }
                     "set_dbc" -> {
                         val url = cmd.payload?.optString("url").orEmpty()
                         val text = cmd.payload?.optString("text").orEmpty()

@@ -1027,6 +1027,33 @@ Presión de combustible (**OBD PID 010A**), kPa — alerta por presión **baja**
 npm run veplayer:fuel-pressure-smoke
 ```
 
+## OEM white-label (v0.81 · set_brand)
+
+Un APK para todas las marcas — branding remoto por dispositivo (como `set_dbc`):
+
+- Logo desde URL (`/brands/<id>/logo.png`) o `logo_base64` en el payload
+- Nombre + color accent en Home y DriveViz
+- Heartbeat `brand` · Ajustes → panel Marca OEM (preview / demo / limpiar)
+- Flota: `set_brand` · clear con `{ "clear": true }`
+
+```bash
+npm run veplayer:brand-smoke
+curl -I http://127.0.0.1:4100/brands/demo/logo.png
+```
+
+```json
+{
+  "device_id": "...",
+  "command": "set_brand",
+  "payload": {
+    "brand_id": "marca-x",
+    "name": "Marca X",
+    "logo_url": "https://sense…/brands/marca-x/logo.png",
+    "accent": "#E11D48"
+  }
+}
+```
+
 **Fase 15 (en curso):** MAF airflow · fuel pressure · barometric · timing advance · O2 voltage.
 
 ## Device Owner (kiosk duro · v0.12)

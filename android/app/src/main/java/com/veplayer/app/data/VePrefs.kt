@@ -20,6 +20,23 @@ class VePrefs(context: Context) {
         get() = sp.getString("player_url", BuildConfig.PLAYER_URL) ?: BuildConfig.PLAYER_URL
         set(value) = sp.edit().putString("player_url", value.trim()).apply()
 
+    /** OEM white-label (fleet set_brand). */
+    var brandId: String
+        get() = sp.getString("brand_id", "") ?: ""
+        set(value) = sp.edit().putString("brand_id", value.trim()).apply()
+
+    var brandName: String
+        get() = sp.getString("brand_name", "") ?: ""
+        set(value) = sp.edit().putString("brand_name", value.trim()).apply()
+
+    var brandLogoPath: String
+        get() = sp.getString("brand_logo_path", "") ?: ""
+        set(value) = sp.edit().putString("brand_logo_path", value).apply()
+
+    var brandAccentArgb: Long
+        get() = sp.getLong("brand_accent", 0xFF2DD4BFL)
+        set(value) = sp.edit().putLong("brand_accent", value).apply()
+
     var videoSpeedBlockKmh: Float
         get() = sp.getFloat("video_block_kmh", 8f)
         set(value) = sp.edit().putFloat("video_block_kmh", value).apply()
