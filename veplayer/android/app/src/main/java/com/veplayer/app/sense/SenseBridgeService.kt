@@ -140,6 +140,20 @@ class SenseBridgeService : Service() {
                                         else com.veplayer.app.vehicle.RpmOverRevMonitor.state.value.rpm
                                             ?: snap.rpm
                                         )?.toDouble(),
+                                    "throttle_pct" to
+                                        (if (prefs.throttleSimPct > 0f) prefs.throttleSimPct
+                                        else com.veplayer.app.vehicle.HighThrottleMonitor.state.value.throttlePct
+                                            ?: snap.throttlePct
+                                        )?.toDouble(),
+                                    "throttle_warn_pct" to prefs.throttleWarnPct.toDouble(),
+                                    "throttle_alert_pct" to prefs.throttleAlertPct.toDouble(),
+                                    "throttle_alert_hold_sec" to prefs.throttleAlertHoldSec.toDouble(),
+                                    "throttle_high_sec" to
+                                        com.veplayer.app.vehicle.HighThrottleMonitor.state.value.highForSec.toDouble(),
+                                    "throttle" to
+                                        com.veplayer.app.vehicle.HighThrottle.toJsonMap(
+                                            com.veplayer.app.vehicle.HighThrottleMonitor.state.value,
+                                        ),
                                     "tow_moving_sec" to
                                         com.veplayer.app.vehicle.UnauthorizedMoveMonitor.state.value.movingForSec.toDouble(),
                                     "tow_speed_min_kmh" to prefs.towSpeedMinKmh.toDouble(),
@@ -317,6 +331,20 @@ class SenseBridgeService : Service() {
                                         else com.veplayer.app.vehicle.RpmOverRevMonitor.state.value.rpm
                                             ?: snap.rpm
                                         )?.toDouble(),
+                                    "throttle_pct" to
+                                        (if (prefs.throttleSimPct > 0f) prefs.throttleSimPct
+                                        else com.veplayer.app.vehicle.HighThrottleMonitor.state.value.throttlePct
+                                            ?: snap.throttlePct
+                                        )?.toDouble(),
+                                    "throttle_warn_pct" to prefs.throttleWarnPct.toDouble(),
+                                    "throttle_alert_pct" to prefs.throttleAlertPct.toDouble(),
+                                    "throttle_alert_hold_sec" to prefs.throttleAlertHoldSec.toDouble(),
+                                    "throttle_high_sec" to
+                                        com.veplayer.app.vehicle.HighThrottleMonitor.state.value.highForSec.toDouble(),
+                                    "throttle" to
+                                        com.veplayer.app.vehicle.HighThrottle.toJsonMap(
+                                            com.veplayer.app.vehicle.HighThrottleMonitor.state.value,
+                                        ),
                                     "tow_moving_sec" to
                                         com.veplayer.app.vehicle.UnauthorizedMoveMonitor.state.value.movingForSec.toDouble(),
                                     "tow_speed_min_kmh" to prefs.towSpeedMinKmh.toDouble(),

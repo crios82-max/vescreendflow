@@ -812,6 +812,41 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("rpm_sim", 0f)
         set(value) = sp.edit().putFloat("rpm_sim", value.coerceIn(0f, 8000f)).apply()
 
+    /** High throttle / WOT (OBD 0111). */
+    var throttleEnabled: Boolean
+        get() = sp.getBoolean("high_throttle", true)
+        set(value) = sp.edit().putBoolean("high_throttle", value).apply()
+
+    var throttleTts: Boolean
+        get() = sp.getBoolean("high_throttle_tts", true)
+        set(value) = sp.edit().putBoolean("high_throttle_tts", value).apply()
+
+    var throttleWarnPct: Float
+        get() = sp.getFloat("throttle_warn_pct", 70f)
+        set(value) = sp.edit().putFloat("throttle_warn_pct", value.coerceIn(40f, 95f)).apply()
+
+    var throttleAlertPct: Float
+        get() = sp.getFloat("throttle_alert_pct", 85f)
+        set(value) = sp.edit().putFloat("throttle_alert_pct", value.coerceIn(50f, 100f)).apply()
+
+    /** Seconds at ≥ warn → escalate to alert. */
+    var throttleAlertHoldSec: Float
+        get() = sp.getFloat("throttle_alert_hold_sec", 8f)
+        set(value) = sp.edit().putFloat("throttle_alert_hold_sec", value.coerceIn(2f, 60f)).apply()
+
+    var throttleSpeedMinKmh: Float
+        get() = sp.getFloat("throttle_speed_min", 20f)
+        set(value) = sp.edit().putFloat("throttle_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    /** Demo throttle % (0 = live). */
+    var throttleSimPct: Float
+        get() = sp.getFloat("throttle_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("throttle_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    var throttleSimSpeedKmh: Float
+        get() = sp.getFloat("throttle_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("throttle_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Outdoor ice / frost (ambient). */
     var iceEnabled: Boolean
         get() = sp.getBoolean("ice_frost", true)

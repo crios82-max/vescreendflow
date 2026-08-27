@@ -887,6 +887,71 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // High throttle / WOT
+    const throttlePct =
+      typeof signals.throttle_pct === 'number'
+        ? (signals.throttle_pct as number)
+        : typeof (signals.throttle as Record<string, unknown> | undefined)?.throttle_pct ===
+            'number'
+          ? ((signals.throttle as Record<string, unknown>).throttle_pct as number)
+          : null
+    if (typeof throttlePct === 'number') {
+      const thrObj = signals.throttle as Record<string, unknown> | undefined
+      const highSec =
+        typeof signals.throttle_high_sec === 'number'
+          ? (signals.throttle_high_sec as number)
+          : typeof thrObj?.high_for_sec === 'number'
+            ? (thrObj.high_for_sec as number)
+            : 0
+      const warnPct =
+        typeof signals.throttle_warn_pct === 'number'
+          ? (signals.throttle_warn_pct as number)
+          : 70
+      const alertPct =
+        typeof signals.throttle_alert_pct === 'number'
+          ? (signals.throttle_alert_pct as number)
+          : 85
+      const alertHold =
+        typeof signals.throttle_alert_hold_sec === 'number'
+          ? (signals.throttle_alert_hold_sec as number)
+          : 8
+      const spd =
+        typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : typeof speedMps === 'number'
+            ? speedMps * 3.6
+            : 40
+      const bandFromClient =
+        typeof thrObj?.band === 'string' ? (thrObj.band as string) : null
+      const band =
+        bandFromClient === 'alert' || bandFromClient === 'warn'
+          ? bandFromClient
+          : throttlePct >= alertPct || (throttlePct >= warnPct && highSec >= alertHold)
+            ? 'alert'
+            : throttlePct >= warnPct && spd >= 20
+              ? 'warn'
+              : 'ok'
+      if (band === 'alert' && !recentlyAlerted(deviceId, 'throttle_alert', 120)) {
+        insertAlert(
+          deviceId,
+          'throttle_alert',
+          'critical',
+          `Acelerador alto · ${Math.round(throttlePct)}%`,
+          { throttle_pct: throttlePct, high_for_sec: highSec, alert_pct: alertPct },
+        )
+        raised.push('throttle_alert')
+      } else if (band === 'warn' && !recentlyAlerted(deviceId, 'throttle_warn', 120)) {
+        insertAlert(
+          deviceId,
+          'throttle_warn',
+          'warn',
+          `Acelerador abierto · ${Math.round(throttlePct)}%`,
+          { throttle_pct: throttlePct, warn_pct: warnPct },
+        )
+        raised.push('throttle_warn')
+      }
+    }
+
     // Unauthorized movement / tow — ignition off (or parking) + speed
     const parkingBrake = signals.parking_brake === true
     const secured = !ignOn || parkingBrake
