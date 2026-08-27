@@ -562,6 +562,20 @@ npm run veplayer:harsh-driving-smoke
 
 **Fase 8 (siguiente):** geofence exit · coolant · incident report.
 
+## Geofence exit (v0.46 · Fase 8)
+
+Salida de geofence con presencia persistente:
+
+- Tabla `fleet_geofence_presence` · enter solo en transición
+- Alerta `geofence_exit:{id}` · TTS «Saliste de la zona»
+- Enter ya no se re-dispara mientras sigues dentro
+
+```bash
+npm run veplayer:geofence-exit-smoke
+```
+
+**Fase 8 (siguiente):** coolant · incident report.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

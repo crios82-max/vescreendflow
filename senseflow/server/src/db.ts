@@ -117,6 +117,15 @@ db.exec(`
   );
 
   CREATE INDEX IF NOT EXISTS idx_fleet_telem_dev_ts ON fleet_telemetry(device_id, ts DESC);
+
+  CREATE TABLE IF NOT EXISTS fleet_geofence_presence (
+    device_id TEXT NOT NULL,
+    geofence_id INTEGER NOT NULL,
+    entered_at INTEGER NOT NULL,
+    PRIMARY KEY (device_id, geofence_id),
+    FOREIGN KEY (device_id) REFERENCES fleet_devices(device_id),
+    FOREIGN KEY (geofence_id) REFERENCES fleet_geofences(id)
+  );
 `)
 
 try {

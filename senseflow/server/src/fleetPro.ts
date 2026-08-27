@@ -156,27 +156,41 @@ export function evaluateFleetAlerts(
       radius_m: number
       max_kmh: number | null
     }>
+    const nowSec = Math.floor(Date.now() / 1000)
+    const prevRows = db
+      .prepare(`SELECT geofence_id FROM fleet_geofence_presence WHERE device_id = ?`)
+      .all(deviceId) as Array<{ geofence_id: number }>
+    const prevInside = new Set(prevRows.map((r) => r.geofence_id))
+    const nowInside = new Set<number>()
+
     for (const f of fences) {
       const d = haversineM(lat, lng, f.lat, f.lng)
       if (d <= f.radius_m) {
-        const kind = `geofence_enter:${f.id}`
-        if (!recentlyAlerted(deviceId, kind, 300)) {
-          const lim =
-            f.max_kmh != null && Number(f.max_kmh) > 0
-              ? ` · límite ${Math.round(Number(f.max_kmh))} km/h`
-              : ''
-          insertAlert(
-            deviceId,
-            kind,
-            'info',
-            `Entró a geofence «${f.name}» (${Math.round(d)} m)${lim}`,
-            {
-              geofence_id: f.id,
-              distance_m: Math.round(d),
-              max_kmh: f.max_kmh != null ? Number(f.max_kmh) : null,
-            },
-          )
-          raised.push(kind)
+        nowInside.add(f.id)
+        if (!prevInside.has(f.id)) {
+          db.prepare(
+            `INSERT OR REPLACE INTO fleet_geofence_presence (device_id, geofence_id, entered_at)
+             VALUES (?, ?, ?)`,
+          ).run(deviceId, f.id, nowSec)
+          const kind = `geofence_enter:${f.id}`
+          if (!recentlyAlerted(deviceId, kind, 60)) {
+            const lim =
+              f.max_kmh != null && Number(f.max_kmh) > 0
+                ? ` · límite ${Math.round(Number(f.max_kmh))} km/h`
+                : ''
+            insertAlert(
+              deviceId,
+              kind,
+              'info',
+              `Entró a geofence «${f.name}» (${Math.round(d)} m)${lim}`,
+              {
+                geofence_id: f.id,
+                distance_m: Math.round(d),
+                max_kmh: f.max_kmh != null ? Number(f.max_kmh) : null,
+              },
+            )
+            raised.push(kind)
+          }
         }
         if (f.max_kmh != null && Number(f.max_kmh) > 0) {
           const speedFromSignals =
@@ -201,6 +215,22 @@ export function evaluateFleetAlerts(
             }
           }
         }
+      }
+    }
+
+    for (const gid of prevInside) {
+      if (nowInside.has(gid)) continue
+      db.prepare(
+        `DELETE FROM fleet_geofence_presence WHERE device_id = ? AND geofence_id = ?`,
+      ).run(deviceId, gid)
+      const fence = fences.find((f) => f.id === gid)
+      const name = fence?.name ?? `#${gid}`
+      const kind = `geofence_exit:${gid}`
+      if (!recentlyAlerted(deviceId, kind, 60)) {
+        insertAlert(deviceId, kind, 'info', `Salió de geofence «${name}»`, {
+          geofence_id: gid,
+        })
+        raised.push(kind)
       }
     }
   }
