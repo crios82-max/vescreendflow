@@ -265,6 +265,18 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.FuelTrimLtft.toJsonMap(
                                             com.veplayer.app.vehicle.FuelTrimLtftMonitor.state.value,
                                         ),
+                                    "map_kpa" to
+                                        (if (prefs.mapSimKpa > 0f) prefs.mapSimKpa
+                                        else com.veplayer.app.vehicle.MapPressureMonitor.state.value.mapKpa
+                                            ?: snap.mapKpa
+                                        )?.toDouble(),
+                                    "map_warn_kpa" to prefs.mapWarnKpa.toDouble(),
+                                    "map_alert_kpa" to prefs.mapAlertKpa.toDouble(),
+                                    "map_speed_min_kmh" to prefs.mapSpeedMinKmh.toDouble(),
+                                    "map_pressure" to
+                                        com.veplayer.app.vehicle.MapPressure.toJsonMap(
+                                            com.veplayer.app.vehicle.MapPressureMonitor.state.value,
+                                        ),
                                     "throttle_pct" to
                                         (if (prefs.throttleSimPct > 0f) prefs.throttleSimPct
                                         else com.veplayer.app.vehicle.HighThrottleMonitor.state.value.throttlePct
@@ -591,6 +603,18 @@ class SenseBridgeService : Service() {
                                     "fuel_trim_ltft" to
                                         com.veplayer.app.vehicle.FuelTrimLtft.toJsonMap(
                                             com.veplayer.app.vehicle.FuelTrimLtftMonitor.state.value,
+                                        ),
+                                    "map_kpa" to
+                                        (if (prefs.mapSimKpa > 0f) prefs.mapSimKpa
+                                        else com.veplayer.app.vehicle.MapPressureMonitor.state.value.mapKpa
+                                            ?: snap.mapKpa
+                                        )?.toDouble(),
+                                    "map_warn_kpa" to prefs.mapWarnKpa.toDouble(),
+                                    "map_alert_kpa" to prefs.mapAlertKpa.toDouble(),
+                                    "map_speed_min_kmh" to prefs.mapSpeedMinKmh.toDouble(),
+                                    "map_pressure" to
+                                        com.veplayer.app.vehicle.MapPressure.toJsonMap(
+                                            com.veplayer.app.vehicle.MapPressureMonitor.state.value,
                                         ),
                                     "throttle_pct" to
                                         (if (prefs.throttleSimPct > 0f) prefs.throttleSimPct

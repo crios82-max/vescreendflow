@@ -1126,6 +1126,36 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("ltft_sim_speed", 40f)
         set(value) = sp.edit().putFloat("ltft_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Intake MAP (OBD 010B). */
+    var mapEnabled: Boolean
+        get() = sp.getBoolean("map_pressure", true)
+        set(value) = sp.edit().putBoolean("map_pressure", value).apply()
+
+    var mapTts: Boolean
+        get() = sp.getBoolean("map_pressure_tts", true)
+        set(value) = sp.edit().putBoolean("map_pressure_tts", value).apply()
+
+    var mapWarnKpa: Float
+        get() = sp.getFloat("map_warn_kpa", 95f)
+        set(value) = sp.edit().putFloat("map_warn_kpa", value.coerceIn(50f, 200f)).apply()
+
+    var mapAlertKpa: Float
+        get() = sp.getFloat("map_alert_kpa", 105f)
+        set(value) = sp.edit().putFloat("map_alert_kpa", value.coerceIn(60f, 255f)).apply()
+
+    var mapSpeedMinKmh: Float
+        get() = sp.getFloat("map_speed_min", 20f)
+        set(value) = sp.edit().putFloat("map_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    /** Demo MAP kPa (0 = live OBD). */
+    var mapSimKpa: Float
+        get() = sp.getFloat("map_sim_kpa", 0f)
+        set(value) = sp.edit().putFloat("map_sim_kpa", value.coerceIn(0f, 255f)).apply()
+
+    var mapSimSpeedKmh: Float
+        get() = sp.getFloat("map_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("map_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** High throttle / WOT (OBD 0111). */
     var throttleEnabled: Boolean
         get() = sp.getBoolean("high_throttle", true)
