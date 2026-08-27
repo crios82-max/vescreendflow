@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 /** Fase 18 smoke — EGR cmd, rel pedal, driver/act torque, catalyst B2. */
+import { runFaseFormulaChecks } from './obd-pid-registry.mjs'
+
 const BASE = process.env.SENSEFLOW_URL || 'http://127.0.0.1:4100'
 
 function assert(c, m) {
@@ -23,11 +25,7 @@ async function j(path, init = {}) {
 
 async function main() {
   console.log('fase18-smoke →', BASE)
-  assert((0xB4 * 100) / 255 > 70, 'pid 014C')
-  assert((0xE6 * 100) / 255 > 90, 'pid 015A')
-  assert(0xB9 - 125 === 60, 'pid 0161')
-  assert(0x41 - 125 === -60, 'pid 0162')
-  assert(((0x22 * 256 + 0xC4) / 10) - 40 === 850, 'pid 0170')
+  runFaseFormulaChecks(18, assert)
 
   const deviceId = `fase18-${Date.now().toString(36)}`
   await j('/api/fleet/register', {

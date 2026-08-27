@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 /** Fase 19 smoke — catalyst temps B1S2/B2S2/B1S3/B2S3/B1S4. */
+import { runFaseFormulaChecks } from './obd-pid-registry.mjs'
+
 const BASE = process.env.SENSEFLOW_URL || 'http://127.0.0.1:4100'
 
 function assert(c, m) {
@@ -23,11 +25,7 @@ async function j(path, init = {}) {
 
 async function main() {
   console.log('fase19-smoke →', BASE)
-  assert(((0x22 * 256 + 0xC4) / 10) - 40 === 850, 'pid 0171')
-  assert(((0x23 * 256 + 0x28) / 10) - 40 === 860, 'pid 0172')
-  assert(((0x23 * 256 + 0x8C) / 10) - 40 === 870, 'pid 0173')
-  assert(((0x23 * 256 + 0xF0) / 10) - 40 === 880, 'pid 0174')
-  assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0175')
+  runFaseFormulaChecks(19, assert)
 
   const deviceId = `fase19-${Date.now().toString(36)}`
   await j('/api/fleet/register', {

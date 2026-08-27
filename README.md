@@ -1251,6 +1251,32 @@ Torque referencia (**OBD PID 0163**), Nm · `ref_torque_warn` / `ref_torque_aler
 npm run veplayer:fase21-smoke
 ```
 
+## Validation gate (pre-fase · v1.15)
+
+Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
+
+| Paso | Qué valida |
+|------|------------|
+| `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
+| `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
+| `dbc-smoke` | DBC decode (Kotlin mirror) |
+| `fase16–21-smoke` | Alertas `fleetPro.ts` con heartbeats |
+
+```bash
+# SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)
+npm run senseflow:dev
+
+# Gate completo
+npm run veplayer:validate-gate
+
+# Solo parser/poll/dbc (sin API)
+VALIDATE_SKIP_FLEET=1 npm run veplayer:validate-gate
+```
+
+CI: workflow `.github/workflows/veplayer-gate.yml` — **build APK** + gate.
+
+**Producto = APK Compose** (`veplayer/android`). `veplayer/web/index.html` es solo preview decorativo, no la app.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 /** Fase 16 smoke — abs load, rel throttle, accel pedal, O2 B1S2, EGR error. */
+import { runFaseFormulaChecks } from './obd-pid-registry.mjs'
+
 const BASE = process.env.SENSEFLOW_URL || 'http://127.0.0.1:4100'
 
 function assert(c, m) {
@@ -23,12 +25,7 @@ async function j(path, init = {}) {
 
 async function main() {
   console.log('fase16-smoke →', BASE)
-
-  // PID parsers
-  assert(Math.abs(((0x00 * 256 + 0x7f) * 100) / 255 - 50) < 0.5, 'pid 0143')
-  assert((0x80 * 100) / 255 === 50.19607843137255, 'pid 0145')
-  assert((0x5a / 200) === 0.45, 'pid 014B')
-  assert(((0x60 - 128) * 100) / 128 === -25, 'pid 014D')
+  runFaseFormulaChecks(16, assert)
 
   const deviceId = `fase16-${Date.now().toString(36)}`
   await j('/api/fleet/register', {
