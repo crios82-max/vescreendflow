@@ -191,6 +191,20 @@ class SenseBridgeService : Service() {
                                     "impact" to com.veplayer.app.vehicle.ImpactDetect.toJsonMap(
                                         com.veplayer.app.vehicle.ImpactDetectMonitor.state.value,
                                     ),
+                                    "abs" to com.veplayer.app.vehicle.AbsHud.toJsonMap(
+                                        com.veplayer.app.vehicle.AbsHudMonitor.state.value,
+                                    ),
+                                    "abs_active" to
+                                        (prefs.absSim ||
+                                            com.veplayer.app.vehicle.AbsHudMonitor.state.value.active ||
+                                            snap.absActive),
+                                    "abs_active_sec" to
+                                        com.veplayer.app.vehicle.AbsHudMonitor.state.value.activeForSec.toDouble(),
+                                    "abs_events" to
+                                        com.veplayer.app.vehicle.AbsHudMonitor.state.value.events,
+                                    "abs_warn_sec" to prefs.absWarnSec.toDouble(),
+                                    "abs_alert_sec" to prefs.absAlertSec.toDouble(),
+                                    "abs_alert_events" to prefs.absAlertEvents.toDouble(),
                                     "speed_limit_kmh" to
                                         com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
                                             "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),
@@ -354,6 +368,20 @@ class SenseBridgeService : Service() {
                                     "impact" to com.veplayer.app.vehicle.ImpactDetect.toJsonMap(
                                         com.veplayer.app.vehicle.ImpactDetectMonitor.state.value,
                                     ),
+                                    "abs" to com.veplayer.app.vehicle.AbsHud.toJsonMap(
+                                        com.veplayer.app.vehicle.AbsHudMonitor.state.value,
+                                    ),
+                                    "abs_active" to
+                                        (prefs.absSim ||
+                                            com.veplayer.app.vehicle.AbsHudMonitor.state.value.active ||
+                                            snap.absActive),
+                                    "abs_active_sec" to
+                                        com.veplayer.app.vehicle.AbsHudMonitor.state.value.activeForSec.toDouble(),
+                                    "abs_events" to
+                                        com.veplayer.app.vehicle.AbsHudMonitor.state.value.events,
+                                    "abs_warn_sec" to prefs.absWarnSec.toDouble(),
+                                    "abs_alert_sec" to prefs.absAlertSec.toDouble(),
+                                    "abs_alert_events" to prefs.absAlertEvents.toDouble(),
                                     "speed_limit_kmh" to
                                         com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
                                     "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),

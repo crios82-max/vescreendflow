@@ -222,6 +222,35 @@ class VePrefs(context: Context) {
                 value.trim().lowercase().let { if (it == "right") "right" else "left" },
             ).apply()
 
+    /** ABS / ESC intervention HUD. */
+    var absHudEnabled: Boolean
+        get() = sp.getBoolean("abs_hud", true)
+        set(value) = sp.edit().putBoolean("abs_hud", value).apply()
+
+    var absHudTts: Boolean
+        get() = sp.getBoolean("abs_hud_tts", true)
+        set(value) = sp.edit().putBoolean("abs_hud_tts", value).apply()
+
+    /** Seconds ABS active → warn. */
+    var absWarnSec: Float
+        get() = sp.getFloat("abs_warn_sec", 0.5f)
+        set(value) = sp.edit().putFloat("abs_warn_sec", value.coerceIn(0.2f, 5f)).apply()
+
+    /** Seconds ABS active → alert. */
+    var absAlertSec: Float
+        get() = sp.getFloat("abs_alert_sec", 2f)
+        set(value) = sp.edit().putFloat("abs_alert_sec", value.coerceIn(0.5f, 10f)).apply()
+
+    /** Events in 60s → alert. */
+    var absAlertEvents: Float
+        get() = sp.getFloat("abs_alert_events", 3f)
+        set(value) = sp.edit().putFloat("abs_alert_events", value.coerceIn(2f, 20f)).apply()
+
+    /** Demo: force ABS active. */
+    var absSim: Boolean
+        get() = sp.getBoolean("abs_sim", false)
+        set(value) = sp.edit().putBoolean("abs_sim", value).apply()
+
     /** Sudden fuel drop (theft / leak) in a short window. */
     var fuelDropEnabled: Boolean
         get() = sp.getBoolean("fuel_drop", true)

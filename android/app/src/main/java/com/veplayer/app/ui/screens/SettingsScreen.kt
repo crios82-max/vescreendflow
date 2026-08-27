@@ -2789,6 +2789,68 @@ fun SettingsScreen() {
                 color = if (impactSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var absOn by remember { mutableStateOf(prefs.absHudEnabled) }
+            var absTtsOn by remember { mutableStateOf(prefs.absHudTts) }
+            var absSimOn by remember { mutableStateOf(prefs.absSim) }
+            val absSt by com.veplayer.app.vehicle.AbsHudMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("HUD ABS", color = Mist)
+                Switch(
+                    checked = absOn,
+                    onCheckedChange = {
+                        absOn = it
+                        prefs.absHudEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS ABS", color = Mist)
+                Switch(
+                    checked = absTtsOn,
+                    onCheckedChange = {
+                        absTtsOn = it
+                        prefs.absHudTts = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Sim ABS activo", color = Mist)
+                Switch(
+                    checked = absSimOn,
+                    onCheckedChange = {
+                        absSimOn = it
+                        prefs.absSim = it
+                        status = if (it) "ABS sim ON" else "ABS sim OFF"
+                    },
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    com.veplayer.app.vehicle.AbsHudMonitor.armSim()
+                    status = "Sim ABS armado (próximo tick)"
+                },
+            ) { Text("Pulso ABS") }
+            Text(
+                if (absSt.active || absSt.showWarn || absSt.events > 0) {
+                    "${absSt.label.ifBlank { "ABS" }} · ${absSt.band} · ×${absSt.events}"
+                } else {
+                    "ABS idle (warn ${prefs.absWarnSec}s / alert ${prefs.absAlertSec}s · ×${prefs.absAlertEvents.toInt()})"
+                },
+                color = if (absSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             OutlinedTextField(
                 value = mockSpeed,
                 onValueChange = { mockSpeed = it.filter { c -> c.isDigit() || c == '.' } },

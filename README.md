@@ -789,6 +789,20 @@ npm run veplayer:turn-stuck-smoke
 
 **Fase 11 (en curso):** RPM · ice · p-brake · turn stuck · ABS HUD.
 
+## ABS HUD (v0.63 · Fase 11)
+
+Intervención ABS / ESC con hold + ráfaga de eventos:
+
+- Default warn **≥0.5 s** activo / alert **≥2 s** o **≥3 eventos / 60 s**
+- DriveViz `ABS · …` · TTS + inbox
+- Flota `abs_warn` / `abs_alert` (alias legacy `abs`) · sim en Ajustes (Mock)
+
+```bash
+npm run veplayer:abs-hud-smoke
+```
+
+**Fase 11 completa** (RPM · ice/frost · parking-brake · turn stuck · ABS HUD).
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
