@@ -89,6 +89,7 @@ import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.IceFrostMonitor
 import com.veplayer.app.vehicle.IntakeAirMonitor
 import com.veplayer.app.vehicle.OilTempMonitor
+import com.veplayer.app.vehicle.CatalystTempMonitor
 import com.veplayer.app.vehicle.ParkingBrakeMovingMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.RestBreakMonitor
@@ -145,6 +146,7 @@ fun DriveVizPanel(
     val intakeAir by IntakeAirMonitor.state.collectAsState()
     val coolantHot by CoolantOverheatMonitor.state.collectAsState()
     val oilHot by OilTempMonitor.state.collectAsState()
+    val catalystHot by CatalystTempMonitor.state.collectAsState()
     val rpmHot by RpmOverRevMonitor.state.collectAsState()
     val engineLoad by EngineLoadMonitor.state.collectAsState()
     val stftTrim by FuelTrimStftMonitor.state.collectAsState()
@@ -195,6 +197,7 @@ fun DriveVizPanel(
             IntakeAirMonitor.tick(prefs, snap)
             CoolantOverheatMonitor.tick(prefs, snap)
             OilTempMonitor.tick(prefs, snap)
+            CatalystTempMonitor.tick(prefs, snap)
             RpmOverRevMonitor.tick(prefs, snap)
             EngineLoadMonitor.tick(prefs, snap)
             FuelTrimStftMonitor.tick(prefs, snap)
@@ -436,6 +439,20 @@ fun DriveVizPanel(
                     Text(
                         "Aceite · ${oilHot.label}",
                         color = Color(com.veplayer.app.vehicle.OilTemp.accentArgb(oilHot.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (
+                    catalystHot.showWarn ||
+                        (
+                            prefs.catalystEnabled &&
+                                catalystHot.band == "ok" &&
+                                (catalystHot.catalystTempC ?: 0f) >= 500f
+                        )
+                ) {
+                    Text(
+                        catalystHot.label,
+                        color = Color(com.veplayer.app.vehicle.CatalystTemp.accentArgb(catalystHot.band)),
                         fontSize = 11.sp,
                     )
                 }

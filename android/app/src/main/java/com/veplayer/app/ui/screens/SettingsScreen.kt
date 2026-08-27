@@ -2795,6 +2795,65 @@ fun SettingsScreen() {
                 color = if (oilSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var catOn by remember { mutableStateOf(prefs.catalystEnabled) }
+            var catTts by remember { mutableStateOf(prefs.catalystTts) }
+            var catSim by remember {
+                mutableStateOf(
+                    if (prefs.catalystSimC > 0f) prefs.catalystSimC.toInt().toString() else "0",
+                )
+            }
+            val catSt by com.veplayer.app.vehicle.CatalystTempMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso catalizador (0134)", color = Mist)
+                Switch(
+                    checked = catOn,
+                    onCheckedChange = {
+                        catOn = it
+                        prefs.catalystEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS catalizador", color = Mist)
+                Switch(
+                    checked = catTts,
+                    onCheckedChange = {
+                        catTts = it
+                        prefs.catalystTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = catSim,
+                onValueChange = { catSim = it.filter { c -> c.isDigit() }.take(4) },
+                label = { Text("Sim catalizador °C (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.catalystSimC = catSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Cat sim ${prefs.catalystSimC.toInt()}° · warn ${prefs.catalystWarnC.toInt()} / alert ${prefs.catalystAlertC.toInt()}"
+                },
+            ) { Text("Aplicar sim catalizador") }
+            Text(
+                if (catSt.catalystTempC != null) {
+                    "${catSt.label} · ${catSt.band}"
+                } else {
+                    "Cat idle (warn ${prefs.catalystWarnC.toInt()}° / alert ${prefs.catalystAlertC.toInt()}°)"
+                },
+                color = if (catSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var iatOn by remember { mutableStateOf(prefs.intakeAirEnabled) }
             var iatTts by remember { mutableStateOf(prefs.intakeAirTts) }
             var iatSim by remember {

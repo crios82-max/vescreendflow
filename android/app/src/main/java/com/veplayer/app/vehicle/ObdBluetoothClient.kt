@@ -261,6 +261,7 @@ class ObdBluetoothClient(private val context: Context) {
                 "011F", // run time since engine start
                 "0121", // distance with MIL on
                 "0131", // distance since codes cleared
+                "0134", // catalyst temperature
                 "0142", // control module voltage
             )
     }
