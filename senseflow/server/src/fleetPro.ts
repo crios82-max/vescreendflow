@@ -222,6 +222,34 @@ export function evaluateFleetAlerts(
       })
       raised.push('mil_on')
     }
+    const uss = signals.uss as Record<string, unknown> | undefined
+    if (uss && (signals.reverse === true || signals.gear === 'R')) {
+      const vals = [uss.rear_l_m, uss.rear_c_m, uss.rear_r_m]
+        .map((v) => (typeof v === 'number' ? v : null))
+        .filter((v): v is number => v != null && v > 0)
+      if (vals.length) {
+        const closest = Math.min(...vals)
+        if (closest <= 0.6 && !recentlyAlerted(deviceId, 'parking_crit', 90)) {
+          insertAlert(
+            deviceId,
+            'parking_crit',
+            'warn',
+            `PDC crítico · ${closest.toFixed(1)} m atrás`,
+            { closest_m: closest, uss },
+          )
+          raised.push('parking_crit')
+        } else if (closest <= 1.5 && !recentlyAlerted(deviceId, 'parking_near', 120)) {
+          insertAlert(
+            deviceId,
+            'parking_near',
+            'info',
+            `PDC cerca · ${closest.toFixed(1)} m atrás`,
+            { closest_m: closest, uss },
+          )
+          raised.push('parking_near')
+        }
+      }
+    }
     const dtcs = Array.isArray(signals.dtcs) ? signals.dtcs : []
     for (const raw of dtcs) {
       if (!raw || typeof raw !== 'object') continue

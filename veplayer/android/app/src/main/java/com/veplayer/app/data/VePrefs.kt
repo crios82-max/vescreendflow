@@ -269,6 +269,28 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("reverse_guide_track", 0.46f)
         set(value) = sp.edit().putFloat("reverse_guide_track", value.coerceIn(0.30f, 0.60f)).apply()
 
+    /** Parking distance HUD (PDC / USS). */
+    var parkingHudEnabled: Boolean
+        get() = sp.getBoolean("parking_hud", true)
+        set(value) = sp.edit().putBoolean("parking_hud", value).apply()
+
+    var parkingTts: Boolean
+        get() = sp.getBoolean("parking_tts", true)
+        set(value) = sp.edit().putBoolean("parking_tts", value).apply()
+
+    /** Simulate rear USS when no live sensors. */
+    var parkingSimEnabled: Boolean
+        get() = sp.getBoolean("parking_sim", true)
+        set(value) = sp.edit().putBoolean("parking_sim", value).apply()
+
+    var parkingWarnM: Float
+        get() = sp.getFloat("parking_warn_m", 1.5f)
+        set(value) = sp.edit().putFloat("parking_warn_m", value.coerceIn(0.5f, 3f)).apply()
+
+    var parkingCritM: Float
+        get() = sp.getFloat("parking_crit_m", 0.6f)
+        set(value) = sp.edit().putFloat("parking_crit_m", value.coerceIn(0.2f, 1.5f)).apply()
+
     /** Collect fleet alerts into inbox. */
     var fleetAlertsEnabled: Boolean
         get() = sp.getBoolean("fleet_alerts", true)

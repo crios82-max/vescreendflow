@@ -1434,6 +1434,57 @@ fun SettingsScreen() {
                     },
                 )
             }
+            var parkHud by remember { mutableStateOf(prefs.parkingHudEnabled) }
+            var parkTts by remember { mutableStateOf(prefs.parkingTts) }
+            var parkSim by remember { mutableStateOf(prefs.parkingSimEnabled) }
+            val park by com.veplayer.app.vehicle.ParkingDistanceMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("HUD distancia parking", color = Mist)
+                Switch(
+                    checked = parkHud,
+                    onCheckedChange = {
+                        parkHud = it
+                        prefs.parkingHudEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS parking", color = Mist)
+                Switch(
+                    checked = parkTts,
+                    onCheckedChange = {
+                        parkTts = it
+                        prefs.parkingTts = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Sim USS (sin sensores)", color = Mist)
+                Switch(
+                    checked = parkSim,
+                    onCheckedChange = {
+                        parkSim = it
+                        prefs.parkingSimEnabled = it
+                    },
+                )
+            }
+            Text(
+                if (park.active) "PDC · ${park.label} · ${park.band}" else "PDC idle (activar reverse)",
+                color = if (park.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             OutlinedTextField(
                 value = mockSpeed,
                 onValueChange = { mockSpeed = it.filter { c -> c.isDigit() || c == '.' } },

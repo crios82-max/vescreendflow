@@ -88,6 +88,10 @@ data class VehicleSignals(
     val dtcCount: Int = 0,
     /** Stored / pending / permanent codes. */
     val dtcs: List<ObdDtc.Code> = emptyList(),
+    /** Rear ultrasonic distances (m) — live or sim. */
+    val ussRearL: Float? = null,
+    val ussRearC: Float? = null,
+    val ussRearR: Float? = null,
     val source: String = "idle",
     val updatedAtMs: Long = System.currentTimeMillis(),
 ) {
@@ -150,6 +154,12 @@ data class VehicleSignals(
             "mil" to mil,
             "dtc_count" to dtcCount,
             "dtcs" to dtcs.map { it.toJsonMap() },
+            "uss" to
+                mapOf(
+                    "rear_l_m" to ussRearL?.toDouble(),
+                    "rear_c_m" to ussRearC?.toDouble(),
+                    "rear_r_m" to ussRearR?.toDouble(),
+                ),
             "source" to source,
             "updated_at_ms" to updatedAtMs,
         )
