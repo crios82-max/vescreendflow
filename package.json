@@ -50,6 +50,7 @@
     "veplayer:abs-hud-smoke": "node veplayer/scripts/abs-hud-smoke.mjs",
     "veplayer:high-throttle-smoke": "node veplayer/scripts/high-throttle-smoke.mjs",
     "veplayer:hazard-stuck-smoke": "node veplayer/scripts/hazard-stuck-smoke.mjs",
+    "veplayer:gear-roll-smoke": "node veplayer/scripts/gear-roll-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",

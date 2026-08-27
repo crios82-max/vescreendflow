@@ -1057,6 +1057,53 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Gear roll — P/N while moving
+    const gearName =
+      typeof signals.gear === 'string' ? (signals.gear as string).toUpperCase() : ''
+    if (gearName === 'P' || gearName === 'N') {
+      const rollKmh =
+        typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : typeof speedMps === 'number'
+            ? speedMps * 3.6
+            : typeof towKmh === 'number'
+              ? towKmh
+              : null
+      if (typeof rollKmh === 'number') {
+        const gWarn =
+          typeof signals.gear_roll_warn_kmh === 'number'
+            ? (signals.gear_roll_warn_kmh as number)
+            : 5
+        const gAlert =
+          typeof signals.gear_roll_alert_kmh === 'number'
+            ? (signals.gear_roll_alert_kmh as number)
+            : 20
+        if (rollKmh >= gAlert && !recentlyAlerted(deviceId, 'gear_roll_alert', 120)) {
+          insertAlert(
+            deviceId,
+            'gear_roll_alert',
+            'critical',
+            `Rodando en ${gearName} · ${Math.round(rollKmh)} km/h`,
+            { gear: gearName, speed_kmh: Math.round(rollKmh), alert_kmh: gAlert },
+          )
+          raised.push('gear_roll_alert')
+        } else if (
+          rollKmh >= gWarn &&
+          rollKmh < gAlert &&
+          !recentlyAlerted(deviceId, 'gear_roll_warn', 120)
+        ) {
+          insertAlert(
+            deviceId,
+            'gear_roll_warn',
+            'warn',
+            `Rodando en ${gearName} · ${Math.round(rollKmh)} km/h`,
+            { gear: gearName, speed_kmh: Math.round(rollKmh), warn_kmh: gWarn },
+          )
+          raised.push('gear_roll_warn')
+        }
+      }
+    }
+
     // Turn signal stuck (forgotten blinker)
     const turnStuckSec =
       typeof signals.turn_stuck_sec === 'number' ? (signals.turn_stuck_sec as number) : null

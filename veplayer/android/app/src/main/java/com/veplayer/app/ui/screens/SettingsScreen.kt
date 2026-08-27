@@ -1289,6 +1289,67 @@ fun SettingsScreen() {
                 color = if (pbrakeSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var gearRollOn by remember { mutableStateOf(prefs.gearRollEnabled) }
+            var gearRollTtsOn by remember { mutableStateOf(prefs.gearRollTts) }
+            var gearRollSimOn by remember { mutableStateOf(prefs.gearRollSim) }
+            val gearRollSt by com.veplayer.app.vehicle.GearRollMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Rodando en P/N", color = Mist)
+                Switch(
+                    checked = gearRollOn,
+                    onCheckedChange = {
+                        gearRollOn = it
+                        prefs.gearRollEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS marcha P/N", color = Mist)
+                Switch(
+                    checked = gearRollTtsOn,
+                    onCheckedChange = {
+                        gearRollTtsOn = it
+                        prefs.gearRollTts = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Sim P/N + velocidad", color = Mist)
+                Switch(
+                    checked = gearRollSimOn,
+                    onCheckedChange = {
+                        gearRollSimOn = it
+                        prefs.gearRollSim = it
+                        status =
+                            if (it) {
+                                "Gear roll sim ${prefs.gearRollSimGear} · ${prefs.gearRollSimKmh.toInt()} km/h"
+                            } else {
+                                "Gear roll sim OFF"
+                            }
+                    },
+                )
+            }
+            Text(
+                if (gearRollSt.showWarn || gearRollSt.band == "idle" && gearRollSt.gear.isNotBlank()) {
+                    "${gearRollSt.label.ifBlank { gearRollSt.gear }} · ${gearRollSt.band}"
+                } else {
+                    "Gear roll idle (warn ≥${prefs.gearRollWarnKmh.toInt()} / alert ≥${prefs.gearRollAlertKmh.toInt()} km/h en P/N)"
+                },
+                color = if (gearRollSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var turnStuckOn by remember { mutableStateOf(prefs.turnStuckEnabled) }
             var turnStuckTtsOn by remember { mutableStateOf(prefs.turnStuckTts) }
             var turnStuckSim by remember {

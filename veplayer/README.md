@@ -831,6 +831,20 @@ npm run veplayer:hazard-stuck-smoke
 
 **Fase 12 (en curso):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
 
+## Gear roll (v0.66 · Fase 12)
+
+Rodando en **P** o **N** (sin marcha engarzada):
+
+- Default **≥5 km/h warn / ≥20 km/h alert**
+- DriveViz `N · X km/h` · TTS + inbox
+- Flota `gear_roll_warn` / `gear_roll_alert` · sim en Ajustes (Remolque)
+
+```bash
+npm run veplayer:gear-roll-smoke
+```
+
+**Fase 12 (en curso):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

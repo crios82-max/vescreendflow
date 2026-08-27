@@ -218,6 +218,9 @@ object FleetInbox {
             kind == "pbrake_alert" -> "Atención. Freno de estacionamiento en movimiento. $body."
             kind == "pbrake_warn" || kind.startsWith("pbrake_") ->
                 "Cuidado. Freno de estacionamiento activado. $body."
+            kind == "gear_roll_alert" -> "Atención. Vehículo en movimiento en neutral o parking. $body."
+            kind == "gear_roll_warn" || kind.startsWith("gear_roll") ->
+                "Cuidado. Desplazamiento en neutral o parking. $body."
             kind == "turn_stuck_alert" -> "Atención. Intermitente olvidado. $body."
             kind == "turn_stuck_warn" || kind.startsWith("turn_stuck") ->
                 "Cuidado. Intermitente encendido. $body."

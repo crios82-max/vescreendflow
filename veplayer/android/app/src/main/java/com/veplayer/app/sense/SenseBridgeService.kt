@@ -165,11 +165,18 @@ class SenseBridgeService : Service() {
                                         (prefs.pbrakeSim ||
                                             com.veplayer.app.vehicle.ParkingBrakeMovingMonitor.state.value.parkingBrake ||
                                             snap.parkingBrake),
+                                    "gear_roll_warn_kmh" to prefs.gearRollWarnKmh.toDouble(),
+                                    "gear_roll_alert_kmh" to prefs.gearRollAlertKmh.toDouble(),
+                                    "gear" to
+                                        (if (prefs.gearRollSim) prefs.gearRollSimGear
+                                        else com.veplayer.app.vehicle.GearRollMonitor.state.value.gear.ifBlank {
+                                            snap.gear.name
+                                        }),
                                     "speed_kmh" to
-                                        (if (prefs.pbrakeSim && prefs.pbrakeSimKmh > 0f) {
-                                            prefs.pbrakeSimKmh
-                                        } else {
-                                            snap.speedKmh
+                                        (when {
+                                            prefs.pbrakeSim && prefs.pbrakeSimKmh > 0f -> prefs.pbrakeSimKmh
+                                            prefs.gearRollSim && prefs.gearRollSimKmh > 0f -> prefs.gearRollSimKmh
+                                            else -> snap.speedKmh
                                         }).toDouble(),
                                     "turn_stuck_sec" to
                                         com.veplayer.app.vehicle.TurnStuckMonitor.state.value.heldSec.toDouble(),
@@ -360,11 +367,18 @@ class SenseBridgeService : Service() {
                                         (prefs.pbrakeSim ||
                                             com.veplayer.app.vehicle.ParkingBrakeMovingMonitor.state.value.parkingBrake ||
                                             snap.parkingBrake),
+                                    "gear_roll_warn_kmh" to prefs.gearRollWarnKmh.toDouble(),
+                                    "gear_roll_alert_kmh" to prefs.gearRollAlertKmh.toDouble(),
+                                    "gear" to
+                                        (if (prefs.gearRollSim) prefs.gearRollSimGear
+                                        else com.veplayer.app.vehicle.GearRollMonitor.state.value.gear.ifBlank {
+                                            snap.gear.name
+                                        }),
                                     "speed_kmh" to
-                                        (if (prefs.pbrakeSim && prefs.pbrakeSimKmh > 0f) {
-                                            prefs.pbrakeSimKmh
-                                        } else {
-                                            snap.speedKmh
+                                        (when {
+                                            prefs.pbrakeSim && prefs.pbrakeSimKmh > 0f -> prefs.pbrakeSimKmh
+                                            prefs.gearRollSim && prefs.gearRollSimKmh > 0f -> prefs.gearRollSimKmh
+                                            else -> snap.speedKmh
                                         }).toDouble(),
                                     "turn_stuck_sec" to
                                         com.veplayer.app.vehicle.TurnStuckMonitor.state.value.heldSec.toDouble(),
