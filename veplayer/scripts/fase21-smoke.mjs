@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 /** Fase 21 smoke — cat B1S5/B2S5, inject timing, hybrid batt, ref torque. */
+import { runFaseFormulaChecks } from './obd-pid-registry.mjs'
+
 const BASE = process.env.SENSEFLOW_URL || 'http://127.0.0.1:4100'
 
 function assert(c, m) {
@@ -23,10 +25,7 @@ async function j(path, init = {}) {
 
 async function main() {
   console.log('fase21-smoke →', BASE)
-  assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0177')
-  assert((0x14 * 256) / 128 === 40, 'pid 015D')
-  assert((0x26 * 100) / 255 < 15, 'pid 015B')
-  assert((0x02 * 256 + 0x26) === 550, 'pid 0163')
+  runFaseFormulaChecks(21, assert)
 
   const deviceId = `fase21-${Date.now().toString(36)}`
   await j('/api/fleet/register', {

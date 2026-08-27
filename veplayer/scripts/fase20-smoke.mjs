@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 /** Fase 20 smoke — cat B2S4 + secondary O2 trims B1/B2. */
+import { runFaseFormulaChecks } from './obd-pid-registry.mjs'
+
 const BASE = process.env.SENSEFLOW_URL || 'http://127.0.0.1:4100'
 
 function assert(c, m) {
@@ -23,11 +25,7 @@ async function j(path, init = {}) {
 
 async function main() {
   console.log('fase20-smoke →', BASE)
-  assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0176')
-  assert(((0xB8 - 128) * 100) / 128 === 43.75, 'pid 0155')
-  assert(((0x60 - 128) * 100) / 128 === -25, 'pid 0156')
-  assert(((0xA8 - 128) * 100) / 128 === 31.25, 'pid 0157')
-  assert(((0x50 - 128) * 100) / 128 === -37.5, 'pid 0158')
+  runFaseFormulaChecks(20, assert)
 
   const deviceId = `fase20-${Date.now().toString(36)}`
   await j('/api/fleet/register', {
