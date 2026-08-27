@@ -1765,6 +1765,48 @@ fun SettingsScreen() {
                 color = if (belt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var harshOn by remember { mutableStateOf(prefs.harshEnabled) }
+            var harshTts by remember { mutableStateOf(prefs.harshTts) }
+            val harshSt by com.veplayer.app.vehicle.HarshDrivingMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Frenada / acel. brusca", color = Mist)
+                Switch(
+                    checked = harshOn,
+                    onCheckedChange = {
+                        harshOn = it
+                        prefs.harshEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS harsh", color = Mist)
+                Switch(
+                    checked = harshTts,
+                    onCheckedChange = {
+                        harshTts = it
+                        prefs.harshTts = it
+                    },
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    com.veplayer.app.vehicle.HarshDrivingMonitor.armSim()
+                    status = "Sim frenada armada (próximo tick)"
+                },
+            ) { Text("Sim frenada brusca") }
+            Text(
+                if (harshSt.showWarn) "${harshSt.label} · ${harshSt.band}" else "Harsh idle",
+                color = if (harshSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             OutlinedTextField(
                 value = mockSpeed,
                 onValueChange = { mockSpeed = it.filter { c -> c.isDigit() || c == '.' } },

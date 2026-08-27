@@ -547,6 +547,21 @@ npm run veplayer:seatbelt-smoke
 
 **Fase 8 (en curso):** seatbelt · harsh brake · geofence exit · coolant · incident report.
 
+## Harsh brake / accel (v0.45 · Fase 8)
+
+Frenada / aceleración brusca por Δvelocidad (km/h/s):
+
+- Umbrales default freno **12 / 18** · acel **10 / 15** km/h/s
+- ABS en desaceleración escala a alert
+- DriveViz chip · TTS + inbox · flota `brake_*` / `accel_*`
+- Ajustes: «Sim frenada brusca» (one-shot)
+
+```bash
+npm run veplayer:harsh-driving-smoke
+```
+
+**Fase 8 (siguiente):** geofence exit · coolant · incident report.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
