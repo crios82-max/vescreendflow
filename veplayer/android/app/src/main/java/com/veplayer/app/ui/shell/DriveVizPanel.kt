@@ -83,6 +83,7 @@ import com.veplayer.app.vehicle.RouteDeviationMonitor
 import com.veplayer.app.vehicle.RpmOverRevMonitor
 import com.veplayer.app.vehicle.SeatbeltMonitor
 import com.veplayer.app.vehicle.ShiftFatigueMonitor
+import com.veplayer.app.vehicle.AbsHudMonitor
 import com.veplayer.app.vehicle.BatteryVoltageMonitor
 import com.veplayer.app.vehicle.SuddenFuelDropMonitor
 import com.veplayer.app.vehicle.TpmsHudMonitor
@@ -133,6 +134,7 @@ fun DriveVizPanel(
     val seatbelt by SeatbeltMonitor.state.collectAsState()
     val harsh by HarshDrivingMonitor.state.collectAsState()
     val impact by ImpactDetectMonitor.state.collectAsState()
+    val absHud by AbsHudMonitor.state.collectAsState()
     val panic by PanicBus.state.collectAsState()
     var holdProgress by remember { mutableFloatStateOf(0f) }
     var holdJob by remember { mutableStateOf<Job?>(null) }
@@ -149,6 +151,7 @@ fun DriveVizPanel(
             SeatbeltMonitor.tick(prefs, snap)
             HarshDrivingMonitor.tick(prefs, snap)
             ImpactDetectMonitor.tick(prefs, snap)
+            AbsHudMonitor.tick(prefs, snap)
             ShiftFatigueMonitor.tick(prefs)
             RestBreakMonitor.tick(prefs, snap)
             RouteDeviationMonitor.tick(prefs)
@@ -336,6 +339,13 @@ fun DriveVizPanel(
                     Text(
                         impact.label,
                         color = Color(com.veplayer.app.vehicle.ImpactDetect.accentArgb(impact.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (absHud.showWarn || (prefs.absHudEnabled && absHud.active)) {
+                    Text(
+                        absHud.label.ifBlank { "ABS" },
+                        color = Color(com.veplayer.app.vehicle.AbsHud.accentArgb(absHud.band)),
                         fontSize = 11.sp,
                     )
                 }

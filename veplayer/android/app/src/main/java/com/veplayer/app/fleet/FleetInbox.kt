@@ -162,7 +162,9 @@ object FleetInbox {
             kind.startsWith("geofence_exit") -> "Saliste de la zona. $body."
             kind.startsWith("geofence_enter") -> "Entraste a una zona. $body."
             kind.startsWith("geofence") -> "Alerta de zona. $body."
-            kind == "abs" -> "Atención. Sistema ABS activo."
+            kind == "abs_alert" -> "Atención. ABS prolongado. $body."
+            kind == "abs_warn" || kind == "abs" || kind.startsWith("abs_") ->
+                "Cuidado. Sistema ABS activo. $body."
             kind == "tpms_alert" -> "Atención. Presión crítica de neumáticos. $body."
             kind == "tpms_warn" || kind == "tpms_low" || kind.startsWith("tpms_") ->
                 "Cuidado. Presión de neumáticos baja. $body."

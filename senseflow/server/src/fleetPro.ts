@@ -236,9 +236,59 @@ export function evaluateFleetAlerts(
   }
 
   if (signals) {
-    if (signals.abs_active === true && !recentlyAlerted(deviceId, 'abs', 120)) {
-      insertAlert(deviceId, 'abs', 'warn', 'ABS activo', { abs_active: true })
-      raised.push('abs')
+    if (signals.abs_active === true || (signals.abs as Record<string, unknown> | undefined)?.active === true) {
+      const absObj = signals.abs as Record<string, unknown> | undefined
+      const activeSec =
+        typeof signals.abs_active_sec === 'number'
+          ? (signals.abs_active_sec as number)
+          : typeof absObj?.active_for_sec === 'number'
+            ? (absObj.active_for_sec as number)
+            : 0
+      const events =
+        typeof signals.abs_events === 'number'
+          ? (signals.abs_events as number)
+          : typeof absObj?.events === 'number'
+            ? (absObj.events as number)
+            : 0
+      const warnSec =
+        typeof signals.abs_warn_sec === 'number' ? (signals.abs_warn_sec as number) : 0.5
+      const alertSec =
+        typeof signals.abs_alert_sec === 'number' ? (signals.abs_alert_sec as number) : 2
+      const alertEvents =
+        typeof signals.abs_alert_events === 'number' ? (signals.abs_alert_events as number) : 3
+      const bandFromClient =
+        typeof absObj?.band === 'string' ? (absObj.band as string) : null
+      const band =
+        bandFromClient === 'alert' || bandFromClient === 'warn'
+          ? bandFromClient
+          : activeSec >= alertSec || events >= alertEvents
+            ? 'alert'
+            : activeSec >= warnSec || signals.abs_active === true
+              ? 'warn'
+              : 'ok'
+      if (band === 'alert' && !recentlyAlerted(deviceId, 'abs_alert', 120)) {
+        insertAlert(
+          deviceId,
+          'abs_alert',
+          'critical',
+          `ABS crítico` +
+            (activeSec > 0 ? ` · ${activeSec.toFixed(1)}s` : '') +
+            (events > 0 ? ` · ×${events}` : ''),
+          { abs_active: true, abs_active_sec: activeSec, abs_events: events, abs: absObj ?? null },
+        )
+        raised.push('abs_alert')
+      } else if (band === 'warn' && !recentlyAlerted(deviceId, 'abs_warn', 120)) {
+        insertAlert(deviceId, 'abs_warn', 'warn', 'ABS activo', {
+          abs_active: true,
+          abs_active_sec: activeSec,
+          abs_events: events,
+        })
+        raised.push('abs_warn')
+        // legacy alias for older dashboards
+        if (!recentlyAlerted(deviceId, 'abs', 120)) {
+          raised.push('abs')
+        }
+      }
     }
     const tpms = signals.tpms as Record<string, unknown> | undefined
     if (tpms) {
