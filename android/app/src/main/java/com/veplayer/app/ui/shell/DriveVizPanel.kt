@@ -65,6 +65,7 @@ import com.veplayer.app.ui.theme.Road
 import com.veplayer.app.vehicle.FuelRangeHud
 import com.veplayer.app.vehicle.FuelRangeHudMonitor
 import com.veplayer.app.vehicle.Gear
+import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
 import com.veplayer.app.vehicle.IdleMonitor
 import com.veplayer.app.vehicle.DtcMonitor
@@ -130,6 +131,7 @@ fun DriveVizPanel(
     val highThr by HighThrottleMonitor.state.collectAsState()
     val tow by UnauthorizedMoveMonitor.state.collectAsState()
     val pbrake by ParkingBrakeMovingMonitor.state.collectAsState()
+    val gearRoll by GearRollMonitor.state.collectAsState()
     val turnStuck by TurnStuckMonitor.state.collectAsState()
     val hazardStuck by HazardStuckMonitor.state.collectAsState()
     val fuelDrop by SuddenFuelDropMonitor.state.collectAsState()
@@ -168,6 +170,7 @@ fun DriveVizPanel(
             HighThrottleMonitor.tick(prefs, snap)
             UnauthorizedMoveMonitor.tick(prefs, snap)
             ParkingBrakeMovingMonitor.tick(prefs, snap)
+            GearRollMonitor.tick(prefs, snap)
             TurnStuckMonitor.tick(prefs, snap)
             HazardStuckMonitor.tick(prefs, snap)
             SuddenFuelDropMonitor.tick(prefs, snap)
@@ -401,6 +404,13 @@ fun DriveVizPanel(
                     Text(
                         pbrake.label,
                         color = Color(com.veplayer.app.vehicle.ParkingBrakeMoving.accentArgb(pbrake.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (gearRoll.showWarn) {
+                    Text(
+                        gearRoll.label,
+                        color = Color(com.veplayer.app.vehicle.GearRoll.accentArgb(gearRoll.band)),
                         fontSize = 11.sp,
                     )
                 }

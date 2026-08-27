@@ -183,6 +183,40 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("pbrake_sim_kmh", 20f)
         set(value) = sp.edit().putFloat("pbrake_sim_kmh", value.coerceIn(0f, 80f)).apply()
 
+    /** Rolling in Park / Neutral. */
+    var gearRollEnabled: Boolean
+        get() = sp.getBoolean("gear_roll", true)
+        set(value) = sp.edit().putBoolean("gear_roll", value).apply()
+
+    var gearRollTts: Boolean
+        get() = sp.getBoolean("gear_roll_tts", true)
+        set(value) = sp.edit().putBoolean("gear_roll_tts", value).apply()
+
+    var gearRollWarnKmh: Float
+        get() = sp.getFloat("gear_roll_warn_kmh", 5f)
+        set(value) = sp.edit().putFloat("gear_roll_warn_kmh", value.coerceIn(1f, 40f)).apply()
+
+    var gearRollAlertKmh: Float
+        get() = sp.getFloat("gear_roll_alert_kmh", 20f)
+        set(value) = sp.edit().putFloat("gear_roll_alert_kmh", value.coerceIn(5f, 80f)).apply()
+
+    /** Demo: force P/N + speed. */
+    var gearRollSim: Boolean
+        get() = sp.getBoolean("gear_roll_sim", false)
+        set(value) = sp.edit().putBoolean("gear_roll_sim", value).apply()
+
+    var gearRollSimGear: String
+        get() = sp.getString("gear_roll_sim_gear", "N") ?: "N"
+        set(value) =
+            sp.edit().putString(
+                "gear_roll_sim_gear",
+                value.trim().uppercase().let { if (it == "P") "P" else "N" },
+            ).apply()
+
+    var gearRollSimKmh: Float
+        get() = sp.getFloat("gear_roll_sim_kmh", 25f)
+        set(value) = sp.edit().putFloat("gear_roll_sim_kmh", value.coerceIn(0f, 80f)).apply()
+
     /** Forgotten turn signal (LEFT/RIGHT held). */
     var turnStuckEnabled: Boolean
         get() = sp.getBoolean("turn_stuck", true)
