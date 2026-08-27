@@ -197,6 +197,7 @@ fun DriveVizPanel(
                     Text("Conductor · $driverLabel", color = Mute, fontSize = 11.sp)
                 }
                 val shift by com.veplayer.app.fleet.ShiftTracker.shift.collectAsState()
+                val shiftSum by com.veplayer.app.fleet.ShiftTracker.summary.collectAsState()
                 if (shift.status == "open" || fatigue.open) {
                     Text(
                         buildString {
@@ -212,6 +213,12 @@ fun DriveVizPanel(
                             } else {
                                 Mute
                             },
+                        fontSize = 11.sp,
+                    )
+                } else if (prefs.shiftSummaryEnabled && shiftSum.show) {
+                    Text(
+                        shiftSum.label,
+                        color = Color(com.veplayer.app.fleet.ShiftSummary.accentArgb()),
                         fontSize = 11.sp,
                     )
                 }
