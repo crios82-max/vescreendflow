@@ -186,6 +186,30 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("fuel_drop_sim", 0f)
         set(value) = sp.edit().putFloat("fuel_drop_sim", value.coerceIn(0f, 80f)).apply()
 
+    /** Per-wheel TPMS HUD. */
+    var tpmsHudEnabled: Boolean
+        get() = sp.getBoolean("tpms_hud", true)
+        set(value) = sp.edit().putBoolean("tpms_hud", value).apply()
+
+    var tpmsTts: Boolean
+        get() = sp.getBoolean("tpms_tts", true)
+        set(value) = sp.edit().putBoolean("tpms_tts", value).apply()
+
+    /** PSI below → warn. */
+    var tpmsWarnPsi: Float
+        get() = sp.getFloat("tpms_warn_psi", 28f)
+        set(value) = sp.edit().putFloat("tpms_warn_psi", value.coerceIn(15f, 40f)).apply()
+
+    /** PSI below → alert. */
+    var tpmsAlertPsi: Float
+        get() = sp.getFloat("tpms_alert_psi", 24f)
+        set(value) = sp.edit().putFloat("tpms_alert_psi", value.coerceIn(10f, 35f)).apply()
+
+    /** Demo: override FL psi (0 = live). */
+    var tpmsSimFlPsi: Float
+        get() = sp.getFloat("tpms_sim_fl", 0f)
+        set(value) = sp.edit().putFloat("tpms_sim_fl", value.coerceIn(0f, 60f)).apply()
+
     /** Driver incident reports (non-SOS). */
     var incidentEnabled: Boolean
         get() = sp.getBoolean("incident_enabled", true)

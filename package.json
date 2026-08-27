@@ -35,6 +35,7 @@
     "veplayer:incident-report-smoke": "node veplayer/scripts/incident-report-smoke.mjs",
     "veplayer:tow-detect-smoke": "node veplayer/scripts/tow-detect-smoke.mjs",
     "veplayer:fuel-drop-smoke": "node veplayer/scripts/fuel-drop-smoke.mjs",
+    "veplayer:tpms-hud-smoke": "node veplayer/scripts/tpms-hud-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",

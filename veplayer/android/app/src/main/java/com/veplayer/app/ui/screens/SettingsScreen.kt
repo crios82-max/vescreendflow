@@ -1232,6 +1232,68 @@ fun SettingsScreen() {
             )
         }
 
+        PanelBlock("TPMS por rueda") {
+            var tpmsOn by remember { mutableStateOf(prefs.tpmsHudEnabled) }
+            var tpmsTts by remember { mutableStateOf(prefs.tpmsTts) }
+            var tpmsSim by remember {
+                mutableStateOf(
+                    if (prefs.tpmsSimFlPsi > 0f) prefs.tpmsSimFlPsi.toInt().toString() else "0",
+                )
+            }
+            val tpmsSt by com.veplayer.app.vehicle.TpmsHudMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("HUD TPMS", color = Mist)
+                Switch(
+                    checked = tpmsOn,
+                    onCheckedChange = {
+                        tpmsOn = it
+                        prefs.tpmsHudEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS TPMS", color = Mist)
+                Switch(
+                    checked = tpmsTts,
+                    onCheckedChange = {
+                        tpmsTts = it
+                        prefs.tpmsTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = tpmsSim,
+                onValueChange = { tpmsSim = it.filter { ch -> ch.isDigit() || ch == '.' }.take(4) },
+                label = { Text("Sim FL psi (0 = live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.tpmsSimFlPsi = tpmsSim.toFloatOrNull() ?: 0f
+                    status =
+                        "TPMS sim FL ${prefs.tpmsSimFlPsi.toInt()} · warn ${prefs.tpmsWarnPsi.toInt()} / alert ${prefs.tpmsAlertPsi.toInt()} psi"
+                },
+            ) { Text("Aplicar sim FL") }
+            Text(
+                if (tpmsSt.detail.isNotBlank()) {
+                    "${tpmsSt.detail} · ${tpmsSt.band}"
+                } else {
+                    "TPMS idle (FL/FR/RL/RR)"
+                },
+                color = if (tpmsSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
+        }
+
         PanelBlock("Incidente (reporte flota)") {
             var incOn by remember { mutableStateOf(prefs.incidentEnabled) }
             var incClip by remember { mutableStateOf(prefs.incidentClipEnabled) }

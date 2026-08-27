@@ -241,9 +241,64 @@ export function evaluateFleetAlerts(
       raised.push('abs')
     }
     const tpms = signals.tpms as Record<string, unknown> | undefined
-    if (tpms && tpms.low === true && !recentlyAlerted(deviceId, 'tpms_low', 300)) {
-      insertAlert(deviceId, 'tpms_low', 'warn', 'TPMS presión baja', tpms)
-      raised.push('tpms_low')
+    if (tpms) {
+      const warnPsi =
+        typeof signals.tpms_warn_psi === 'number' ? (signals.tpms_warn_psi as number) : 28
+      const alertPsi =
+        typeof signals.tpms_alert_psi === 'number' ? (signals.tpms_alert_psi as number) : 24
+      const wheels: { id: string; psi: number }[] = []
+      for (const [key, id] of [
+        ['fl_psi', 'FL'],
+        ['fr_psi', 'FR'],
+        ['rl_psi', 'RL'],
+        ['rr_psi', 'RR'],
+      ] as const) {
+        const v = tpms[key]
+        if (typeof v === 'number') wheels.push({ id, psi: v })
+      }
+      const lowAlert = wheels.filter((w) => w.psi < alertPsi)
+      const lowWarn = wheels.filter((w) => w.psi < warnPsi && w.psi >= alertPsi)
+      const minPsi =
+        wheels.length > 0 ? Math.min(...wheels.map((w) => w.psi)) : null
+      if (lowAlert.length > 0 && !recentlyAlerted(deviceId, 'tpms_alert', 300)) {
+        const ids = lowAlert.map((w) => w.id).join('·')
+        insertAlert(
+          deviceId,
+          'tpms_alert',
+          'critical',
+          `TPMS crítico · ${ids} · ${Math.round(minPsi ?? 0)} psi`,
+          {
+            ...tpms,
+            low_wheels: lowAlert.map((w) => w.id),
+            min_psi: minPsi,
+            alert_psi: alertPsi,
+          },
+        )
+        raised.push('tpms_alert')
+      } else if (lowWarn.length > 0 && !recentlyAlerted(deviceId, 'tpms_warn', 300)) {
+        const ids = lowWarn.map((w) => w.id).join('·')
+        insertAlert(
+          deviceId,
+          'tpms_warn',
+          'warn',
+          `TPMS bajo · ${ids} · ${Math.round(minPsi ?? 0)} psi`,
+          {
+            ...tpms,
+            low_wheels: lowWarn.map((w) => w.id),
+            min_psi: minPsi,
+            warn_psi: warnPsi,
+          },
+        )
+        raised.push('tpms_warn')
+      } else if (
+        tpms.low === true &&
+        wheels.length === 0 &&
+        !recentlyAlerted(deviceId, 'tpms_low', 300)
+      ) {
+        // Legacy flag without per-wheel psi
+        insertAlert(deviceId, 'tpms_low', 'warn', 'TPMS presión baja', tpms)
+        raised.push('tpms_low')
+      }
     }
     if (signals.mil === true && !recentlyAlerted(deviceId, 'mil_on', 600)) {
       insertAlert(deviceId, 'mil_on', 'warn', 'Luz de motor (MIL) encendida', {

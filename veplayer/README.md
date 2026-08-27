@@ -629,6 +629,18 @@ Caída brusca de `fuel_pct` en ventana corta (robo / fuga):
 npm run veplayer:fuel-drop-smoke
 ```
 
+## TPMS por rueda (v0.51 · Fase 9)
+
+Presión FL/FR/RL/RR con umbrales:
+
+- Default **&lt;28 psi warn / &lt;24 psi alert**
+- DriveViz detalle `FL · FR · RL · RR` + chip alarma · TTS + inbox
+- Flota `tpms_warn` / `tpms_alert` (legacy `tpms_low` si solo flag) · sim FL en Ajustes
+
+```bash
+npm run veplayer:tpms-hud-smoke
+```
+
 **Fase 9 (en curso):** tow · fuel drop · TPMS HUD · shift summary · message reply.
 
 ## Device Owner (kiosk duro · v0.12)

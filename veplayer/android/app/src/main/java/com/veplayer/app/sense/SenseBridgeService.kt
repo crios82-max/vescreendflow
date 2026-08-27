@@ -117,6 +117,17 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
                                     "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),
                                     "fuel_drop_alert_pct" to prefs.fuelDropAlertPct.toDouble(),
+                                    "tpms_warn_psi" to prefs.tpmsWarnPsi.toDouble(),
+                                    "tpms_alert_psi" to prefs.tpmsAlertPsi.toDouble(),
+                                    "tpms" to
+                                        run {
+                                            val st = com.veplayer.app.vehicle.TpmsHudMonitor.state.value
+                                            if (st.wheels.isNotEmpty()) {
+                                                com.veplayer.app.vehicle.TpmsHud.toJsonMap(st)
+                                            } else {
+                                                snap.toJsonMap()["tpms"]
+                                            }
+                                        },
                                     "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
                                         com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
                                     ),
@@ -209,6 +220,17 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
                                     "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),
                                     "fuel_drop_alert_pct" to prefs.fuelDropAlertPct.toDouble(),
+                                    "tpms_warn_psi" to prefs.tpmsWarnPsi.toDouble(),
+                                    "tpms_alert_psi" to prefs.tpmsAlertPsi.toDouble(),
+                                    "tpms" to
+                                        run {
+                                            val st = com.veplayer.app.vehicle.TpmsHudMonitor.state.value
+                                            if (st.wheels.isNotEmpty()) {
+                                                com.veplayer.app.vehicle.TpmsHud.toJsonMap(st)
+                                            } else {
+                                                snap.toJsonMap()["tpms"]
+                                            }
+                                        },
                                     "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
                                         com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
                                     ),
