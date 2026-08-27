@@ -120,6 +120,13 @@ class SenseBridgeService : Service() {
                                     "driver_score_alert" to prefs.driverScoreAlert.toDouble(),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
+                                    "ice_warn_c" to prefs.iceWarnC.toDouble(),
+                                    "ice_alert_c" to prefs.iceAlertC.toDouble(),
+                                    "outdoor_temp_c" to
+                                        (if (prefs.iceSimOn) prefs.iceSimC
+                                        else com.veplayer.app.vehicle.IceFrostMonitor.state.value.outdoorC
+                                            ?: snap.outdoorTempC
+                                        )?.toDouble(),
                                     "coolant_warn_c" to prefs.coolantWarnC.toDouble(),
                                     "coolant_alert_c" to prefs.coolantAlertC.toDouble(),
                                     "coolant_c" to
@@ -258,6 +265,13 @@ class SenseBridgeService : Service() {
                                     "driver_score_alert" to prefs.driverScoreAlert.toDouble(),
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
+                                    "ice_warn_c" to prefs.iceWarnC.toDouble(),
+                                    "ice_alert_c" to prefs.iceAlertC.toDouble(),
+                                    "outdoor_temp_c" to
+                                        (if (prefs.iceSimOn) prefs.iceSimC
+                                        else com.veplayer.app.vehicle.IceFrostMonitor.state.value.outdoorC
+                                            ?: snap.outdoorTempC
+                                        )?.toDouble(),
                                     "coolant_warn_c" to prefs.coolantWarnC.toDouble(),
                                     "coolant_alert_c" to prefs.coolantAlertC.toDouble(),
                                     "coolant_c" to

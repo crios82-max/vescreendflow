@@ -198,6 +198,9 @@ object FleetInbox {
             kind == "cabin_overtemp" -> "Atención. Temperatura de cabina crítica. $body."
             kind == "cabin_warn" || kind.startsWith("cabin_") ->
                 "Cuidado. Cabina caliente. $body."
+            kind == "ice_alert" -> "Atención. Riesgo de hielo. $body."
+            kind == "ice_warn" || kind.startsWith("ice_") ->
+                "Cuidado. Posible escarcha. $body."
             kind == "coolant_overheat" -> "Atención. Temperatura del motor crítica. $body."
             kind == "coolant_warn" || kind.startsWith("coolant_") ->
                 "Cuidado. Motor caliente. $body."
