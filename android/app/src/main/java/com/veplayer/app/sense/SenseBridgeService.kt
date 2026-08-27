@@ -117,6 +117,13 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
                                     "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),
                                     "fuel_drop_alert_pct" to prefs.fuelDropAlertPct.toDouble(),
+                                    "battery_warn_v" to prefs.battVoltWarnV.toDouble(),
+                                    "battery_alert_v" to prefs.battVoltAlertV.toDouble(),
+                                    "battery_voltage_v" to
+                                        (if (prefs.battVoltSimV > 0f) prefs.battVoltSimV
+                                        else com.veplayer.app.vehicle.BatteryVoltageMonitor.state.value.volts
+                                            ?: snap.batteryVoltageV
+                                        )?.toDouble(),
                                     "tpms_warn_psi" to prefs.tpmsWarnPsi.toDouble(),
                                     "tpms_alert_psi" to prefs.tpmsAlertPsi.toDouble(),
                                     "tpms" to
@@ -220,6 +227,13 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
                                     "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),
                                     "fuel_drop_alert_pct" to prefs.fuelDropAlertPct.toDouble(),
+                                    "battery_warn_v" to prefs.battVoltWarnV.toDouble(),
+                                    "battery_alert_v" to prefs.battVoltAlertV.toDouble(),
+                                    "battery_voltage_v" to
+                                        (if (prefs.battVoltSimV > 0f) prefs.battVoltSimV
+                                        else com.veplayer.app.vehicle.BatteryVoltageMonitor.state.value.volts
+                                            ?: snap.batteryVoltageV
+                                        )?.toDouble(),
                                     "tpms_warn_psi" to prefs.tpmsWarnPsi.toDouble(),
                                     "tpms_alert_psi" to prefs.tpmsAlertPsi.toDouble(),
                                     "tpms" to

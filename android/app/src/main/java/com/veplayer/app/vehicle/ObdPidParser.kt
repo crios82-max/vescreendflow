@@ -13,6 +13,7 @@ object ObdPidParser {
         val outdoorTempC: Float? = null,
         val throttlePct: Float? = null,
         val runtimeSec: Int? = null,
+        val batteryVoltageV: Float? = null,
     )
 
     fun extractPayloadBytes(raw: String): List<Int>? {
@@ -61,6 +62,10 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
             }
+            0x42 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(batteryVoltageV = ((data[0] * 256) + data[1]) / 1000f)
+            }
             else -> PidValues()
         }
     }
@@ -74,5 +79,6 @@ object ObdPidParser {
             outdoorTempC = add.outdoorTempC ?: base.outdoorTempC,
             throttlePct = add.throttlePct ?: base.throttlePct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
+            batteryVoltageV = add.batteryVoltageV ?: base.batteryVoltageV,
         )
 }

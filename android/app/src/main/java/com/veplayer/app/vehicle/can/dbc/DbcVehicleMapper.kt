@@ -118,6 +118,8 @@ object DbcVehicleMapper {
             "outdoor", "outdoor_temp", "ambient" -> base.copy(outdoorTempC = f)
             "throttle", "throttle_pct", "accel_pedal" -> base.copy(throttlePct = f)
             "coolant", "coolant_c" -> base.copy(coolantC = f)
+            "battery_v", "battery_voltage", "batt_v", "module_voltage", "voltage_v" ->
+                base.copy(batteryVoltageV = f)
             "odometer", "odo_km" -> base.copy(odometerKm = f)
             "yaw", "yaw_rate" -> base.copy(yawRateDegS = f)
             else -> base

@@ -210,6 +210,30 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("tpms_sim_fl", 0f)
         set(value) = sp.edit().putFloat("tpms_sim_fl", value.coerceIn(0f, 60f)).apply()
 
+    /** 12V battery voltage HUD. */
+    var battVoltEnabled: Boolean
+        get() = sp.getBoolean("batt_volt", true)
+        set(value) = sp.edit().putBoolean("batt_volt", value).apply()
+
+    var battVoltTts: Boolean
+        get() = sp.getBoolean("batt_volt_tts", true)
+        set(value) = sp.edit().putBoolean("batt_volt_tts", value).apply()
+
+    /** Below this V → warn. */
+    var battVoltWarnV: Float
+        get() = sp.getFloat("batt_volt_warn", 12.0f)
+        set(value) = sp.edit().putFloat("batt_volt_warn", value.coerceIn(10f, 13.5f)).apply()
+
+    /** Below this V → alert. */
+    var battVoltAlertV: Float
+        get() = sp.getFloat("batt_volt_alert", 11.5f)
+        set(value) = sp.edit().putFloat("batt_volt_alert", value.coerceIn(9f, 12.5f)).apply()
+
+    /** Demo: override volts (0 = live). */
+    var battVoltSimV: Float
+        get() = sp.getFloat("batt_volt_sim", 0f)
+        set(value) = sp.edit().putFloat("batt_volt_sim", value.coerceIn(0f, 16f)).apply()
+
     /** Driver incident reports (non-SOS). */
     var incidentEnabled: Boolean
         get() = sp.getBoolean("incident_enabled", true)
