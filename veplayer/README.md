@@ -1173,6 +1173,32 @@ Catalizador banco 2 (**OBD PID 0170**), °C · `cat_b2_warn` / `cat_b2_alert` ·
 npm run veplayer:fase18-smoke
 ```
 
+**Fase 19 (completa):** catalizador B1S2 · B2S2 · B1S3 · B2S3 · B1S4.
+
+## Catalyst B1S2 (v1.00 · Fase 19)
+
+Catalizador banco 1 sensor 2 (**OBD PID 0171**), °C · `cat_b1s2_warn` / `cat_b1s2_alert` · HUD `CatB1S2 · XXX°C`
+
+## Catalyst B2S2 (v1.01 · Fase 19)
+
+Catalizador banco 2 sensor 2 (**OBD PID 0172**), °C · `cat_b2s2_warn` / `cat_b2s2_alert` · HUD `CatB2S2 · XXX°C`
+
+## Catalyst B1S3 (v1.02 · Fase 19)
+
+Catalizador banco 1 sensor 3 (**OBD PID 0173**), °C · `cat_b1s3_warn` / `cat_b1s3_alert` · HUD `CatB1S3 · XXX°C`
+
+## Catalyst B2S3 (v1.03 · Fase 19)
+
+Catalizador banco 2 sensor 3 (**OBD PID 0174**), °C · `cat_b2s3_warn` / `cat_b2s3_alert` · HUD `CatB2S3 · XXX°C`
+
+## Catalyst B1S4 (v1.04 · Fase 19)
+
+Catalizador banco 1 sensor 4 (**OBD PID 0175**), °C · `cat_b1s4_warn` / `cat_b1s4_alert` · HUD `CatB1S4 · XXX°C`
+
+```bash
+npm run veplayer:fase19-smoke
+```
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

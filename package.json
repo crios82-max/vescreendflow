@@ -72,6 +72,7 @@
     "veplayer:fase16-smoke": "node veplayer/scripts/fase16-smoke.mjs",
     "veplayer:fase17-smoke": "node veplayer/scripts/fase17-smoke.mjs",
     "veplayer:fase18-smoke": "node veplayer/scripts/fase18-smoke.mjs",
+    "veplayer:fase19-smoke": "node veplayer/scripts/fase19-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",

@@ -139,6 +139,16 @@ data class VehicleSignals(
         val actualTorquePct: Float? = null,
         /** Catalyst temperature bank 2 °C (OBD PID 0170). */
         val catalystB2TempC: Float? = null,
+        /** Catalyst temp bank 1 sensor 2 °C (OBD PID 0171). */
+        val catalystB1s2TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 2 °C (OBD PID 0172). */
+        val catalystB2s2TempC: Float? = null,
+        /** Catalyst temp bank 1 sensor 3 °C (OBD PID 0173). */
+        val catalystB1s3TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 3 °C (OBD PID 0174). */
+        val catalystB2s3TempC: Float? = null,
+        /** Catalyst temp bank 1 sensor 4 °C (OBD PID 0175). */
+        val catalystB1s4TempC: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -243,6 +253,11 @@ data class VehicleSignals(
             "driver_torque_pct" to driverTorquePct?.toDouble(),
             "actual_torque_pct" to actualTorquePct?.toDouble(),
             "catalyst_b2_temp_c" to catalystB2TempC?.toDouble(),
+            "catalyst_b1s2_temp_c" to catalystB1s2TempC?.toDouble(),
+            "catalyst_b2s2_temp_c" to catalystB2s2TempC?.toDouble(),
+            "catalyst_b1s3_temp_c" to catalystB1s3TempC?.toDouble(),
+            "catalyst_b2s3_temp_c" to catalystB2s3TempC?.toDouble(),
+            "catalyst_b1s4_temp_c" to catalystB1s4TempC?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

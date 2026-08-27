@@ -2306,6 +2306,156 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Catalyst temp B1S2 (OBD PID 0171)
+    const catB1s2Obj = signals.catalyst_b1s2 as Record<string, unknown> | undefined
+    const catalystB1s2TempC =
+      typeof catB1s2Obj?.catalyst_temp_c === 'number'
+        ? (catB1s2Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b1s2_temp_c === 'number'
+          ? (signals.catalyst_b1s2_temp_c as number)
+          : null
+    if (typeof catalystB1s2TempC === 'number') {
+      const warnC = typeof signals.cat_b1s2_warn_c === 'number' ? (signals.cat_b1s2_warn_c as number) : 750
+      const alertC = typeof signals.cat_b1s2_alert_c === 'number' ? (signals.cat_b1s2_alert_c as number) : 850
+      if (catalystB1s2TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b1s2_alert', 300)) {
+        insertAlert(deviceId, 'cat_b1s2_alert', 'critical', `Catalizador B1S2 crítico · ${Math.round(catalystB1s2TempC)} °C`, {
+          catalyst_b1s2_temp_c: catalystB1s2TempC,
+          catalyst_b1s2: catB1s2Obj ?? null,
+        })
+        raised.push('cat_b1s2_alert')
+      } else if (
+        catalystB1s2TempC >= warnC &&
+        catalystB1s2TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b1s2_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b1s2_warn', 'warn', `Catalizador B1S2 caliente · ${Math.round(catalystB1s2TempC)} °C`, {
+          catalyst_b1s2_temp_c: catalystB1s2TempC,
+          catalyst_b1s2: catB1s2Obj ?? null,
+        })
+        raised.push('cat_b1s2_warn')
+      }
+    }
+
+    // Catalyst temp B2S2 (OBD PID 0172)
+    const catB2s2Obj = signals.catalyst_b2s2 as Record<string, unknown> | undefined
+    const catalystB2s2TempC =
+      typeof catB2s2Obj?.catalyst_temp_c === 'number'
+        ? (catB2s2Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b2s2_temp_c === 'number'
+          ? (signals.catalyst_b2s2_temp_c as number)
+          : null
+    if (typeof catalystB2s2TempC === 'number') {
+      const warnC = typeof signals.cat_b2s2_warn_c === 'number' ? (signals.cat_b2s2_warn_c as number) : 750
+      const alertC = typeof signals.cat_b2s2_alert_c === 'number' ? (signals.cat_b2s2_alert_c as number) : 850
+      if (catalystB2s2TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b2s2_alert', 300)) {
+        insertAlert(deviceId, 'cat_b2s2_alert', 'critical', `Catalizador B2S2 crítico · ${Math.round(catalystB2s2TempC)} °C`, {
+          catalyst_b2s2_temp_c: catalystB2s2TempC,
+          catalyst_b2s2: catB2s2Obj ?? null,
+        })
+        raised.push('cat_b2s2_alert')
+      } else if (
+        catalystB2s2TempC >= warnC &&
+        catalystB2s2TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b2s2_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b2s2_warn', 'warn', `Catalizador B2S2 caliente · ${Math.round(catalystB2s2TempC)} °C`, {
+          catalyst_b2s2_temp_c: catalystB2s2TempC,
+          catalyst_b2s2: catB2s2Obj ?? null,
+        })
+        raised.push('cat_b2s2_warn')
+      }
+    }
+
+    // Catalyst temp B1S3 (OBD PID 0173)
+    const catB1s3Obj = signals.catalyst_b1s3 as Record<string, unknown> | undefined
+    const catalystB1s3TempC =
+      typeof catB1s3Obj?.catalyst_temp_c === 'number'
+        ? (catB1s3Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b1s3_temp_c === 'number'
+          ? (signals.catalyst_b1s3_temp_c as number)
+          : null
+    if (typeof catalystB1s3TempC === 'number') {
+      const warnC = typeof signals.cat_b1s3_warn_c === 'number' ? (signals.cat_b1s3_warn_c as number) : 750
+      const alertC = typeof signals.cat_b1s3_alert_c === 'number' ? (signals.cat_b1s3_alert_c as number) : 850
+      if (catalystB1s3TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b1s3_alert', 300)) {
+        insertAlert(deviceId, 'cat_b1s3_alert', 'critical', `Catalizador B1S3 crítico · ${Math.round(catalystB1s3TempC)} °C`, {
+          catalyst_b1s3_temp_c: catalystB1s3TempC,
+          catalyst_b1s3: catB1s3Obj ?? null,
+        })
+        raised.push('cat_b1s3_alert')
+      } else if (
+        catalystB1s3TempC >= warnC &&
+        catalystB1s3TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b1s3_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b1s3_warn', 'warn', `Catalizador B1S3 caliente · ${Math.round(catalystB1s3TempC)} °C`, {
+          catalyst_b1s3_temp_c: catalystB1s3TempC,
+          catalyst_b1s3: catB1s3Obj ?? null,
+        })
+        raised.push('cat_b1s3_warn')
+      }
+    }
+
+    // Catalyst temp B2S3 (OBD PID 0174)
+    const catB2s3Obj = signals.catalyst_b2s3 as Record<string, unknown> | undefined
+    const catalystB2s3TempC =
+      typeof catB2s3Obj?.catalyst_temp_c === 'number'
+        ? (catB2s3Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b2s3_temp_c === 'number'
+          ? (signals.catalyst_b2s3_temp_c as number)
+          : null
+    if (typeof catalystB2s3TempC === 'number') {
+      const warnC = typeof signals.cat_b2s3_warn_c === 'number' ? (signals.cat_b2s3_warn_c as number) : 750
+      const alertC = typeof signals.cat_b2s3_alert_c === 'number' ? (signals.cat_b2s3_alert_c as number) : 850
+      if (catalystB2s3TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b2s3_alert', 300)) {
+        insertAlert(deviceId, 'cat_b2s3_alert', 'critical', `Catalizador B2S3 crítico · ${Math.round(catalystB2s3TempC)} °C`, {
+          catalyst_b2s3_temp_c: catalystB2s3TempC,
+          catalyst_b2s3: catB2s3Obj ?? null,
+        })
+        raised.push('cat_b2s3_alert')
+      } else if (
+        catalystB2s3TempC >= warnC &&
+        catalystB2s3TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b2s3_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b2s3_warn', 'warn', `Catalizador B2S3 caliente · ${Math.round(catalystB2s3TempC)} °C`, {
+          catalyst_b2s3_temp_c: catalystB2s3TempC,
+          catalyst_b2s3: catB2s3Obj ?? null,
+        })
+        raised.push('cat_b2s3_warn')
+      }
+    }
+
+    // Catalyst temp B1S4 (OBD PID 0175)
+    const catB1s4Obj = signals.catalyst_b1s4 as Record<string, unknown> | undefined
+    const catalystB1s4TempC =
+      typeof catB1s4Obj?.catalyst_temp_c === 'number'
+        ? (catB1s4Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b1s4_temp_c === 'number'
+          ? (signals.catalyst_b1s4_temp_c as number)
+          : null
+    if (typeof catalystB1s4TempC === 'number') {
+      const warnC = typeof signals.cat_b1s4_warn_c === 'number' ? (signals.cat_b1s4_warn_c as number) : 750
+      const alertC = typeof signals.cat_b1s4_alert_c === 'number' ? (signals.cat_b1s4_alert_c as number) : 850
+      if (catalystB1s4TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b1s4_alert', 300)) {
+        insertAlert(deviceId, 'cat_b1s4_alert', 'critical', `Catalizador B1S4 crítico · ${Math.round(catalystB1s4TempC)} °C`, {
+          catalyst_b1s4_temp_c: catalystB1s4TempC,
+          catalyst_b1s4: catB1s4Obj ?? null,
+        })
+        raised.push('cat_b1s4_alert')
+      } else if (
+        catalystB1s4TempC >= warnC &&
+        catalystB1s4TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b1s4_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b1s4_warn', 'warn', `Catalizador B1S4 caliente · ${Math.round(catalystB1s4TempC)} °C`, {
+          catalyst_b1s4_temp_c: catalystB1s4TempC,
+          catalyst_b1s4: catB1s4Obj ?? null,
+        })
+        raised.push('cat_b1s4_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

@@ -64,6 +64,16 @@ object ObdPidParser {
         val actualTorquePct: Float? = null,
         /** Catalyst temperature bank 2 °C (OBD PID 0170). */
         val catalystB2TempC: Float? = null,
+        /** Catalyst temp bank 1 sensor 2 °C (OBD PID 0171). */
+        val catalystB1s2TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 2 °C (OBD PID 0172). */
+        val catalystB2s2TempC: Float? = null,
+        /** Catalyst temp bank 1 sensor 3 °C (OBD PID 0173). */
+        val catalystB1s3TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 3 °C (OBD PID 0174). */
+        val catalystB2s3TempC: Float? = null,
+        /** Catalyst temp bank 1 sensor 4 °C (OBD PID 0175). */
+        val catalystB1s4TempC: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -195,6 +205,26 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(catalystB2TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
             }
+            0x71 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB1s2TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x72 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2s2TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x73 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB1s3TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x74 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2s3TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x75 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB1s4TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -251,6 +281,11 @@ object ObdPidParser {
             driverTorquePct = add.driverTorquePct ?: base.driverTorquePct,
             actualTorquePct = add.actualTorquePct ?: base.actualTorquePct,
             catalystB2TempC = add.catalystB2TempC ?: base.catalystB2TempC,
+            catalystB1s2TempC = add.catalystB1s2TempC ?: base.catalystB1s2TempC,
+            catalystB2s2TempC = add.catalystB2s2TempC ?: base.catalystB2s2TempC,
+            catalystB1s3TempC = add.catalystB1s3TempC ?: base.catalystB1s3TempC,
+            catalystB2s3TempC = add.catalystB2s3TempC ?: base.catalystB2s3TempC,
+            catalystB1s4TempC = add.catalystB1s4TempC ?: base.catalystB1s4TempC,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

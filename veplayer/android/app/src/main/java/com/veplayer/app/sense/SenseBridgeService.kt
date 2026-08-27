@@ -460,6 +460,61 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.CatalystB2.toJsonMap(
                                             com.veplayer.app.vehicle.CatalystB2Monitor.state.value,
                                         ),
+                                    "cat_b1s2_warn_c" to prefs.catB1s2WarnC.toDouble(),
+                                    "cat_b1s2_alert_c" to prefs.catB1s2AlertC.toDouble(),
+                                    "catalyst_b1s2_temp_c" to
+                                        (if (prefs.catB1s2SimC > 0f) prefs.catB1s2SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s2" to
+                                        com.veplayer.app.vehicle.CatalystB1S2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S2Monitor.state.value,
+                                        ),
+                                    "cat_b2s2_warn_c" to prefs.catB2s2WarnC.toDouble(),
+                                    "cat_b2s2_alert_c" to prefs.catB2s2AlertC.toDouble(),
+                                    "catalyst_b2s2_temp_c" to
+                                        (if (prefs.catB2s2SimC > 0f) prefs.catB2s2SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s2" to
+                                        com.veplayer.app.vehicle.CatalystB2S2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S2Monitor.state.value,
+                                        ),
+                                    "cat_b1s3_warn_c" to prefs.catB1s3WarnC.toDouble(),
+                                    "cat_b1s3_alert_c" to prefs.catB1s3AlertC.toDouble(),
+                                    "catalyst_b1s3_temp_c" to
+                                        (if (prefs.catB1s3SimC > 0f) prefs.catB1s3SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S3Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s3TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s3" to
+                                        com.veplayer.app.vehicle.CatalystB1S3.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S3Monitor.state.value,
+                                        ),
+                                    "cat_b2s3_warn_c" to prefs.catB2s3WarnC.toDouble(),
+                                    "cat_b2s3_alert_c" to prefs.catB2s3AlertC.toDouble(),
+                                    "catalyst_b2s3_temp_c" to
+                                        (if (prefs.catB2s3SimC > 0f) prefs.catB2s3SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S3Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s3TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s3" to
+                                        com.veplayer.app.vehicle.CatalystB2S3.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S3Monitor.state.value,
+                                        ),
+                                    "cat_b1s4_warn_c" to prefs.catB1s4WarnC.toDouble(),
+                                    "cat_b1s4_alert_c" to prefs.catB1s4AlertC.toDouble(),
+                                    "catalyst_b1s4_temp_c" to
+                                        (if (prefs.catB1s4SimC > 0f) prefs.catB1s4SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S4Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s4TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s4" to
+                                        com.veplayer.app.vehicle.CatalystB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S4Monitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -1061,6 +1116,61 @@ class SenseBridgeService : Service() {
                                     "catalyst_b2" to
                                         com.veplayer.app.vehicle.CatalystB2.toJsonMap(
                                             com.veplayer.app.vehicle.CatalystB2Monitor.state.value,
+                                        ),
+                                    "cat_b1s2_warn_c" to prefs.catB1s2WarnC.toDouble(),
+                                    "cat_b1s2_alert_c" to prefs.catB1s2AlertC.toDouble(),
+                                    "catalyst_b1s2_temp_c" to
+                                        (if (prefs.catB1s2SimC > 0f) prefs.catB1s2SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s2" to
+                                        com.veplayer.app.vehicle.CatalystB1S2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S2Monitor.state.value,
+                                        ),
+                                    "cat_b2s2_warn_c" to prefs.catB2s2WarnC.toDouble(),
+                                    "cat_b2s2_alert_c" to prefs.catB2s2AlertC.toDouble(),
+                                    "catalyst_b2s2_temp_c" to
+                                        (if (prefs.catB2s2SimC > 0f) prefs.catB2s2SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s2" to
+                                        com.veplayer.app.vehicle.CatalystB2S2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S2Monitor.state.value,
+                                        ),
+                                    "cat_b1s3_warn_c" to prefs.catB1s3WarnC.toDouble(),
+                                    "cat_b1s3_alert_c" to prefs.catB1s3AlertC.toDouble(),
+                                    "catalyst_b1s3_temp_c" to
+                                        (if (prefs.catB1s3SimC > 0f) prefs.catB1s3SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S3Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s3TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s3" to
+                                        com.veplayer.app.vehicle.CatalystB1S3.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S3Monitor.state.value,
+                                        ),
+                                    "cat_b2s3_warn_c" to prefs.catB2s3WarnC.toDouble(),
+                                    "cat_b2s3_alert_c" to prefs.catB2s3AlertC.toDouble(),
+                                    "catalyst_b2s3_temp_c" to
+                                        (if (prefs.catB2s3SimC > 0f) prefs.catB2s3SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S3Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s3TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s3" to
+                                        com.veplayer.app.vehicle.CatalystB2S3.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S3Monitor.state.value,
+                                        ),
+                                    "cat_b1s4_warn_c" to prefs.catB1s4WarnC.toDouble(),
+                                    "cat_b1s4_alert_c" to prefs.catB1s4AlertC.toDouble(),
+                                    "catalyst_b1s4_temp_c" to
+                                        (if (prefs.catB1s4SimC > 0f) prefs.catB1s4SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S4Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s4TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s4" to
+                                        com.veplayer.app.vehicle.CatalystB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S4Monitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

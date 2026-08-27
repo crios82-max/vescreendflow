@@ -3563,6 +3563,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 19 OBD (0171/72/73/74/75):", color = Mist)
+            val catB1s2St by com.veplayer.app.vehicle.CatalystB1S2Monitor.state.collectAsState()
+            val catB2s2St by com.veplayer.app.vehicle.CatalystB2S2Monitor.state.collectAsState()
+            val catB1s3St by com.veplayer.app.vehicle.CatalystB1S3Monitor.state.collectAsState()
+            val catB2s3St by com.veplayer.app.vehicle.CatalystB2S3Monitor.state.collectAsState()
+            val catB1s4St by com.veplayer.app.vehicle.CatalystB1S4Monitor.state.collectAsState()
+            var f19B1s2 by remember {
+                mutableStateOf(if (prefs.catB1s2SimC > 0f) prefs.catB1s2SimC.toInt().toString() else "0")
+            }
+            var f19B2s2 by remember {
+                mutableStateOf(if (prefs.catB2s2SimC > 0f) prefs.catB2s2SimC.toInt().toString() else "0")
+            }
+            var f19B1s3 by remember {
+                mutableStateOf(if (prefs.catB1s3SimC > 0f) prefs.catB1s3SimC.toInt().toString() else "0")
+            }
+            var f19B2s3 by remember {
+                mutableStateOf(if (prefs.catB2s3SimC > 0f) prefs.catB2s3SimC.toInt().toString() else "0")
+            }
+            var f19B1s4 by remember {
+                mutableStateOf(if (prefs.catB1s4SimC > 0f) prefs.catB1s4SimC.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f19B1s2,
+                    onValueChange = { f19B1s2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S2 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f19B2s2,
+                    onValueChange = { f19B2s2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S2 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f19B1s3,
+                    onValueChange = { f19B1s3 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S3 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f19B2s3,
+                    onValueChange = { f19B2s3 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S3 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f19B1s4,
+                    onValueChange = { f19B1s4 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S4 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s2SimC = f19B1s2.toFloatOrNull() ?: 0f
+                    prefs.catB2s2SimC = f19B2s2.toFloatOrNull() ?: 0f
+                    prefs.catB1s3SimC = f19B1s3.toFloatOrNull() ?: 0f
+                    prefs.catB2s3SimC = f19B2s3.toFloatOrNull() ?: 0f
+                    prefs.catB1s4SimC = f19B1s4.toFloatOrNull() ?: 0f
+                    status = "Fase 19 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 19") }
+            Text(
+                listOfNotNull(
+                    catB1s2St.label.takeIf { it.isNotBlank() },
+                    catB2s2St.label.takeIf { it.isNotBlank() },
+                    catB1s3St.label.takeIf { it.isNotBlank() },
+                    catB2s3St.label.takeIf { it.isNotBlank() },
+                    catB1s4St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 19 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

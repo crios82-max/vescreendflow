@@ -267,6 +267,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0161", // driver torque
                 "0162", // actual torque
                 "0170", // catalyst B2 temp
+                "0171", // catalyst B1S2 temp
+                "0172", // catalyst B2S2 temp
+                "0173", // catalyst B1S3 temp
+                "0174", // catalyst B2S3 temp
+                "0175", // catalyst B1S4 temp
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim
