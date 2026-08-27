@@ -1494,6 +1494,63 @@ fun SettingsScreen() {
                 color = if (cabinHot.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var coolOn by remember { mutableStateOf(prefs.coolantEnabled) }
+            var coolTts by remember { mutableStateOf(prefs.coolantTts) }
+            var coolSim by remember {
+                mutableStateOf(if (prefs.coolantSimC > 0f) prefs.coolantSimC.toInt().toString() else "0")
+            }
+            val coolHot by com.veplayer.app.vehicle.CoolantOverheatMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso refrigerante motor", color = Mist)
+                Switch(
+                    checked = coolOn,
+                    onCheckedChange = {
+                        coolOn = it
+                        prefs.coolantEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS refrigerante", color = Mist)
+                Switch(
+                    checked = coolTts,
+                    onCheckedChange = {
+                        coolTts = it
+                        prefs.coolantTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = coolSim,
+                onValueChange = { coolSim = it.filter { c -> c.isDigit() || c == '.' }.take(4) },
+                label = { Text("Sim refrigerante °C (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.coolantSimC = coolSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Coolant sim ${prefs.coolantSimC}° · warn ${prefs.coolantWarnC.toInt()} / alert ${prefs.coolantAlertC.toInt()}"
+                },
+            ) { Text("Aplicar sim refrigerante") }
+            Text(
+                if (coolHot.coolantC != null) {
+                    "Coolant · ${coolHot.label} · ${coolHot.band}"
+                } else {
+                    "Coolant idle"
+                },
+                color = if (coolHot.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
         }
 
         PanelBlock("Phone Link · Android Auto / CarPlay") {

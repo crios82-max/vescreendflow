@@ -521,6 +521,39 @@ export function evaluateFleetAlerts(
         raised.push('cabin_warn')
       }
     }
+
+    // Coolant overheat
+    const coolantC =
+      typeof signals.coolant_c === 'number' ? (signals.coolant_c as number) : null
+    if (typeof coolantC === 'number') {
+      const warnC =
+        typeof signals.coolant_warn_c === 'number' ? (signals.coolant_warn_c as number) : 105
+      const alertC =
+        typeof signals.coolant_alert_c === 'number' ? (signals.coolant_alert_c as number) : 115
+      if (coolantC >= alertC && !recentlyAlerted(deviceId, 'coolant_overheat', 300)) {
+        insertAlert(
+          deviceId,
+          'coolant_overheat',
+          'critical',
+          `Motor crítico · refrigerante ${Math.round(coolantC)} °C`,
+          { coolant_c: coolantC, alert_c: alertC },
+        )
+        raised.push('coolant_overheat')
+      } else if (
+        coolantC >= warnC &&
+        coolantC < alertC &&
+        !recentlyAlerted(deviceId, 'coolant_warn', 300)
+      ) {
+        insertAlert(
+          deviceId,
+          'coolant_warn',
+          'warn',
+          `Motor caliente · refrigerante ${Math.round(coolantC)} °C`,
+          { coolant_c: coolantC, warn_c: warnC },
+        )
+        raised.push('coolant_warn')
+      }
+    }
   }
 
   return raised
