@@ -473,6 +473,21 @@ npm run veplayer:door-ajar-smoke
 
 **Fase 7 (en curso):** door ajar · shift fatigue · HVAC · cabin overtemp · SOS dashcam.
 
+## Shift fatigue (v0.40 · Fase 7)
+
+Duración de turno abierto → aviso de fatiga:
+
+- Umbrales default **4 h warn** / **8 h alert** (prefs + override `shift_warn_sec` / `shift_alert_sec`)
+- DriveViz `Turno · 4h 20m · Xm km` con color por band
+- TTS + inbox · flota `shift_warn` / `shift_fatigue`
+- Sim horas en Ajustes (demo sin esperar)
+
+```bash
+npm run veplayer:shift-fatigue-smoke
+```
+
+**Fase 7 (siguiente):** HVAC climate · cabin overtemp · SOS dashcam.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

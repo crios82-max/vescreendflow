@@ -70,6 +70,7 @@ import com.veplayer.app.vehicle.IdleMonitor
 import com.veplayer.app.vehicle.DtcMonitor
 import com.veplayer.app.vehicle.DoorAjarMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
+import com.veplayer.app.vehicle.ShiftFatigueMonitor
 import com.veplayer.app.vehicle.MaintenanceMonitor
 import com.veplayer.app.vehicle.SpeedHud
 import com.veplayer.app.vehicle.SpeedHudMonitor
@@ -96,6 +97,7 @@ fun DriveVizPanel(
     val dtc by DtcMonitor.state.collectAsState()
     val parking by ParkingDistanceMonitor.state.collectAsState()
     val doorAjar by DoorAjarMonitor.state.collectAsState()
+    val fatigue by ShiftFatigueMonitor.state.collectAsState()
     val panic by PanicBus.state.collectAsState()
     var holdProgress by remember { mutableFloatStateOf(0f) }
     var holdJob by remember { mutableStateOf<Job?>(null) }
@@ -109,6 +111,7 @@ fun DriveVizPanel(
             DtcMonitor.tick(prefs, snap)
             ParkingDistanceMonitor.tick(prefs, snap.reverse)
             DoorAjarMonitor.tick(prefs, snap)
+            ShiftFatigueMonitor.tick(prefs)
             delay(500)
         }
     }
@@ -169,10 +172,21 @@ fun DriveVizPanel(
                     Text("Conductor · $driverLabel", color = Mute, fontSize = 11.sp)
                 }
                 val shift by com.veplayer.app.fleet.ShiftTracker.shift.collectAsState()
-                if (shift.status == "open") {
+                if (shift.status == "open" || fatigue.open) {
                     Text(
-                        "Turno · ${"%.1f".format(shift.distanceKm)} km",
-                        color = Mute,
+                        buildString {
+                            append("Turno")
+                            if (fatigue.label.isNotBlank()) append(" · ${fatigue.label}")
+                            if (shift.status == "open") {
+                                append(" · ${"%.1f".format(shift.distanceKm)} km")
+                            }
+                        },
+                        color =
+                            if (fatigue.showWarn) {
+                                Color(com.veplayer.app.vehicle.ShiftFatigue.accentArgb(fatigue.band))
+                            } else {
+                                Mute
+                            },
                         fontSize = 11.sp,
                     )
                 }

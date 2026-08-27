@@ -97,6 +97,9 @@ class SenseBridgeService : Service() {
                                         mapOf(
                                             "idle_sec" to com.veplayer.app.vehicle.IdleMonitor.state.value.idleForSec.toDouble(),
                                             "idle_band" to com.veplayer.app.vehicle.IdleMonitor.state.value.band,
+                                            "shift_duration_sec" to
+                                                com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.durationSec.toDouble(),
+                                            "shift_band" to com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.band,
                                             "speed_limit_kmh" to
                                                 com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
                                             "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),
@@ -165,6 +168,9 @@ class SenseBridgeService : Service() {
                                 mapOf(
                                     "idle_sec" to com.veplayer.app.vehicle.IdleMonitor.state.value.idleForSec.toDouble(),
                                     "idle_band" to com.veplayer.app.vehicle.IdleMonitor.state.value.band,
+                                    "shift_duration_sec" to
+                                        com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.durationSec.toDouble(),
+                                    "shift_band" to com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.band,
                                     "speed_limit_kmh" to
                                         com.veplayer.app.vehicle.SpeedHudMonitor.effectiveLimitKmh(prefs),
                                     "phone_link" to com.veplayer.app.phone.PhoneLinkBus.state.value.toJsonMap(),
