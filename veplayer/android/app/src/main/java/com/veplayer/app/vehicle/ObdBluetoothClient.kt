@@ -251,6 +251,7 @@ class ObdBluetoothClient(private val context: Context) {
                 "012F", // fuel
                 "0146", // ambient
                 "0111", // throttle
+                "0142", // control module voltage
             )
     }
 }

@@ -668,6 +668,20 @@ npm run veplayer:message-reply-smoke
 
 **Fase 9 completa** (tow · fuel drop · TPMS · shift summary · message reply).
 
+## Battery 12V (v0.54 · Fase 10)
+
+Voltaje del módulo / batería 12V (OBD **0142** / CAN):
+
+- Default **&lt;12.0 V warn / &lt;11.5 V alert**
+- DriveViz chip `Bat · X.X V` · TTS + inbox
+- Flota `battery_warn` / `battery_crit` · sim V en Ajustes
+
+```bash
+npm run veplayer:battery-voltage-smoke
+```
+
+**Fase 10 (en curso):** battery 12V · impact detect · rest break · route deviation · driver scorecard.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

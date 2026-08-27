@@ -1294,6 +1294,68 @@ fun SettingsScreen() {
             )
         }
 
+        PanelBlock("Batería 12V") {
+            var battOn by remember { mutableStateOf(prefs.battVoltEnabled) }
+            var battTts by remember { mutableStateOf(prefs.battVoltTts) }
+            var battSim by remember {
+                mutableStateOf(
+                    if (prefs.battVoltSimV > 0f) String.format("%.1f", prefs.battVoltSimV) else "0",
+                )
+            }
+            val battSt by com.veplayer.app.vehicle.BatteryVoltageMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso voltaje 12V", color = Mist)
+                Switch(
+                    checked = battOn,
+                    onCheckedChange = {
+                        battOn = it
+                        prefs.battVoltEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS batería 12V", color = Mist)
+                Switch(
+                    checked = battTts,
+                    onCheckedChange = {
+                        battTts = it
+                        prefs.battVoltTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = battSim,
+                onValueChange = { battSim = it.filter { ch -> ch.isDigit() || ch == '.' }.take(5) },
+                label = { Text("Sim V (0 = live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.battVoltSimV = battSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Batt sim ${prefs.battVoltSimV} V · warn ${prefs.battVoltWarnV} / alert ${prefs.battVoltAlertV}"
+                },
+            ) { Text("Aplicar sim V") }
+            Text(
+                if (battSt.volts != null) {
+                    "12V · ${battSt.label} · ${battSt.band}"
+                } else {
+                    "12V idle (OBD 0142 / CAN)"
+                },
+                color = if (battSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
+        }
+
         PanelBlock("Incidente (reporte flota)") {
             var incOn by remember { mutableStateOf(prefs.incidentEnabled) }
             var incClip by remember { mutableStateOf(prefs.incidentClipEnabled) }

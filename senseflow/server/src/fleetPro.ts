@@ -718,6 +718,43 @@ export function evaluateFleetAlerts(
         raised.push('fuel_drop_warn')
       }
     }
+
+    // 12V battery voltage (OBD PID 0142 / CAN)
+    const battV =
+      typeof signals.battery_voltage_v === 'number'
+        ? (signals.battery_voltage_v as number)
+        : typeof signals.battery_v === 'number'
+          ? (signals.battery_v as number)
+          : null
+    if (typeof battV === 'number') {
+      const warnV =
+        typeof signals.battery_warn_v === 'number' ? (signals.battery_warn_v as number) : 12.0
+      const alertV =
+        typeof signals.battery_alert_v === 'number' ? (signals.battery_alert_v as number) : 11.5
+      if (battV < alertV && !recentlyAlerted(deviceId, 'battery_crit', 300)) {
+        insertAlert(
+          deviceId,
+          'battery_crit',
+          'critical',
+          `Batería crítica · ${battV.toFixed(1)} V`,
+          { battery_voltage_v: battV, alert_v: alertV },
+        )
+        raised.push('battery_crit')
+      } else if (
+        battV < warnV &&
+        battV >= alertV &&
+        !recentlyAlerted(deviceId, 'battery_warn', 300)
+      ) {
+        insertAlert(
+          deviceId,
+          'battery_warn',
+          'warn',
+          `Batería baja · ${battV.toFixed(1)} V`,
+          { battery_voltage_v: battV, warn_v: warnV },
+        )
+        raised.push('battery_warn')
+      }
+    }
   }
 
   return raised

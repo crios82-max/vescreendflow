@@ -35,6 +35,8 @@ function parse(raw) {
       return { outdoorTempC: data[0] - 40 }
     case 0x11:
       return { throttlePct: (data[0] * 100) / 255 }
+    case 0x42:
+      return { batteryVoltageV: (data[0] * 256 + data[1]) / 1000 }
     default:
       return {}
   }
@@ -45,6 +47,7 @@ const cases = [
   ['SEARCHING...\r41 0C 1A F8\r>', { rpm: 1726 }],
   ['41 05 5A', { coolantC: 50 }],
   ['41 2F 80', { fuelPct: (0x80 * 100) / 255 }],
+  ['41 42 35 00', { batteryVoltageV: (0x35 * 256 + 0x00) / 1000 }],
 ]
 
 let fail = 0
