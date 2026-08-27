@@ -97,6 +97,11 @@ import com.veplayer.app.vehicle.FuelTrimStft2B1Monitor
 import com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor
 import com.veplayer.app.vehicle.FuelTrimStft2B2Monitor
 import com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor
+import com.veplayer.app.vehicle.CatalystB1S5Monitor
+import com.veplayer.app.vehicle.CatalystB2S5Monitor
+import com.veplayer.app.vehicle.FuelInjectTimingMonitor
+import com.veplayer.app.vehicle.HybridBattLifeMonitor
+import com.veplayer.app.vehicle.EngineRefTorqueMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -190,6 +195,11 @@ fun DriveVizPanel(
     val ltft2B1 by FuelTrimLtft2B1Monitor.state.collectAsState()
     val stft2B2 by FuelTrimStft2B2Monitor.state.collectAsState()
     val ltft2B2 by FuelTrimLtft2B2Monitor.state.collectAsState()
+    val catB1s5 by CatalystB1S5Monitor.state.collectAsState()
+    val catB2s5 by CatalystB2S5Monitor.state.collectAsState()
+    val inject by FuelInjectTimingMonitor.state.collectAsState()
+    val hybridBatt by HybridBattLifeMonitor.state.collectAsState()
+    val refTorque by EngineRefTorqueMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -269,6 +279,11 @@ fun DriveVizPanel(
             FuelTrimLtft2B1Monitor.tick(prefs, snap)
             FuelTrimStft2B2Monitor.tick(prefs, snap)
             FuelTrimLtft2B2Monitor.tick(prefs, snap)
+            CatalystB1S5Monitor.tick(prefs, snap)
+            CatalystB2S5Monitor.tick(prefs, snap)
+            FuelInjectTimingMonitor.tick(prefs, snap)
+            HybridBattLifeMonitor.tick(prefs, snap)
+            EngineRefTorqueMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -831,6 +846,21 @@ fun DriveVizPanel(
                 }
                 if (ltft2B2.showWarn || (prefs.ltft2B2Enabled && ltft2B2.band == "ok" && ltft2B2.label.isNotBlank())) {
                     Text(ltft2B2.label, color = Color(com.veplayer.app.vehicle.FuelTrimLtft2B2.accentArgb(ltft2B2.band)), fontSize = 11.sp)
+                }
+                if (catB1s5.showWarn || (prefs.catB1s5Enabled && catB1s5.band == "ok" && catB1s5.label.isNotBlank())) {
+                    Text(catB1s5.label, color = Color(com.veplayer.app.vehicle.CatalystB1S5.accentArgb(catB1s5.band)), fontSize = 11.sp)
+                }
+                if (catB2s5.showWarn || (prefs.catB2s5Enabled && catB2s5.band == "ok" && catB2s5.label.isNotBlank())) {
+                    Text(catB2s5.label, color = Color(com.veplayer.app.vehicle.CatalystB2S5.accentArgb(catB2s5.band)), fontSize = 11.sp)
+                }
+                if (inject.showWarn || (prefs.injectEnabled && inject.band == "ok" && inject.label.isNotBlank())) {
+                    Text(inject.label, color = Color(com.veplayer.app.vehicle.FuelInjectTiming.accentArgb(inject.band)), fontSize = 11.sp)
+                }
+                if (hybridBatt.showWarn || (prefs.hybridEnabled && hybridBatt.band == "ok" && hybridBatt.label.isNotBlank())) {
+                    Text(hybridBatt.label, color = Color(com.veplayer.app.vehicle.HybridBattLife.accentArgb(hybridBatt.band)), fontSize = 11.sp)
+                }
+                if (refTorque.showWarn || (prefs.refTorqueEnabled && refTorque.band == "ok" && refTorque.label.isNotBlank())) {
+                    Text(refTorque.label, color = Color(com.veplayer.app.vehicle.EngineRefTorque.accentArgb(refTorque.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

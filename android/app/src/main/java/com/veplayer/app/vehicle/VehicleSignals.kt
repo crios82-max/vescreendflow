@@ -159,6 +159,16 @@ data class VehicleSignals(
         val fuelTrimStft2B2Pct: Float? = null,
         /** LTFT secondary O2 B2 % (OBD PID 0158), signed. */
         val fuelTrimLtft2B2Pct: Float? = null,
+        /** Catalyst temp bank 1 sensor 5 °C (OBD PID 0177). */
+        val catalystB1s5TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 5 °C (OBD PID 0178). */
+        val catalystB2s5TempC: Float? = null,
+        /** Fuel injection timing ° (OBD PID 015D), signed. */
+        val fuelInjectTimingDeg: Float? = null,
+        /** Hybrid pack remaining life % (OBD PID 015B). */
+        val hybridBattLifePct: Float? = null,
+        /** Engine reference torque Nm (OBD PID 0163). */
+        val engineRefTorqueNm: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -273,6 +283,11 @@ data class VehicleSignals(
             "fuel_trim_ltft2_b1_pct" to fuelTrimLtft2B1Pct?.toDouble(),
             "fuel_trim_stft2_b2_pct" to fuelTrimStft2B2Pct?.toDouble(),
             "fuel_trim_ltft2_b2_pct" to fuelTrimLtft2B2Pct?.toDouble(),
+            "catalyst_b1s5_temp_c" to catalystB1s5TempC?.toDouble(),
+            "catalyst_b2s5_temp_c" to catalystB2s5TempC?.toDouble(),
+            "fuel_inject_timing_deg" to fuelInjectTimingDeg?.toDouble(),
+            "hybrid_batt_life_pct" to hybridBattLifePct?.toDouble(),
+            "engine_ref_torque_nm" to engineRefTorqueNm?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

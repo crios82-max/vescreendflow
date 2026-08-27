@@ -3725,6 +3725,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 21 OBD (0177/78/5D/5B/63):", color = Mist)
+            val catB1s5St by com.veplayer.app.vehicle.CatalystB1S5Monitor.state.collectAsState()
+            val catB2s5St by com.veplayer.app.vehicle.CatalystB2S5Monitor.state.collectAsState()
+            val injectSt by com.veplayer.app.vehicle.FuelInjectTimingMonitor.state.collectAsState()
+            val hybridSt by com.veplayer.app.vehicle.HybridBattLifeMonitor.state.collectAsState()
+            val refTorqueSt by com.veplayer.app.vehicle.EngineRefTorqueMonitor.state.collectAsState()
+            var f21B1s5 by remember {
+                mutableStateOf(if (prefs.catB1s5SimC > 0f) prefs.catB1s5SimC.toInt().toString() else "0")
+            }
+            var f21B2s5 by remember {
+                mutableStateOf(if (prefs.catB2s5SimC > 0f) prefs.catB2s5SimC.toInt().toString() else "0")
+            }
+            var f21Inject by remember {
+                mutableStateOf(if (prefs.injectSimDeg != 0f) prefs.injectSimDeg.toInt().toString() else "0")
+            }
+            var f21Hybrid by remember {
+                mutableStateOf(if (prefs.hybridSimPct > 0f) prefs.hybridSimPct.toInt().toString() else "0")
+            }
+            var f21RefT by remember {
+                mutableStateOf(if (prefs.refTorqueSimNm > 0f) prefs.refTorqueSimNm.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f21B1s5,
+                    onValueChange = { f21B1s5 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S5 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f21B2s5,
+                    onValueChange = { f21B2s5 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S5 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f21Inject,
+                    onValueChange = { f21Inject = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("Inject °") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f21Hybrid,
+                    onValueChange = { f21Hybrid = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("HyBatt %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f21RefT,
+                    onValueChange = { f21RefT = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("RefT Nm") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s5SimC = f21B1s5.toFloatOrNull() ?: 0f
+                    prefs.catB2s5SimC = f21B2s5.toFloatOrNull() ?: 0f
+                    prefs.injectSimDeg = f21Inject.toFloatOrNull() ?: 0f
+                    prefs.hybridSimPct = f21Hybrid.toFloatOrNull() ?: 0f
+                    prefs.refTorqueSimNm = f21RefT.toFloatOrNull() ?: 0f
+                    status = "Fase 21 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 21") }
+            Text(
+                listOfNotNull(
+                    catB1s5St.label.takeIf { it.isNotBlank() },
+                    catB2s5St.label.takeIf { it.isNotBlank() },
+                    injectSt.label.takeIf { it.isNotBlank() },
+                    hybridSt.label.takeIf { it.isNotBlank() },
+                    refTorqueSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 21 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {
