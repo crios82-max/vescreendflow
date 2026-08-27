@@ -119,6 +119,16 @@ data class VehicleSignals(
         val o2B1s2Volts: Float? = null,
         /** EGR error % (OBD PID 014D), signed. */
         val egrErrorPct: Float? = null,
+        /** Commanded equivalence ratio (OBD PID 0144). */
+        val equivRatio: Float? = null,
+        /** Evap purge flow % (OBD PID 014E). */
+        val evapPurgePct: Float? = null,
+        /** Ethanol fuel % (OBD PID 0152). */
+        val ethanolPct: Float? = null,
+        /** Evap vapor pressure Pa (OBD PID 0153). */
+        val evapVaporPa: Float? = null,
+        /** Fuel rail absolute pressure kPa (OBD PID 0159). */
+        val fuelRailAbsKpa: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -213,6 +223,11 @@ data class VehicleSignals(
             "accel_pedal_pct" to accelPedalPct?.toDouble(),
             "o2_b1s2_volts" to o2B1s2Volts?.toDouble(),
             "egr_error_pct" to egrErrorPct?.toDouble(),
+            "equiv_ratio" to equivRatio?.toDouble(),
+            "evap_purge_pct" to evapPurgePct?.toDouble(),
+            "ethanol_pct" to ethanolPct?.toDouble(),
+            "evap_vapor_pa" to evapVaporPa?.toDouble(),
+            "fuel_rail_abs_kpa" to fuelRailAbsKpa?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),
