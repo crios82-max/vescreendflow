@@ -115,6 +115,17 @@ class SenseBridgeService : Service() {
                             hb.panicAlertId,
                             hb.panicMessage,
                         )
+                        if (hb.speedZoneId != null && hb.speedZoneMaxKmh != null) {
+                            com.veplayer.app.vehicle.SpeedZoneBus.apply(
+                                com.veplayer.app.vehicle.SpeedZoneBus.Zone(
+                                    id = hb.speedZoneId,
+                                    name = hb.speedZoneName ?: "Zona",
+                                    maxKmh = hb.speedZoneMaxKmh,
+                                ),
+                            )
+                        } else {
+                            com.veplayer.app.vehicle.SpeedZoneBus.clear()
+                        }
                         com.veplayer.app.fleet.ShiftTracker.tickLocal(prefs)
                         com.veplayer.app.fleet.ShiftTracker.applyFromHeartbeat(hb.shiftJson)
                         SilentOtaCoordinator.maybeApply(this@SenseBridgeService, hb.ota)
@@ -169,6 +180,17 @@ class SenseBridgeService : Service() {
                     hb.panicAlertId,
                     hb.panicMessage,
                 )
+                if (hb.speedZoneId != null && hb.speedZoneMaxKmh != null) {
+                    com.veplayer.app.vehicle.SpeedZoneBus.apply(
+                        com.veplayer.app.vehicle.SpeedZoneBus.Zone(
+                            id = hb.speedZoneId,
+                            name = hb.speedZoneName ?: "Zona",
+                            maxKmh = hb.speedZoneMaxKmh,
+                        ),
+                    )
+                } else {
+                    com.veplayer.app.vehicle.SpeedZoneBus.clear()
+                }
                 com.veplayer.app.fleet.ShiftTracker.tickLocal(prefs)
                 com.veplayer.app.fleet.ShiftTracker.applyFromHeartbeat(hb.shiftJson)
                 SilentOtaCoordinator.maybeApply(this@SenseBridgeService, hb.ota)

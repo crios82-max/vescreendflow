@@ -191,11 +191,24 @@ fun DriveVizPanel(
                 }
             }
             if (prefs.speedHudEnabled) {
-                SpeedLimitBadge(
-                    limitKmh = hud.limitKmh,
-                    band = hud.band,
+                val zone by com.veplayer.app.vehicle.SpeedZoneBus.zone.collectAsState()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(bottom = 8.dp),
-                )
+                ) {
+                    SpeedLimitBadge(
+                        limitKmh = hud.limitKmh,
+                        band = hud.band,
+                    )
+                    if (prefs.geofenceSpeedEnabled && zone != null) {
+                        Text(
+                            zone!!.name.take(18),
+                            color = Color(0xFFF59E0B),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                }
             }
             if (prefs.panicEnabled) {
                 val sosColor =

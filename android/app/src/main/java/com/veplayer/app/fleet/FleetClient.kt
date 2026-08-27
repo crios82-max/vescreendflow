@@ -32,6 +32,9 @@ data class HeartbeatResult(
     val panicOpen: Boolean = false,
     val panicAlertId: Long? = null,
     val panicMessage: String? = null,
+    val speedZoneId: Int? = null,
+    val speedZoneName: String? = null,
+    val speedZoneMaxKmh: Int? = null,
 )
 
 data class PanicResult(
@@ -153,6 +156,7 @@ class FleetClient(private val prefs: VePrefs) {
                         )
                 }
                 val panicJson = json.optJSONObject("panic")
+                val zoneJson = json.optJSONObject("speed_zone")
                 HeartbeatResult(
                     ota = ota,
                     commands = cmds,
@@ -162,6 +166,12 @@ class FleetClient(private val prefs: VePrefs) {
                     panicAlertId =
                         if (panicJson != null && panicJson.has("id")) panicJson.optLong("id") else null,
                     panicMessage = panicJson?.optString("message"),
+                    speedZoneId =
+                        if (zoneJson != null && zoneJson.has("id")) zoneJson.optInt("id") else null,
+                    speedZoneName = zoneJson?.optString("name"),
+                    speedZoneMaxKmh =
+                        if (zoneJson != null && zoneJson.has("max_kmh")) zoneJson.optInt("max_kmh")
+                        else null,
                 )
             }
         }

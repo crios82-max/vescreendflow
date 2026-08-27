@@ -380,6 +380,20 @@ npm run veplayer:nav-map-smoke
 
 **Fase 5 completa** (fuel · idle · panic · mapa live · waypoints).
 
+## Geofence speed (v0.34 · Fase 6)
+
+Límite de velocidad por zona:
+
+- SenseFlow `fleet_geofences.max_kmh` · heartbeat `speed_zone` · alert `geofence_speed:{id}`
+- CRUD/PATCH geofences con límite · mapa flota muestra km/h
+- VePlayer: HUD usa límite de zona · TTS entrada/exceso · toggle Ajustes
+
+```bash
+npm run veplayer:geofence-speed-smoke
+```
+
+**Fase 6 (siguiente):** DTC/OBD · scorecards · OSM prefetch · parking HUD.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
