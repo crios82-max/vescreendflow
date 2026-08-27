@@ -77,6 +77,7 @@ import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.SeatbeltMonitor
 import com.veplayer.app.vehicle.ShiftFatigueMonitor
 import com.veplayer.app.vehicle.SuddenFuelDropMonitor
+import com.veplayer.app.vehicle.TpmsHudMonitor
 import com.veplayer.app.vehicle.UnauthorizedMoveMonitor
 import com.veplayer.app.vehicle.MaintenanceMonitor
 import com.veplayer.app.vehicle.SpeedHud
@@ -111,6 +112,7 @@ fun DriveVizPanel(
     val coolantHot by CoolantOverheatMonitor.state.collectAsState()
     val tow by UnauthorizedMoveMonitor.state.collectAsState()
     val fuelDrop by SuddenFuelDropMonitor.state.collectAsState()
+    val tpmsHud by TpmsHudMonitor.state.collectAsState()
     val seatbelt by SeatbeltMonitor.state.collectAsState()
     val harsh by HarshDrivingMonitor.state.collectAsState()
     val panic by PanicBus.state.collectAsState()
@@ -134,6 +136,7 @@ fun DriveVizPanel(
             CoolantOverheatMonitor.tick(prefs, snap)
             UnauthorizedMoveMonitor.tick(prefs, snap)
             SuddenFuelDropMonitor.tick(prefs, snap)
+            TpmsHudMonitor.tick(prefs, snap)
             delay(500)
         }
     }
@@ -302,6 +305,13 @@ fun DriveVizPanel(
                         fontSize = 11.sp,
                     )
                 }
+                if (tpmsHud.showWarn || (prefs.tpmsHudEnabled && tpmsHud.band == "ok")) {
+                    Text(
+                        tpmsHud.label.ifBlank { "TPMS" },
+                        color = Color(com.veplayer.app.vehicle.TpmsHud.accentArgb(tpmsHud.band)),
+                        fontSize = 11.sp,
+                    )
+                }
                 val inboxLast by com.veplayer.app.fleet.FleetInbox.last.collectAsState()
                 inboxLast?.let { item ->
                     Text(
@@ -420,10 +430,15 @@ fun DriveVizPanel(
                     append(dtc.label)
                     append(" · ")
                 }
-                vehicle.tpmsFlPsi?.let {
-                    append("TPMS ${it.toInt()}")
-                    if (vehicle.tpmsLow) append("!")
+                if (prefs.tpmsHudEnabled && tpmsHud.detail.isNotBlank()) {
+                    append(tpmsHud.detail)
                     append(" · ")
+                } else {
+                    vehicle.tpmsFlPsi?.let {
+                        append("TPMS ${it.toInt()}")
+                        if (vehicle.tpmsLow) append("!")
+                        append(" · ")
+                    }
                 }
                 if (prefs.hvacPanelEnabled && hvac.label.isNotBlank()) {
                     append(hvac.label)
@@ -437,6 +452,8 @@ fun DriveVizPanel(
             color =
                 when {
                     dtc.mil -> Color(0xFFF59E0B)
+                    tpmsHud.showWarn ->
+                        Color(com.veplayer.app.vehicle.TpmsHud.accentArgb(tpmsHud.band))
                     prefs.hvacPanelEnabled && hvac.showPanel ->
                         Color(com.veplayer.app.vehicle.HvacClimate.accentArgb(hvac.band))
                     else -> Mute
