@@ -108,6 +108,11 @@ class SenseBridgeService : Service() {
                                         (if (prefs.coolantSimC > 0f) prefs.coolantSimC
                                         else com.veplayer.app.vehicle.VehicleState.state.value.coolantC
                                         )?.toDouble(),
+                                    "tow_moving_sec" to
+                                        com.veplayer.app.vehicle.UnauthorizedMoveMonitor.state.value.movingForSec.toDouble(),
+                                    "tow_speed_min_kmh" to prefs.towSpeedMinKmh.toDouble(),
+                                    "tow_warn_sec" to prefs.towWarnSec.toDouble(),
+                                    "tow_alert_sec" to prefs.towAlertSec.toDouble(),
                                     "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
                                         com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
                                     ),
@@ -191,6 +196,11 @@ class SenseBridgeService : Service() {
                                         (if (prefs.coolantSimC > 0f) prefs.coolantSimC
                                         else com.veplayer.app.vehicle.VehicleState.state.value.coolantC
                                         )?.toDouble(),
+                                    "tow_moving_sec" to
+                                        com.veplayer.app.vehicle.UnauthorizedMoveMonitor.state.value.movingForSec.toDouble(),
+                                    "tow_speed_min_kmh" to prefs.towSpeedMinKmh.toDouble(),
+                                    "tow_warn_sec" to prefs.towWarnSec.toDouble(),
+                                    "tow_alert_sec" to prefs.towAlertSec.toDouble(),
                                     "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
                                         com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
                                     ),

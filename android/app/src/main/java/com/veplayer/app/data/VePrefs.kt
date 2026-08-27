@@ -127,6 +127,36 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("panic_enabled", true)
         set(value) = sp.edit().putBoolean("panic_enabled", value).apply()
 
+    /** Unauthorized movement / tow while secured. */
+    var towEnabled: Boolean
+        get() = sp.getBoolean("tow", true)
+        set(value) = sp.edit().putBoolean("tow", value).apply()
+
+    var towTts: Boolean
+        get() = sp.getBoolean("tow_tts", true)
+        set(value) = sp.edit().putBoolean("tow_tts", value).apply()
+
+    var towSpeedMinKmh: Float
+        get() = sp.getFloat("tow_speed_min", 3f)
+        set(value) = sp.edit().putFloat("tow_speed_min", value.coerceIn(1f, 15f)).apply()
+
+    var towWarnSec: Float
+        get() = sp.getFloat("tow_warn_sec", 3f)
+        set(value) = sp.edit().putFloat("tow_warn_sec", value.coerceIn(1f, 30f)).apply()
+
+    var towAlertSec: Float
+        get() = sp.getFloat("tow_alert_sec", 8f)
+        set(value) = sp.edit().putFloat("tow_alert_sec", value.coerceIn(3f, 60f)).apply()
+
+    /** Demo: treat as secured + moving. */
+    var towSim: Boolean
+        get() = sp.getBoolean("tow_sim", false)
+        set(value) = sp.edit().putBoolean("tow_sim", value).apply()
+
+    var towSimKmh: Float
+        get() = sp.getFloat("tow_sim_kmh", 12f)
+        set(value) = sp.edit().putFloat("tow_sim_kmh", value.coerceIn(0f, 80f)).apply()
+
     /** Driver incident reports (non-SOS). */
     var incidentEnabled: Boolean
         get() = sp.getBoolean("incident_enabled", true)
