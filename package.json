@@ -27,6 +27,7 @@
     "veplayer:speed-hud-smoke": "node veplayer/scripts/speed-hud-smoke.mjs",
     "veplayer:crowd-map-smoke": "node veplayer/scripts/crowd-map-smoke.mjs",
     "veplayer:maintenance-smoke": "node veplayer/scripts/maintenance-smoke.mjs",
+    "veplayer:fuel-hud-smoke": "node veplayer/scripts/fuel-hud-smoke.mjs",
     "veplayer:fleet-ops-smoke": "node veplayer/scripts/fleet-ops-smoke.mjs",
     "veplayer:fleet-auth-smoke": "node veplayer/scripts/fleet-auth-smoke.mjs",
     "db:up": "docker compose up -d",

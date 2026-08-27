@@ -135,6 +135,20 @@ export function evaluateFleetAlerts(
       insertAlert(deviceId, 'soc_low', 'warn', `SOC bajo (${Math.round(soc)}%)`, { battery_soc_pct: soc })
       raised.push('soc_low')
     }
+    const fuel = signals.fuel_pct
+    if (typeof fuel === 'number' && fuel < 15 && !recentlyAlerted(deviceId, 'fuel_low', 600)) {
+      insertAlert(deviceId, 'fuel_low', 'warn', `Combustible bajo (${Math.round(fuel)}%)`, {
+        fuel_pct: fuel,
+      })
+      raised.push('fuel_low')
+    }
+    const rangeKm = signals.range_km
+    if (typeof rangeKm === 'number' && rangeKm < 25 && !recentlyAlerted(deviceId, 'range_low', 600)) {
+      insertAlert(deviceId, 'range_low', 'warn', `Autonomía baja (${Math.round(rangeKm)} km)`, {
+        range_km: rangeKm,
+      })
+      raised.push('range_low')
+    }
   }
 
   return raised

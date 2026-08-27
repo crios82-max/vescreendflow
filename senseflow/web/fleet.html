@@ -81,7 +81,7 @@
     <span id="me" class="muted"></span>
     <span id="meta"></span>
   </div>
-  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · nav_dest · set_driver · set_speed_limit · service_done · set_maintenance</p>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · nav_dest · set_driver · set_speed_limit · set_fuel_warn · service_done · set_maintenance</p>
   <div id="toast"></div>
 
   <div class="grid" id="report-cards">
@@ -415,6 +415,7 @@
         mk('Nav', 'nav_dest', 'ghost', { name: 'Altamira', lat: 10.4965, lng: -66.8492 })
         mk('Drv', 'set_driver', 'ghost', { code: 'D001' })
         mk('Lim', 'set_speed_limit', 'ghost', { kmh: 50 })
+        mk('Fuel', 'set_fuel_warn', 'ghost', { pct: 15, range_km: 40 })
         mk('Svc', 'service_done', 'ghost', { kind: 'oil', odo_km: 12500 })
         mk('Wipe', 'wipe', 'danger')
         if (!me.can_dispatch) cell.textContent = 'viewer · read-only'

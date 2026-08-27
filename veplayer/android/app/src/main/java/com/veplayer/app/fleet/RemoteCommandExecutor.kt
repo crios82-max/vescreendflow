@@ -269,6 +269,45 @@ class RemoteCommandExecutor(
                             onStatus("set_speed_limit inválido")
                         }
                     }
+                    "set_fuel_warn" -> {
+                        val pct =
+                            when {
+                                cmd.payload?.has("pct") == true -> cmd.payload.optDouble("pct").toFloat()
+                                cmd.payload?.has("warn_pct") == true ->
+                                    cmd.payload.optDouble("warn_pct").toFloat()
+                                else -> -1f
+                            }
+                        val crit =
+                            when {
+                                cmd.payload?.has("critical_pct") == true ->
+                                    cmd.payload.optDouble("critical_pct").toFloat()
+                                cmd.payload?.has("crit_pct") == true ->
+                                    cmd.payload.optDouble("crit_pct").toFloat()
+                                else -> pct / 2f
+                            }
+                        val rangeWarn =
+                            when {
+                                cmd.payload?.has("range_km") == true ->
+                                    cmd.payload.optDouble("range_km").toFloat()
+                                cmd.payload?.has("warn_range_km") == true ->
+                                    cmd.payload.optDouble("warn_range_km").toFloat()
+                                else -> prefs.rangeWarnKm
+                            }
+                        if (pct in 5f..50f) {
+                            prefs.fuelWarnPct = pct
+                            prefs.fuelCriticalPct = crit.coerceIn(2f, pct)
+                            prefs.rangeWarnKm = rangeWarn.coerceIn(5f, 200f)
+                            prefs.rangeCriticalKm = (rangeWarn / 2f).coerceIn(2f, prefs.rangeWarnKm)
+                            prefs.fuelHudEnabled = true
+                            onStatus("Cmd set_fuel_warn → $pct% / ${rangeWarn.toInt()} km")
+                            RemoteCommandBus.publish("Aviso energía ${pct.toInt()}%")
+                            com.veplayer.app.nav.NavTts.speakNow(
+                                "Umbral de energía ${pct.toInt()} por ciento.",
+                            )
+                        } else {
+                            onStatus("set_fuel_warn inválido")
+                        }
+                    }
                     "service_done" -> {
                         val kind = cmd.payload?.optString("kind").orEmpty().trim().lowercase()
                         val odo =

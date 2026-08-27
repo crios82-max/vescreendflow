@@ -147,6 +147,8 @@ object FleetInbox {
             kind == "abs" -> "Atención. Sistema ABS activo."
             kind == "tpms_low" -> "Atención. Presión de neumáticos baja."
             kind == "soc_low" -> "Atención. Batería baja. $body."
+            kind == "fuel_low" -> "Atención. Combustible bajo. $body."
+            kind == "range_low" -> "Atención. Autonomía baja. $body."
             kind == "message" -> "Mensaje de flota. $body."
             severity == "warn" -> "Alerta. $body."
             else -> "Aviso de flota. $body."

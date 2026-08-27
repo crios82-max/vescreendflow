@@ -51,6 +51,8 @@ import com.veplayer.app.ui.theme.Mist
 import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Night
 import com.veplayer.app.ui.theme.Road
+import com.veplayer.app.vehicle.FuelRangeHud
+import com.veplayer.app.vehicle.FuelRangeHudMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.MaintenanceMonitor
 import com.veplayer.app.vehicle.SpeedHud
@@ -69,11 +71,13 @@ fun DriveVizPanel(
     val prefs = remember { VePrefs(LocalContext.current) }
     val hud by SpeedHudMonitor.state.collectAsState()
     val maint by MaintenanceMonitor.state.collectAsState()
+    val fuelHud by FuelRangeHudMonitor.state.collectAsState()
     LaunchedEffect(Unit) {
         while (true) {
             val snap = com.veplayer.app.vehicle.VehicleState.state.value
             SpeedHudMonitor.tick(prefs, snap.speedKmh)
             MaintenanceMonitor.tick(prefs, snap.odometerKm)
+            FuelRangeHudMonitor.tick(prefs, snap.fuelPct, snap.batterySocPct, snap.rangeKm)
             delay(500)
         }
     }
@@ -165,8 +169,20 @@ fun DriveVizPanel(
                 )
             }
         }
-        vehicle.batterySocPct?.let { soc ->
-            Text("SOC ${soc.toInt()}% · rango ${vehicle.rangeKm?.toInt() ?: "—"} km", color = Mute, fontSize = 12.sp)
+        if (prefs.fuelHudEnabled && (vehicle.fuelPct != null || vehicle.batterySocPct != null || vehicle.rangeKm != null)) {
+            Text(
+                FuelRangeHud.labelLine(fuelHud),
+                color = Color(FuelRangeHud.accentArgb(fuelHud.band)),
+                fontSize = 12.sp,
+            )
+        } else {
+            vehicle.batterySocPct?.let { soc ->
+                Text(
+                    "SOC ${soc.toInt()}% · rango ${vehicle.rangeKm?.toInt() ?: "—"} km",
+                    color = Mute,
+                    fontSize = 12.sp,
+                )
+            }
         }
         vehicle.rpm?.let { rpm ->
             Text("RPM ${rpm.toInt()} · coolant ${vehicle.coolantC?.toInt() ?: "—"}°C", color = Mute, fontSize = 12.sp)

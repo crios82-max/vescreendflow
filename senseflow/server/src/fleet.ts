@@ -467,6 +467,7 @@ const commandSchema = z.object({
     'fm_tune',
     'set_driver',
     'set_speed_limit',
+    'set_fuel_warn',
     'service_done',
     'set_maintenance',
   ]),
