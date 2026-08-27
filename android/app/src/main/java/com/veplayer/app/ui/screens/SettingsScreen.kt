@@ -3029,6 +3029,65 @@ fun SettingsScreen() {
                 color = if (loadSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var stftOn by remember { mutableStateOf(prefs.stftEnabled) }
+            var stftTts by remember { mutableStateOf(prefs.stftTts) }
+            var stftSim by remember {
+                mutableStateOf(
+                    if (prefs.stftSimPct != 0f) prefs.stftSimPct.toInt().toString() else "0",
+                )
+            }
+            val stftSt by com.veplayer.app.vehicle.FuelTrimStftMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso fuel trim STFT (0106)", color = Mist)
+                Switch(
+                    checked = stftOn,
+                    onCheckedChange = {
+                        stftOn = it
+                        prefs.stftEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS STFT", color = Mist)
+                Switch(
+                    checked = stftTts,
+                    onCheckedChange = {
+                        stftTts = it
+                        prefs.stftTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = stftSim,
+                onValueChange = { stftSim = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                label = { Text("Sim STFT % (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.stftSimPct = stftSim.toFloatOrNull() ?: 0f
+                    status =
+                        "STFT sim ${prefs.stftSimPct.toInt()}% · warn ±${prefs.stftWarnPct.toInt()} / alert ±${prefs.stftAlertPct.toInt()}"
+                },
+            ) { Text("Aplicar sim STFT") }
+            Text(
+                if (stftSt.trimPct != null) {
+                    "STFT · ${stftSt.label} · ${stftSt.band}"
+                } else {
+                    "STFT idle (warn ±${prefs.stftWarnPct.toInt()}% / alert ±${prefs.stftAlertPct.toInt()}%)"
+                },
+                color = if (stftSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var thrOn by remember { mutableStateOf(prefs.throttleEnabled) }
             var thrTtsOn by remember { mutableStateOf(prefs.throttleTts) }
             var thrSim by remember {
