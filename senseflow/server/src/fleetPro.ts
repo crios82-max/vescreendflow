@@ -288,6 +288,37 @@ export function evaluateFleetAlerts(
         }
       }
     }
+
+    // Seatbelt — unlatched while moving
+    if (signals.seatbelt_driver === false) {
+      const speedFromSignals =
+        typeof signals.speed_mps === 'number'
+          ? (signals.speed_mps as number)
+          : typeof signals.speed_kmh === 'number'
+            ? (signals.speed_kmh as number) / 3.6
+            : undefined
+      const spdMps = speedMps ?? speedFromSignals
+      const kmh = typeof spdMps === 'number' ? spdMps * 3.6 : null
+      const moving =
+        (typeof kmh === 'number' && kmh >= 5) ||
+        signals.reverse === true ||
+        signals.gear === 'R'
+      if (moving && !recentlyAlerted(deviceId, 'seatbelt_alert', 120)) {
+        insertAlert(
+          deviceId,
+          'seatbelt_alert',
+          'critical',
+          `Cinturón desabrochado en movimiento${typeof kmh === 'number' ? ` · ${Math.round(kmh)} km/h` : ''}`,
+          { seatbelt_driver: false, speed_kmh: kmh != null ? Math.round(kmh) : null },
+        )
+        raised.push('seatbelt_alert')
+      } else if (!moving && !recentlyAlerted(deviceId, 'seatbelt_warn', 180)) {
+        insertAlert(deviceId, 'seatbelt_warn', 'warn', 'Cinturón desabrochado', {
+          seatbelt_driver: false,
+        })
+        raised.push('seatbelt_warn')
+      }
+    }
     const dtcs = Array.isArray(signals.dtcs) ? signals.dtcs : []
     for (const raw of dtcs) {
       if (!raw || typeof raw !== 'object') continue

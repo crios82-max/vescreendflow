@@ -89,7 +89,7 @@ class MockCanAdapter(
             trunkOpen = false,
             hoodOpen = false,
             parkingBrake = gear == Gear.P,
-            seatbeltDriver = true,
+            seatbeltDriver = !prefs.seatbeltSim,
             batterySocPct = soc,
             fuelPct = null,
             rangeKm = soc * 3.2f,
