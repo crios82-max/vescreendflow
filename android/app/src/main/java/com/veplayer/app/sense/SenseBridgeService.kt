@@ -122,6 +122,7 @@ class SenseBridgeService : Service() {
                             hb.panicOpen,
                             hb.panicAlertId,
                             hb.panicMessage,
+                            hb.panicClipUrl,
                         )
                         if (hb.speedZoneId != null && hb.speedZoneMaxKmh != null) {
                             com.veplayer.app.vehicle.SpeedZoneBus.apply(
@@ -195,6 +196,7 @@ class SenseBridgeService : Service() {
                     hb.panicOpen,
                     hb.panicAlertId,
                     hb.panicMessage,
+                    hb.panicClipUrl,
                 )
                 if (hb.speedZoneId != null && hb.speedZoneMaxKmh != null) {
                     com.veplayer.app.vehicle.SpeedZoneBus.apply(

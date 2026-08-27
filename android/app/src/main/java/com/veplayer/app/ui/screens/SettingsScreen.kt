@@ -1032,6 +1032,8 @@ fun SettingsScreen() {
 
         PanelBlock("SOS / pánico") {
             var panicOn by remember { mutableStateOf(prefs.panicEnabled) }
+            var clipOn by remember { mutableStateOf(prefs.sosClipEnabled) }
+            var clipSim by remember { mutableStateOf(prefs.sosClipSim) }
             val panicSt by com.veplayer.app.fleet.PanicBus.state.collectAsState()
             val fleetLocal = remember { FleetClient(prefs) }
             Row(
@@ -1048,8 +1050,41 @@ fun SettingsScreen() {
                     },
                 )
             }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Clip dashcam al SOS", color = Mist)
+                Switch(
+                    checked = clipOn,
+                    onCheckedChange = {
+                        clipOn = it
+                        prefs.sosClipEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Clip sim (sin cámara)", color = Mist)
+                Switch(
+                    checked = clipSim,
+                    onCheckedChange = {
+                        clipSim = it
+                        prefs.sosClipSim = it
+                    },
+                )
+            }
             Text(
-                if (panicSt.active) "SOS activo · id ${panicSt.alertId ?: "—"}" else "Sin SOS abierto",
+                if (panicSt.active) {
+                    "SOS activo · id ${panicSt.alertId ?: "—"}" +
+                        (panicSt.clipUrl?.let { " · clip $it" } ?: "")
+                } else {
+                    "Sin SOS abierto · buffer ${prefs.sosClipSec}s"
+                },
                 color = Mute,
                 fontSize = 12.sp,
             )
@@ -1057,8 +1092,12 @@ fun SettingsScreen() {
                 Button(
                     onClick = {
                         scope.launch {
-                            com.veplayer.app.fleet.PanicBus.trigger(prefs, fleetLocal)
-                                .onSuccess { status = "SOS enviado" }
+                            com.veplayer.app.fleet.PanicBus.trigger(prefs, fleetLocal, context)
+                                .onSuccess {
+                                    status =
+                                        "SOS enviado" +
+                                            (it.clipUrl?.let { u -> " · clip $u" } ?: "")
+                                }
                                 .onFailure { status = "SOS fail: ${it.message}" }
                         }
                     },

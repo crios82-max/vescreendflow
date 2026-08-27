@@ -518,6 +518,21 @@ npm run veplayer:cabin-overtemp-smoke
 
 **Fase 7 (siguiente):** SOS dashcam clip.
 
+## SOS dashcam clip (v0.43 · Fase 7)
+
+Al disparar SOS se adjunta un frame JPEG de dashcam:
+
+- `POST /api/fleet/panic/clip` (base64) · archivos en `/clips/`
+- Payload del panic: `clip_url` · heartbeat `panic.clip_url`
+- VePlayer: frame sim branded (CameraX real = hook pendiente) · prefs clip on/sim
+- Fleet UI: link «Ver clip SOS»
+
+```bash
+npm run veplayer:sos-dashcam-smoke
+```
+
+**Fase 7 completa** (door ajar · shift fatigue · HVAC · cabin overtemp · SOS dashcam).
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

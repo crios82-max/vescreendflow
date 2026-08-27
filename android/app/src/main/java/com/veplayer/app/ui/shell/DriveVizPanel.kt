@@ -90,6 +90,7 @@ fun DriveVizPanel(
     val surround by SurroundEngine.snapshot.collectAsState()
     val media by VeMediaHub.nowPlaying.collectAsState()
     val prefs = remember { VePrefs(LocalContext.current) }
+    val context = LocalContext.current
     val fleet = remember { FleetClient(prefs) }
     val scope = rememberCoroutineScope()
     val hud by SpeedHudMonitor.state.collectAsState()
@@ -320,7 +321,7 @@ fun DriveVizPanel(
                                     holdProgress = 0f
                                     PanicBus.setHolding(false, 0f)
                                     if (fired && !panic.active) {
-                                        scope.launch { PanicBus.trigger(prefs, fleet) }
+                                        scope.launch { PanicBus.trigger(prefs, fleet, context) }
                                     }
                                 }
                             },
@@ -337,7 +338,8 @@ fun DriveVizPanel(
         }
         if (panic.active) {
             Text(
-                "SOS activo · flota notificada",
+                "SOS activo · flota notificada" +
+                    if (!panic.clipUrl.isNullOrBlank()) " · clip" else "",
                 color = Color(0xFFE11D48),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
