@@ -433,6 +433,28 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("cabin_overtemp_sim_c", 0f)
         set(value) = sp.edit().putFloat("cabin_overtemp_sim_c", value.coerceIn(0f, 55f)).apply()
 
+    /** Engine coolant overheat. */
+    var coolantEnabled: Boolean
+        get() = sp.getBoolean("coolant", true)
+        set(value) = sp.edit().putBoolean("coolant", value).apply()
+
+    var coolantTts: Boolean
+        get() = sp.getBoolean("coolant_tts", true)
+        set(value) = sp.edit().putBoolean("coolant_tts", value).apply()
+
+    var coolantWarnC: Float
+        get() = sp.getFloat("coolant_warn_c", 105f)
+        set(value) = sp.edit().putFloat("coolant_warn_c", value.coerceIn(90f, 125f)).apply()
+
+    var coolantAlertC: Float
+        get() = sp.getFloat("coolant_alert_c", 115f)
+        set(value) = sp.edit().putFloat("coolant_alert_c", value.coerceIn(95f, 140f)).apply()
+
+    /** Demo: force coolant °C (0 = live). */
+    var coolantSimC: Float
+        get() = sp.getFloat("coolant_sim_c", 0f)
+        set(value) = sp.edit().putFloat("coolant_sim_c", value.coerceIn(0f, 140f)).apply()
+
     /** Collect fleet alerts into inbox. */
     var fleetAlertsEnabled: Boolean
         get() = sp.getBoolean("fleet_alerts", true)

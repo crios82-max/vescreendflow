@@ -69,6 +69,7 @@ import com.veplayer.app.vehicle.IdleAlert
 import com.veplayer.app.vehicle.IdleMonitor
 import com.veplayer.app.vehicle.DtcMonitor
 import com.veplayer.app.vehicle.CabinOvertempMonitor
+import com.veplayer.app.vehicle.CoolantOverheatMonitor
 import com.veplayer.app.vehicle.DoorAjarMonitor
 import com.veplayer.app.vehicle.HarshDrivingMonitor
 import com.veplayer.app.vehicle.HvacClimateMonitor
@@ -105,6 +106,7 @@ fun DriveVizPanel(
     val fatigue by ShiftFatigueMonitor.state.collectAsState()
     val hvac by HvacClimateMonitor.state.collectAsState()
     val cabinHot by CabinOvertempMonitor.state.collectAsState()
+    val coolantHot by CoolantOverheatMonitor.state.collectAsState()
     val seatbelt by SeatbeltMonitor.state.collectAsState()
     val harsh by HarshDrivingMonitor.state.collectAsState()
     val panic by PanicBus.state.collectAsState()
@@ -125,6 +127,7 @@ fun DriveVizPanel(
             ShiftFatigueMonitor.tick(prefs)
             HvacClimateMonitor.tick(prefs, snap)
             CabinOvertempMonitor.tick(prefs, snap)
+            CoolantOverheatMonitor.tick(prefs, snap)
             delay(500)
         }
     }
@@ -269,6 +272,13 @@ fun DriveVizPanel(
                     Text(
                         "Cabina · ${cabinHot.label}",
                         color = Color(com.veplayer.app.vehicle.CabinOvertemp.accentArgb(cabinHot.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (coolantHot.showWarn) {
+                    Text(
+                        "Motor · ${coolantHot.label}",
+                        color = Color(com.veplayer.app.vehicle.CoolantOverheat.accentArgb(coolantHot.band)),
                         fontSize = 11.sp,
                     )
                 }

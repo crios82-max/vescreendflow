@@ -102,6 +102,12 @@ class SenseBridgeService : Service() {
                                             "shift_band" to com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.band,
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
+                                    "coolant_warn_c" to prefs.coolantWarnC.toDouble(),
+                                    "coolant_alert_c" to prefs.coolantAlertC.toDouble(),
+                                    "coolant_c" to
+                                        (if (prefs.coolantSimC > 0f) prefs.coolantSimC
+                                        else com.veplayer.app.vehicle.VehicleState.state.value.coolantC
+                                        )?.toDouble(),
                                     "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
                                         com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
                                     ),
@@ -179,6 +185,12 @@ class SenseBridgeService : Service() {
                                     "shift_band" to com.veplayer.app.vehicle.ShiftFatigueMonitor.state.value.band,
                                     "cabin_warn_c" to prefs.cabinWarnC.toDouble(),
                                     "cabin_alert_c" to prefs.cabinAlertC.toDouble(),
+                                    "coolant_warn_c" to prefs.coolantWarnC.toDouble(),
+                                    "coolant_alert_c" to prefs.coolantAlertC.toDouble(),
+                                    "coolant_c" to
+                                        (if (prefs.coolantSimC > 0f) prefs.coolantSimC
+                                        else com.veplayer.app.vehicle.VehicleState.state.value.coolantC
+                                        )?.toDouble(),
                                     "harsh" to com.veplayer.app.vehicle.HarshDriving.toJsonMap(
                                         com.veplayer.app.vehicle.HarshDrivingMonitor.state.value,
                                     ),

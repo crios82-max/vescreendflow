@@ -576,6 +576,20 @@ npm run veplayer:geofence-exit-smoke
 
 **Fase 8 (siguiente):** coolant · incident report.
 
+## Coolant overheat (v0.47 · Fase 8)
+
+Refrigerante del motor caliente / crítico:
+
+- Umbrales default **105 °C warn** / **115 °C alert**
+- DriveViz chip `Motor · 108°C` · TTS + inbox
+- Flota `coolant_warn` / `coolant_overheat` · sim °C en Ajustes
+
+```bash
+npm run veplayer:coolant-overheat-smoke
+```
+
+**Fase 8 (siguiente):** incident report.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
