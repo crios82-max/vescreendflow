@@ -233,6 +233,9 @@ object FleetInbox {
             kind == "stft_alert" -> "Atención. Corrección STFT crítica. $body."
             kind == "stft_warn" || kind.startsWith("stft_") ->
                 "Cuidado. Corrección de combustible STFT. $body."
+            kind == "ltft_alert" -> "Atención. Corrección LTFT crítica. $body."
+            kind == "ltft_warn" || kind.startsWith("ltft_") ->
+                "Cuidado. Corrección de combustible LTFT. $body."
             kind == "throttle_alert" -> "Atención. Aceleración máxima. $body."
             kind == "throttle_warn" || kind.startsWith("throttle_") ->
                 "Cuidado. Acelerador muy abierto. $body."

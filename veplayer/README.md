@@ -965,6 +965,18 @@ Corrección corto plazo (**OBD PID 0106**), signed %:
 npm run veplayer:fuel-trim-stft-smoke
 ```
 
+## Fuel trim LTFT (v0.76 · Fase 14)
+
+Corrección largo plazo (**OBD PID 0107**), signed %:
+
+- Warn **±12%** / alert **±20%** (en movimiento ≥20 km/h)
+- DriveViz `LTFT · ±XX%` · TTS + inbox
+- Flota `ltft_warn` / `ltft_alert` · sim % en Ajustes (motor)
+
+```bash
+npm run veplayer:fuel-trim-ltft-smoke
+```
+
 **Fase 14 (en curso):** dist since clear · fuel trim STFT · fuel trim LTFT · MAP · catalyst temp.
 
 ## Device Owner (kiosk duro · v0.12)

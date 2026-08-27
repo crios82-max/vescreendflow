@@ -1369,6 +1369,73 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Long-term fuel trim (OBD PID 0107)
+    const ltftObj = signals.fuel_trim_ltft as Record<string, unknown> | undefined
+    let ltftPct: number | null =
+      typeof ltftObj?.trim_pct === 'number'
+        ? (ltftObj.trim_pct as number)
+        : typeof signals.fuel_trim_ltft_pct === 'number'
+          ? (signals.fuel_trim_ltft_pct as number)
+          : null
+    const ltftSpeedKmh =
+      typeof ltftObj?.speed_kmh === 'number'
+        ? (ltftObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof ltftPct === 'number') {
+      const warnLtftPct =
+        typeof signals.ltft_warn_pct === 'number'
+          ? (signals.ltft_warn_pct as number)
+          : 12
+      const alertLtftPct =
+        typeof signals.ltft_alert_pct === 'number'
+          ? (signals.ltft_alert_pct as number)
+          : 20
+      const ltftMinSpd =
+        typeof signals.ltft_speed_min_kmh === 'number'
+          ? (signals.ltft_speed_min_kmh as number)
+          : 20
+      const ltftSpdOk = typeof ltftSpeedKmh === 'number' && ltftSpeedKmh >= ltftMinSpd
+      const absLtft = Math.abs(ltftPct)
+      if (
+        ltftSpdOk &&
+        absLtft >= alertLtftPct &&
+        !recentlyAlerted(deviceId, 'ltft_alert', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'ltft_alert',
+          'critical',
+          `LTFT crítico · ${ltftPct > 0 ? '+' : ''}${Math.round(ltftPct)}%`,
+          {
+            fuel_trim_ltft_pct: ltftPct,
+            alert_pct: alertLtftPct,
+            fuel_trim_ltft: ltftObj ?? null,
+          },
+        )
+        raised.push('ltft_alert')
+      } else if (
+        ltftSpdOk &&
+        absLtft >= warnLtftPct &&
+        absLtft < alertLtftPct &&
+        !recentlyAlerted(deviceId, 'ltft_warn', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'ltft_warn',
+          'warn',
+          `LTFT fuera de rango · ${ltftPct > 0 ? '+' : ''}${Math.round(ltftPct)}%`,
+          {
+            fuel_trim_ltft_pct: ltftPct,
+            warn_pct: warnLtftPct,
+            fuel_trim_ltft: ltftObj ?? null,
+          },
+        )
+        raised.push('ltft_warn')
+      }
+    }
+
     // High throttle / WOT
     const throttlePct =
       typeof signals.throttle_pct === 'number'

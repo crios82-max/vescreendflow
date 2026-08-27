@@ -3088,7 +3088,65 @@ fun SettingsScreen() {
                 color = if (stftSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
-            var thrOn by remember { mutableStateOf(prefs.throttleEnabled) }
+            var ltftOn by remember { mutableStateOf(prefs.ltftEnabled) }
+            var ltftTts by remember { mutableStateOf(prefs.ltftTts) }
+            var ltftSim by remember {
+                mutableStateOf(
+                    if (prefs.ltftSimPct != 0f) prefs.ltftSimPct.toInt().toString() else "0",
+                )
+            }
+            val ltftSt by com.veplayer.app.vehicle.FuelTrimLtftMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso fuel trim LTFT (0107)", color = Mist)
+                Switch(
+                    checked = ltftOn,
+                    onCheckedChange = {
+                        ltftOn = it
+                        prefs.ltftEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS LTFT", color = Mist)
+                Switch(
+                    checked = ltftTts,
+                    onCheckedChange = {
+                        ltftTts = it
+                        prefs.ltftTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = ltftSim,
+                onValueChange = { ltftSim = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                label = { Text("Sim LTFT % (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.ltftSimPct = ltftSim.toFloatOrNull() ?: 0f
+                    status =
+                        "LTFT sim ${prefs.ltftSimPct.toInt()}% · warn ±${prefs.ltftWarnPct.toInt()} / alert ±${prefs.ltftAlertPct.toInt()}"
+                },
+            ) { Text("Aplicar sim LTFT") }
+            Text(
+                if (ltftSt.trimPct != null) {
+                    "LTFT · ${ltftSt.label} · ${ltftSt.band}"
+                } else {
+                    "LTFT idle (warn ±${prefs.ltftWarnPct.toInt()}% / alert ±${prefs.ltftAlertPct.toInt()}%)"
+                },
+                color = if (ltftSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var thrTtsOn by remember { mutableStateOf(prefs.throttleTts) }
             var thrSim by remember {
                 mutableStateOf(

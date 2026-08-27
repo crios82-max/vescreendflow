@@ -60,6 +60,7 @@
     "veplayer:mil-distance-smoke": "node veplayer/scripts/mil-distance-smoke.mjs",
     "veplayer:dist-since-clear-smoke": "node veplayer/scripts/dist-since-clear-smoke.mjs",
     "veplayer:fuel-trim-stft-smoke": "node veplayer/scripts/fuel-trim-stft-smoke.mjs",
+    "veplayer:fuel-trim-ltft-smoke": "node veplayer/scripts/fuel-trim-ltft-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",

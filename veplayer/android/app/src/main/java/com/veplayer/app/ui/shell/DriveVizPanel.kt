@@ -78,6 +78,7 @@ import com.veplayer.app.vehicle.DriverScoreMonitor
 import com.veplayer.app.vehicle.EcoLiveMonitor
 import com.veplayer.app.vehicle.EngineLoadMonitor
 import com.veplayer.app.vehicle.FuelTrimStftMonitor
+import com.veplayer.app.vehicle.FuelTrimLtftMonitor
 import com.veplayer.app.vehicle.EngineRuntimeMonitor
 import com.veplayer.app.vehicle.HarshDrivingMonitor
 import com.veplayer.app.vehicle.HazardStuckMonitor
@@ -146,6 +147,7 @@ fun DriveVizPanel(
     val rpmHot by RpmOverRevMonitor.state.collectAsState()
     val engineLoad by EngineLoadMonitor.state.collectAsState()
     val stftTrim by FuelTrimStftMonitor.state.collectAsState()
+    val ltftTrim by FuelTrimLtftMonitor.state.collectAsState()
     val highThr by HighThrottleMonitor.state.collectAsState()
     val tow by UnauthorizedMoveMonitor.state.collectAsState()
     val pbrake by ParkingBrakeMovingMonitor.state.collectAsState()
@@ -194,6 +196,7 @@ fun DriveVizPanel(
             RpmOverRevMonitor.tick(prefs, snap)
             EngineLoadMonitor.tick(prefs, snap)
             FuelTrimStftMonitor.tick(prefs, snap)
+            FuelTrimLtftMonitor.tick(prefs, snap)
             HighThrottleMonitor.tick(prefs, snap)
             UnauthorizedMoveMonitor.tick(prefs, snap)
             ParkingBrakeMovingMonitor.tick(prefs, snap)
@@ -459,6 +462,21 @@ fun DriveVizPanel(
                     Text(
                         stftTrim.label,
                         color = Color(com.veplayer.app.vehicle.FuelTrimStft.accentArgb(stftTrim.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (
+                    ltftTrim.showWarn ||
+                        (
+                            prefs.ltftEnabled &&
+                                ltftTrim.band == "ok" &&
+                                kotlin.math.abs(ltftTrim.trimPct ?: 0f) >= 8f &&
+                                ltftTrim.label.isNotBlank()
+                        )
+                ) {
+                    Text(
+                        ltftTrim.label,
+                        color = Color(com.veplayer.app.vehicle.FuelTrimLtft.accentArgb(ltftTrim.band)),
                         fontSize = 11.sp,
                     )
                 }

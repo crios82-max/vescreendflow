@@ -253,6 +253,18 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.FuelTrimStft.toJsonMap(
                                             com.veplayer.app.vehicle.FuelTrimStftMonitor.state.value,
                                         ),
+                                    "fuel_trim_ltft_pct" to
+                                        (if (prefs.ltftSimPct != 0f) prefs.ltftSimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtftMonitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtftPct
+                                        )?.toDouble(),
+                                    "ltft_warn_pct" to prefs.ltftWarnPct.toDouble(),
+                                    "ltft_alert_pct" to prefs.ltftAlertPct.toDouble(),
+                                    "ltft_speed_min_kmh" to prefs.ltftSpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft" to
+                                        com.veplayer.app.vehicle.FuelTrimLtft.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtftMonitor.state.value,
+                                        ),
                                     "throttle_pct" to
                                         (if (prefs.throttleSimPct > 0f) prefs.throttleSimPct
                                         else com.veplayer.app.vehicle.HighThrottleMonitor.state.value.throttlePct
@@ -567,6 +579,18 @@ class SenseBridgeService : Service() {
                                     "fuel_trim_stft" to
                                         com.veplayer.app.vehicle.FuelTrimStft.toJsonMap(
                                             com.veplayer.app.vehicle.FuelTrimStftMonitor.state.value,
+                                        ),
+                                    "fuel_trim_ltft_pct" to
+                                        (if (prefs.ltftSimPct != 0f) prefs.ltftSimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtftMonitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtftPct
+                                        )?.toDouble(),
+                                    "ltft_warn_pct" to prefs.ltftWarnPct.toDouble(),
+                                    "ltft_alert_pct" to prefs.ltftAlertPct.toDouble(),
+                                    "ltft_speed_min_kmh" to prefs.ltftSpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft" to
+                                        com.veplayer.app.vehicle.FuelTrimLtft.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtftMonitor.state.value,
                                         ),
                                     "throttle_pct" to
                                         (if (prefs.throttleSimPct > 0f) prefs.throttleSimPct

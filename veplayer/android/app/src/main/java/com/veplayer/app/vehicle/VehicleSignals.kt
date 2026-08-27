@@ -93,6 +93,8 @@ data class VehicleSignals(
         val engineLoadPct: Float? = null,
         /** Short-term fuel trim % (OBD PID 0106), signed. */
         val fuelTrimStftPct: Float? = null,
+        /** Long-term fuel trim % (OBD PID 0107), signed. */
+        val fuelTrimLtftPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -174,6 +176,7 @@ data class VehicleSignals(
             "throttle_pct" to throttlePct?.toDouble(),
             "engine_load_pct" to engineLoadPct?.toDouble(),
             "fuel_trim_stft_pct" to fuelTrimStftPct?.toDouble(),
+            "fuel_trim_ltft_pct" to fuelTrimLtftPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),
