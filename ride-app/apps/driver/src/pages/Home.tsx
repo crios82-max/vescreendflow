@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Ride } from '@ride-app/shared';
 import { RIDE_STATUS_LABELS } from '@ride-app/shared';
-import { api, getSocket, MapView, useAuth } from '@ride-app/web-shared';
+import { api, getSocket, GoogleMapsProvider, MapView, useAuth } from '@ride-app/web-shared';
 
 interface PendingRide {
   id: string;
@@ -100,6 +100,7 @@ export default function Home() {
   };
 
   return (
+    <GoogleMapsProvider>
     <div className="map-page">
       <MapView
         pickup={ride ? { lat: ride.pickupLat, lng: ride.pickupLng } : null}
@@ -146,5 +147,6 @@ export default function Home() {
         )}
       </div>
     </div>
+    </GoogleMapsProvider>
   );
 }

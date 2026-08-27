@@ -16,7 +16,7 @@ Monorepo con backend Node/Express, apps web (pasajero + conductor), app móvil E
 
 - Node 20+
 - Docker (PostgreSQL)
-- **Google Maps API Key** con Maps JavaScript API + Maps SDK (Android/iOS)
+- **Google Maps API Key** con Maps JavaScript API, **Places API** y Maps SDK (Android/iOS)
 
 ## Setup rápido
 
@@ -52,7 +52,7 @@ npm run start
 1. Registra un **pasajero** en http://localhost:5174
 2. Registra un **conductor** en http://localhost:5175
 3. Conductor → **Ir online**
-4. Pasajero → elige origen/destino en mapa → **Pedir Ride**
+4. Pasajero → busca origen/destino con **Google Places** → **Pedir Ride**
 5. Conductor → **Aceptar** → actualiza estados hasta **Completar**
 6. Pasajero → **Pagar con tarjeta mock**
 
@@ -74,6 +74,5 @@ ride-app/
 ## Próximos pasos
 
 - Stripe real (reemplazar `/rides/:id/pay`)
-- Geocoding con Google Places
 - Push notifications
 - Panel admin

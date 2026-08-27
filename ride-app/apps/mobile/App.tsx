@@ -16,6 +16,7 @@ import type { Ride, User } from '@ride-app/shared';
 import { RIDE_STATUS_LABELS } from '@ride-app/shared';
 import { mobileApi } from './src/api';
 import { mobileSocket } from './src/socket';
+import { PlaceSearch } from './src/PlaceSearch';
 
 type Screen = 'auth' | 'home';
 
@@ -29,7 +30,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
 
   const [position, setPosition] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [dropoff, setDropoff] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [pickup, setPickup] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
+  const [dropoff, setDropoff] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
   const [ride, setRide] = useState<Ride | null>(null);
   const [estimate, setEstimate] = useState<{ estimatedPrice: number; distanceKm: number } | null>(null);
   const [online, setOnline] = useState(false);
@@ -40,7 +42,9 @@ export default function App() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') return;
       const loc = await Location.getCurrentPositionAsync({});
-      setPosition({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
+      const coords = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
+      setPosition(coords);
+      setPickup({ ...coords, address: 'Mi ubicación' });
     })();
   }, []);
 
@@ -87,14 +91,15 @@ export default function App() {
   };
 
   const requestRide = async () => {
-    if (!position || !dropoff) return;
+    const origin = pickup ?? position;
+    if (!origin || !dropoff) return;
     setLoading(true);
     try {
       const created = await mobileApi.createRide({
-        pickupAddress: 'Mi ubicación',
-        pickupLat: position.latitude,
-        pickupLng: position.longitude,
-        dropoffAddress: `${dropoff.latitude.toFixed(5)}, ${dropoff.longitude.toFixed(5)}`,
+        pickupAddress: pickup?.address ?? 'Mi ubicación',
+        pickupLat: origin.latitude,
+        pickupLng: origin.longitude,
+        dropoffAddress: dropoff.address,
         dropoffLat: dropoff.latitude,
         dropoffLng: dropoff.longitude,
       });
@@ -107,16 +112,17 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (!position || !dropoff || user?.role !== 'passenger') return;
+    const origin = pickup ?? position;
+    if (!origin || !dropoff || user?.role !== 'passenger') return;
     mobileApi.estimateRide({
-      pickupAddress: 'origen',
-      pickupLat: position.latitude,
-      pickupLng: position.longitude,
-      dropoffAddress: 'destino',
+      pickupAddress: pickup?.address ?? 'origen',
+      pickupLat: origin.latitude,
+      pickupLng: origin.longitude,
+      dropoffAddress: dropoff.address,
       dropoffLat: dropoff.latitude,
       dropoffLng: dropoff.longitude,
     }).then(setEstimate).catch(() => setEstimate(null));
-  }, [position, dropoff, user?.role]);
+  }, [pickup, position, dropoff, user?.role]);
 
   const toggleOnline = async () => {
     if (!position) return;
@@ -166,17 +172,30 @@ export default function App() {
         <MapView
           style={styles.map}
           provider={PROVIDER_GOOGLE}
-          initialRegion={{
-            latitude: position.latitude,
-            longitude: position.longitude,
+          region={{
+            latitude: dropoff?.latitude ?? pickup?.latitude ?? position.latitude,
+            longitude: dropoff?.longitude ?? pickup?.longitude ?? position.longitude,
             latitudeDelta: 0.05,
             longitudeDelta: 0.05,
           }}
-          onPress={(e) => user?.role === 'passenger' && !ride && setDropoff(e.nativeEvent.coordinate)}
         >
-          <Marker coordinate={position} title="Tú" />
+          {(pickup ?? position) && <Marker coordinate={pickup ?? position} title="Origen" />}
           {dropoff && <Marker coordinate={dropoff} title="Destino" pinColor="green" />}
         </MapView>
+      )}
+      {user?.role === 'passenger' && !ride && (
+        <View style={styles.searchOverlay}>
+          <PlaceSearch
+            placeholder="Origen"
+            bias={position}
+            onSelect={(place) => setPickup(place)}
+          />
+          <PlaceSearch
+            placeholder="¿A dónde vas?"
+            bias={pickup ?? position}
+            onSelect={(place) => setDropoff(place)}
+          />
+        </View>
       )}
       <SafeAreaView style={styles.sheet}>
         <Text style={styles.sheetTitle}>{user?.name} — {user?.role === 'passenger' ? 'Pasajero' : 'Conductor'}</Text>
@@ -184,7 +203,9 @@ export default function App() {
           <ScrollView>
             {!ride ? (
               <>
-                <Text style={styles.muted}>Toca el mapa para elegir destino</Text>
+                <Text style={styles.muted}>
+                  {dropoff ? `${dropoff.address}` : 'Busca origen y destino arriba'}
+                </Text>
                 {estimate && <Text style={styles.muted}>${estimate.estimatedPrice} — {estimate.distanceKm} km</Text>}
                 <Pressable style={styles.btn} onPress={requestRide} disabled={!dropoff || loading}>
                   <Text style={styles.btnText}>Pedir Ride</Text>
@@ -269,6 +290,14 @@ const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: '#000' },
   container: { flex: 1, backgroundColor: '#000', padding: 20, gap: 12 },
   map: { flex: 1 },
+  searchOverlay: {
+    position: 'absolute',
+    top: 56,
+    left: 16,
+    right: 16,
+    zIndex: 20,
+    gap: 8,
+  },
   title: { color: '#fff', fontSize: 28, fontWeight: '700' },
   input: { backgroundColor: '#111', color: '#fff', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#333' },
   btn: { backgroundColor: '#fff', borderRadius: 999, padding: 14, alignItems: 'center', marginTop: 8 },
