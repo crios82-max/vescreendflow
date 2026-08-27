@@ -247,6 +247,18 @@ class VePrefs(context: Context) {
                 ?: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         set(value) = sp.edit().putString("map_tile_url", value.trim()).apply()
 
+    var mapPrefetchZMin: Int
+        get() = sp.getInt("map_prefetch_zmin", 12)
+        set(value) = sp.edit().putInt("map_prefetch_zmin", value.coerceIn(8, 16)).apply()
+
+    var mapPrefetchZMax: Int
+        get() = sp.getInt("map_prefetch_zmax", 15)
+        set(value) = sp.edit().putInt("map_prefetch_zmax", value.coerceIn(10, 18)).apply()
+
+    var mapPrefetchMaxTiles: Int
+        get() = sp.getInt("map_prefetch_max", 2000)
+        set(value) = sp.edit().putInt("map_prefetch_max", value.coerceIn(100, 8000)).apply()
+
     /** Parking guidelines on reverse camera. */
     var reverseGuidesEnabled: Boolean
         get() = sp.getBoolean("reverse_guides", true)

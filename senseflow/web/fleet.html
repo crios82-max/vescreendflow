@@ -103,7 +103,7 @@
     <span id="me" class="muted"></span>
     <span id="meta"></span>
   </div>
-  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · read_dtc · clear_dtc · seed_dtc · nav_dest · set_driver · set_speed_limit · set_fuel_warn · set_idle_warn · panic_ack · service_done · set_maintenance</p>
+  <p class="muted">Cmds: restart · lock · lock_task · apply_kiosk · run_diag · set_dbc · fm_tune · message · wipe(admin) · ota · set_source · reboot_obd · read_dtc · clear_dtc · seed_dtc · prefetch_tiles · nav_dest · set_driver · set_speed_limit · set_fuel_warn · set_idle_warn · panic_ack · service_done · set_maintenance</p>
   <div id="toast"></div>
 
   <div class="grid" id="report-cards">
@@ -561,6 +561,7 @@
         mk('DTC', 'read_dtc', 'ghost')
         mk('CLR', 'clear_dtc', 'ghost')
         mk('SeedDTC', 'seed_dtc', 'ghost', { mil: true, codes: ['P0420', 'P0301'] })
+        mk('Tiles', 'prefetch_tiles', 'ghost', { mode: 'around', radius_km: 3 })
         mk('Nav', 'nav_dest', 'ghost', {
           name: 'Aeropuerto Maiquetía',
           lat: 10.6013,

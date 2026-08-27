@@ -123,6 +123,49 @@ object WebMercator {
         return out
     }
 
+    /** All slippy tiles covering [bounds] at a single zoom. */
+    fun tilesForBounds(
+        bounds: MapBounds,
+        zoom: Int,
+    ): List<TileKey> {
+        val z = zoom.coerceIn(0, 22)
+        val n = 1 shl z
+        val (wx0, wy0) = latLngToWorld(bounds.maxLat, bounds.minLng, z)
+        val (wx1, wy1) = latLngToWorld(bounds.minLat, bounds.maxLng, z)
+        val x0 = floor(wx0 / TILE_SIZE).toInt().coerceIn(0, n - 1)
+        val x1 = floor((wx1 - 1e-9) / TILE_SIZE).toInt().coerceIn(0, n - 1)
+        val y0 = floor(wy0 / TILE_SIZE).toInt().coerceIn(0, n - 1)
+        val y1 = floor((wy1 - 1e-9) / TILE_SIZE).toInt().coerceIn(0, n - 1)
+        val out = ArrayList<TileKey>((x1 - x0 + 1) * (y1 - y0 + 1))
+        for (x in x0..x1) {
+            for (y in y0..y1) {
+                out.add(TileKey(z, x, y))
+            }
+        }
+        return out
+    }
+
+    /** Union of tiles for zoom range (inclusive), capped at [maxTiles]. */
+    fun tilesForBoundsRange(
+        bounds: MapBounds,
+        zMin: Int,
+        zMax: Int,
+        maxTiles: Int = 2500,
+    ): List<TileKey> {
+        val lo = zMin.coerceIn(0, 22)
+        val hi = zMax.coerceIn(lo, 22)
+        val out = ArrayList<TileKey>()
+        for (z in lo..hi) {
+            val batch = tilesForBounds(bounds, z)
+            if (out.size + batch.size > maxTiles) {
+                out.addAll(batch.take(maxTiles - out.size))
+                break
+            }
+            out.addAll(batch)
+        }
+        return out
+    }
+
     fun tileScreenRect(
         key: TileKey,
         vp: MapViewport,

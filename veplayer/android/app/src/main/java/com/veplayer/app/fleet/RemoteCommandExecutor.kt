@@ -251,6 +251,21 @@ class RemoteCommandExecutor(
                             },
                         )
                     }
+                    "prefetch_tiles" -> {
+                        val mode = cmd.payload?.optString("mode")?.lowercase() ?: "around"
+                        val radius = cmd.payload?.optDouble("radius_km")?.takeIf { !it.isNaN() } ?: 4.0
+                        main.post {
+                            val scope = CoroutineScope(Dispatchers.Default)
+                            when (mode) {
+                                "route" ->
+                                    com.veplayer.app.ui.map.OsmPrefetch.startRoute(context, prefs, scope, radius.coerceIn(0.3, 5.0))
+                                else ->
+                                    com.veplayer.app.ui.map.OsmPrefetch.startAroundMe(context, prefs, scope, radius.coerceIn(1.0, 12.0))
+                            }
+                        }
+                        onStatus("Cmd prefetch_tiles · $mode")
+                        RemoteCommandBus.publish("Prefetch OSM · $mode")
+                    }
                     "nav_dest" -> {
                         val name = cmd.payload?.optString("name") ?: "Destino flota"
                         val lat = cmd.payload?.optDouble("lat")

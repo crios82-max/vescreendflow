@@ -476,6 +476,7 @@ const commandSchema = z.object({
     'read_dtc',
     'clear_dtc',
     'seed_dtc',
+    'prefetch_tiles',
     'nav_dest',
     'lock_task',
     'apply_kiosk',

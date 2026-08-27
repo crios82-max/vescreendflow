@@ -364,6 +364,18 @@ fun NativeMapPane() {
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                 )
+                val prefetch by OsmPrefetch.state.collectAsState()
+                if (prefetch.running || prefetch.downloaded > 0 || prefetch.cacheFiles > 0) {
+                    Text(
+                        if (prefetch.running) {
+                            "Prefetch ${prefetch.done}/${prefetch.total}"
+                        } else {
+                            "Offline · ${"%.1f".format(prefetch.cacheMb)} MB · ${prefetch.cacheFiles} tiles"
+                        },
+                        color = Color(0xFF14B8A6),
+                        fontSize = 11.sp,
+                    )
+                }
                 Text(
                     "${pathPts.size} pts · ${route.stopsLabel}" +
                         (if (route.viaCount > 0) " · ${route.viaCount} vía(s)" else "") +
