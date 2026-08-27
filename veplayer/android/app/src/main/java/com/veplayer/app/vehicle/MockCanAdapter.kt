@@ -96,6 +96,7 @@ class MockCanAdapter(
             rpm = if (gear == Gear.D) 1400f + kmh * 28f else 0f,
             steeringAngleDeg = steer,
             coolantC = 86f + Random.nextFloat(),
+            oilTempC = 92f + Random.nextFloat() * 4f,
             batteryVoltageV = 13.6f + Random.nextFloat() * 0.4f,
             outdoorTempC = 28f,
             ignition = IgnitionState.ON,

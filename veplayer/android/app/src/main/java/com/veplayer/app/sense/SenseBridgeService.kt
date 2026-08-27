@@ -160,6 +160,17 @@ class SenseBridgeService : Service() {
                                         (if (prefs.coolantSimC > 0f) prefs.coolantSimC
                                         else com.veplayer.app.vehicle.VehicleState.state.value.coolantC
                                         )?.toDouble(),
+                                    "oil_temp_warn_c" to prefs.oilTempWarnC.toDouble(),
+                                    "oil_temp_alert_c" to prefs.oilTempAlertC.toDouble(),
+                                    "oil_temp_c" to
+                                        (if (prefs.oilTempSimC > 0f) prefs.oilTempSimC
+                                        else com.veplayer.app.vehicle.OilTempMonitor.state.value.oilTempC
+                                            ?: snap.oilTempC
+                                        )?.toDouble(),
+                                    "oil_temp" to
+                                        com.veplayer.app.vehicle.OilTemp.toJsonMap(
+                                            com.veplayer.app.vehicle.OilTempMonitor.state.value,
+                                        ),
                                     "rpm_warn" to prefs.rpmWarn.toDouble(),
                                     "rpm_alert" to prefs.rpmAlert.toDouble(),
                                     "rpm" to
@@ -401,6 +412,17 @@ class SenseBridgeService : Service() {
                                         (if (prefs.coolantSimC > 0f) prefs.coolantSimC
                                         else com.veplayer.app.vehicle.VehicleState.state.value.coolantC
                                         )?.toDouble(),
+                                    "oil_temp_warn_c" to prefs.oilTempWarnC.toDouble(),
+                                    "oil_temp_alert_c" to prefs.oilTempAlertC.toDouble(),
+                                    "oil_temp_c" to
+                                        (if (prefs.oilTempSimC > 0f) prefs.oilTempSimC
+                                        else com.veplayer.app.vehicle.OilTempMonitor.state.value.oilTempC
+                                            ?: snap.oilTempC
+                                        )?.toDouble(),
+                                    "oil_temp" to
+                                        com.veplayer.app.vehicle.OilTemp.toJsonMap(
+                                            com.veplayer.app.vehicle.OilTempMonitor.state.value,
+                                        ),
                                     "rpm_warn" to prefs.rpmWarn.toDouble(),
                                     "rpm_alert" to prefs.rpmAlert.toDouble(),
                                     "rpm" to

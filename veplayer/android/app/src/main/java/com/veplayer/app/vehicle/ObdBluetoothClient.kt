@@ -249,6 +249,7 @@ class ObdBluetoothClient(private val context: Context) {
                 "010C", // rpm
                 "0104", // calculated engine load
                 "0105", // coolant
+                "015C", // engine oil temp
                 "012F", // fuel
                 "0146", // ambient
                 "0111", // throttle

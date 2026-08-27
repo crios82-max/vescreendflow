@@ -885,6 +885,20 @@ npm run veplayer:engine-load-smoke
 
 **Fase 13 (en curso):** engine load · oil temp · intake air · fuel rate · MIL distance.
 
+## Oil temp (v0.70 · Fase 13)
+
+Temperatura del aceite (**OBD PID 015C**):
+
+- Warn **≥120 °C** / alert **≥130 °C**
+- DriveViz `Aceite · XX°C` · TTS + inbox
+- Flota `oil_warn` / `oil_alert` · sim °C en Ajustes (Clima HVAC)
+
+```bash
+npm run veplayer:oil-temp-smoke
+```
+
+**Fase 13 (en curso):** engine load · oil temp · intake air · fuel rate · MIL distance.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

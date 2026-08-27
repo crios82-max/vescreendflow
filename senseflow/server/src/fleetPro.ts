@@ -940,6 +940,48 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Engine oil temperature (OBD PID 015C)
+    const oilObj = signals.oil_temp as Record<string, unknown> | undefined
+    const oilTempC =
+      typeof oilObj?.oil_temp_c === 'number'
+        ? (oilObj.oil_temp_c as number)
+        : typeof signals.oil_temp_c === 'number'
+          ? (signals.oil_temp_c as number)
+          : null
+    if (typeof oilTempC === 'number') {
+      const oilWarnC =
+        typeof signals.oil_temp_warn_c === 'number'
+          ? (signals.oil_temp_warn_c as number)
+          : 120
+      const oilAlertC =
+        typeof signals.oil_temp_alert_c === 'number'
+          ? (signals.oil_temp_alert_c as number)
+          : 130
+      if (oilTempC >= oilAlertC && !recentlyAlerted(deviceId, 'oil_alert', 300)) {
+        insertAlert(
+          deviceId,
+          'oil_alert',
+          'critical',
+          `Aceite crítico · ${Math.round(oilTempC)} °C`,
+          { oil_temp_c: oilTempC, alert_c: oilAlertC, oil_temp: oilObj ?? null },
+        )
+        raised.push('oil_alert')
+      } else if (
+        oilTempC >= oilWarnC &&
+        oilTempC < oilAlertC &&
+        !recentlyAlerted(deviceId, 'oil_warn', 300)
+      ) {
+        insertAlert(
+          deviceId,
+          'oil_warn',
+          'warn',
+          `Aceite caliente · ${Math.round(oilTempC)} °C`,
+          { oil_temp_c: oilTempC, warn_c: oilWarnC, oil_temp: oilObj ?? null },
+        )
+        raised.push('oil_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

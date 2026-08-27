@@ -2618,6 +2618,65 @@ fun SettingsScreen() {
                 color = if (coolHot.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var oilOn by remember { mutableStateOf(prefs.oilTempEnabled) }
+            var oilTts by remember { mutableStateOf(prefs.oilTempTts) }
+            var oilSim by remember {
+                mutableStateOf(
+                    if (prefs.oilTempSimC > 0f) prefs.oilTempSimC.toInt().toString() else "0",
+                )
+            }
+            val oilSt by com.veplayer.app.vehicle.OilTempMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso aceite motor (015C)", color = Mist)
+                Switch(
+                    checked = oilOn,
+                    onCheckedChange = {
+                        oilOn = it
+                        prefs.oilTempEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS aceite", color = Mist)
+                Switch(
+                    checked = oilTts,
+                    onCheckedChange = {
+                        oilTts = it
+                        prefs.oilTempTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = oilSim,
+                onValueChange = { oilSim = it.filter { c -> c.isDigit() || c == '.' }.take(4) },
+                label = { Text("Sim aceite °C (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.oilTempSimC = oilSim.toFloatOrNull() ?: 0f
+                    status =
+                        "Oil sim ${prefs.oilTempSimC}° · warn ${prefs.oilTempWarnC.toInt()} / alert ${prefs.oilTempAlertC.toInt()}"
+                },
+            ) { Text("Aplicar sim aceite") }
+            Text(
+                if (oilSt.oilTempC != null) {
+                    "Aceite · ${oilSt.label} · ${oilSt.band}"
+                } else {
+                    "Aceite idle (warn ${prefs.oilTempWarnC.toInt()}° / alert ${prefs.oilTempAlertC.toInt()}°)"
+                },
+                color = if (oilSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

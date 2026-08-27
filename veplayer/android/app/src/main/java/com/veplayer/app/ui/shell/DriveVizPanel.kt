@@ -82,6 +82,7 @@ import com.veplayer.app.vehicle.HighThrottleMonitor
 import com.veplayer.app.vehicle.ImpactDetectMonitor
 import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.IceFrostMonitor
+import com.veplayer.app.vehicle.OilTempMonitor
 import com.veplayer.app.vehicle.ParkingBrakeMovingMonitor
 import com.veplayer.app.vehicle.ParkingDistanceMonitor
 import com.veplayer.app.vehicle.RestBreakMonitor
@@ -132,6 +133,7 @@ fun DriveVizPanel(
     val cabinHot by CabinOvertempMonitor.state.collectAsState()
     val iceFrost by IceFrostMonitor.state.collectAsState()
     val coolantHot by CoolantOverheatMonitor.state.collectAsState()
+    val oilHot by OilTempMonitor.state.collectAsState()
     val rpmHot by RpmOverRevMonitor.state.collectAsState()
     val engineLoad by EngineLoadMonitor.state.collectAsState()
     val highThr by HighThrottleMonitor.state.collectAsState()
@@ -174,6 +176,7 @@ fun DriveVizPanel(
             CabinOvertempMonitor.tick(prefs, snap)
             IceFrostMonitor.tick(prefs, snap)
             CoolantOverheatMonitor.tick(prefs, snap)
+            OilTempMonitor.tick(prefs, snap)
             RpmOverRevMonitor.tick(prefs, snap)
             EngineLoadMonitor.tick(prefs, snap)
             HighThrottleMonitor.tick(prefs, snap)
@@ -398,6 +401,13 @@ fun DriveVizPanel(
                     Text(
                         "Motor · ${coolantHot.label}",
                         color = Color(com.veplayer.app.vehicle.CoolantOverheat.accentArgb(coolantHot.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (oilHot.showWarn || (prefs.oilTempEnabled && oilHot.band == "ok" && (oilHot.oilTempC ?: 0f) >= 100f)) {
+                    Text(
+                        "Aceite · ${oilHot.label}",
+                        color = Color(com.veplayer.app.vehicle.OilTemp.accentArgb(oilHot.band)),
                         fontSize = 11.sp,
                     )
                 }
