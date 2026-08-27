@@ -18,6 +18,7 @@ class VePlayerApp : Application() {
         super.onCreate()
         VeMediaHub.init(this)
         CanBusManager.start(this)
+        com.veplayer.app.phone.PhoneLinkManager.start(this, appScope)
         NavEngine.start(com.veplayer.app.data.VePrefs(this), appScope)
         com.veplayer.app.nav.NavTts.start(this, com.veplayer.app.data.VePrefs(this), appScope)
         val prefs = com.veplayer.app.data.VePrefs(this)

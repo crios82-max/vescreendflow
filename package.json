@@ -11,6 +11,8 @@
     "senseflow:smoke": "senseflow/scripts/smoke.sh",
     "veplayer:obd-smoke": "node veplayer/scripts/obd-pid-smoke.mjs",
     "veplayer:obd-dtc-smoke": "node veplayer/scripts/obd-dtc-smoke.mjs",
+    "veplayer:eco-score-smoke": "node veplayer/scripts/eco-score-smoke.mjs",
+    "veplayer:phone-link-smoke": "node veplayer/scripts/phone-link-smoke.mjs",
     "veplayer:can-smoke": "node veplayer/scripts/can-smoke.mjs",
     "veplayer:kiosk-smoke": "node veplayer/scripts/kiosk-smoke.mjs",
     "veplayer:field-smoke": "node veplayer/scripts/field-smoke.mjs",

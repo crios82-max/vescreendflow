@@ -140,6 +140,7 @@ fleetRouter.post('/heartbeat', (req, res) => {
     deltaKm: d.shift_delta_km,
     lat: d.lat,
     lng: d.lng,
+    signals: signals as Record<string, unknown> | undefined,
   })
 
   db.prepare(

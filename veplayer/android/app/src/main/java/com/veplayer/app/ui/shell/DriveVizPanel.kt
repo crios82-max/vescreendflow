@@ -184,6 +184,26 @@ fun DriveVizPanel(
                         fontSize = 11.sp,
                     )
                 }
+                val shiftHud by com.veplayer.app.fleet.ShiftTracker.shift.collectAsState()
+                if (shiftHud.status == "open" && shiftHud.ecoScore != null) {
+                    Text(
+                        "Eco ${shiftHud.ecoScore} · ${shiftHud.ecoBand}",
+                        color = Color(com.veplayer.app.vehicle.EcoScore.accentArgb(shiftHud.ecoBand)),
+                        fontSize = 11.sp,
+                    )
+                }
+                val phone by com.veplayer.app.phone.PhoneLinkBus.state.collectAsState()
+                if (phone.connected) {
+                    Text(
+                        when (phone.protocol) {
+                            com.veplayer.app.phone.PhoneLinkBus.Protocol.ANDROID_AUTO -> "AA · ${phone.deviceName.take(14)}"
+                            com.veplayer.app.phone.PhoneLinkBus.Protocol.CARPLAY -> "CarPlay · ${phone.deviceName.take(12)}"
+                            else -> "Phone · ${phone.deviceName.take(14)}"
+                        },
+                        color = Color(0xFF14B8A6),
+                        fontSize = 11.sp,
+                    )
+                }
                 val inboxLast by com.veplayer.app.fleet.FleetInbox.last.collectAsState()
                 inboxLast?.let { item ->
                     Text(

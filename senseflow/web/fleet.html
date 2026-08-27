@@ -525,6 +525,8 @@
         if (Array.isArray(vs.dtcs) && vs.dtcs.length) {
           sigBits.push(vs.dtcs.map((c) => c.code || c).slice(0, 3).join(' '))
         }
+        const pl = vs.phone_link || {}
+        if (pl.connected) sigBits.push((pl.protocol || 'phone').toUpperCase())
         if (vs.source) sigBits.push(vs.source)
         const sig = sigBits.length ? sigBits.join(' · ') : '—'
         tr.innerHTML = `<td>${d.name || '—'}</td><td>${d.pair_code || '—'}</td>
@@ -597,8 +599,11 @@
       el.innerHTML = (j.shifts || []).map(s => {
         const who = s.driver_code ? `${s.driver_code} · ${s.driver_name || ''}` : '—'
         const dist = (s.distance_km != null ? Number(s.distance_km).toFixed(1) : '0') + ' km'
+        const eco = s.eco_score != null
+          ? ` · <span style="color:${s.eco_band==='good'?'#10b981':s.eco_band==='fair'?'#f59e0b':'#e11d48'}">eco ${Math.round(s.eco_score)}</span>`
+          : ''
         const when = new Date(s.started_at * 1000).toLocaleString()
-        return `<div class="hist-row"><b>${s.status}</b> · ${who} · ${dist}
+        return `<div class="hist-row"><b>${s.status}</b> · ${who} · ${dist}${eco}
           <span class="muted">${s.device_id.slice(0,10)}… · ${when}</span></div>`
       }).join('') || '<span class="muted">Sin turnos</span>'
     }

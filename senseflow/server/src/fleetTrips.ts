@@ -19,6 +19,33 @@ export type FleetShift = {
   end_lat: number | null
   end_lng: number | null
   status: string
+  idle_sec: number
+  overspeed_sec: number
+  abs_events: number
+  high_throttle_sec: number
+  eco_score: number | null
+  eco_band: string | null
+}
+
+/** Pure eco score — mirrors VePlayer EcoScore.kt */
+export function evaluateEco(input: {
+  idle_sec: number
+  overspeed_sec: number
+  abs_events: number
+  high_throttle_sec: number
+  distance_km: number
+}): { score: number; band: string; penalties: Record<string, number> } {
+  const idlePen = Math.min(30, Math.floor(input.idle_sec / 60) * 2)
+  const overPen = Math.min(40, Math.floor(input.overspeed_sec / 8))
+  const absPen = Math.min(20, input.abs_events * 5)
+  const thrPen = Math.min(20, Math.floor(input.high_throttle_sec / 15))
+  const score = Math.max(0, Math.min(100, 100 - idlePen - overPen - absPen - thrPen))
+  const band = score >= 80 ? 'good' : score >= 55 ? 'fair' : 'poor'
+  return {
+    score,
+    band,
+    penalties: { idle: idlePen, overspeed: overPen, abs: absPen, throttle: thrPen },
+  }
 }
 
 export function ensureFleetShiftsTables() {
@@ -42,9 +69,38 @@ export function ensureFleetShiftsTables() {
     CREATE INDEX IF NOT EXISTS idx_fleet_shifts_dev ON fleet_shifts(device_id, status);
     CREATE INDEX IF NOT EXISTS idx_fleet_shifts_drv ON fleet_shifts(driver_id, started_at DESC);
   `)
+  for (const col of [
+    'ALTER TABLE fleet_shifts ADD COLUMN idle_sec REAL NOT NULL DEFAULT 0',
+    'ALTER TABLE fleet_shifts ADD COLUMN overspeed_sec REAL NOT NULL DEFAULT 0',
+    'ALTER TABLE fleet_shifts ADD COLUMN abs_events INTEGER NOT NULL DEFAULT 0',
+    'ALTER TABLE fleet_shifts ADD COLUMN high_throttle_sec REAL NOT NULL DEFAULT 0',
+    'ALTER TABLE fleet_shifts ADD COLUMN eco_score REAL',
+    'ALTER TABLE fleet_shifts ADD COLUMN eco_band TEXT',
+  ]) {
+    try {
+      db.exec(col)
+    } catch {
+      /* exists */
+    }
+  }
 }
 
 function rowToShift(r: Record<string, unknown>): FleetShift {
+  const idle = Number(r.idle_sec ?? 0)
+  const over = Number(r.overspeed_sec ?? 0)
+  const abs = Number(r.abs_events ?? 0)
+  const thr = Number(r.high_throttle_sec ?? 0)
+  const dist = Number(r.distance_km ?? 0)
+  const eco =
+    r.eco_score != null
+      ? { score: Number(r.eco_score), band: String(r.eco_band || 'fair') }
+      : evaluateEco({
+          idle_sec: idle,
+          overspeed_sec: over,
+          abs_events: abs,
+          high_throttle_sec: thr,
+          distance_km: dist,
+        })
   return {
     id: Number(r.id),
     device_id: String(r.device_id),
@@ -55,12 +111,18 @@ function rowToShift(r: Record<string, unknown>): FleetShift {
     ended_at: r.ended_at != null ? Number(r.ended_at) : null,
     start_odo_km: r.start_odo_km != null ? Number(r.start_odo_km) : null,
     end_odo_km: r.end_odo_km != null ? Number(r.end_odo_km) : null,
-    distance_km: Number(r.distance_km ?? 0),
+    distance_km: dist,
     start_lat: r.start_lat != null ? Number(r.start_lat) : null,
     start_lng: r.start_lng != null ? Number(r.start_lng) : null,
     end_lat: r.end_lat != null ? Number(r.end_lat) : null,
     end_lng: r.end_lng != null ? Number(r.end_lng) : null,
     status: String(r.status),
+    idle_sec: idle,
+    overspeed_sec: over,
+    abs_events: abs,
+    high_throttle_sec: thr,
+    eco_score: eco.score,
+    eco_band: eco.band,
   }
 }
 
@@ -86,7 +148,6 @@ export function startShift(input: {
 }): FleetShift {
   const existing = openShiftForDevice(input.deviceId)
   if (existing) {
-    // Same driver → keep; different → close then open
     if (input.driverId == null || existing.driver_id === input.driverId) {
       return existing
     }
@@ -109,8 +170,9 @@ export function startShift(input: {
   const info = db
     .prepare(
       `INSERT INTO fleet_shifts
-       (device_id, driver_id, started_at, start_odo_km, start_lat, start_lng, status, distance_km)
-       VALUES (?, ?, ?, ?, ?, ?, 'open', 0)`,
+       (device_id, driver_id, started_at, start_odo_km, start_lat, start_lng, status, distance_km,
+        idle_sec, overspeed_sec, abs_events, high_throttle_sec, eco_score, eco_band)
+       VALUES (?, ?, ?, ?, ?, ?, 'open', 0, 0, 0, 0, 0, 100, 'good')`,
     )
     .run(
       input.deviceId,
@@ -120,14 +182,23 @@ export function startShift(input: {
       input.lat ?? null,
       input.lng ?? null,
     )
-  return openShiftForDevice(input.deviceId) ?? rowToShift({
-    id: Number(info.lastInsertRowid),
-    device_id: input.deviceId,
-    driver_id: driverId,
-    started_at: now,
-    status: 'open',
-    distance_km: 0,
-  })
+  return (
+    openShiftForDevice(input.deviceId) ??
+    rowToShift({
+      id: Number(info.lastInsertRowid),
+      device_id: input.deviceId,
+      driver_id: driverId,
+      started_at: now,
+      status: 'open',
+      distance_km: 0,
+      idle_sec: 0,
+      overspeed_sec: 0,
+      abs_events: 0,
+      high_throttle_sec: 0,
+      eco_score: 100,
+      eco_band: 'good',
+    })
+  )
 }
 
 export function endShift(input: {
@@ -145,6 +216,13 @@ export function endShift(input: {
     distance = Math.max(0, input.odoKm - open.start_odo_km)
   }
   if (distance == null) distance = open.distance_km
+  const eco = evaluateEco({
+    idle_sec: open.idle_sec,
+    overspeed_sec: open.overspeed_sec,
+    abs_events: open.abs_events,
+    high_throttle_sec: open.high_throttle_sec,
+    distance_km: distance,
+  })
   db.prepare(
     `UPDATE fleet_shifts SET
        status = 'closed',
@@ -152,20 +230,36 @@ export function endShift(input: {
        end_odo_km = ?,
        end_lat = ?,
        end_lng = ?,
-       distance_km = ?
+       distance_km = ?,
+       eco_score = ?,
+       eco_band = ?
      WHERE id = ?`,
-  ).run(now, input.odoKm ?? null, input.lat ?? null, input.lng ?? null, distance, open.id)
+  ).run(
+    now,
+    input.odoKm ?? null,
+    input.lat ?? null,
+    input.lng ?? null,
+    distance,
+    eco.score,
+    eco.band,
+    open.id,
+  )
   const row = db.prepare(`${SHIFT_SELECT} WHERE s.id = ?`).get(open.id) as Record<string, unknown>
   return rowToShift(row)
 }
 
-/** Heartbeat: bump distance on open shift from odometer or delta km. */
+/**
+ * Heartbeat: bump distance + eco accumulators from vehicle_signals.
+ * @param dtSec sample interval estimate (default ~25s heartbeat)
+ */
 export function touchShift(input: {
   deviceId: string
   odoKm?: number | null
   deltaKm?: number | null
   lat?: number | null
   lng?: number | null
+  signals?: Record<string, unknown> | null
+  dtSec?: number
 }) {
   const open = openShiftForDevice(input.deviceId)
   if (!open) return null
@@ -180,10 +274,68 @@ export function touchShift(input: {
   } else if (input.deltaKm != null && input.deltaKm > 0) {
     distance += input.deltaKm
   }
+
+  const dt = Math.max(1, Math.min(120, input.dtSec ?? 25))
+  let idle = open.idle_sec
+  let over = open.overspeed_sec
+  let absN = open.abs_events
+  let thr = open.high_throttle_sec
+  const sig = input.signals
+  if (sig) {
+    const speedMps = typeof sig.speed_mps === 'number' ? sig.speed_mps : null
+    const speedKmh = speedMps != null ? speedMps * 3.6 : typeof sig.speed_kmh === 'number' ? sig.speed_kmh : null
+    const idleSecSample = typeof sig.idle_sec === 'number' ? sig.idle_sec : null
+    const ignition = typeof sig.ignition === 'string' ? sig.ignition : ''
+    const ignOn = ignition === 'on' || ignition === 'acc' || ignition === 'start' || ignition === ''
+    if (idleSecSample != null && idleSecSample > 0) {
+      // device reports cumulative idle for current stop — take max growth approx via dt when >0
+      idle += dt
+    } else if (speedKmh != null && speedKmh < 3 && ignOn) {
+      idle += dt
+    }
+    const limit = typeof sig.speed_limit_kmh === 'number' ? sig.speed_limit_kmh : 50
+    if (speedKmh != null && speedKmh > limit + 5) {
+      over += dt
+    }
+    if (sig.abs_active === true) absN += 1
+    const throttle = typeof sig.throttle_pct === 'number' ? sig.throttle_pct : null
+    if (throttle != null && throttle > 80 && speedKmh != null && speedKmh > 20) {
+      thr += dt
+    }
+  }
+
+  const eco = evaluateEco({
+    idle_sec: idle,
+    overspeed_sec: over,
+    abs_events: absN,
+    high_throttle_sec: thr,
+    distance_km: distance,
+  })
+
   db.prepare(
-    `UPDATE fleet_shifts SET distance_km = ?, end_lat = COALESCE(?, end_lat), end_lng = COALESCE(?, end_lng)
+    `UPDATE fleet_shifts SET
+       distance_km = ?,
+       end_lat = COALESCE(?, end_lat),
+       end_lng = COALESCE(?, end_lng),
+       idle_sec = ?,
+       overspeed_sec = ?,
+       abs_events = ?,
+       high_throttle_sec = ?,
+       eco_score = ?,
+       eco_band = ?
      WHERE id = ?`,
-  ).run(distance, input.lat ?? null, input.lng ?? null, open.id)
+  ).run(
+    distance,
+    input.lat ?? null,
+    input.lng ?? null,
+    idle,
+    over,
+    absN,
+    thr,
+    eco.score,
+    eco.band,
+    open.id,
+  )
   return openShiftForDevice(input.deviceId)
 }
 

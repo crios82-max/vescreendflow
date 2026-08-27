@@ -6,6 +6,7 @@ enum class MediaSource {
     RADIO,
     FM,
     SPOTIFY,
+    PHONE,
 }
 
 data class NowPlaying(

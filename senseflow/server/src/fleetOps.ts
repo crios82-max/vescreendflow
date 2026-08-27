@@ -872,7 +872,8 @@ fleetOpsRouter.get('/reports/export', (req, res) => {
     const rows = db
       .prepare(
         `SELECT s.id, s.device_id, s.driver_id, d.code AS driver_code, d.name AS driver_name,
-                s.started_at, s.ended_at, s.start_odo_km, s.end_odo_km, s.distance_km, s.status
+                s.started_at, s.ended_at, s.start_odo_km, s.end_odo_km, s.distance_km, s.status,
+                s.idle_sec, s.overspeed_sec, s.abs_events, s.high_throttle_sec, s.eco_score, s.eco_band
          FROM fleet_shifts s
          LEFT JOIN fleet_drivers d ON d.id = s.driver_id
          ORDER BY s.id DESC LIMIT ?`,
@@ -893,6 +894,12 @@ fleetOpsRouter.get('/reports/export', (req, res) => {
         'end_odo_km',
         'distance_km',
         'status',
+        'idle_sec',
+        'overspeed_sec',
+        'abs_events',
+        'high_throttle_sec',
+        'eco_score',
+        'eco_band',
       ],
       rows.map((r) => [
         r.id,
@@ -906,6 +913,12 @@ fleetOpsRouter.get('/reports/export', (req, res) => {
         r.end_odo_km,
         r.distance_km,
         r.status,
+        r.idle_sec,
+        r.overspeed_sec,
+        r.abs_events,
+        r.high_throttle_sec,
+        r.eco_score,
+        r.eco_band,
       ]),
     )
     return

@@ -61,6 +61,16 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("dtc_demo_seed", true)
         set(value) = sp.edit().putBoolean("dtc_demo_seed", value).apply()
 
+    /** Phone Link (BT / Android Auto / CarPlay). */
+    var phoneLinkEnabled: Boolean
+        get() = sp.getBoolean("phone_link", true)
+        set(value) = sp.edit().putBoolean("phone_link", value).apply()
+
+    /** none | bt_media | android_auto | carplay */
+    var phoneLinkSim: String
+        get() = sp.getString("phone_link_sim", "none") ?: "none"
+        set(value) = sp.edit().putString("phone_link_sim", value).apply()
+
     /** Fuel / SOC / range HUD. */
     var fuelHudEnabled: Boolean
         get() = sp.getBoolean("fuel_hud", true)
