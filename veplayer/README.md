@@ -817,6 +817,20 @@ npm run veplayer:high-throttle-smoke
 
 **Fase 12 (en curso):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
 
+## Hazard stuck (v0.65 · Fase 12)
+
+Luces de emergencia olvidadas en marcha:
+
+- Default **≥45 s warn / ≥90 s alert** · min **5 km/h**
+- DriveViz `Hazard · Ns` · TTS + inbox
+- Flota `hazard_stuck_warn` / `hazard_stuck_alert` · sim s en Ajustes (Remolque)
+
+```bash
+npm run veplayer:hazard-stuck-smoke
+```
+
+**Fase 12 (en curso):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

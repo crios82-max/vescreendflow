@@ -177,6 +177,10 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.TurnStuckMonitor.state.value.side.ifBlank { null },
                                     "turn_stuck_warn_sec" to prefs.turnStuckWarnSec.toDouble(),
                                     "turn_stuck_alert_sec" to prefs.turnStuckAlertSec.toDouble(),
+                                    "hazard_stuck_sec" to
+                                        com.veplayer.app.vehicle.HazardStuckMonitor.state.value.heldSec.toDouble(),
+                                    "hazard_stuck_warn_sec" to prefs.hazardStuckWarnSec.toDouble(),
+                                    "hazard_stuck_alert_sec" to prefs.hazardStuckAlertSec.toDouble(),
                                     "fuel_drop_pct" to
                                         com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
                                     "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),
@@ -368,6 +372,10 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.TurnStuckMonitor.state.value.side.ifBlank { null },
                                     "turn_stuck_warn_sec" to prefs.turnStuckWarnSec.toDouble(),
                                     "turn_stuck_alert_sec" to prefs.turnStuckAlertSec.toDouble(),
+                                    "hazard_stuck_sec" to
+                                        com.veplayer.app.vehicle.HazardStuckMonitor.state.value.heldSec.toDouble(),
+                                    "hazard_stuck_warn_sec" to prefs.hazardStuckWarnSec.toDouble(),
+                                    "hazard_stuck_alert_sec" to prefs.hazardStuckAlertSec.toDouble(),
                                     "fuel_drop_pct" to
                                         com.veplayer.app.vehicle.SuddenFuelDropMonitor.state.value.dropPct.toDouble(),
                                     "fuel_drop_warn_pct" to prefs.fuelDropWarnPct.toDouble(),

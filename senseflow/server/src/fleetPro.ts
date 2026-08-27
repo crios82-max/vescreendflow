@@ -1097,6 +1097,43 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Hazard stuck (forgotten emergency lights)
+    const hazardStuckSec =
+      typeof signals.hazard_stuck_sec === 'number' ? (signals.hazard_stuck_sec as number) : null
+    if (typeof hazardStuckSec === 'number' && hazardStuckSec > 0) {
+      const warnSec =
+        typeof signals.hazard_stuck_warn_sec === 'number'
+          ? (signals.hazard_stuck_warn_sec as number)
+          : 45
+      const alertSec =
+        typeof signals.hazard_stuck_alert_sec === 'number'
+          ? (signals.hazard_stuck_alert_sec as number)
+          : 90
+      if (hazardStuckSec >= alertSec && !recentlyAlerted(deviceId, 'hazard_stuck_alert', 180)) {
+        insertAlert(
+          deviceId,
+          'hazard_stuck_alert',
+          'critical',
+          `Hazard olvidado · ${Math.round(hazardStuckSec)}s`,
+          { hazard_stuck_sec: hazardStuckSec, alert_sec: alertSec },
+        )
+        raised.push('hazard_stuck_alert')
+      } else if (
+        hazardStuckSec >= warnSec &&
+        hazardStuckSec < alertSec &&
+        !recentlyAlerted(deviceId, 'hazard_stuck_warn', 180)
+      ) {
+        insertAlert(
+          deviceId,
+          'hazard_stuck_warn',
+          'warn',
+          `Hazard encendido · ${Math.round(hazardStuckSec)}s`,
+          { hazard_stuck_sec: hazardStuckSec, warn_sec: warnSec },
+        )
+        raised.push('hazard_stuck_warn')
+      }
+    }
+
     // Sudden fuel drop (theft / leak)
     const fuelDropPct =
       typeof signals.fuel_drop_pct === 'number' ? (signals.fuel_drop_pct as number) : null

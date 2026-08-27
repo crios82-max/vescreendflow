@@ -73,6 +73,7 @@ import com.veplayer.app.vehicle.CoolantOverheatMonitor
 import com.veplayer.app.vehicle.DoorAjarMonitor
 import com.veplayer.app.vehicle.DriverScoreMonitor
 import com.veplayer.app.vehicle.HarshDrivingMonitor
+import com.veplayer.app.vehicle.HazardStuckMonitor
 import com.veplayer.app.vehicle.HighThrottleMonitor
 import com.veplayer.app.vehicle.ImpactDetectMonitor
 import com.veplayer.app.vehicle.HvacClimateMonitor
@@ -130,6 +131,7 @@ fun DriveVizPanel(
     val tow by UnauthorizedMoveMonitor.state.collectAsState()
     val pbrake by ParkingBrakeMovingMonitor.state.collectAsState()
     val turnStuck by TurnStuckMonitor.state.collectAsState()
+    val hazardStuck by HazardStuckMonitor.state.collectAsState()
     val fuelDrop by SuddenFuelDropMonitor.state.collectAsState()
     val tpmsHud by TpmsHudMonitor.state.collectAsState()
     val battV by BatteryVoltageMonitor.state.collectAsState()
@@ -167,6 +169,7 @@ fun DriveVizPanel(
             UnauthorizedMoveMonitor.tick(prefs, snap)
             ParkingBrakeMovingMonitor.tick(prefs, snap)
             TurnStuckMonitor.tick(prefs, snap)
+            HazardStuckMonitor.tick(prefs, snap)
             SuddenFuelDropMonitor.tick(prefs, snap)
             TpmsHudMonitor.tick(prefs, snap)
             BatteryVoltageMonitor.tick(prefs, snap)
@@ -405,6 +408,13 @@ fun DriveVizPanel(
                     Text(
                         turnStuck.label,
                         color = Color(com.veplayer.app.vehicle.TurnStuck.accentArgb(turnStuck.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (hazardStuck.showWarn || (prefs.hazardStuckEnabled && hazardStuck.band == "ok")) {
+                    Text(
+                        hazardStuck.label,
+                        color = Color(com.veplayer.app.vehicle.HazardStuck.accentArgb(hazardStuck.band)),
                         fontSize = 11.sp,
                     )
                 }
