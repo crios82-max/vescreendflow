@@ -2178,6 +2178,63 @@ fun SettingsScreen() {
                 color = if (coolHot.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
+            var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
+            var rpmSim by remember {
+                mutableStateOf(if (prefs.rpmSim > 0f) prefs.rpmSim.toInt().toString() else "0")
+            }
+            val rpmSt by com.veplayer.app.vehicle.RpmOverRevMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso RPM altas", color = Mist)
+                Switch(
+                    checked = rpmOn,
+                    onCheckedChange = {
+                        rpmOn = it
+                        prefs.rpmEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS RPM", color = Mist)
+                Switch(
+                    checked = rpmTts,
+                    onCheckedChange = {
+                        rpmTts = it
+                        prefs.rpmTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = rpmSim,
+                onValueChange = { rpmSim = it.filter { c -> c.isDigit() }.take(5) },
+                label = { Text("Sim RPM (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.rpmSim = rpmSim.toFloatOrNull() ?: 0f
+                    status =
+                        "RPM sim ${prefs.rpmSim.toInt()} · warn ${prefs.rpmWarn.toInt()} / alert ${prefs.rpmAlert.toInt()}"
+                },
+            ) { Text("Aplicar sim RPM") }
+            Text(
+                if (rpmSt.rpm != null) {
+                    "RPM · ${rpmSt.label} · ${rpmSt.band}"
+                } else {
+                    "RPM idle (warn ${prefs.rpmWarn.toInt()} / alert ${prefs.rpmAlert.toInt()})"
+                },
+                color = if (rpmSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
         }
 
         PanelBlock("Phone Link · Android Auto / CarPlay") {
