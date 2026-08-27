@@ -269,6 +269,9 @@ object FleetInbox {
             kind == "maf_alert" -> "Atención. Flujo MAF crítico. $body."
             kind == "maf_warn" || kind.startsWith("maf_") ->
                 "Cuidado. Flujo de aire MAF alto. $body."
+            kind == "fuel_press_alert" -> "Atención. Presión de combustible crítica. $body."
+            kind == "fuel_press_warn" || kind.startsWith("fuel_press") ->
+                "Cuidado. Presión de combustible baja. $body."
             kind == "battery_crit" -> "Atención. Batería crítica. $body."
             kind == "battery_warn" || kind.startsWith("battery_") ->
                 "Cuidado. Voltaje de batería bajo. $body."

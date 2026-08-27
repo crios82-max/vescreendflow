@@ -66,6 +66,7 @@ import com.veplayer.app.vehicle.FuelRangeHud
 import com.veplayer.app.vehicle.FuelRangeHudMonitor
 import com.veplayer.app.vehicle.FuelRateMonitor
 import com.veplayer.app.vehicle.MafAirflowMonitor
+import com.veplayer.app.vehicle.FuelPressureMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -130,6 +131,7 @@ fun DriveVizPanel(
     val fuelHud by FuelRangeHudMonitor.state.collectAsState()
     val fuelRate by FuelRateMonitor.state.collectAsState()
     val mafFlow by MafAirflowMonitor.state.collectAsState()
+    val fuelPress by FuelPressureMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -178,6 +180,7 @@ fun DriveVizPanel(
             FuelRangeHudMonitor.tick(prefs, snap.fuelPct, snap.batterySocPct, snap.rangeKm)
             FuelRateMonitor.tick(prefs, snap)
             MafAirflowMonitor.tick(prefs, snap)
+            FuelPressureMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -586,6 +589,21 @@ fun DriveVizPanel(
                     Text(
                         mafFlow.label,
                         color = Color(com.veplayer.app.vehicle.MafAirflow.accentArgb(mafFlow.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (
+                    fuelPress.showWarn ||
+                        (
+                            prefs.fuelPressEnabled &&
+                                fuelPress.band == "ok" &&
+                                (fuelPress.pressureKpa ?: 999f) <= 350f &&
+                                fuelPress.label.isNotBlank()
+                        )
+                ) {
+                    Text(
+                        fuelPress.label,
+                        color = Color(com.veplayer.app.vehicle.FuelPressure.accentArgb(fuelPress.band)),
                         fontSize = 11.sp,
                     )
                 }

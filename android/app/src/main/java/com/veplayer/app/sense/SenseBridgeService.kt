@@ -221,6 +221,18 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.MafAirflow.toJsonMap(
                                             com.veplayer.app.vehicle.MafAirflowMonitor.state.value,
                                         ),
+                                    "fuel_press_warn_kpa" to prefs.fuelPressWarnKpa.toDouble(),
+                                    "fuel_press_alert_kpa" to prefs.fuelPressAlertKpa.toDouble(),
+                                    "fuel_press_speed_min_kmh" to prefs.fuelPressSpeedMinKmh.toDouble(),
+                                    "fuel_pressure_kpa" to
+                                        (if (prefs.fuelPressSimKpa > 0f) prefs.fuelPressSimKpa
+                                        else com.veplayer.app.vehicle.FuelPressureMonitor.state.value.pressureKpa
+                                            ?: snap.fuelPressureKpa
+                                        )?.toDouble(),
+                                    "fuel_pressure" to
+                                        com.veplayer.app.vehicle.FuelPressure.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressureMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -582,6 +594,18 @@ class SenseBridgeService : Service() {
                                     "maf_airflow" to
                                         com.veplayer.app.vehicle.MafAirflow.toJsonMap(
                                             com.veplayer.app.vehicle.MafAirflowMonitor.state.value,
+                                        ),
+                                    "fuel_press_warn_kpa" to prefs.fuelPressWarnKpa.toDouble(),
+                                    "fuel_press_alert_kpa" to prefs.fuelPressAlertKpa.toDouble(),
+                                    "fuel_press_speed_min_kmh" to prefs.fuelPressSpeedMinKmh.toDouble(),
+                                    "fuel_pressure_kpa" to
+                                        (if (prefs.fuelPressSimKpa > 0f) prefs.fuelPressSimKpa
+                                        else com.veplayer.app.vehicle.FuelPressureMonitor.state.value.pressureKpa
+                                            ?: snap.fuelPressureKpa
+                                        )?.toDouble(),
+                                    "fuel_pressure" to
+                                        com.veplayer.app.vehicle.FuelPressure.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressureMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

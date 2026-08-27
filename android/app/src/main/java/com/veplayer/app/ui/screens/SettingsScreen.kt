@@ -3031,6 +3031,65 @@ fun SettingsScreen() {
                 color = if (mafSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var fuelPressOn by remember { mutableStateOf(prefs.fuelPressEnabled) }
+            var fuelPressTts by remember { mutableStateOf(prefs.fuelPressTts) }
+            var fuelPressSim by remember {
+                mutableStateOf(
+                    if (prefs.fuelPressSimKpa > 0f) prefs.fuelPressSimKpa.toInt().toString() else "0",
+                )
+            }
+            val fuelPressSt by com.veplayer.app.vehicle.FuelPressureMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso presión combustible (010A)", color = Mist)
+                Switch(
+                    checked = fuelPressOn,
+                    onCheckedChange = {
+                        fuelPressOn = it
+                        prefs.fuelPressEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS presión combustible", color = Mist)
+                Switch(
+                    checked = fuelPressTts,
+                    onCheckedChange = {
+                        fuelPressTts = it
+                        prefs.fuelPressTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = fuelPressSim,
+                onValueChange = { fuelPressSim = it.filter { c -> c.isDigit() }.take(3) },
+                label = { Text("Sim presión kPa (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.fuelPressSimKpa = fuelPressSim.toFloatOrNull() ?: 0f
+                    status =
+                        "FuelP sim ${prefs.fuelPressSimKpa.toInt()} kPa · warn ≤${prefs.fuelPressWarnKpa.toInt()} / alert ≤${prefs.fuelPressAlertKpa.toInt()}"
+                },
+            ) { Text("Aplicar sim presión") }
+            Text(
+                if (fuelPressSt.pressureKpa != null) {
+                    "${fuelPressSt.label} · ${fuelPressSt.band}"
+                } else {
+                    "FuelP idle (warn ≤${prefs.fuelPressWarnKpa.toInt()} / alert ≤${prefs.fuelPressAlertKpa.toInt()} kPa)"
+                },
+                color = if (fuelPressSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

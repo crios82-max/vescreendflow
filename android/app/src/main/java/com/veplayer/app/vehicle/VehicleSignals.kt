@@ -101,6 +101,8 @@ data class VehicleSignals(
         val catalystTempC: Float? = null,
         /** Mass air flow (OBD PID 0110), grams/sec. */
         val mafGps: Float? = null,
+        /** Fuel rail pressure (OBD PID 010A), kPa. */
+        val fuelPressureKpa: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -186,6 +188,7 @@ data class VehicleSignals(
             "map_kpa" to mapKpa?.toDouble(),
             "catalyst_temp_c" to catalystTempC?.toDouble(),
             "maf_gps" to mafGps?.toDouble(),
+            "fuel_pressure_kpa" to fuelPressureKpa?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),
