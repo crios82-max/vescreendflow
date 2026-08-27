@@ -1436,6 +1436,72 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Intake MAP (OBD PID 010B)
+    const mapObj = signals.map_pressure as Record<string, unknown> | undefined
+    let mapKpa: number | null =
+      typeof mapObj?.map_kpa === 'number'
+        ? (mapObj.map_kpa as number)
+        : typeof signals.map_kpa === 'number'
+          ? (signals.map_kpa as number)
+          : null
+    const mapSpeedKmh =
+      typeof mapObj?.speed_kmh === 'number'
+        ? (mapObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof mapKpa === 'number') {
+      const warnMapKpa =
+        typeof signals.map_warn_kpa === 'number'
+          ? (signals.map_warn_kpa as number)
+          : 95
+      const alertMapKpa =
+        typeof signals.map_alert_kpa === 'number'
+          ? (signals.map_alert_kpa as number)
+          : 105
+      const mapMinSpd =
+        typeof signals.map_speed_min_kmh === 'number'
+          ? (signals.map_speed_min_kmh as number)
+          : 20
+      const mapSpdOk = typeof mapSpeedKmh === 'number' && mapSpeedKmh >= mapMinSpd
+      if (
+        mapSpdOk &&
+        mapKpa >= alertMapKpa &&
+        !recentlyAlerted(deviceId, 'map_alert', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'map_alert',
+          'critical',
+          `MAP crítico · ${Math.round(mapKpa)} kPa`,
+          {
+            map_kpa: mapKpa,
+            alert_kpa: alertMapKpa,
+            map_pressure: mapObj ?? null,
+          },
+        )
+        raised.push('map_alert')
+      } else if (
+        mapSpdOk &&
+        mapKpa >= warnMapKpa &&
+        mapKpa < alertMapKpa &&
+        !recentlyAlerted(deviceId, 'map_warn', 120)
+      ) {
+        insertAlert(
+          deviceId,
+          'map_warn',
+          'warn',
+          `MAP alto · ${Math.round(mapKpa)} kPa`,
+          {
+            map_kpa: mapKpa,
+            warn_kpa: warnMapKpa,
+            map_pressure: mapObj ?? null,
+          },
+        )
+        raised.push('map_warn')
+      }
+    }
+
     // High throttle / WOT
     const throttlePct =
       typeof signals.throttle_pct === 'number'

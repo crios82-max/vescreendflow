@@ -79,6 +79,7 @@ import com.veplayer.app.vehicle.EcoLiveMonitor
 import com.veplayer.app.vehicle.EngineLoadMonitor
 import com.veplayer.app.vehicle.FuelTrimStftMonitor
 import com.veplayer.app.vehicle.FuelTrimLtftMonitor
+import com.veplayer.app.vehicle.MapPressureMonitor
 import com.veplayer.app.vehicle.EngineRuntimeMonitor
 import com.veplayer.app.vehicle.HarshDrivingMonitor
 import com.veplayer.app.vehicle.HazardStuckMonitor
@@ -148,6 +149,7 @@ fun DriveVizPanel(
     val engineLoad by EngineLoadMonitor.state.collectAsState()
     val stftTrim by FuelTrimStftMonitor.state.collectAsState()
     val ltftTrim by FuelTrimLtftMonitor.state.collectAsState()
+    val mapPress by MapPressureMonitor.state.collectAsState()
     val highThr by HighThrottleMonitor.state.collectAsState()
     val tow by UnauthorizedMoveMonitor.state.collectAsState()
     val pbrake by ParkingBrakeMovingMonitor.state.collectAsState()
@@ -197,6 +199,7 @@ fun DriveVizPanel(
             EngineLoadMonitor.tick(prefs, snap)
             FuelTrimStftMonitor.tick(prefs, snap)
             FuelTrimLtftMonitor.tick(prefs, snap)
+            MapPressureMonitor.tick(prefs, snap)
             HighThrottleMonitor.tick(prefs, snap)
             UnauthorizedMoveMonitor.tick(prefs, snap)
             ParkingBrakeMovingMonitor.tick(prefs, snap)
@@ -477,6 +480,21 @@ fun DriveVizPanel(
                     Text(
                         ltftTrim.label,
                         color = Color(com.veplayer.app.vehicle.FuelTrimLtft.accentArgb(ltftTrim.band)),
+                        fontSize = 11.sp,
+                    )
+                }
+                if (
+                    mapPress.showWarn ||
+                        (
+                            prefs.mapEnabled &&
+                                mapPress.band == "ok" &&
+                                (mapPress.mapKpa ?: 0f) >= 70f &&
+                                mapPress.label.isNotBlank()
+                        )
+                ) {
+                    Text(
+                        mapPress.label,
+                        color = Color(com.veplayer.app.vehicle.MapPressure.accentArgb(mapPress.band)),
                         fontSize = 11.sp,
                     )
                 }

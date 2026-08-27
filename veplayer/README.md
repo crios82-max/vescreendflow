@@ -977,6 +977,18 @@ Corrección largo plazo (**OBD PID 0107**), signed %:
 npm run veplayer:fuel-trim-ltft-smoke
 ```
 
+## MAP pressure (v0.77 · Fase 14)
+
+Presión absoluta del colector (**OBD PID 010B**), kPa:
+
+- Warn **≥95 kPa** / alert **≥105 kPa** (en movimiento ≥20 km/h)
+- DriveViz `MAP · XX kPa` · TTS + inbox
+- Flota `map_warn` / `map_alert` · sim kPa en Ajustes (motor)
+
+```bash
+npm run veplayer:map-pressure-smoke
+```
+
 **Fase 14 (en curso):** dist since clear · fuel trim STFT · fuel trim LTFT · MAP · catalyst temp.
 
 ## Device Owner (kiosk duro · v0.12)

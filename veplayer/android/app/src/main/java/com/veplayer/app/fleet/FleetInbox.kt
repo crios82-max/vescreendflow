@@ -236,6 +236,9 @@ object FleetInbox {
             kind == "ltft_alert" -> "Atención. Corrección LTFT crítica. $body."
             kind == "ltft_warn" || kind.startsWith("ltft_") ->
                 "Cuidado. Corrección de combustible LTFT. $body."
+            kind == "map_alert" -> "Atención. Presión MAP crítica. $body."
+            kind == "map_warn" || kind.startsWith("map_") ->
+                "Cuidado. Presión MAP alta. $body."
             kind == "throttle_alert" -> "Atención. Aceleración máxima. $body."
             kind == "throttle_warn" || kind.startsWith("throttle_") ->
                 "Cuidado. Acelerador muy abierto. $body."

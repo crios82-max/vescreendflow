@@ -20,6 +20,8 @@ object ObdPidParser {
         val fuelTrimStftPct: Float? = null,
         /** Long-term fuel trim % (OBD PID 0107), signed. */
         val fuelTrimLtftPct: Float? = null,
+        /** Intake manifold absolute pressure (OBD PID 010B), kPa. */
+        val mapKpa: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -85,6 +87,7 @@ object ObdPidParser {
                     fuelTrimLtftPct =
                         data.getOrNull(0)?.let { (it - 128) * 100f / 128f },
                 )
+            0x0B -> PidValues(mapKpa = data.getOrNull(0)?.toFloat())
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -119,6 +122,7 @@ object ObdPidParser {
             engineLoadPct = add.engineLoadPct ?: base.engineLoadPct,
             fuelTrimStftPct = add.fuelTrimStftPct ?: base.fuelTrimStftPct,
             fuelTrimLtftPct = add.fuelTrimLtftPct ?: base.fuelTrimLtftPct,
+            mapKpa = add.mapKpa ?: base.mapKpa,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

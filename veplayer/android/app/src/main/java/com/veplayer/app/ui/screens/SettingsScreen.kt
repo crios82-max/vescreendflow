@@ -3147,6 +3147,65 @@ fun SettingsScreen() {
                 color = if (ltftSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var mapOn by remember { mutableStateOf(prefs.mapEnabled) }
+            var mapTts by remember { mutableStateOf(prefs.mapTts) }
+            var mapSim by remember {
+                mutableStateOf(
+                    if (prefs.mapSimKpa > 0f) prefs.mapSimKpa.toInt().toString() else "0",
+                )
+            }
+            val mapSt by com.veplayer.app.vehicle.MapPressureMonitor.state.collectAsState()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Aviso presión MAP (010B)", color = Mist)
+                Switch(
+                    checked = mapOn,
+                    onCheckedChange = {
+                        mapOn = it
+                        prefs.mapEnabled = it
+                    },
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("TTS MAP", color = Mist)
+                Switch(
+                    checked = mapTts,
+                    onCheckedChange = {
+                        mapTts = it
+                        prefs.mapTts = it
+                    },
+                )
+            }
+            OutlinedTextField(
+                value = mapSim,
+                onValueChange = { mapSim = it.filter { c -> c.isDigit() }.take(3) },
+                label = { Text("Sim MAP kPa (0=live)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.mapSimKpa = mapSim.toFloatOrNull() ?: 0f
+                    status =
+                        "MAP sim ${prefs.mapSimKpa.toInt()} kPa · warn ${prefs.mapWarnKpa.toInt()} / alert ${prefs.mapAlertKpa.toInt()}"
+                },
+            ) { Text("Aplicar sim MAP") }
+            Text(
+                if (mapSt.mapKpa != null) {
+                    "MAP · ${mapSt.label} · ${mapSt.band}"
+                } else {
+                    "MAP idle (warn ${prefs.mapWarnKpa.toInt()} / alert ${prefs.mapAlertKpa.toInt()} kPa)"
+                },
+                color = if (mapSt.showWarn) Teal else Mute,
+                fontSize = 12.sp,
+            )
             var thrTtsOn by remember { mutableStateOf(prefs.throttleTts) }
             var thrSim by remember {
                 mutableStateOf(
