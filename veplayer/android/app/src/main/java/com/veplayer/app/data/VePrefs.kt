@@ -571,6 +571,15 @@ class VePrefs(context: Context) {
         get() = sp.getBoolean("fleet_tts_messages", true)
         set(value) = sp.edit().putBoolean("fleet_tts_messages", value).apply()
 
+    /** Allow driver ack / reply to fleet messages. */
+    var messageReplyEnabled: Boolean
+        get() = sp.getBoolean("message_reply", true)
+        set(value) = sp.edit().putBoolean("message_reply", value).apply()
+
+    var messageReplyTts: Boolean
+        get() = sp.getBoolean("message_reply_tts", true)
+        set(value) = sp.edit().putBoolean("message_reply_tts", value).apply()
+
     /** JSON array ring of inbox items. */
     var fleetInboxJson: String
         get() = sp.getString("fleet_inbox_json", "[]") ?: "[]"

@@ -15,6 +15,7 @@ import {
   panicClipUrlFromAlert,
   activeSpeedZone,
   recordTelemetrySample,
+  insertAlert,
 } from './fleetPro.js'
 import {
   evaluateMaintenanceAlerts,
@@ -574,6 +575,25 @@ fleetRouter.post('/command', (req, res) => {
   if (parsed.data.command === 'panic_ack') {
     ackPanicsForDevice(parsed.data.device_id)
   }
+  let payloadJson: string | null = parsed.data.payload
+    ? JSON.stringify(parsed.data.payload)
+    : null
+  if (parsed.data.command === 'message') {
+    const text =
+      typeof parsed.data.payload?.text === 'string' && parsed.data.payload.text.trim()
+        ? String(parsed.data.payload.text).trim().slice(0, 500)
+        : 'Mensaje de flota'
+    const alertId = insertAlert(parsed.data.device_id, 'message', 'info', text, {
+      requires_ack: true,
+      from: actor,
+    })
+    payloadJson = JSON.stringify({
+      ...(parsed.data.payload ?? {}),
+      text,
+      alert_id: alertId,
+      requires_ack: true,
+    })
+  }
   const info = db
     .prepare(
       `INSERT INTO fleet_commands (device_id, command, payload, status, issued_by)
@@ -582,7 +602,7 @@ fleetRouter.post('/command', (req, res) => {
     .run(
       parsed.data.device_id,
       parsed.data.command,
-      parsed.data.payload ? JSON.stringify(parsed.data.payload) : null,
+      payloadJson,
       actor,
     )
   res.status(201).json({ ok: true, id: Number(info.lastInsertRowid), issued_by: actor })
@@ -965,6 +985,132 @@ fleetRouter.post('/alerts/:id/ack', (req, res) => {
   const now = Math.floor(Date.now() / 1000)
   const info = db.prepare(`UPDATE fleet_alerts SET acked_at = ? WHERE id = ?`).run(now, id)
   res.json({ ok: true, updated: info.changes })
+})
+
+const messageAckSchema = z.object({
+  device_id: z.string().min(8).max(64),
+  alert_id: z.number().int().positive(),
+})
+
+fleetRouter.post('/message/ack', (req, res) => {
+  const parsed = messageAckSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'payload inválido' })
+    return
+  }
+  const row = db
+    .prepare(
+      `SELECT id, device_id, kind, message, acked_at FROM fleet_alerts WHERE id = ?`,
+    )
+    .get(parsed.data.alert_id) as
+    | { id: number; device_id: string; kind: string; message: string; acked_at: number | null }
+    | undefined
+  if (!row || row.device_id !== parsed.data.device_id) {
+    res.status(404).json({ error: 'mensaje no encontrado' })
+    return
+  }
+  if (row.kind !== 'message' && row.kind !== 'message_reply') {
+    // Allow ack of any open alert from device for convenience
+  }
+  const now = Math.floor(Date.now() / 1000)
+  if (row.acked_at == null) {
+    db.prepare(`UPDATE fleet_alerts SET acked_at = ? WHERE id = ?`).run(now, row.id)
+  }
+  res.json({
+    ok: true,
+    alert_id: row.id,
+    acked: true,
+    message: row.message,
+  })
+})
+
+const CANNED = new Set(['ok', 'en_camino', 'retraso', 'ayuda', 'recibido'])
+
+const messageReplySchema = z.object({
+  device_id: z.string().min(8).max(64),
+  alert_id: z.number().int().positive().optional(),
+  text: z.string().min(1).max(500).optional(),
+  canned: z.string().min(1).max(40).optional(),
+})
+
+fleetRouter.post('/message/reply', (req, res) => {
+  const parsed = messageReplySchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'payload inválido' })
+    return
+  }
+  const cannedKey = parsed.data.canned?.trim().toLowerCase().replace(/\s+/g, '_')
+  const cannedLabels: Record<string, string> = {
+    ok: 'OK',
+    recibido: 'Recibido',
+    en_camino: 'En camino',
+    retraso: 'Voy con retraso',
+    ayuda: 'Necesito ayuda',
+  }
+  let text =
+    (parsed.data.text && parsed.data.text.trim()) ||
+    (cannedKey && cannedLabels[cannedKey]) ||
+    ''
+  if (!text) {
+    res.status(400).json({ error: 'text o canned requerido' })
+    return
+  }
+  text = text.slice(0, 500)
+  if (cannedKey && !CANNED.has(cannedKey) && !parsed.data.text) {
+    res.status(400).json({ error: 'canned desconocido' })
+    return
+  }
+
+  let parent: { id: number; message: string } | null = null
+  if (parsed.data.alert_id) {
+    const row = db
+      .prepare(
+        `SELECT id, device_id, kind, message, acked_at FROM fleet_alerts WHERE id = ?`,
+      )
+      .get(parsed.data.alert_id) as
+      | {
+          id: number
+          device_id: string
+          kind: string
+          message: string
+          acked_at: number | null
+        }
+      | undefined
+    if (!row || row.device_id !== parsed.data.device_id) {
+      res.status(404).json({ error: 'mensaje origen no encontrado' })
+      return
+    }
+    parent = { id: row.id, message: row.message }
+    if (row.acked_at == null) {
+      const now = Math.floor(Date.now() / 1000)
+      db.prepare(`UPDATE fleet_alerts SET acked_at = ? WHERE id = ?`).run(now, row.id)
+    }
+  }
+
+  const replyId = insertAlert(
+    parsed.data.device_id,
+    'message_reply',
+    cannedKey === 'ayuda' ? 'warn' : 'info',
+    text,
+    {
+      parent_alert_id: parent?.id ?? null,
+      parent_message: parent?.message ?? null,
+      canned: cannedKey ?? null,
+      from: 'device',
+    },
+  )
+
+  res.status(201).json({
+    ok: true,
+    reply: {
+      id: replyId,
+      kind: 'message_reply',
+      message: text,
+      canned: cannedKey ?? null,
+      parent_alert_id: parent?.id ?? null,
+    },
+    parent_acked: parent != null,
+  })
 })
 
 fleetRouter.get('/telemetry/:deviceId', (req, res) => {

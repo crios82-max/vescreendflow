@@ -1522,6 +1522,77 @@ fun SettingsScreen() {
                     status = "Inbox prueba"
                 },
             ) { Text("Probar voz inbox") }
+            var msgReplyOn by remember { mutableStateOf(prefs.messageReplyEnabled) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Ack / reply mensajes", color = Mist)
+                Switch(
+                    checked = msgReplyOn,
+                    onCheckedChange = {
+                        msgReplyOn = it
+                        prefs.messageReplyEnabled = it
+                    },
+                )
+            }
+            val pendingMsg by com.veplayer.app.fleet.MessageReplyBus.pending.collectAsState()
+            val fleetMsg = remember { FleetClient(prefs) }
+            Text(
+                pendingMsg?.let { com.veplayer.app.fleet.MessageReplyBus.label(it) }
+                    ?: "Sin mensaje pendiente",
+                color = if (pendingMsg?.status == "pending") Teal else Mute,
+                fontSize = 12.sp,
+            )
+            if (pendingMsg != null && pendingMsg!!.status == "pending") {
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    OutlinedButton(
+                        onClick = {
+                            val p = pendingMsg ?: return@OutlinedButton
+                            scope.launch {
+                                val r =
+                                    withContext(Dispatchers.IO) {
+                                        fleetMsg.ackMessage(p.alertId)
+                                    }
+                                r.onSuccess {
+                                    com.veplayer.app.fleet.MessageReplyBus.markAcked()
+                                    if (prefs.messageReplyTts) {
+                                        com.veplayer.app.nav.NavTts.speakNow("Mensaje confirmado.")
+                                    }
+                                    status = "Msg acked #${p.alertId}"
+                                }.onFailure { status = "Ack fail: ${it.message}" }
+                            }
+                        },
+                    ) { Text("Ack") }
+                    for ((key, label) in com.veplayer.app.fleet.MessageReplyBus.canned.take(3)) {
+                        OutlinedButton(
+                            onClick = {
+                                val p = pendingMsg ?: return@OutlinedButton
+                                scope.launch {
+                                    val r =
+                                        withContext(Dispatchers.IO) {
+                                            fleetMsg.replyMessage(canned = key, alertId = p.alertId)
+                                        }
+                                    r.onSuccess { reply ->
+                                        com.veplayer.app.fleet.MessageReplyBus.markReplied(reply)
+                                        com.veplayer.app.fleet.FleetInbox.push(
+                                            prefs,
+                                            kind = "message_reply",
+                                            text = reply,
+                                            id = "reply:${p.alertId}",
+                                        )
+                                        if (prefs.messageReplyTts) {
+                                            com.veplayer.app.nav.NavTts.speakNow("Respuesta enviada. $reply.")
+                                        }
+                                        status = "Reply: $reply"
+                                    }.onFailure { status = "Reply fail: ${it.message}" }
+                                }
+                            },
+                        ) { Text(label) }
+                    }
+                }
+            }
             Text("Últimos ${inbox.size.coerceAtMost(5)}", color = Mute)
             inbox.take(5).forEach { item ->
                 Text(

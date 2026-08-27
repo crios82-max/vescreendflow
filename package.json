@@ -37,6 +37,7 @@
     "veplayer:fuel-drop-smoke": "node veplayer/scripts/fuel-drop-smoke.mjs",
     "veplayer:tpms-hud-smoke": "node veplayer/scripts/tpms-hud-smoke.mjs",
     "veplayer:shift-summary-smoke": "node veplayer/scripts/shift-summary-smoke.mjs",
+    "veplayer:message-reply-smoke": "node veplayer/scripts/message-reply-smoke.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",
     "veplayer:reverse-guides-smoke": "node veplayer/scripts/reverse-guides-smoke.mjs",
     "veplayer:fleet-csv-smoke": "node veplayer/scripts/fleet-csv-smoke.mjs",

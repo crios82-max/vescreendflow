@@ -338,6 +338,51 @@ class FleetClient(private val prefs: VePrefs) {
             }
         }
 
+    fun ackMessage(alertId: Long): Result<Unit> =
+        runCatching {
+            val body =
+                JSONObject()
+                    .put("device_id", prefs.deviceId())
+                    .put("alert_id", alertId)
+                    .toString()
+                    .toRequestBody(JSON)
+            val req =
+                Request.Builder()
+                    .url(base() + "/api/fleet/message/ack")
+                    .post(body)
+                    .build()
+            client.newCall(req).execute().use { resp ->
+                val text = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) error("message ack HTTP ${resp.code}: $text")
+            }
+        }
+
+    fun replyMessage(
+        text: String? = null,
+        canned: String? = null,
+        alertId: Long? = null,
+    ): Result<String> =
+        runCatching {
+            val body = JSONObject().put("device_id", prefs.deviceId())
+            if (alertId != null && alertId > 0) body.put("alert_id", alertId)
+            if (!text.isNullOrBlank()) body.put("text", text.trim().take(500))
+            if (!canned.isNullOrBlank()) body.put("canned", canned.trim())
+            val req =
+                Request.Builder()
+                    .url(base() + "/api/fleet/message/reply")
+                    .post(body.toString().toRequestBody(JSON))
+                    .build()
+            client.newCall(req).execute().use { resp ->
+                val raw = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) error("message reply HTTP ${resp.code}: $raw")
+                val json = JSONObject(raw)
+                json.optJSONObject("reply")?.optString("message")
+                    ?: text?.trim()
+                    ?: canned
+                    ?: "OK"
+            }
+        }
+
     companion object {
         private val JSON = "application/json".toMediaType()
 

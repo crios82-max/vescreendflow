@@ -319,6 +319,16 @@ fun DriveVizPanel(
                         fontSize = 11.sp,
                     )
                 }
+                val pendingMsg by com.veplayer.app.fleet.MessageReplyBus.pending.collectAsState()
+                pendingMsg?.let { msg ->
+                    if (prefs.messageReplyEnabled && msg.status == "pending") {
+                        Text(
+                            com.veplayer.app.fleet.MessageReplyBus.label(msg),
+                            color = Color(0xFF38BDF8),
+                            fontSize = 11.sp,
+                        )
+                    }
+                }
                 val inboxLast by com.veplayer.app.fleet.FleetInbox.last.collectAsState()
                 inboxLast?.let { item ->
                     Text(

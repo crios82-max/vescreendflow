@@ -653,7 +653,20 @@ Al cerrar turno: digest duración · km · eco · ralentí:
 npm run veplayer:shift-summary-smoke
 ```
 
-**Fase 9 (en curso):** tow · fuel drop · TPMS HUD · shift summary · message reply.
+## Message reply / ack (v0.53 · Fase 9)
+
+Conductor confirma o responde mensajes de despacho:
+
+- Cmd `message` crea alerta `message` + `alert_id` en payload
+- `POST /api/fleet/message/ack` · `POST /api/fleet/message/reply` (canned: ok / recibido / en_camino / retraso / ayuda)
+- Reply → alerta ops `message_reply` · parent se marca acked
+- DriveViz chip pendiente · Ajustes Ack + respuestas rápidas · TTS
+
+```bash
+npm run veplayer:message-reply-smoke
+```
+
+**Fase 9 completa** (tow · fuel drop · TPMS · shift summary · message reply).
 
 ## Device Owner (kiosk duro · v0.12)
 
