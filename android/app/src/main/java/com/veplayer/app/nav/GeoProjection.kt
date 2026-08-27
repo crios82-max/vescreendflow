@@ -29,6 +29,20 @@ data class MapBounds(
         )
     }
 
+    /** Expand by ~km in each direction (rough degrees). */
+    fun paddedKm(km: Double): MapBounds {
+        val dLat = km / 111.0
+        val midLat = (minLat + maxLat) / 2.0
+        val cosLat = kotlin.math.cos(Math.toRadians(midLat)).coerceAtLeast(0.2)
+        val dLng = km / (111.0 * cosLat)
+        return MapBounds(
+            minLat = minLat - dLat,
+            maxLat = maxLat + dLat,
+            minLng = minLng - dLng,
+            maxLng = maxLng + dLng,
+        )
+    }
+
     companion object {
         fun fromPoints(points: List<LatLng>): MapBounds? {
             if (points.isEmpty()) return null
@@ -44,6 +58,12 @@ data class MapBounds(
             }
             return MapBounds(minLat, maxLat, minLng, maxLng)
         }
+
+        fun around(
+            lat: Double,
+            lng: Double,
+            radiusKm: Double = 4.0,
+        ): MapBounds = MapBounds(lat, lat, lng, lng).paddedKm(radiusKm)
     }
 }
 

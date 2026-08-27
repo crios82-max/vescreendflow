@@ -430,6 +430,20 @@ npm run veplayer:phone-link-smoke
 
 **Fase 6 (siguiente):** OSM prefetch · parking HUD.
 
+## OSM offline prefetch (v0.37 · Fase 6)
+
+Prefetch de tiles OSM al disco (`cacheDir/osm_tiles`):
+
+- Ajustes → **Prefetch zona** (GPS/ego ± km) · **Prefetch ruta** (corredor)
+- Zoom 12–15 (prefs) · tamaño caché · borrar · progreso en mapa nativo
+- Cmd flota `prefetch_tiles` `{ mode: around|route, radius_km }`
+
+```bash
+npm run veplayer:osm-prefetch-smoke
+```
+
+**Fase 6 (siguiente):** parking distance HUD.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):

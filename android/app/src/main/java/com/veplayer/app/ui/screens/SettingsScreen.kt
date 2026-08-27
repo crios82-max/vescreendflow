@@ -21,6 +21,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -672,6 +673,66 @@ fun SettingsScreen() {
                     },
                 )
             }
+            val prefetch by com.veplayer.app.ui.map.OsmPrefetch.state.collectAsState()
+            LaunchedEffect(Unit) {
+                com.veplayer.app.ui.map.OsmPrefetch.refreshStats(context)
+            }
+            Text(
+                "Caché offline · ${"%.1f".format(prefetch.cacheMb)} MB · ${prefetch.cacheFiles} tiles",
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text(prefetch.label, color = if (prefetch.running) Teal else Mute, fontSize = 12.sp)
+            if (prefetch.running && prefetch.total > 0) {
+                Text(
+                    "${prefetch.done}/${prefetch.total} · ↓${prefetch.downloaded}",
+                    color = Mute,
+                    fontSize = 12.sp,
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.ui.map.OsmPrefetch.startAroundMe(context, prefs, scope)
+                        status = "Prefetch alrededor…"
+                    },
+                    enabled = !prefetch.running,
+                ) { Text("Prefetch zona") }
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.ui.map.OsmPrefetch.startRoute(context, prefs, scope)
+                        status = "Prefetch ruta…"
+                    },
+                    enabled = !prefetch.running,
+                ) { Text("Prefetch ruta") }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.ui.map.OsmPrefetch.cancel()
+                        status = "Prefetch cancel"
+                    },
+                    enabled = prefetch.running,
+                ) { Text("Cancelar") }
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.ui.map.OsmPrefetch.clear(context)
+                        status = "Tiles borrados"
+                    },
+                    enabled = !prefetch.running,
+                ) { Text("Borrar caché") }
+                OutlinedButton(
+                    onClick = {
+                        com.veplayer.app.ui.map.OsmPrefetch.refreshStats(context)
+                        status = "Caché ${"%.1f".format(com.veplayer.app.ui.map.OsmPrefetch.state.value.cacheMb)} MB"
+                    },
+                ) { Text("Refresh") }
+            }
+            Text(
+                "Zoom prefetch ${prefs.mapPrefetchZMin}–${prefs.mapPrefetchZMax} · max ${prefs.mapPrefetchMaxTiles}",
+                color = Mute,
+                fontSize = 11.sp,
+            )
             var mapCrowd by remember { mutableStateOf(prefs.mapCrowdEnabled) }
             Row(
                 modifier = Modifier.fillMaxWidth(),
