@@ -35,7 +35,7 @@ if [[ ! -f apps/api/dist/index.js ]]; then
   npm run build
 fi
 
-if pm2 jlist 2>/dev/null | grep -q '"name":"ride-api"'; then
+if pm2 jlist 2>/dev/null | grep -q '"name":"movi-api"'; then
   log "PM2 restart..."
   pm2 restart ride-api ride-passenger ride-driver ride-admin --update-env
 else

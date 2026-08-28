@@ -278,3 +278,5 @@ export function buildRideEstimate(
     }),
   };
 }
+
+export { BRAND, brandTitle, brandAppLabel } from './brand.js';

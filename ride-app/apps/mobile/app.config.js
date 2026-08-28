@@ -1,22 +1,28 @@
 export default ({ config }) => ({
   ...config,
   expo: {
-    name: 'Ride',
-    slug: 'ride-app',
+    name: 'Movi',
+    slug: 'movi',
     version: '1.0.0',
     orientation: 'portrait',
+    icon: './assets/icon.png',
     userInterfaceStyle: 'dark',
-    scheme: 'rideapp',
+    scheme: 'movi',
+    splash: {
+      image: './assets/splash-icon.png',
+      resizeMode: 'contain',
+      backgroundColor: '#0a0a0a',
+    },
     ios: {
       supportsTablet: false,
-      bundleIdentifier: 'com.rideapp.mobile',
+      bundleIdentifier: 'com.movi.app',
       buildNumber: '1',
       config: {
         googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? 'YOUR_IOS_GOOGLE_MAPS_KEY',
       },
       infoPlist: {
         NSLocationWhenInUseUsageDescription:
-          'Ride usa tu ubicación para pedir viajes y mostrarte en el mapa.',
+          'Movi usa tu ubicación para pedir viajes y mostrarte en el mapa.',
         ITSAppUsesNonExemptEncryption: false,
       },
       privacyManifests: {
@@ -24,8 +30,12 @@ export default ({ config }) => ({
       },
     },
     android: {
-      package: 'com.rideapp.mobile',
+      package: 'com.movi.app',
       versionCode: 1,
+      adaptiveIcon: {
+        foregroundImage: './assets/adaptive-icon.png',
+        backgroundColor: '#0a0a0a',
+      },
       permissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION'],
       config: {
         googleMaps: {
@@ -38,13 +48,13 @@ export default ({ config }) => ({
         'expo-location',
         {
           locationAlwaysAndWhenInUsePermission:
-            'Ride necesita tu ubicación para pedir y completar viajes.',
+            'Movi necesita tu ubicación para pedir y completar viajes.',
         },
       ],
       [
         'expo-notifications',
         {
-          color: '#ffffff',
+          color: '#A3E635',
         },
       ],
     ],

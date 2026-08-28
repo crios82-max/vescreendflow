@@ -4,6 +4,7 @@ import { pool } from '../db.js';
 import { mapRide } from '../mappers.js';
 import { sendEmail } from './email.js';
 import { createPaymentIntent, confirmPaymentIntent } from './stripe.js';
+import { BRAND } from '@ride-app/shared';
 
 export async function finalizeSplitRideIfComplete(rideId: string, io?: SocketServer) {
   const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [rideId]);
@@ -47,7 +48,7 @@ export async function sendSplitInviteEmail(email: string, token: string, amount:
   const link = `${baseUrl}/split-pay/${token}`;
   await sendEmail(
     email,
-    'Te invitaron a dividir un viaje — Ride App',
+    `Te invitaron a dividir un viaje — ${BRAND.name}`,
     `<p>Alguien te invitó a pagar tu parte de un viaje: <strong>$${amount.toFixed(2)}</strong></p>
      <p><a href="${link}">Pagar mi parte</a></p>
      <p>Viaje: ${rideId}</p>`,
