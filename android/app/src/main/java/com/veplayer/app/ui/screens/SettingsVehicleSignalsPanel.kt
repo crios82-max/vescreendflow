@@ -60,31 +60,33 @@ internal fun SettingsVehicleSignalsPanel(
     onCanBackendChange: (String) -> Unit,
     canIface: String,
     onCanIfaceChange: (String) -> Unit,
+    fmBackend: String,
+    onFmBackendChange: (String) -> Unit,
     onStatus: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val live by VehicleState.state.collectAsState()
-    SettingsVehicleSignalsPreamble(prefs, signalSource, onSignalSourceChange, obdAddr, onObdAddrChange, canBackend, onCanBackendChange, canIface, onCanIfaceChange, onStatus, context, scope, live)
-    SettingsVehicleSignalsNavPanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsPreamble(prefs, signalSource, onSignalSourceChange, obdAddr, onObdAddrChange, canBackend, onCanBackendChange, canIface, onCanIfaceChange, fmBackend, onFmBackendChange, onStatus, context, scope, live)
+    SettingsVehicleSignalsNavPanel(prefs, onStatus, scope, context)
     SettingsVehicleSignalsSpeedHudPanel(prefs, onStatus, scope)
     SettingsVehicleSignalsFuelHudPanel(prefs, onStatus, scope)
     SettingsVehicleSignalsIdlePanel(prefs, onStatus, scope)
-    SettingsVehicleSignalsSosPanel(prefs, onStatus, scope, live)
+    SettingsVehicleSignalsSosPanel(prefs, onStatus, scope, live, context)
     SettingsVehicleSignalsRemolquePanel(prefs, onStatus, scope, live)
     SettingsVehicleSignalsFuelDropPanel(prefs, onStatus, scope)
     SettingsVehicleSignalsTpmsPanel(prefs, onStatus, scope)
     SettingsVehicleSignalsBatteryPanel(prefs, onStatus, scope)
-    SettingsVehicleSignalsIncidentPanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsIncidentPanel(prefs, onStatus, scope, context)
     SettingsVehicleSignalsMaintPanel(prefs, onStatus, scope)
-    SettingsVehicleSignalsFleetVoicePanel(prefs, onStatus, scope, live)
+    SettingsVehicleSignalsFleetVoicePanel(prefs, onStatus, scope, live, context)
     SettingsVehicleSignalsConductorPanel(prefs, onStatus, scope, live)
     SettingsVehicleSignalsClimaHvacPanel(prefs, onStatus, scope)
 }
 
 @Composable
 private fun SettingsVehicleSignalsPreamble(
-    prefs: VePrefs, signalSource: String, onSignalSourceChange: (String) -> Unit, obdAddr: String, onObdAddrChange: (String) -> Unit, canBackend: String, onCanBackendChange: (String) -> Unit, canIface: String, onCanIfaceChange: (String) -> Unit, onStatus: (String) -> Unit, context: android.content.Context, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
+    prefs: VePrefs, signalSource: String, onSignalSourceChange: (String) -> Unit, obdAddr: String, onObdAddrChange: (String) -> Unit, canBackend: String, onCanBackendChange: (String) -> Unit, canIface: String, onCanIfaceChange: (String) -> Unit, fmBackend: String, onFmBackendChange: (String) -> Unit, onStatus: (String) -> Unit, context: android.content.Context, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
 ) {
             Text("Fuente activa: ${SignalSourceKind.fromId(signalSource).label}", color = Mist)
             Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -93,8 +95,8 @@ private fun SettingsVehicleSignalsPreamble(
                     if (selected) {
                         Button(
                             onClick = {
-                                signalSource = kind.id
-                                prefs.signalSource = kind.id
+                                onSignalSourceChange(kind.id)
+                                prefs.onSignalSourceChange(kind.id)
                                 CanBusManager.rebind()
                                 onStatus("Fuente → ${kind.label}")
                             },
@@ -102,8 +104,8 @@ private fun SettingsVehicleSignalsPreamble(
                     } else {
                         OutlinedButton(
                             onClick = {
-                                signalSource = kind.id
-                                prefs.signalSource = kind.id
+                                onSignalSourceChange(kind.id)
+                                prefs.onSignalSourceChange(kind.id)
                                 CanBusManager.rebind()
                                 onStatus("Fuente → ${kind.label}")
                             },
@@ -118,8 +120,8 @@ private fun SettingsVehicleSignalsPreamble(
                     if (selected) {
                         Button(
                             onClick = {
-                                canBackend = b.id
-                                prefs.canBackend = b.id
+                                onCanBackendChange(b.id)
+                                prefs.onCanBackendChange(b.id)
                                 if (signalSource == "can") CanBusManager.rebind()
                                 onStatus("CAN → ${b.label}")
                             },
@@ -127,8 +129,8 @@ private fun SettingsVehicleSignalsPreamble(
                     } else {
                         OutlinedButton(
                             onClick = {
-                                canBackend = b.id
-                                prefs.canBackend = b.id
+                                onCanBackendChange(b.id)
+                                prefs.onCanBackendChange(b.id)
                                 if (signalSource == "can") CanBusManager.rebind()
                                 onStatus("CAN → ${b.label}")
                             },
@@ -138,7 +140,7 @@ private fun SettingsVehicleSignalsPreamble(
             }
             OutlinedTextField(
                 value = canIface,
-                onValueChange = { canIface = it },
+                onValueChange = { onCanIfaceChange(it) },
                 label = { Text("SocketCAN iface") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -253,7 +255,7 @@ private fun SettingsVehicleSignalsPreamble(
             }
             OutlinedTextField(
                 value = obdAddr,
-                onValueChange = { obdAddr = it },
+                onValueChange = { onObdAddrChange(it) },
                 label = { Text("OBD ELM327 MAC") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -267,16 +269,16 @@ private fun SettingsVehicleSignalsPreamble(
                     if (selected) {
                         Button(
                             onClick = {
-                                fmBackend = b.id
-                                prefs.fmBackend = b.id
+                                onFmBackendChange(b.id)
+                                prefs.onFmBackendChange(b.id)
                                 onStatus("FM → ${b.label}")
                             },
                         ) { Text(b.id) }
                     } else {
                         OutlinedButton(
                             onClick = {
-                                fmBackend = b.id
-                                prefs.fmBackend = b.id
+                                onFmBackendChange(b.id)
+                                prefs.onFmBackendChange(b.id)
                                 onStatus("FM → ${b.label}")
                             },
                         ) { Text(b.id) }
@@ -297,10 +299,10 @@ private fun SettingsVehicleSignalsPreamble(
                 bonded.forEach { d ->
                     OutlinedButton(
                         onClick = {
-                            obdAddr = d.address
+                            onObdAddrChange(d.address)
                             prefs.obdDeviceAddress = d.address
-                            prefs.signalSource = "obd"
-                            signalSource = "obd"
+                            prefs.onSignalSourceChange("obd")
+                            onSignalSourceChange("obd")
                             CanBusManager.rebind()
                             onStatus("OBD → ${d.name} (${d.address})")
                         },
@@ -525,13 +527,11 @@ private fun SettingsVehicleSignalsPreamble(
                     },
                 ) { Text("Limpiar") }
             }
-        }
-
 }
 
 @Composable
 private fun SettingsVehicleSignalsNavPanel(
-    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, context: android.content.Context,
 ) {
         PanelBlock("Navegación") {
             var navOn by remember { mutableStateOf(prefs.navEnabled) }
@@ -1049,7 +1049,7 @@ private fun SettingsVehicleSignalsIdlePanel(
 
 @Composable
 private fun SettingsVehicleSignalsSosPanel(
-    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals, context: android.content.Context,
 ) {
         PanelBlock("SOS / pánico") {
             var panicOn by remember { mutableStateOf(prefs.panicEnabled) }
@@ -1637,7 +1637,7 @@ private fun SettingsVehicleSignalsBatteryPanel(
 
 @Composable
 private fun SettingsVehicleSignalsIncidentPanel(
-    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, context: android.content.Context,
 ) {
         PanelBlock("Incidente (reporte flota)") {
             var incOn by remember { mutableStateOf(prefs.incidentEnabled) }
@@ -1707,8 +1707,10 @@ private fun SettingsVehicleSignalsIncidentPanel(
                             note = incNote.ifBlank { null },
                             withClip = incClip,
                         ).onSuccess {
-                            onStatus(                                "Incidente #${it.lastAlertId ?: "—"}" +)
+                            onStatus(
+                                "Incidente #${it.lastAlertId ?: "—"}" +
                                     (it.lastClipUrl?.let { u -> " · $u" } ?: "")
+                            )
                             incNote = ""
                         }.onFailure { onStatus("Incidente fail: ${it.message}") }
                     }
@@ -1818,7 +1820,7 @@ private fun SettingsVehicleSignalsMaintPanel(
 
 @Composable
 private fun SettingsVehicleSignalsFleetVoicePanel(
-    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals, context: android.content.Context,
 ) {
         PanelBlock("Flota voz / inbox") {
             var alertsOn by remember { mutableStateOf(prefs.fleetAlertsEnabled) }
