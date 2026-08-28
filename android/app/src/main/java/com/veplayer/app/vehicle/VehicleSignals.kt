@@ -295,6 +295,16 @@ data class VehicleSignals(
         val defDosingCmdPct: Float? = null,
         /** NOx corrected bank 1 sensor 1 ppm (OBD PID 01A1). */
         val noxCorrectedB1s1Ppm: Float? = null,
+        /** NOx corrected bank 1 sensor 2 ppm (OBD PID 01A1). */
+        val noxCorrectedB1s2Ppm: Float? = null,
+        /** NOx corrected bank 2 sensor 1 ppm (OBD PID 01A1). */
+        val noxCorrectedB2s1Ppm: Float? = null,
+        /** NOx corrected bank 2 sensor 2 ppm (OBD PID 01A1). */
+        val noxCorrectedB2s2Ppm: Float? = null,
+        /** NOx concentration sensor 3 ppm (OBD PID 01A7). */
+        val noxConcS3Ppm: Float? = null,
+        /** NOx concentration sensor 4 ppm (OBD PID 01A7). */
+        val noxConcS4Ppm: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -479,6 +489,11 @@ data class VehicleSignals(
             "o2_conc_b2s4_pct" to o2ConcB2s4Pct?.toDouble(),
             "def_dosing_cmd_pct" to defDosingCmdPct?.toDouble(),
             "nox_corrected_b1s1_ppm" to noxCorrectedB1s1Ppm?.toDouble(),
+            "nox_corrected_b1s2_ppm" to noxCorrectedB1s2Ppm?.toDouble(),
+            "nox_corrected_b2s1_ppm" to noxCorrectedB2s1Ppm?.toDouble(),
+            "nox_corrected_b2s2_ppm" to noxCorrectedB2s2Ppm?.toDouble(),
+            "nox_conc_s3_ppm" to noxConcS3Ppm?.toDouble(),
+            "nox_conc_s4_ppm" to noxConcS4Ppm?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),

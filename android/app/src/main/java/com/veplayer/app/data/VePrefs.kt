@@ -3104,6 +3104,121 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("nox_corr_b1s1_sim_speed", 40f)
         set(value) = sp.edit().putFloat("nox_corr_b1s1_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** NOx corrected B1S2 ppm (OBD 01A1). */
+    var noxCorrB1s2Enabled: Boolean
+        get() = sp.getBoolean("nox_corr_b1s2", true)
+        set(value) = sp.edit().putBoolean("nox_corr_b1s2", value).apply()
+    var noxCorrB1s2Tts: Boolean
+        get() = sp.getBoolean("nox_corr_b1s2_tts", true)
+        set(value) = sp.edit().putBoolean("nox_corr_b1s2_tts", value).apply()
+    var noxCorrB1s2Warn: Float
+        get() = sp.getFloat("nox_corr_b1s2_warn", 600f)
+        set(value) = sp.edit().putFloat("nox_corr_b1s2_warn", value.coerceIn(100f, 2000f)).apply()
+    var noxCorrB1s2Alert: Float
+        get() = sp.getFloat("nox_corr_b1s2_alert", 800f)
+        set(value) = sp.edit().putFloat("nox_corr_b1s2_alert", value.coerceAtLeast(150f)).apply()
+    var noxCorrB1s2SpeedMinKmh: Float
+        get() = sp.getFloat("nox_corr_b1s2_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_corr_b1s2_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxCorrB1s2Sim: Float
+        get() = sp.getFloat("nox_corr_b1s2_sim", 0f)
+        set(value) = sp.edit().putFloat("nox_corr_b1s2_sim", value.coerceIn(0f, 5000f)).apply()
+    var noxCorrB1s2SimSpeedKmh: Float
+        get() = sp.getFloat("nox_corr_b1s2_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_corr_b1s2_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** NOx corrected B2S1 ppm (OBD 01A1). */
+    var noxCorrB2s1Enabled: Boolean
+        get() = sp.getBoolean("nox_corr_b2s1", true)
+        set(value) = sp.edit().putBoolean("nox_corr_b2s1", value).apply()
+    var noxCorrB2s1Tts: Boolean
+        get() = sp.getBoolean("nox_corr_b2s1_tts", true)
+        set(value) = sp.edit().putBoolean("nox_corr_b2s1_tts", value).apply()
+    var noxCorrB2s1Warn: Float
+        get() = sp.getFloat("nox_corr_b2s1_warn", 600f)
+        set(value) = sp.edit().putFloat("nox_corr_b2s1_warn", value.coerceIn(100f, 2000f)).apply()
+    var noxCorrB2s1Alert: Float
+        get() = sp.getFloat("nox_corr_b2s1_alert", 800f)
+        set(value) = sp.edit().putFloat("nox_corr_b2s1_alert", value.coerceAtLeast(150f)).apply()
+    var noxCorrB2s1SpeedMinKmh: Float
+        get() = sp.getFloat("nox_corr_b2s1_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_corr_b2s1_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxCorrB2s1Sim: Float
+        get() = sp.getFloat("nox_corr_b2s1_sim", 0f)
+        set(value) = sp.edit().putFloat("nox_corr_b2s1_sim", value.coerceIn(0f, 5000f)).apply()
+    var noxCorrB2s1SimSpeedKmh: Float
+        get() = sp.getFloat("nox_corr_b2s1_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_corr_b2s1_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** NOx corrected B2S2 ppm (OBD 01A1). */
+    var noxCorrB2s2Enabled: Boolean
+        get() = sp.getBoolean("nox_corr_b2s2", true)
+        set(value) = sp.edit().putBoolean("nox_corr_b2s2", value).apply()
+    var noxCorrB2s2Tts: Boolean
+        get() = sp.getBoolean("nox_corr_b2s2_tts", true)
+        set(value) = sp.edit().putBoolean("nox_corr_b2s2_tts", value).apply()
+    var noxCorrB2s2Warn: Float
+        get() = sp.getFloat("nox_corr_b2s2_warn", 600f)
+        set(value) = sp.edit().putFloat("nox_corr_b2s2_warn", value.coerceIn(100f, 2000f)).apply()
+    var noxCorrB2s2Alert: Float
+        get() = sp.getFloat("nox_corr_b2s2_alert", 800f)
+        set(value) = sp.edit().putFloat("nox_corr_b2s2_alert", value.coerceAtLeast(150f)).apply()
+    var noxCorrB2s2SpeedMinKmh: Float
+        get() = sp.getFloat("nox_corr_b2s2_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_corr_b2s2_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxCorrB2s2Sim: Float
+        get() = sp.getFloat("nox_corr_b2s2_sim", 0f)
+        set(value) = sp.edit().putFloat("nox_corr_b2s2_sim", value.coerceIn(0f, 5000f)).apply()
+    var noxCorrB2s2SimSpeedKmh: Float
+        get() = sp.getFloat("nox_corr_b2s2_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_corr_b2s2_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** NOx concentration S3 ppm (OBD 01A7). */
+    var noxConcS3Enabled: Boolean
+        get() = sp.getBoolean("nox_conc_s3", true)
+        set(value) = sp.edit().putBoolean("nox_conc_s3", value).apply()
+    var noxConcS3Tts: Boolean
+        get() = sp.getBoolean("nox_conc_s3_tts", true)
+        set(value) = sp.edit().putBoolean("nox_conc_s3_tts", value).apply()
+    var noxConcS3Warn: Float
+        get() = sp.getFloat("nox_conc_s3_warn", 600f)
+        set(value) = sp.edit().putFloat("nox_conc_s3_warn", value.coerceIn(100f, 2000f)).apply()
+    var noxConcS3Alert: Float
+        get() = sp.getFloat("nox_conc_s3_alert", 800f)
+        set(value) = sp.edit().putFloat("nox_conc_s3_alert", value.coerceAtLeast(150f)).apply()
+    var noxConcS3SpeedMinKmh: Float
+        get() = sp.getFloat("nox_conc_s3_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_conc_s3_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxConcS3Sim: Float
+        get() = sp.getFloat("nox_conc_s3_sim", 0f)
+        set(value) = sp.edit().putFloat("nox_conc_s3_sim", value.coerceIn(0f, 5000f)).apply()
+    var noxConcS3SimSpeedKmh: Float
+        get() = sp.getFloat("nox_conc_s3_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_conc_s3_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** NOx concentration S4 ppm (OBD 01A7). */
+    var noxConcS4Enabled: Boolean
+        get() = sp.getBoolean("nox_conc_s4", true)
+        set(value) = sp.edit().putBoolean("nox_conc_s4", value).apply()
+    var noxConcS4Tts: Boolean
+        get() = sp.getBoolean("nox_conc_s4_tts", true)
+        set(value) = sp.edit().putBoolean("nox_conc_s4_tts", value).apply()
+    var noxConcS4Warn: Float
+        get() = sp.getFloat("nox_conc_s4_warn", 600f)
+        set(value) = sp.edit().putFloat("nox_conc_s4_warn", value.coerceIn(100f, 2000f)).apply()
+    var noxConcS4Alert: Float
+        get() = sp.getFloat("nox_conc_s4_alert", 800f)
+        set(value) = sp.edit().putFloat("nox_conc_s4_alert", value.coerceAtLeast(150f)).apply()
+    var noxConcS4SpeedMinKmh: Float
+        get() = sp.getFloat("nox_conc_s4_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_conc_s4_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxConcS4Sim: Float
+        get() = sp.getFloat("nox_conc_s4_sim", 0f)
+        set(value) = sp.edit().putFloat("nox_conc_s4_sim", value.coerceIn(0f, 5000f)).apply()
+    var noxConcS4SimSpeedKmh: Float
+        get() = sp.getFloat("nox_conc_s4_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_conc_s4_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

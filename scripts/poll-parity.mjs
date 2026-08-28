@@ -60,6 +60,7 @@ for (const hex of pollKotlin) {
     const noxByte = [0x94]
     const defDoseByte = [0xa5]
     const noxCorrByte = [0xa1]
+    const noxConcByte = [0xa7]
     const twoByteMin2 = [0x6b]
     if (noxByte.includes(byte)) {
       const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 00 00 00 19`)
@@ -74,7 +75,13 @@ for (const hex of pollKotlin) {
         fail++
       }
     } else if (noxCorrByte.includes(byte)) {
-      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 00 03 84`)
+      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 00 00 00 00 00 00 00 03 84`)
+      if (!Object.keys(got).length) {
+        console.error('registry parse empty for polled PID', hex)
+        fail++
+      }
+    } else if (noxConcByte.includes(byte)) {
+      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 03 84 00 00`)
       if (!Object.keys(got).length) {
         console.error('registry parse empty for polled PID', hex)
         fail++
