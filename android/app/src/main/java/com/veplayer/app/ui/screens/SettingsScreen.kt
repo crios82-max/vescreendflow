@@ -4684,6 +4684,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 33 OBD (198/99/9C):", color = Mist)
+            val egtB1s7St by com.veplayer.app.vehicle.EgtB1S7Monitor.state.collectAsState()
+            val egtB2s7St by com.veplayer.app.vehicle.EgtB2S7Monitor.state.collectAsState()
+            val egtB1s8St by com.veplayer.app.vehicle.EgtB1S8Monitor.state.collectAsState()
+            val egtB2s8St by com.veplayer.app.vehicle.EgtB2S8Monitor.state.collectAsState()
+            val o2ConcB1s3St by com.veplayer.app.vehicle.O2ConcB1S3Monitor.state.collectAsState()
+            var f33EgtB1 by remember {
+                mutableStateOf(if (prefs.egtB1s7SimC > 0f) prefs.egtB1s7SimC.toInt().toString() else "0")
+            }
+            var f33EgtB2 by remember {
+                mutableStateOf(if (prefs.egtB2s7SimC > 0f) prefs.egtB2s7SimC.toInt().toString() else "0")
+            }
+            var f33EgtB1s8 by remember {
+                mutableStateOf(if (prefs.egtB1s8SimC > 0f) prefs.egtB1s8SimC.toInt().toString() else "0")
+            }
+            var f33EgtB2s8 by remember {
+                mutableStateOf(if (prefs.egtB2s8SimC > 0f) prefs.egtB2s8SimC.toInt().toString() else "0")
+            }
+            var f33O2Conc by remember {
+                mutableStateOf(if (prefs.o2ConcB1s3Sim > 0f) prefs.o2ConcB1s3Sim.toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f33EgtB1,
+                    onValueChange = { f33EgtB1 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB1S7") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f33EgtB2,
+                    onValueChange = { f33EgtB2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB2S7") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f33EgtB1s8,
+                    onValueChange = { f33EgtB1s8 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB1S8") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f33EgtB2s8,
+                    onValueChange = { f33EgtB2s8 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB2S8") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f33O2Conc,
+                    onValueChange = { f33O2Conc = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2C3 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.egtB1s7SimC = f33EgtB1.toFloatOrNull() ?: 0f
+                    prefs.egtB2s7SimC = f33EgtB2.toFloatOrNull() ?: 0f
+                    prefs.egtB1s8SimC = f33EgtB1s8.toFloatOrNull() ?: 0f
+                    prefs.egtB2s8SimC = f33EgtB2s8.toFloatOrNull() ?: 0f
+                    prefs.o2ConcB1s3Sim = f33O2Conc.toFloatOrNull() ?: 0f
+                    status = "Fase 33 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 33") }
+            Text(
+                listOfNotNull(
+                    egtB1s7St.label.takeIf { it.isNotBlank() },
+                    egtB2s7St.label.takeIf { it.isNotBlank() },
+                    egtB1s8St.label.takeIf { it.isNotBlank() },
+                    egtB2s8St.label.takeIf { it.isNotBlank() },
+                    o2ConcB1s3St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 33 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

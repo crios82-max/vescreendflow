@@ -271,10 +271,20 @@ data class VehicleSignals(
         val egtB1s6TempC: Float? = null,
         /** EGT bank 2 sensor 6 °C (OBD PID 0199). */
         val egtB2s6TempC: Float? = null,
+        /** EGT bank 1 sensor 7 °C (OBD PID 0198). */
+        val egtB1s7TempC: Float? = null,
+        /** EGT bank 2 sensor 7 °C (OBD PID 0199). */
+        val egtB2s7TempC: Float? = null,
+        /** EGT bank 1 sensor 8 °C (OBD PID 0198). */
+        val egtB1s8TempC: Float? = null,
+        /** EGT bank 2 sensor 8 °C (OBD PID 0199). */
+        val egtB2s8TempC: Float? = null,
         /** O2 lambda bank 1 sensor 4 (OBD PID 019C). */
         val o2LambdaB1s4: Float? = null,
         /** O2 lambda bank 2 sensor 4 (OBD PID 019C). */
         val o2LambdaB2s4: Float? = null,
+        /** O2 concentration bank 1 sensor 3 % (OBD PID 019C). */
+        val o2ConcB1s3Pct: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -447,8 +457,13 @@ data class VehicleSignals(
             "nox_reagent_qual_hours" to noxReagentQualHours?.toDouble(),
             "egt_b1s6_temp_c" to egtB1s6TempC?.toDouble(),
             "egt_b2s6_temp_c" to egtB2s6TempC?.toDouble(),
+            "egt_b1s7_temp_c" to egtB1s7TempC?.toDouble(),
+            "egt_b2s7_temp_c" to egtB2s7TempC?.toDouble(),
+            "egt_b1s8_temp_c" to egtB1s8TempC?.toDouble(),
+            "egt_b2s8_temp_c" to egtB2s8TempC?.toDouble(),
             "o2_lambda_b1s4" to o2LambdaB1s4?.toDouble(),
             "o2_lambda_b2s4" to o2LambdaB2s4?.toDouble(),
+            "o2_conc_b1s3_pct" to o2ConcB1s3Pct?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),

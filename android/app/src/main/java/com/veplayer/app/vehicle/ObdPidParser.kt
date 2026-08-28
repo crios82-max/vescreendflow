@@ -196,10 +196,20 @@ object ObdPidParser {
         val egtB1s6TempC: Float? = null,
         /** EGT bank 2 sensor 6 °C (OBD PID 0199 bytes D/E). */
         val egtB2s6TempC: Float? = null,
+        /** EGT bank 1 sensor 7 °C (OBD PID 0198 bytes F/G). */
+        val egtB1s7TempC: Float? = null,
+        /** EGT bank 2 sensor 7 °C (OBD PID 0199 bytes F/G). */
+        val egtB2s7TempC: Float? = null,
+        /** EGT bank 1 sensor 8 °C (OBD PID 0198 bytes H/I). */
+        val egtB1s8TempC: Float? = null,
+        /** EGT bank 2 sensor 8 °C (OBD PID 0199 bytes H/I). */
+        val egtB2s8TempC: Float? = null,
         /** O2 lambda bank 1 sensor 4 (OBD PID 019C bytes L/M). */
         val o2LambdaB1s4: Float? = null,
         /** O2 lambda bank 2 sensor 4 (OBD PID 019C bytes P/Q). */
         val o2LambdaB2s4: Float? = null,
+        /** O2 concentration bank 1 sensor 3 % (OBD PID 019C bytes B/C). */
+        val o2ConcB1s3Pct: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -525,19 +535,30 @@ object ObdPidParser {
             0x98 -> {
                 val s5 = if (data.size >= 3) ((data[1] * 256) + data[2]) / 10f - 40f else null
                 val s6 = if (data.size >= 5) ((data[3] * 256) + data[4]) / 10f - 40f else null
-                PidValues(egtB1s5TempC = s5, egtB1s6TempC = s6)
+                val s7 = if (data.size >= 7) ((data[5] * 256) + data[6]) / 10f - 40f else null
+                val s8 = if (data.size >= 9) ((data[7] * 256) + data[8]) / 10f - 40f else null
+                PidValues(egtB1s5TempC = s5, egtB1s6TempC = s6, egtB1s7TempC = s7, egtB1s8TempC = s8)
             }
             0x99 -> {
                 val s5 = if (data.size >= 3) ((data[1] * 256) + data[2]) / 10f - 40f else null
                 val s6 = if (data.size >= 5) ((data[3] * 256) + data[4]) / 10f - 40f else null
-                PidValues(egtB2s5TempC = s5, egtB2s6TempC = s6)
+                val s7 = if (data.size >= 7) ((data[5] * 256) + data[6]) / 10f - 40f else null
+                val s8 = if (data.size >= 9) ((data[7] * 256) + data[8]) / 10f - 40f else null
+                PidValues(egtB2s5TempC = s5, egtB2s6TempC = s6, egtB2s7TempC = s7, egtB2s8TempC = s8)
             }
             0x9C -> {
+                val cB1s3 = if (data.size >= 3) ((data[1] * 256) + data[2]) * 0.001526f else null
                 val b1s3 = if (data.size >= 11) ((data[9] * 256) + data[10]) * 0.000122f else null
                 val b2s3 = if (data.size >= 15) ((data[13] * 256) + data[14]) * 0.000122f else null
                 val b1s4 = if (data.size >= 13) ((data[11] * 256) + data[12]) * 0.000122f else null
                 val b2s4 = if (data.size >= 17) ((data[15] * 256) + data[16]) * 0.000122f else null
-                PidValues(o2LambdaB1s3 = b1s3, o2LambdaB2s3 = b2s3, o2LambdaB1s4 = b1s4, o2LambdaB2s4 = b2s4)
+                PidValues(
+                    o2ConcB1s3Pct = cB1s3,
+                    o2LambdaB1s3 = b1s3,
+                    o2LambdaB2s3 = b2s3,
+                    o2LambdaB1s4 = b1s4,
+                    o2LambdaB2s4 = b2s4,
+                )
             }
             0x9B -> {
                 if (data.size < 4) PidValues()
@@ -680,8 +701,13 @@ object ObdPidParser {
             noxReagentQualHours = add.noxReagentQualHours ?: base.noxReagentQualHours,
             egtB1s6TempC = add.egtB1s6TempC ?: base.egtB1s6TempC,
             egtB2s6TempC = add.egtB2s6TempC ?: base.egtB2s6TempC,
+            egtB1s7TempC = add.egtB1s7TempC ?: base.egtB1s7TempC,
+            egtB2s7TempC = add.egtB2s7TempC ?: base.egtB2s7TempC,
+            egtB1s8TempC = add.egtB1s8TempC ?: base.egtB1s8TempC,
+            egtB2s8TempC = add.egtB2s8TempC ?: base.egtB2s8TempC,
             o2LambdaB1s4 = add.o2LambdaB1s4 ?: base.o2LambdaB1s4,
             o2LambdaB2s4 = add.o2LambdaB2s4 ?: base.o2LambdaB2s4,
+            o2ConcB1s3Pct = add.o2ConcB1s3Pct ?: base.o2ConcB1s3Pct,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

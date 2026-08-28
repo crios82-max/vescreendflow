@@ -220,17 +220,28 @@ export function parseMode01(raw) {
     case 0x98:
       const s5 = data.length >= 3 ? (data[1] * 256 + data[2]) / 10 - 40 : null
       const s6 = data.length >= 5 ? (data[3] * 256 + data[4]) / 10 - 40 : null
-      return { egtB1s5TempC: s5, egtB1s6TempC: s6 }
+      const s7 = data.length >= 7 ? (data[5] * 256 + data[6]) / 10 - 40 : null
+      const s8 = data.length >= 9 ? (data[7] * 256 + data[8]) / 10 - 40 : null
+      return { egtB1s5TempC: s5, egtB1s6TempC: s6, egtB1s7TempC: s7, egtB1s8TempC: s8 }
     case 0x99:
       const s5b = data.length >= 3 ? (data[1] * 256 + data[2]) / 10 - 40 : null
       const s6b = data.length >= 5 ? (data[3] * 256 + data[4]) / 10 - 40 : null
-      return { egtB2s5TempC: s5b, egtB2s6TempC: s6b }
+      const s7b = data.length >= 7 ? (data[5] * 256 + data[6]) / 10 - 40 : null
+      const s8b = data.length >= 9 ? (data[7] * 256 + data[8]) / 10 - 40 : null
+      return { egtB2s5TempC: s5b, egtB2s6TempC: s6b, egtB2s7TempC: s7b, egtB2s8TempC: s8b }
     case 0x9c:
+      const cB1s3 = data.length >= 3 ? (data[1] * 256 + data[2]) * 0.001526 : null
       const b1s3 = data.length >= 11 ? (data[9] * 256 + data[10]) * 0.000122 : null
       const b2s3 = data.length >= 15 ? (data[13] * 256 + data[14]) * 0.000122 : null
       const b1s4 = data.length >= 13 ? (data[11] * 256 + data[12]) * 0.000122 : null
       const b2s4 = data.length >= 17 ? (data[15] * 256 + data[16]) * 0.000122 : null
-      return { o2LambdaB1s3: b1s3, o2LambdaB2s3: b2s3, o2LambdaB1s4: b1s4, o2LambdaB2s4: b2s4 }
+      return {
+        o2ConcB1s3Pct: cB1s3,
+        o2LambdaB1s3: b1s3,
+        o2LambdaB2s3: b2s3,
+        o2LambdaB1s4: b1s4,
+        o2LambdaB2s4: b2s4,
+      }
     case 0x9b:
       return data.length < 4 ? {} : { defFluidPct: (data[3] * 100) / 255 }
     case 0x8b:
@@ -358,8 +369,12 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 8F 00 00 23 28 00 23 28', expect: { pmSensorB1Pct: 90, pmSensorB2Pct: 90 } },
   { raw: '41 98 01 24 54', expect: { egtB1s5TempC: 890 } },
   { raw: '41 98 01 24 54 24 54', expect: { egtB1s5TempC: 890, egtB1s6TempC: 890 } },
-  { raw: '41 99 01 24 54', expect: { egtB2s5TempC: 890 } },
+  { raw: '41 98 01 00 00 00 00 24 54', expect: { egtB1s7TempC: 890 } },
+  { raw: '41 98 01 00 00 00 00 00 00 24 54', expect: { egtB1s8TempC: 890 } },
   { raw: '41 99 01 24 54 24 54', expect: { egtB2s5TempC: 890, egtB2s6TempC: 890 } },
+  { raw: '41 99 01 00 00 00 00 24 54', expect: { egtB2s7TempC: 890 } },
+  { raw: '41 99 01 00 00 00 00 00 00 24 54', expect: { egtB2s8TempC: 890 } },
+  { raw: '41 9C 00 27 10', expect: { o2ConcB1s3Pct: 0x2710 * 0.001526 } },
   { raw: '41 9C 00 00 00 00 00 00 00 00 00 27 10', expect: { o2LambdaB1s3: 1.22 } },
   { raw: '41 9C 00 00 00 00 00 00 00 00 00 00 00 27 10', expect: { o2LambdaB1s4: 1.22 } },
   { raw: '41 9C 00 00 00 00 00 00 00 00 00 00 00 00 00 27 10', expect: { o2LambdaB2s3: 1.22 } },
@@ -507,6 +522,13 @@ export function runFaseFormulaChecks(fase, assert) {
       assert((0x27 * 256 + 0x10) * 0.000122 === 1.22, 'pid 019C B1S4')
       assert((0x27 * 256 + 0x10) * 0.000122 === 1.22, 'pid 019C B2S4')
       assert((0x1a * 100) / 255 < 11, 'pid 019B DEF')
+      break
+    case 33:
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0198 S7')
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0199 S7')
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0198 S8')
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0199 S8')
+      assert((0x27 * 256 + 0x10) * 0.001526 > 15, 'pid 019C O2 conc B1S3')
       break
     default:
       throw new Error(`unknown fase ${fase}`)

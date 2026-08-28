@@ -66,7 +66,7 @@ for (const hex of pollKotlin) {
         fail++
       }
     } else if (egtByte.includes(byte)) {
-      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 01 24 54 24 54`)
+      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 01 24 54 24 54 24 54 24 54`)
       if (!Object.keys(got).length) {
         console.error('registry parse empty for polled PID', hex)
         fail++
