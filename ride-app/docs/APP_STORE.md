@@ -1,6 +1,6 @@
 # Ride App — App Store / Play Store / TestFlight
 
-Ver también: [CLOUDFLARE_TUNNEL.md](./CLOUDFLARE_TUNNEL.md) (API público obligatorio para móvil fuera de LAN).
+Ver también: [CLOUDFLARE_TUNNEL.md](./CLOUDFLARE_TUNNEL.md), [STRIPE_LIVE.md](./STRIPE_LIVE.md).
 
 ## Requisitos previos
 
@@ -77,7 +77,8 @@ eas submit --platform android --profile production
 
 - **Nombre:** Ride
 - **Categoría:** Travel
-- **Privacy Policy URL:** `http://TU_IP:5174/privacy` o dominio futuro
+- **Privacy Policy URL:** `https://ride.vescreenflow.com/privacy`
+- **Terms:** `https://ride.vescreenflow.com/terms`
 - **Screenshots:** iPhone 6.7" y 6.5" (mín. 3)
 
 ## 7. Twilio Voice
@@ -91,8 +92,12 @@ TWILIO_PHONE_NUMBER=+1...
 
 ## Checklist
 
+- [ ] DNS: `ride-api` + `ride` CNAME (ver [CLOUDFLARE_TUNNEL.md](./CLOUDFLARE_TUNNEL.md))
 - [ ] `curl https://ride-api.vescreenflow.com/health`
-- [ ] PM2 ride-api corriendo en Mac mini
+- [ ] `curl -sf -o /dev/null https://ride.vescreenflow.com`
+- [ ] `./scripts/setup-prod-env.sh` — vars OK
+- [ ] Stripe live + webhook (ver [STRIPE_LIVE.md](./STRIPE_LIVE.md))
 - [ ] EAS secrets configurados
-- [ ] TestFlight build instalado y login OK
+- [ ] `eas.json` → `appleId`, `ascAppId`, `appleTeamId`
+- [ ] TestFlight: `./scripts/eas-testflight.sh`
 - [ ] Pedir ride end-to-end desde iPhone
