@@ -4037,6 +4037,97 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("hv_cell_max_sim_c", 0f)
         set(value) = sp.edit().putFloat("hv_cell_max_sim_c", value.coerceIn(0f, 120f)).apply()
 
+    /** Hours since cell balancing (OBD 01B8). */
+    var hvBalEnabled: Boolean
+        get() = sp.getBoolean("hv_bal", true)
+        set(value) = sp.edit().putBoolean("hv_bal", value).apply()
+    var hvBalTts: Boolean
+        get() = sp.getBoolean("hv_bal_tts", true)
+        set(value) = sp.edit().putBoolean("hv_bal_tts", value).apply()
+    var hvBalWarnH: Float
+        get() = sp.getFloat("hv_bal_warn_h", 100f)
+        set(value) = sp.edit().putFloat("hv_bal_warn_h", value.coerceIn(10f, 1000f)).apply()
+    var hvBalAlertH: Float
+        get() = sp.getFloat("hv_bal_alert_h", 200f)
+        set(value) = sp.edit().putFloat("hv_bal_alert_h", value.coerceIn(20f, 2000f)).apply()
+    var hvBalSimH: Float
+        get() = sp.getFloat("hv_bal_sim_h", 0f)
+        set(value) = sp.edit().putFloat("hv_bal_sim_h", value.coerceIn(0f, 65535f)).apply()
+
+    /** HEV min cell voltage V (OBD 01B9). */
+    var hvCellMinVEnabled: Boolean
+        get() = sp.getBoolean("hv_cell_min_v", true)
+        set(value) = sp.edit().putBoolean("hv_cell_min_v", value).apply()
+    var hvCellMinVTts: Boolean
+        get() = sp.getBoolean("hv_cell_min_v_tts", true)
+        set(value) = sp.edit().putBoolean("hv_cell_min_v_tts", value).apply()
+    var hvCellMinVWarnV: Float
+        get() = sp.getFloat("hv_cell_min_v_warn", 3.2f)
+        set(value) = sp.edit().putFloat("hv_cell_min_v_warn", value.coerceIn(2.5f, 4f)).apply()
+    var hvCellMinVAlertV: Float
+        get() = sp.getFloat("hv_cell_min_v_alert", 3.0f)
+        set(value) = sp.edit().putFloat("hv_cell_min_v_alert", value.coerceIn(2f, 3.5f)).apply()
+    var hvCellMinVSimV: Float
+        get() = sp.getFloat("hv_cell_min_v_sim", 0f)
+        set(value) = sp.edit().putFloat("hv_cell_min_v_sim", value.coerceIn(0f, 5f)).apply()
+
+    /** HEV max cell voltage V (OBD 01B9). */
+    var hvCellMaxVEnabled: Boolean
+        get() = sp.getBoolean("hv_cell_max_v", true)
+        set(value) = sp.edit().putBoolean("hv_cell_max_v", value).apply()
+    var hvCellMaxVTts: Boolean
+        get() = sp.getBoolean("hv_cell_max_v_tts", true)
+        set(value) = sp.edit().putBoolean("hv_cell_max_v_tts", value).apply()
+    var hvCellMaxVWarnV: Float
+        get() = sp.getFloat("hv_cell_max_v_warn", 4.15f)
+        set(value) = sp.edit().putFloat("hv_cell_max_v_warn", value.coerceIn(3.5f, 4.5f)).apply()
+    var hvCellMaxVAlertV: Float
+        get() = sp.getFloat("hv_cell_max_v_alert", 4.25f)
+        set(value) = sp.edit().putFloat("hv_cell_max_v_alert", value.coerceIn(3.8f, 5f)).apply()
+    var hvCellMaxVSimV: Float
+        get() = sp.getFloat("hv_cell_max_v_sim", 0f)
+        set(value) = sp.edit().putFloat("hv_cell_max_v_sim", value.coerceIn(0f, 5f)).apply()
+
+    /** HEV power available % (OBD 01BA). */
+    var hvPwrEnabled: Boolean
+        get() = sp.getBoolean("hv_pwr", true)
+        set(value) = sp.edit().putBoolean("hv_pwr", value).apply()
+    var hvPwrTts: Boolean
+        get() = sp.getBoolean("hv_pwr_tts", true)
+        set(value) = sp.edit().putBoolean("hv_pwr_tts", value).apply()
+    var hvPwrWarnPct: Float
+        get() = sp.getFloat("hv_pwr_warn_pct", 25f)
+        set(value) = sp.edit().putFloat("hv_pwr_warn_pct", value.coerceIn(5f, 80f)).apply()
+    var hvPwrAlertPct: Float
+        get() = sp.getFloat("hv_pwr_alert_pct", 15f)
+        set(value) = sp.edit().putFloat("hv_pwr_alert_pct", value.coerceIn(5f, 70f)).apply()
+    var hvPwrSimPct: Float
+        get() = sp.getFloat("hv_pwr_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("hv_pwr_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    /** HEV charge current limit A (OBD 01BA). */
+    var hvChgEnabled: Boolean
+        get() = sp.getBoolean("hv_chg", true)
+        set(value) = sp.edit().putBoolean("hv_chg", value).apply()
+    var hvChgTts: Boolean
+        get() = sp.getBoolean("hv_chg_tts", true)
+        set(value) = sp.edit().putBoolean("hv_chg_tts", value).apply()
+    var hvChgWarnA: Float
+        get() = sp.getFloat("hv_chg_warn_a", 30f)
+        set(value) = sp.edit().putFloat("hv_chg_warn_a", value.coerceIn(5f, 200f)).apply()
+    var hvChgAlertA: Float
+        get() = sp.getFloat("hv_chg_alert_a", 15f)
+        set(value) = sp.edit().putFloat("hv_chg_alert_a", value.coerceIn(1f, 150f)).apply()
+    var hvChgSpeedMinKmh: Float
+        get() = sp.getFloat("hv_chg_speed_min", 15f)
+        set(value) = sp.edit().putFloat("hv_chg_speed_min", value.coerceIn(0f, 60f)).apply()
+    var hvChgSimA: Float
+        get() = sp.getFloat("hv_chg_sim_a", 0f)
+        set(value) = sp.edit().putFloat("hv_chg_sim_a", value.coerceIn(0f, 500f)).apply()
+    var hvChgSimSpeedKmh: Float
+        get() = sp.getFloat("hv_chg_sim_speed", 0f)
+        set(value) = sp.edit().putFloat("hv_chg_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
