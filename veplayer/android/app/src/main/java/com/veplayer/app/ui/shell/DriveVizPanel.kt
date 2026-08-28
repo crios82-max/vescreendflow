@@ -198,6 +198,11 @@ import com.veplayer.app.vehicle.WwhObdEcuB1HoursMonitor
 import com.veplayer.app.vehicle.WwhObdCumulativeMiMonitor
 import com.veplayer.app.vehicle.FuelSysCtlClosedMonitor
 import com.veplayer.app.vehicle.HybridEvBattVoltageMonitor
+import com.veplayer.app.vehicle.NoxWarnActiveMonitor
+import com.veplayer.app.vehicle.NoxInduceLevel1Monitor
+import com.veplayer.app.vehicle.NoxInduceLevel2Monitor
+import com.veplayer.app.vehicle.NoxEgrCounterMonitor
+import com.veplayer.app.vehicle.NoxMonitorMalfunctionMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -398,6 +403,11 @@ fun DriveVizPanel(
     val wwhCumMi by WwhObdCumulativeMiMonitor.state.collectAsState()
     val fuelSysCtl by FuelSysCtlClosedMonitor.state.collectAsState()
     val hevVolt by HybridEvBattVoltageMonitor.state.collectAsState()
+    val noxWarn by NoxWarnActiveMonitor.state.collectAsState()
+    val noxIndL1 by NoxInduceLevel1Monitor.state.collectAsState()
+    val noxIndL2 by NoxInduceLevel2Monitor.state.collectAsState()
+    val noxEgr by NoxEgrCounterMonitor.state.collectAsState()
+    val noxMal by NoxMonitorMalfunctionMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -581,6 +591,11 @@ fun DriveVizPanel(
             WwhObdCumulativeMiMonitor.tick(prefs, snap)
             FuelSysCtlClosedMonitor.tick(prefs, snap)
             HybridEvBattVoltageMonitor.tick(prefs, snap)
+            NoxWarnActiveMonitor.tick(prefs, snap)
+            NoxInduceLevel1Monitor.tick(prefs, snap)
+            NoxInduceLevel2Monitor.tick(prefs, snap)
+            NoxEgrCounterMonitor.tick(prefs, snap)
+            NoxMonitorMalfunctionMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1455,6 +1470,21 @@ fun DriveVizPanel(
                 }
                 if (hevVolt.showWarn || (prefs.hevVoltEnabled && hevVolt.band == "ok" && hevVolt.label.isNotBlank())) {
                     Text(hevVolt.label, color = Color(com.veplayer.app.vehicle.HybridEvBattVoltage.accentArgb(hevVolt.band)), fontSize = 11.sp)
+                }
+                if (noxWarn.showWarn || (prefs.noxWarnEnabled && noxWarn.band == "ok" && noxWarn.label.isNotBlank())) {
+                    Text(noxWarn.label, color = Color(com.veplayer.app.vehicle.NoxWarnActive.accentArgb(noxWarn.band)), fontSize = 11.sp)
+                }
+                if (noxIndL1.showWarn || (prefs.noxIndL1Enabled && noxIndL1.band == "ok" && noxIndL1.label.isNotBlank())) {
+                    Text(noxIndL1.label, color = Color(com.veplayer.app.vehicle.NoxInduceLevel1.accentArgb(noxIndL1.band)), fontSize = 11.sp)
+                }
+                if (noxIndL2.showWarn || (prefs.noxIndL2Enabled && noxIndL2.band == "ok" && noxIndL2.label.isNotBlank())) {
+                    Text(noxIndL2.label, color = Color(com.veplayer.app.vehicle.NoxInduceLevel2.accentArgb(noxIndL2.band)), fontSize = 11.sp)
+                }
+                if (noxEgr.showWarn || (prefs.noxEgrEnabled && noxEgr.band == "ok" && noxEgr.label.isNotBlank())) {
+                    Text(noxEgr.label, color = Color(com.veplayer.app.vehicle.NoxEgrCounter.accentArgb(noxEgr.band)), fontSize = 11.sp)
+                }
+                if (noxMal.showWarn || (prefs.noxMalEnabled && noxMal.band == "ok" && noxMal.label.isNotBlank())) {
+                    Text(noxMal.label, color = Color(com.veplayer.app.vehicle.NoxMonitorMalfunction.accentArgb(noxMal.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

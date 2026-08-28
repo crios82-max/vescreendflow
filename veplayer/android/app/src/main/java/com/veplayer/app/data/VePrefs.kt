@@ -3861,6 +3861,91 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("hev_volt_sim_v", 0f)
         set(value) = sp.edit().putFloat("hev_volt_sim_v", value.coerceIn(0f, 1000f)).apply()
 
+    /** NOx warning active (OBD 0194 byte B bit0). */
+    var noxWarnEnabled: Boolean
+        get() = sp.getBoolean("nox_warn", true)
+        set(value) = sp.edit().putBoolean("nox_warn", value).apply()
+    var noxWarnTts: Boolean
+        get() = sp.getBoolean("nox_warn_tts", true)
+        set(value) = sp.edit().putBoolean("nox_warn_tts", value).apply()
+    var noxWarnSpeedMinKmh: Float
+        get() = sp.getFloat("nox_warn_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_warn_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxWarnSim: Boolean
+        get() = sp.getBoolean("nox_warn_sim", false)
+        set(value) = sp.edit().putBoolean("nox_warn_sim", value).apply()
+    var noxWarnSimSpeedKmh: Float
+        get() = sp.getFloat("nox_warn_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_warn_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** NOx inducement level 1 (OBD 0194). */
+    var noxIndL1Enabled: Boolean
+        get() = sp.getBoolean("nox_ind_l1", true)
+        set(value) = sp.edit().putBoolean("nox_ind_l1", value).apply()
+    var noxIndL1Tts: Boolean
+        get() = sp.getBoolean("nox_ind_l1_tts", true)
+        set(value) = sp.edit().putBoolean("nox_ind_l1_tts", value).apply()
+    var noxIndL1SpeedMinKmh: Float
+        get() = sp.getFloat("nox_ind_l1_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_ind_l1_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxIndL1Sim: Int
+        get() = sp.getInt("nox_ind_l1_sim", 0)
+        set(value) = sp.edit().putInt("nox_ind_l1_sim", value.coerceIn(0, 3)).apply()
+    var noxIndL1SimSpeedKmh: Float
+        get() = sp.getFloat("nox_ind_l1_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_ind_l1_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** NOx inducement level 2 (OBD 0194). */
+    var noxIndL2Enabled: Boolean
+        get() = sp.getBoolean("nox_ind_l2", true)
+        set(value) = sp.edit().putBoolean("nox_ind_l2", value).apply()
+    var noxIndL2Tts: Boolean
+        get() = sp.getBoolean("nox_ind_l2_tts", true)
+        set(value) = sp.edit().putBoolean("nox_ind_l2_tts", value).apply()
+    var noxIndL2SpeedMinKmh: Float
+        get() = sp.getFloat("nox_ind_l2_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_ind_l2_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxIndL2Sim: Int
+        get() = sp.getInt("nox_ind_l2_sim", 0)
+        set(value) = sp.edit().putInt("nox_ind_l2_sim", value.coerceIn(0, 3)).apply()
+    var noxIndL2SimSpeedKmh: Float
+        get() = sp.getFloat("nox_ind_l2_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_ind_l2_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** NOx EGR counter hours (OBD 0194). */
+    var noxEgrEnabled: Boolean
+        get() = sp.getBoolean("nox_egr", true)
+        set(value) = sp.edit().putBoolean("nox_egr", value).apply()
+    var noxEgrTts: Boolean
+        get() = sp.getBoolean("nox_egr_tts", true)
+        set(value) = sp.edit().putBoolean("nox_egr_tts", value).apply()
+    var noxEgrWarnH: Float
+        get() = sp.getFloat("nox_egr_warn_h", 50f)
+        set(value) = sp.edit().putFloat("nox_egr_warn_h", value.coerceIn(1f, 500f)).apply()
+    var noxEgrAlertH: Float
+        get() = sp.getFloat("nox_egr_alert_h", 100f)
+        set(value) = sp.edit().putFloat("nox_egr_alert_h", value.coerceIn(10f, 1000f)).apply()
+    var noxEgrSimH: Float
+        get() = sp.getFloat("nox_egr_sim_h", 0f)
+        set(value) = sp.edit().putFloat("nox_egr_sim_h", value.coerceIn(0f, 65535f)).apply()
+
+    /** NOx monitor malfunction hours (OBD 0194). */
+    var noxMalEnabled: Boolean
+        get() = sp.getBoolean("nox_mal", true)
+        set(value) = sp.edit().putBoolean("nox_mal", value).apply()
+    var noxMalTts: Boolean
+        get() = sp.getBoolean("nox_mal_tts", true)
+        set(value) = sp.edit().putBoolean("nox_mal_tts", value).apply()
+    var noxMalWarnH: Float
+        get() = sp.getFloat("nox_mal_warn_h", 50f)
+        set(value) = sp.edit().putFloat("nox_mal_warn_h", value.coerceIn(1f, 500f)).apply()
+    var noxMalAlertH: Float
+        get() = sp.getFloat("nox_mal_alert_h", 100f)
+        set(value) = sp.edit().putFloat("nox_mal_alert_h", value.coerceIn(10f, 1000f)).apply()
+    var noxMalSimH: Float
+        get() = sp.getFloat("nox_mal_sim_h", 0f)
+        set(value) = sp.edit().putFloat("nox_mal_sim_h", value.coerceIn(0f, 65535f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

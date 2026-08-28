@@ -82,7 +82,7 @@ for (const hex of pollKotlin) {
     const fuelSysUseByte = [0x9f]
     const twoByteMin2 = [0x6b]
     if (noxByte.includes(byte)) {
-      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 00 00 00 19`)
+      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 00 00 00 00 00 00 00 00 01 2C 01 2C`)
       if (!Object.keys(got).length) {
         console.error('registry parse empty for polled PID', hex)
         fail++

@@ -192,6 +192,16 @@ object ObdPidParser {
         val o2LambdaB2s3: Float? = null,
         /** NOx reagent quality counter hours (OBD PID 0194 bytes C/D). */
         val noxReagentQualHours: Float? = null,
+        /** NOx warning system active (OBD PID 0194 byte B bit0). */
+        val noxWarningActive: Int? = null,
+        /** NOx level-one inducement status (OBD PID 0194 byte B bits 2–1). */
+        val noxInduceLevel1: Int? = null,
+        /** NOx level-two inducement status (OBD PID 0194 byte B bits 4–3). */
+        val noxInduceLevel2: Int? = null,
+        /** NOx EGR valve counter hours (OBD PID 0194 bytes I/J). */
+        val noxEgrValveCounterHours: Float? = null,
+        /** NOx monitor malfunction counter hours (OBD PID 0194 bytes K/L). */
+        val noxMonitorMalfunctionHours: Float? = null,
         /** EGT bank 1 sensor 6 °C (OBD PID 0198 bytes D/E). */
         val egtB1s6TempC: Float? = null,
         /** EGT bank 2 sensor 6 °C (OBD PID 0199 bytes D/E). */
@@ -608,7 +618,19 @@ object ObdPidParser {
             }
             0x94 -> {
                 if (data.size < 4) PidValues()
-                else PidValues(noxReagentQualHours = ((data[2] * 256) + data[3]).toFloat())
+                else {
+                    val b = data[1]
+                    PidValues(
+                        noxWarningActive = if ((b and 0x01) != 0) 1 else 0,
+                        noxInduceLevel1 = (b shr 1) and 0x03,
+                        noxInduceLevel2 = (b shr 3) and 0x03,
+                        noxReagentQualHours = ((data[2] * 256) + data[3]).toFloat(),
+                        noxEgrValveCounterHours =
+                            if (data.size >= 10) (data[8] * 256 + data[9]).toFloat() else null,
+                        noxMonitorMalfunctionHours =
+                            if (data.size >= 12) (data[10] * 256 + data[11]).toFloat() else null,
+                    )
+                }
             }
             0x98 -> {
                 val s5 = if (data.size >= 3) ((data[1] * 256) + data[2]) / 10f - 40f else null
@@ -919,6 +941,11 @@ object ObdPidParser {
             o2LambdaB1s3 = add.o2LambdaB1s3 ?: base.o2LambdaB1s3,
             o2LambdaB2s3 = add.o2LambdaB2s3 ?: base.o2LambdaB2s3,
             noxReagentQualHours = add.noxReagentQualHours ?: base.noxReagentQualHours,
+            noxWarningActive = add.noxWarningActive ?: base.noxWarningActive,
+            noxInduceLevel1 = add.noxInduceLevel1 ?: base.noxInduceLevel1,
+            noxInduceLevel2 = add.noxInduceLevel2 ?: base.noxInduceLevel2,
+            noxEgrValveCounterHours = add.noxEgrValveCounterHours ?: base.noxEgrValveCounterHours,
+            noxMonitorMalfunctionHours = add.noxMonitorMalfunctionHours ?: base.noxMonitorMalfunctionHours,
             egtB1s6TempC = add.egtB1s6TempC ?: base.egtB1s6TempC,
             egtB2s6TempC = add.egtB2s6TempC ?: base.egtB2s6TempC,
             egtB1s7TempC = add.egtB1s7TempC ?: base.egtB1s7TempC,

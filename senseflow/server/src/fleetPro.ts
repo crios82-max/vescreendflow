@@ -4569,6 +4569,165 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // NOx warning active (OBD PID 0194 byte B bit0)
+    const noxWarnObj = signals.nox_warn as Record<string, unknown> | undefined
+    const noxWarnActive =
+      noxWarnObj?.active === true ||
+      signals.nox_warning_active === 1 ||
+      signals.nox_warning_active === true
+    const noxWarnSpeed =
+      typeof noxWarnObj?.speed_kmh === 'number'
+        ? (noxWarnObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (noxWarnActive) {
+      const minSpd =
+        typeof signals.nox_warn_speed_min_kmh === 'number' ? (signals.nox_warn_speed_min_kmh as number) : 20
+      const spdOk = typeof noxWarnSpeed === 'number' && noxWarnSpeed >= minSpd
+      if (spdOk && !recentlyAlerted(deviceId, 'nox_warn_alert', 120)) {
+        insertAlert(deviceId, 'nox_warn_alert', 'critical', 'Sistema aviso NOx activo', {
+          nox_warning_active: 1,
+          nox_warn: noxWarnObj ?? null,
+        })
+        raised.push('nox_warn_alert')
+      }
+    }
+
+    // NOx inducement level 1 (OBD PID 0194)
+    const noxIndL1Obj = signals.nox_ind_l1 as Record<string, unknown> | undefined
+    const noxIndL1 =
+      typeof noxIndL1Obj?.status === 'number'
+        ? (noxIndL1Obj.status as number)
+        : typeof signals.nox_induce_level1 === 'number'
+          ? (signals.nox_induce_level1 as number)
+          : null
+    const noxIndL1Speed =
+      typeof noxIndL1Obj?.speed_kmh === 'number'
+        ? (noxIndL1Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof noxIndL1 === 'number') {
+      const minSpd =
+        typeof signals.nox_ind_l1_speed_min_kmh === 'number' ? (signals.nox_ind_l1_speed_min_kmh as number) : 20
+      const spdOk = typeof noxIndL1Speed === 'number' && noxIndL1Speed >= minSpd
+      if (spdOk && noxIndL1 >= 2 && !recentlyAlerted(deviceId, 'nox_ind_l1_alert', 120)) {
+        insertAlert(deviceId, 'nox_ind_l1_alert', 'critical', `Inducement NOx L1 activo · ${noxIndL1}`, {
+          nox_induce_level1: noxIndL1,
+          nox_ind_l1: noxIndL1Obj ?? null,
+        })
+        raised.push('nox_ind_l1_alert')
+      } else if (
+        spdOk &&
+        noxIndL1 === 1 &&
+        !recentlyAlerted(deviceId, 'nox_ind_l1_warn', 120)
+      ) {
+        insertAlert(deviceId, 'nox_ind_l1_warn', 'warn', `Inducement NOx L1 habilitado · ${noxIndL1}`, {
+          nox_induce_level1: noxIndL1,
+          nox_ind_l1: noxIndL1Obj ?? null,
+        })
+        raised.push('nox_ind_l1_warn')
+      }
+    }
+
+    // NOx inducement level 2 (OBD PID 0194)
+    const noxIndL2Obj = signals.nox_ind_l2 as Record<string, unknown> | undefined
+    const noxIndL2 =
+      typeof noxIndL2Obj?.status === 'number'
+        ? (noxIndL2Obj.status as number)
+        : typeof signals.nox_induce_level2 === 'number'
+          ? (signals.nox_induce_level2 as number)
+          : null
+    const noxIndL2Speed =
+      typeof noxIndL2Obj?.speed_kmh === 'number'
+        ? (noxIndL2Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof noxIndL2 === 'number') {
+      const minSpd =
+        typeof signals.nox_ind_l2_speed_min_kmh === 'number' ? (signals.nox_ind_l2_speed_min_kmh as number) : 20
+      const spdOk = typeof noxIndL2Speed === 'number' && noxIndL2Speed >= minSpd
+      if (spdOk && noxIndL2 >= 2 && !recentlyAlerted(deviceId, 'nox_ind_l2_alert', 120)) {
+        insertAlert(deviceId, 'nox_ind_l2_alert', 'critical', `Inducement NOx L2 activo · ${noxIndL2}`, {
+          nox_induce_level2: noxIndL2,
+          nox_ind_l2: noxIndL2Obj ?? null,
+        })
+        raised.push('nox_ind_l2_alert')
+      } else if (
+        spdOk &&
+        noxIndL2 === 1 &&
+        !recentlyAlerted(deviceId, 'nox_ind_l2_warn', 120)
+      ) {
+        insertAlert(deviceId, 'nox_ind_l2_warn', 'warn', `Inducement NOx L2 habilitado · ${noxIndL2}`, {
+          nox_induce_level2: noxIndL2,
+          nox_ind_l2: noxIndL2Obj ?? null,
+        })
+        raised.push('nox_ind_l2_warn')
+      }
+    }
+
+    // NOx EGR valve counter hours (OBD PID 0194)
+    const noxEgrObj = signals.nox_egr_counter as Record<string, unknown> | undefined
+    const noxEgrH =
+      typeof noxEgrObj?.egr_hours === 'number'
+        ? (noxEgrObj.egr_hours as number)
+        : typeof signals.nox_egr_valve_counter_hours === 'number'
+          ? (signals.nox_egr_valve_counter_hours as number)
+          : null
+    if (typeof noxEgrH === 'number') {
+      const warnH = typeof signals.nox_egr_warn_h === 'number' ? (signals.nox_egr_warn_h as number) : 50
+      const alertH = typeof signals.nox_egr_alert_h === 'number' ? (signals.nox_egr_alert_h as number) : 100
+      if (noxEgrH >= alertH && !recentlyAlerted(deviceId, 'nox_egr_counter_alert', 120)) {
+        insertAlert(deviceId, 'nox_egr_counter_alert', 'critical', `Contador EGR NOx crítico · ${Math.round(noxEgrH)}h`, {
+          nox_egr_valve_counter_hours: noxEgrH,
+          nox_egr_counter: noxEgrObj ?? null,
+        })
+        raised.push('nox_egr_counter_alert')
+      } else if (
+        noxEgrH >= warnH &&
+        noxEgrH < alertH &&
+        !recentlyAlerted(deviceId, 'nox_egr_counter_warn', 120)
+      ) {
+        insertAlert(deviceId, 'nox_egr_counter_warn', 'warn', `Contador EGR NOx alto · ${Math.round(noxEgrH)}h`, {
+          nox_egr_valve_counter_hours: noxEgrH,
+          nox_egr_counter: noxEgrObj ?? null,
+        })
+        raised.push('nox_egr_counter_warn')
+      }
+    }
+
+    // NOx monitor malfunction hours (OBD PID 0194)
+    const noxMalObj = signals.nox_monitor_malf as Record<string, unknown> | undefined
+    const noxMalH =
+      typeof noxMalObj?.malf_hours === 'number'
+        ? (noxMalObj.malf_hours as number)
+        : typeof signals.nox_monitor_malfunction_hours === 'number'
+          ? (signals.nox_monitor_malfunction_hours as number)
+          : null
+    if (typeof noxMalH === 'number') {
+      const warnH = typeof signals.nox_mal_warn_h === 'number' ? (signals.nox_mal_warn_h as number) : 50
+      const alertH = typeof signals.nox_mal_alert_h === 'number' ? (signals.nox_mal_alert_h as number) : 100
+      if (noxMalH >= alertH && !recentlyAlerted(deviceId, 'nox_monitor_malf_alert', 120)) {
+        insertAlert(deviceId, 'nox_monitor_malf_alert', 'critical', `Malfunction NOx crítico · ${Math.round(noxMalH)}h`, {
+          nox_monitor_malfunction_hours: noxMalH,
+          nox_monitor_malf: noxMalObj ?? null,
+        })
+        raised.push('nox_monitor_malf_alert')
+      } else if (
+        noxMalH >= warnH &&
+        noxMalH < alertH &&
+        !recentlyAlerted(deviceId, 'nox_monitor_malf_warn', 120)
+      ) {
+        insertAlert(deviceId, 'nox_monitor_malf_warn', 'warn', `Malfunction NOx alto · ${Math.round(noxMalH)}h`, {
+          nox_monitor_malfunction_hours: noxMalH,
+          nox_monitor_malf: noxMalObj ?? null,
+        })
+        raised.push('nox_monitor_malf_warn')
+      }
+    }
+
     // EGT B1S6 (OBD PID 0198)
     const egtB1s6Obj = signals.egt_b1s6 as Record<string, unknown> | undefined
     const egtB1s6TempC =

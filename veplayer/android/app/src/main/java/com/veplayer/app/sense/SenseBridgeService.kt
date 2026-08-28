@@ -1770,6 +1770,57 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.HybridEvBattVoltage.toJsonMap(
                                             com.veplayer.app.vehicle.HybridEvBattVoltageMonitor.state.value,
                                         ),
+                                    "nox_warn_speed_min_kmh" to prefs.noxWarnSpeedMinKmh.toDouble(),
+                                    "nox_warning_active" to
+                                        (if (prefs.noxWarnSim) 1
+                                        else snap.noxWarningActive
+                                        ),
+                                    "nox_warn" to
+                                        com.veplayer.app.vehicle.NoxWarnActive.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxWarnActiveMonitor.state.value,
+                                        ),
+                                    "nox_ind_l1_speed_min_kmh" to prefs.noxIndL1SpeedMinKmh.toDouble(),
+                                    "nox_induce_level1" to
+                                        (if (prefs.noxIndL1Sim > 0) prefs.noxIndL1Sim
+                                        else com.veplayer.app.vehicle.NoxInduceLevel1Monitor.state.value.status
+                                            ?: snap.noxInduceLevel1
+                                        ),
+                                    "nox_ind_l1" to
+                                        com.veplayer.app.vehicle.NoxInduceLevel1.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxInduceLevel1Monitor.state.value,
+                                        ),
+                                    "nox_ind_l2_speed_min_kmh" to prefs.noxIndL2SpeedMinKmh.toDouble(),
+                                    "nox_induce_level2" to
+                                        (if (prefs.noxIndL2Sim > 0) prefs.noxIndL2Sim
+                                        else com.veplayer.app.vehicle.NoxInduceLevel2Monitor.state.value.status
+                                            ?: snap.noxInduceLevel2
+                                        ),
+                                    "nox_ind_l2" to
+                                        com.veplayer.app.vehicle.NoxInduceLevel2.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxInduceLevel2Monitor.state.value,
+                                        ),
+                                    "nox_egr_warn_h" to prefs.noxEgrWarnH.toDouble(),
+                                    "nox_egr_alert_h" to prefs.noxEgrAlertH.toDouble(),
+                                    "nox_egr_valve_counter_hours" to
+                                        (if (prefs.noxEgrSimH > 0f) prefs.noxEgrSimH
+                                        else com.veplayer.app.vehicle.NoxEgrCounterMonitor.state.value.egrHours
+                                            ?: snap.noxEgrValveCounterHours
+                                        )?.toDouble(),
+                                    "nox_egr_counter" to
+                                        com.veplayer.app.vehicle.NoxEgrCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxEgrCounterMonitor.state.value,
+                                        ),
+                                    "nox_mal_warn_h" to prefs.noxMalWarnH.toDouble(),
+                                    "nox_mal_alert_h" to prefs.noxMalAlertH.toDouble(),
+                                    "nox_monitor_malfunction_hours" to
+                                        (if (prefs.noxMalSimH > 0f) prefs.noxMalSimH
+                                        else com.veplayer.app.vehicle.NoxMonitorMalfunctionMonitor.state.value.malfHours
+                                            ?: snap.noxMonitorMalfunctionHours
+                                        )?.toDouble(),
+                                    "nox_monitor_malf" to
+                                        com.veplayer.app.vehicle.NoxMonitorMalfunction.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxMonitorMalfunctionMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -3681,6 +3732,57 @@ class SenseBridgeService : Service() {
                                     "hybrid_ev_batt" to
                                         com.veplayer.app.vehicle.HybridEvBattVoltage.toJsonMap(
                                             com.veplayer.app.vehicle.HybridEvBattVoltageMonitor.state.value,
+                                        ),
+                                    "nox_warn_speed_min_kmh" to prefs.noxWarnSpeedMinKmh.toDouble(),
+                                    "nox_warning_active" to
+                                        (if (prefs.noxWarnSim) 1
+                                        else snap.noxWarningActive
+                                        ),
+                                    "nox_warn" to
+                                        com.veplayer.app.vehicle.NoxWarnActive.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxWarnActiveMonitor.state.value,
+                                        ),
+                                    "nox_ind_l1_speed_min_kmh" to prefs.noxIndL1SpeedMinKmh.toDouble(),
+                                    "nox_induce_level1" to
+                                        (if (prefs.noxIndL1Sim > 0) prefs.noxIndL1Sim
+                                        else com.veplayer.app.vehicle.NoxInduceLevel1Monitor.state.value.status
+                                            ?: snap.noxInduceLevel1
+                                        ),
+                                    "nox_ind_l1" to
+                                        com.veplayer.app.vehicle.NoxInduceLevel1.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxInduceLevel1Monitor.state.value,
+                                        ),
+                                    "nox_ind_l2_speed_min_kmh" to prefs.noxIndL2SpeedMinKmh.toDouble(),
+                                    "nox_induce_level2" to
+                                        (if (prefs.noxIndL2Sim > 0) prefs.noxIndL2Sim
+                                        else com.veplayer.app.vehicle.NoxInduceLevel2Monitor.state.value.status
+                                            ?: snap.noxInduceLevel2
+                                        ),
+                                    "nox_ind_l2" to
+                                        com.veplayer.app.vehicle.NoxInduceLevel2.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxInduceLevel2Monitor.state.value,
+                                        ),
+                                    "nox_egr_warn_h" to prefs.noxEgrWarnH.toDouble(),
+                                    "nox_egr_alert_h" to prefs.noxEgrAlertH.toDouble(),
+                                    "nox_egr_valve_counter_hours" to
+                                        (if (prefs.noxEgrSimH > 0f) prefs.noxEgrSimH
+                                        else com.veplayer.app.vehicle.NoxEgrCounterMonitor.state.value.egrHours
+                                            ?: snap.noxEgrValveCounterHours
+                                        )?.toDouble(),
+                                    "nox_egr_counter" to
+                                        com.veplayer.app.vehicle.NoxEgrCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxEgrCounterMonitor.state.value,
+                                        ),
+                                    "nox_mal_warn_h" to prefs.noxMalWarnH.toDouble(),
+                                    "nox_mal_alert_h" to prefs.noxMalAlertH.toDouble(),
+                                    "nox_monitor_malfunction_hours" to
+                                        (if (prefs.noxMalSimH > 0f) prefs.noxMalSimH
+                                        else com.veplayer.app.vehicle.NoxMonitorMalfunctionMonitor.state.value.malfHours
+                                            ?: snap.noxMonitorMalfunctionHours
+                                        )?.toDouble(),
+                                    "nox_monitor_malf" to
+                                        com.veplayer.app.vehicle.NoxMonitorMalfunction.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxMonitorMalfunctionMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
