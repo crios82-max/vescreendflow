@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { Ride } from '@ride-app/shared';
 import { RIDE_STATUS_LABELS } from '@ride-app/shared';
-import { api, useAuth } from '@ride-app/web-shared';
+import { api, useAuth, BrandMark } from '@ride-app/web-shared';
 
 type AdminRide = Ride & { passengerName?: string; driverName?: string };
 
@@ -55,13 +55,14 @@ export default function Dashboard() {
 
   return (
     <div className="admin-page">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1>Admin</h1>
-          <p className="muted-text">{user?.name}</p>
+      <header className="admin-header">
+        <BrandMark size="md" />
+        <div className="admin-header__meta">
+          <p className="admin-header__title">Administración</p>
+          <p className="admin-header__user">{user?.name}</p>
         </div>
-        <button className="btn-secondary" onClick={logout}>Salir</button>
-      </div>
+        <button className="btn-secondary" type="button" onClick={logout}>Salir</button>
+      </header>
 
       <div className="tab-row">
         {(['overview', 'drivers', 'users', 'sos', 'promos'] as Tab[]).map((t) => (
@@ -80,7 +81,8 @@ export default function Dashboard() {
             <div className="stat-card"><span>Ingresos</span><strong>${stats.revenue.toFixed(2)}</strong></div>
             <div className="stat-card"><span>SOS 24h</span><strong>{stats.sosLast24h}</strong></div>
           </div>
-          <h2>Últimos viajes</h2>
+          <h2 className="admin-section-title">Últimos viajes</h2>
+          <div className="admin-table-wrap">
           <table className="admin-table">
             <thead><tr><th>Fecha</th><th>Pasajero</th><th>Estado</th><th>Pago</th><th>Precio</th><th></th></tr></thead>
             <tbody>
@@ -100,6 +102,7 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
+          </div>
         </>
       )}
 
@@ -122,6 +125,7 @@ export default function Dashboard() {
       )}
 
       {tab === 'users' && (
+        <div className="admin-table-wrap">
         <table className="admin-table">
           <thead><tr><th>Nombre</th><th>Email</th><th>Estado</th><th></th></tr></thead>
           <tbody>
@@ -141,6 +145,7 @@ export default function Dashboard() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
 
       {tab === 'sos' && (
@@ -170,6 +175,7 @@ export default function Dashboard() {
             <input type="number" value={promoForm.discountValue} onChange={(e) => setPromoForm({ ...promoForm, discountValue: Number(e.target.value) })} required />
             <button className="btn-primary" type="submit">Crear</button>
           </form>
+          <div className="admin-table-wrap">
           <table className="admin-table">
             <thead><tr><th>Código</th><th>Tipo</th><th>Valor</th></tr></thead>
             <tbody>
@@ -178,6 +184,7 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
+          </div>
         </>
       )}
     </div>

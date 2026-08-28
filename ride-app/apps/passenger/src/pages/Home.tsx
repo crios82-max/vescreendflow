@@ -189,7 +189,7 @@ export default function Home() {
           follow={driverPos ?? pickup ?? locationBias}
         />
         <div className="top-bar">
-          <span className="badge">Hola, {user?.name}</span>
+          <span className="badge badge--accent">Hola, {user?.name}</span>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn-secondary" onClick={() => setTab(tab === 'ride' ? 'history' : 'ride')}>
               {tab === 'ride' ? 'Historial' : 'Viaje'}
