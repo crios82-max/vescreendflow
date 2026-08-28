@@ -2898,6 +2898,97 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("def_sim_pct", 0f)
         set(value) = sp.edit().putFloat("def_sim_pct", value.coerceIn(0f, 100f)).apply()
 
+    /** EGT B1S7 °C (OBD 0198). */
+    var egtB1s7Enabled: Boolean
+        get() = sp.getBoolean("egt_b1s7", true)
+        set(value) = sp.edit().putBoolean("egt_b1s7", value).apply()
+    var egtB1s7Tts: Boolean
+        get() = sp.getBoolean("egt_b1s7_tts", true)
+        set(value) = sp.edit().putBoolean("egt_b1s7_tts", value).apply()
+    var egtB1s7WarnC: Float
+        get() = sp.getFloat("egt_b1s7_warn_c", 750f)
+        set(value) = sp.edit().putFloat("egt_b1s7_warn_c", value.coerceAtLeast(400f)).apply()
+    var egtB1s7AlertC: Float
+        get() = sp.getFloat("egt_b1s7_alert_c", 850f)
+        set(value) = sp.edit().putFloat("egt_b1s7_alert_c", value.coerceAtLeast(450f)).apply()
+    var egtB1s7SimC: Float
+        get() = sp.getFloat("egt_b1s7_sim_c", 0f)
+        set(value) = sp.edit().putFloat("egt_b1s7_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** EGT B2S7 °C (OBD 0199). */
+    var egtB2s7Enabled: Boolean
+        get() = sp.getBoolean("egt_b2s7", true)
+        set(value) = sp.edit().putBoolean("egt_b2s7", value).apply()
+    var egtB2s7Tts: Boolean
+        get() = sp.getBoolean("egt_b2s7_tts", true)
+        set(value) = sp.edit().putBoolean("egt_b2s7_tts", value).apply()
+    var egtB2s7WarnC: Float
+        get() = sp.getFloat("egt_b2s7_warn_c", 750f)
+        set(value) = sp.edit().putFloat("egt_b2s7_warn_c", value.coerceAtLeast(400f)).apply()
+    var egtB2s7AlertC: Float
+        get() = sp.getFloat("egt_b2s7_alert_c", 850f)
+        set(value) = sp.edit().putFloat("egt_b2s7_alert_c", value.coerceAtLeast(450f)).apply()
+    var egtB2s7SimC: Float
+        get() = sp.getFloat("egt_b2s7_sim_c", 0f)
+        set(value) = sp.edit().putFloat("egt_b2s7_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** EGT B1S8 °C (OBD 0198). */
+    var egtB1s8Enabled: Boolean
+        get() = sp.getBoolean("egt_b1s8", true)
+        set(value) = sp.edit().putBoolean("egt_b1s8", value).apply()
+    var egtB1s8Tts: Boolean
+        get() = sp.getBoolean("egt_b1s8_tts", true)
+        set(value) = sp.edit().putBoolean("egt_b1s8_tts", value).apply()
+    var egtB1s8WarnC: Float
+        get() = sp.getFloat("egt_b1s8_warn_c", 750f)
+        set(value) = sp.edit().putFloat("egt_b1s8_warn_c", value.coerceAtLeast(400f)).apply()
+    var egtB1s8AlertC: Float
+        get() = sp.getFloat("egt_b1s8_alert_c", 850f)
+        set(value) = sp.edit().putFloat("egt_b1s8_alert_c", value.coerceAtLeast(450f)).apply()
+    var egtB1s8SimC: Float
+        get() = sp.getFloat("egt_b1s8_sim_c", 0f)
+        set(value) = sp.edit().putFloat("egt_b1s8_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** EGT B2S8 °C (OBD 0199). */
+    var egtB2s8Enabled: Boolean
+        get() = sp.getBoolean("egt_b2s8", true)
+        set(value) = sp.edit().putBoolean("egt_b2s8", value).apply()
+    var egtB2s8Tts: Boolean
+        get() = sp.getBoolean("egt_b2s8_tts", true)
+        set(value) = sp.edit().putBoolean("egt_b2s8_tts", value).apply()
+    var egtB2s8WarnC: Float
+        get() = sp.getFloat("egt_b2s8_warn_c", 750f)
+        set(value) = sp.edit().putFloat("egt_b2s8_warn_c", value.coerceAtLeast(400f)).apply()
+    var egtB2s8AlertC: Float
+        get() = sp.getFloat("egt_b2s8_alert_c", 850f)
+        set(value) = sp.edit().putFloat("egt_b2s8_alert_c", value.coerceAtLeast(450f)).apply()
+    var egtB2s8SimC: Float
+        get() = sp.getFloat("egt_b2s8_sim_c", 0f)
+        set(value) = sp.edit().putFloat("egt_b2s8_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** O2 concentration B1S3 % (OBD 019C). */
+    var o2ConcB1s3Enabled: Boolean
+        get() = sp.getBoolean("o2_conc_b1s3", true)
+        set(value) = sp.edit().putBoolean("o2_conc_b1s3", value).apply()
+    var o2ConcB1s3Tts: Boolean
+        get() = sp.getBoolean("o2_conc_b1s3_tts", true)
+        set(value) = sp.edit().putBoolean("o2_conc_b1s3_tts", value).apply()
+    var o2ConcB1s3Warn: Float
+        get() = sp.getFloat("o2_conc_b1s3_warn", 12f)
+        set(value) = sp.edit().putFloat("o2_conc_b1s3_warn", value.coerceIn(5f, 50f)).apply()
+    var o2ConcB1s3Alert: Float
+        get() = sp.getFloat("o2_conc_b1s3_alert", 18f)
+        set(value) = sp.edit().putFloat("o2_conc_b1s3_alert", value.coerceAtLeast(8f)).apply()
+    var o2ConcB1s3SpeedMinKmh: Float
+        get() = sp.getFloat("o2_conc_b1s3_speed_min", 20f)
+        set(value) = sp.edit().putFloat("o2_conc_b1s3_speed_min", value.coerceIn(0f, 60f)).apply()
+    var o2ConcB1s3Sim: Float
+        get() = sp.getFloat("o2_conc_b1s3_sim", 0f)
+        set(value) = sp.edit().putFloat("o2_conc_b1s3_sim", value.coerceIn(0f, 100f)).apply()
+    var o2ConcB1s3SimSpeedKmh: Float
+        get() = sp.getFloat("o2_conc_b1s3_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("o2_conc_b1s3_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
