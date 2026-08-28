@@ -1,11 +1,11 @@
 import { Router, type Request, type Response } from 'express';
 import type Stripe from 'stripe';
-import { getStripe } from '../services/stripe.js';
-import { pool } from '../db.js';
+import { getStripe } from '../../services/stripe.js';
+import { pool } from '../../db.js';
 
 const router = Router();
 
-router.post('/stripe', async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response) => {
   const stripe = getStripe();
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!stripe || !secret) {

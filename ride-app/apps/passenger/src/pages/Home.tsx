@@ -292,10 +292,10 @@ export default function Home() {
                     <button className="btn-danger" type="button" onClick={() => api.triggerSos(ride.id, pickup?.lat, pickup?.lng)}>SOS</button>
                     {ride.driverId && ['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                       <button className="btn-secondary" type="button" onClick={async () => {
-                        const c = await api.getRideContact(ride.id);
-                        if (c.dialUrl) window.location.href = c.dialUrl;
-                        else if (c.dialNumber) window.location.href = `tel:${c.dialNumber}`;
-                        else alert(c.hint ?? 'Sin teléfono');
+                        const c = await api.initiateMaskedCall(ride.id);
+                        if (c.initiated) alert(c.message ?? 'Te llamamos para conectar');
+                        else if (c.dialUrl) window.location.href = c.dialUrl;
+                        else alert(c.hint ?? 'No se pudo llamar');
                       }}>Llamar</button>
                     )}
                   </div>

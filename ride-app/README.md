@@ -89,7 +89,7 @@ docker compose up -d
 ./scripts/migrate.sh
 ```
 
-Incluye migraciones `006_missing_features.sql` y `007_phase2.sql` (split invites, Stripe customers).
+Incluye migraciones hasta `008_phase3.sql` (Twilio Voice, call sessions).
 
 ### Producción (Stripe Connect, SMTP, OTP)
 

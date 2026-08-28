@@ -285,7 +285,14 @@ class ApiClient {
   }
 
   getRideContact(rideId: string) {
-    return this.request<{ name: string; masked: boolean; dialNumber: string | null; dialUrl?: string; hint?: string }>(`/contact/rides/${rideId}`);
+    return this.request<{ name: string; mode: string; masked: boolean; dialUrl?: string; hint?: string }>(`/contact/rides/${rideId}`);
+  }
+
+  initiateMaskedCall(rideId: string) {
+    return this.request<{ initiated?: boolean; masked?: boolean; message?: string; mock?: boolean; dialUrl?: string; hint?: string }>(
+      `/contact/rides/${rideId}/call`,
+      { method: 'POST' },
+    );
   }
 
   forgotPassword(email: string) {

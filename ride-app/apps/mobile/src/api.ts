@@ -194,7 +194,14 @@ class MobileApi {
   }
 
   getRideContact(rideId: string) {
-    return this.request<{ name: string; dialNumber: string | null; dialUrl?: string; hint?: string }>(`/contact/rides/${rideId}`);
+    return this.request<{ name: string; mode: string; dialUrl?: string; hint?: string }>(`/contact/rides/${rideId}`);
+  }
+
+  initiateMaskedCall(rideId: string) {
+    return this.request<{ initiated?: boolean; message?: string; dialUrl?: string; hint?: string }>(
+      `/contact/rides/${rideId}/call`,
+      { method: 'POST' },
+    );
   }
 }
 

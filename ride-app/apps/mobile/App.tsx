@@ -489,10 +489,10 @@ export default function App() {
                   </Pressable>
                   {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                     <Pressable style={styles.btnSecondary} onPress={async () => {
-                      const c = await mobileApi.getRideContact(ride.id);
-                      if (c.dialUrl) Linking.openURL(c.dialUrl);
-                      else if (c.dialNumber) Linking.openURL(`tel:${c.dialNumber}`);
-                      else alert(c.hint ?? 'Sin teléfono');
+                      const c = await mobileApi.initiateMaskedCall(ride.id);
+                      if (c.initiated) alert(c.message ?? 'Te llamamos para conectar');
+                      else if (c.dialUrl) Linking.openURL(c.dialUrl);
+                      else alert(c.hint ?? 'No se pudo llamar');
                     }}>
                       <Text style={styles.btnSecondaryText}>Llamar</Text>
                     </Pressable>
