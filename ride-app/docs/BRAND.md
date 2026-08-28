@@ -43,7 +43,21 @@ Fuente de diseño en `ride-app/brand/`:
 | `apps/*/public/favicon.png` | Favicon web |
 | `apps/*/public/logo.png` | Wordmark en pantallas login |
 
-## Colores
+## Variantes de logo (`brand/variants/`)
+
+| Archivo | Estilo | Mejor para |
+|---------|--------|------------|
+| `00-default-icon.png` | **M + flecha** (activo hoy) | App, favicon |
+| `00-default-wordmark.png` | Ícono + texto Movify | Login web |
+| `01-pin-marker.png` | Pin de mapa + M | App más “maps” |
+| `02-swoosh-m.png` | M con trazo dinámico | App energética |
+| `03-light-bg.png` | M negro/lima en blanco | Fondos claros, print |
+| `04-wordmark-lime.png` | Solo texto lima | Merch, banners |
+| `05-wordmark-white.png` | Texto blanco + acento | Headers oscuros |
+| `06-mono-white.png` | M blanco monocromo | Watermark, grayscale |
+
+Para cambiar el logo activo, reemplaza `brand/movify-icon.png` y `brand/movify-wordmark.png` por la variante elegida y copia a `apps/*/public/` y `apps/mobile/assets/`.
+
 
 - Primario: `#A3E635` (lima)
 - Fondo: `#000000`
