@@ -30,9 +30,18 @@ pm2 restart ride-api ride-passenger ride-driver ride-admin --update-env
 - iOS: `com.movify.app`
 - Android: `com.movify.app`
 
-## Assets
+## Logo oficial
 
-Fuente de diseño en `ride-app/brand/`:
+**Variante 05 — wordmark blanco + acento lima** (ícono M + “Movi” blanco + “fy” lima).
+
+| Archivo | Contenido |
+|---------|-----------|
+| `brand/movify-wordmark.png` | Logo horizontal oficial |
+| `brand/movify-icon.png` | Ícono M recortado para app/favicon |
+
+Otras opciones en `brand/variants/` (ver tabla abajo).
+
+## Assets desplegados
 
 | Archivo | Uso |
 |---------|-----|
@@ -47,13 +56,13 @@ Fuente de diseño en `ride-app/brand/`:
 
 | Archivo | Estilo | Mejor para |
 |---------|--------|------------|
-| `00-default-icon.png` | **M + flecha** (activo hoy) | App, favicon |
-| `00-default-wordmark.png` | Ícono + texto Movify | Login web |
+| `00-default-icon.png` | Ícono M oficial (recortado del wordmark) | App, favicon |
+| `00-default-wordmark.png` | *(ver movify-wordmark.png)* | — |
 | `01-pin-marker.png` | Pin de mapa + M | App más “maps” |
 | `02-swoosh-m.png` | M con trazo dinámico | App energética |
 | `03-light-bg.png` | M negro/lima en blanco | Fondos claros, print |
 | `04-wordmark-lime.png` | Solo texto lima | Merch, banners |
-| `05-wordmark-white.png` | Texto blanco + acento | Headers oscuros |
+| `05-wordmark-white.png` | **Oficial** — texto blanco + fy lima | Login web |
 | `06-mono-white.png` | M blanco monocromo | Watermark, grayscale |
 
 Para cambiar el logo activo, reemplaza `brand/movify-icon.png` y `brand/movify-wordmark.png` por la variante elegida y copia a `apps/*/public/` y `apps/mobile/assets/`.
