@@ -192,6 +192,16 @@ object ObdPidParser {
         val o2LambdaB2s3: Float? = null,
         /** NOx reagent quality counter hours (OBD PID 0194 bytes C/D). */
         val noxReagentQualHours: Float? = null,
+        /** EGT bank 1 sensor 6 °C (OBD PID 0198 bytes D/E). */
+        val egtB1s6TempC: Float? = null,
+        /** EGT bank 2 sensor 6 °C (OBD PID 0199 bytes D/E). */
+        val egtB2s6TempC: Float? = null,
+        /** O2 lambda bank 1 sensor 4 (OBD PID 019C bytes L/M). */
+        val o2LambdaB1s4: Float? = null,
+        /** O2 lambda bank 2 sensor 4 (OBD PID 019C bytes P/Q). */
+        val o2LambdaB2s4: Float? = null,
+        /** Diesel exhaust fluid % (OBD PID 019B byte D). */
+        val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -513,17 +523,25 @@ object ObdPidParser {
                 else PidValues(noxReagentQualHours = ((data[2] * 256) + data[3]).toFloat())
             }
             0x98 -> {
-                if (data.size < 3) PidValues()
-                else PidValues(egtB1s5TempC = ((data[1] * 256) + data[2]) / 10f - 40f)
+                val s5 = if (data.size >= 3) ((data[1] * 256) + data[2]) / 10f - 40f else null
+                val s6 = if (data.size >= 5) ((data[3] * 256) + data[4]) / 10f - 40f else null
+                PidValues(egtB1s5TempC = s5, egtB1s6TempC = s6)
             }
             0x99 -> {
-                if (data.size < 3) PidValues()
-                else PidValues(egtB2s5TempC = ((data[1] * 256) + data[2]) / 10f - 40f)
+                val s5 = if (data.size >= 3) ((data[1] * 256) + data[2]) / 10f - 40f else null
+                val s6 = if (data.size >= 5) ((data[3] * 256) + data[4]) / 10f - 40f else null
+                PidValues(egtB2s5TempC = s5, egtB2s6TempC = s6)
             }
             0x9C -> {
                 val b1s3 = if (data.size >= 11) ((data[9] * 256) + data[10]) * 0.000122f else null
                 val b2s3 = if (data.size >= 15) ((data[13] * 256) + data[14]) * 0.000122f else null
-                PidValues(o2LambdaB1s3 = b1s3, o2LambdaB2s3 = b2s3)
+                val b1s4 = if (data.size >= 13) ((data[11] * 256) + data[12]) * 0.000122f else null
+                val b2s4 = if (data.size >= 17) ((data[15] * 256) + data[16]) * 0.000122f else null
+                PidValues(o2LambdaB1s3 = b1s3, o2LambdaB2s3 = b2s3, o2LambdaB1s4 = b1s4, o2LambdaB2s4 = b2s4)
+            }
+            0x9B -> {
+                if (data.size < 4) PidValues()
+                else PidValues(defFluidPct = data[3] * 100f / 255f)
             }
             0x8B -> {
                 if (data.size < 3) PidValues()
@@ -660,6 +678,11 @@ object ObdPidParser {
             o2LambdaB1s3 = add.o2LambdaB1s3 ?: base.o2LambdaB1s3,
             o2LambdaB2s3 = add.o2LambdaB2s3 ?: base.o2LambdaB2s3,
             noxReagentQualHours = add.noxReagentQualHours ?: base.noxReagentQualHours,
+            egtB1s6TempC = add.egtB1s6TempC ?: base.egtB1s6TempC,
+            egtB2s6TempC = add.egtB2s6TempC ?: base.egtB2s6TempC,
+            o2LambdaB1s4 = add.o2LambdaB1s4 ?: base.o2LambdaB1s4,
+            o2LambdaB2s4 = add.o2LambdaB2s4 ?: base.o2LambdaB2s4,
+            defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

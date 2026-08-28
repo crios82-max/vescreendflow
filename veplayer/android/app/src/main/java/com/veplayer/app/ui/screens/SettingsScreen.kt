@@ -4603,6 +4603,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 32 OBD (198/99/9C/9B):", color = Mist)
+            val egtB1s6St by com.veplayer.app.vehicle.EgtB1S6Monitor.state.collectAsState()
+            val egtB2s6St by com.veplayer.app.vehicle.EgtB2S6Monitor.state.collectAsState()
+            val o2LmbB1s4St by com.veplayer.app.vehicle.O2LambdaB1S4Monitor.state.collectAsState()
+            val o2LmbB2s4St by com.veplayer.app.vehicle.O2LambdaB2S4Monitor.state.collectAsState()
+            val defFluidSt by com.veplayer.app.vehicle.DefFluidMonitor.state.collectAsState()
+            var f32EgtB1 by remember {
+                mutableStateOf(if (prefs.egtB1s6SimC > 0f) prefs.egtB1s6SimC.toInt().toString() else "0")
+            }
+            var f32EgtB2 by remember {
+                mutableStateOf(if (prefs.egtB2s6SimC > 0f) prefs.egtB2s6SimC.toInt().toString() else "0")
+            }
+            var f32O2B1s4 by remember {
+                mutableStateOf(if (prefs.o2LambdaB1s4Sim > 0f) prefs.o2LambdaB1s4Sim.toString() else "0")
+            }
+            var f32O2B2s4 by remember {
+                mutableStateOf(if (prefs.o2LambdaB2s4Sim > 0f) prefs.o2LambdaB2s4Sim.toString() else "0")
+            }
+            var f32Def by remember {
+                mutableStateOf(if (prefs.defFluidSimPct > 0f) prefs.defFluidSimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f32EgtB1,
+                    onValueChange = { f32EgtB1 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB1S6") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f32EgtB2,
+                    onValueChange = { f32EgtB2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB2S6") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f32O2B1s4,
+                    onValueChange = { f32O2B1s4 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2λ4") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f32O2B2s4,
+                    onValueChange = { f32O2B2s4 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2λ24") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f32Def,
+                    onValueChange = { f32Def = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("DEF %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.egtB1s6SimC = f32EgtB1.toFloatOrNull() ?: 0f
+                    prefs.egtB2s6SimC = f32EgtB2.toFloatOrNull() ?: 0f
+                    prefs.o2LambdaB1s4Sim = f32O2B1s4.toFloatOrNull() ?: 0f
+                    prefs.o2LambdaB2s4Sim = f32O2B2s4.toFloatOrNull() ?: 0f
+                    prefs.defFluidSimPct = f32Def.toFloatOrNull() ?: 0f
+                    status = "Fase 32 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 32") }
+            Text(
+                listOfNotNull(
+                    egtB1s6St.label.takeIf { it.isNotBlank() },
+                    egtB2s6St.label.takeIf { it.isNotBlank() },
+                    o2LmbB1s4St.label.takeIf { it.isNotBlank() },
+                    o2LmbB2s4St.label.takeIf { it.isNotBlank() },
+                    defFluidSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 32 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

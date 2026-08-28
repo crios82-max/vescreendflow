@@ -4569,6 +4569,174 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // EGT B1S6 (OBD PID 0198)
+    const egtB1s6Obj = signals.egt_b1s6 as Record<string, unknown> | undefined
+    const egtB1s6TempC =
+      typeof egtB1s6Obj?.egt_temp_c === 'number'
+        ? (egtB1s6Obj.egt_temp_c as number)
+        : typeof signals.egt_b1s6_temp_c === 'number'
+          ? (signals.egt_b1s6_temp_c as number)
+          : null
+    if (typeof egtB1s6TempC === 'number') {
+      const warnC = typeof signals.egt_b1s6_warn_c === 'number' ? (signals.egt_b1s6_warn_c as number) : 750
+      const alertC = typeof signals.egt_b1s6_alert_c === 'number' ? (signals.egt_b1s6_alert_c as number) : 850
+      if (egtB1s6TempC >= alertC && !recentlyAlerted(deviceId, 'egt_b1s6_alert', 300)) {
+        insertAlert(deviceId, 'egt_b1s6_alert', 'critical', `EGT B1S6 crítico · ${Math.round(egtB1s6TempC)} °C`, {
+          egt_b1s6_temp_c: egtB1s6TempC,
+          egt_b1s6: egtB1s6Obj ?? null,
+        })
+        raised.push('egt_b1s6_alert')
+      } else if (
+        egtB1s6TempC >= warnC &&
+        egtB1s6TempC < alertC &&
+        !recentlyAlerted(deviceId, 'egt_b1s6_warn', 300)
+      ) {
+        insertAlert(deviceId, 'egt_b1s6_warn', 'warn', `EGT B1S6 caliente · ${Math.round(egtB1s6TempC)} °C`, {
+          egt_b1s6_temp_c: egtB1s6TempC,
+          egt_b1s6: egtB1s6Obj ?? null,
+        })
+        raised.push('egt_b1s6_warn')
+      }
+    }
+
+    // EGT B2S6 (OBD PID 0199)
+    const egtB2s6Obj = signals.egt_b2s6 as Record<string, unknown> | undefined
+    const egtB2s6TempC =
+      typeof egtB2s6Obj?.egt_temp_c === 'number'
+        ? (egtB2s6Obj.egt_temp_c as number)
+        : typeof signals.egt_b2s6_temp_c === 'number'
+          ? (signals.egt_b2s6_temp_c as number)
+          : null
+    if (typeof egtB2s6TempC === 'number') {
+      const warnC = typeof signals.egt_b2s6_warn_c === 'number' ? (signals.egt_b2s6_warn_c as number) : 750
+      const alertC = typeof signals.egt_b2s6_alert_c === 'number' ? (signals.egt_b2s6_alert_c as number) : 850
+      if (egtB2s6TempC >= alertC && !recentlyAlerted(deviceId, 'egt_b2s6_alert', 300)) {
+        insertAlert(deviceId, 'egt_b2s6_alert', 'critical', `EGT B2S6 crítico · ${Math.round(egtB2s6TempC)} °C`, {
+          egt_b2s6_temp_c: egtB2s6TempC,
+          egt_b2s6: egtB2s6Obj ?? null,
+        })
+        raised.push('egt_b2s6_alert')
+      } else if (
+        egtB2s6TempC >= warnC &&
+        egtB2s6TempC < alertC &&
+        !recentlyAlerted(deviceId, 'egt_b2s6_warn', 300)
+      ) {
+        insertAlert(deviceId, 'egt_b2s6_warn', 'warn', `EGT B2S6 caliente · ${Math.round(egtB2s6TempC)} °C`, {
+          egt_b2s6_temp_c: egtB2s6TempC,
+          egt_b2s6: egtB2s6Obj ?? null,
+        })
+        raised.push('egt_b2s6_warn')
+      }
+    }
+
+    // O2 lambda B1S4 (OBD PID 019C)
+    const o2LmbB1s4Obj = signals.o2_lmb_b1s4 as Record<string, unknown> | undefined
+    const o2LambdaB1s4 =
+      typeof o2LmbB1s4Obj?.lambda === 'number'
+        ? (o2LmbB1s4Obj.lambda as number)
+        : typeof signals.o2_lambda_b1s4 === 'number'
+          ? (signals.o2_lambda_b1s4 as number)
+          : null
+    const o2LmbB1s4Speed =
+      typeof o2LmbB1s4Obj?.speed_kmh === 'number'
+        ? (o2LmbB1s4Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof o2LambdaB1s4 === 'number') {
+      const warnL = typeof signals.o2_lmb_b1s4_warn === 'number' ? (signals.o2_lmb_b1s4_warn as number) : 1.1
+      const alertL = typeof signals.o2_lmb_b1s4_alert === 'number' ? (signals.o2_lmb_b1s4_alert as number) : 1.15
+      const minSpd = typeof signals.o2_lmb_b1s4_speed_min_kmh === 'number' ? (signals.o2_lmb_b1s4_speed_min_kmh as number) : 20
+      const spdOk = typeof o2LmbB1s4Speed === 'number' && o2LmbB1s4Speed >= minSpd
+      if (spdOk && o2LambdaB1s4 >= alertL && !recentlyAlerted(deviceId, 'o2_lmb_b1s4_alert', 120)) {
+        insertAlert(deviceId, 'o2_lmb_b1s4_alert', 'critical', `Lambda O2 B1S4 crítica · ${o2LambdaB1s4.toFixed(2)}`, {
+          o2_lambda_b1s4: o2LambdaB1s4,
+          o2_lmb_b1s4: o2LmbB1s4Obj ?? null,
+        })
+        raised.push('o2_lmb_b1s4_alert')
+      } else if (
+        spdOk &&
+        o2LambdaB1s4 >= warnL &&
+        o2LambdaB1s4 < alertL &&
+        !recentlyAlerted(deviceId, 'o2_lmb_b1s4_warn', 120)
+      ) {
+        insertAlert(deviceId, 'o2_lmb_b1s4_warn', 'warn', `Lambda O2 B1S4 alta · ${o2LambdaB1s4.toFixed(2)}`, {
+          o2_lambda_b1s4: o2LambdaB1s4,
+          o2_lmb_b1s4: o2LmbB1s4Obj ?? null,
+        })
+        raised.push('o2_lmb_b1s4_warn')
+      }
+    }
+
+    // O2 lambda B2S4 (OBD PID 019C)
+    const o2LmbB2s4Obj = signals.o2_lmb_b2s4 as Record<string, unknown> | undefined
+    const o2LambdaB2s4 =
+      typeof o2LmbB2s4Obj?.lambda === 'number'
+        ? (o2LmbB2s4Obj.lambda as number)
+        : typeof signals.o2_lambda_b2s4 === 'number'
+          ? (signals.o2_lambda_b2s4 as number)
+          : null
+    const o2LmbB2s4Speed =
+      typeof o2LmbB2s4Obj?.speed_kmh === 'number'
+        ? (o2LmbB2s4Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof o2LambdaB2s4 === 'number') {
+      const warnL = typeof signals.o2_lmb_b2s4_warn === 'number' ? (signals.o2_lmb_b2s4_warn as number) : 1.1
+      const alertL = typeof signals.o2_lmb_b2s4_alert === 'number' ? (signals.o2_lmb_b2s4_alert as number) : 1.15
+      const minSpd = typeof signals.o2_lmb_b2s4_speed_min_kmh === 'number' ? (signals.o2_lmb_b2s4_speed_min_kmh as number) : 20
+      const spdOk = typeof o2LmbB2s4Speed === 'number' && o2LmbB2s4Speed >= minSpd
+      if (spdOk && o2LambdaB2s4 >= alertL && !recentlyAlerted(deviceId, 'o2_lmb_b2s4_alert', 120)) {
+        insertAlert(deviceId, 'o2_lmb_b2s4_alert', 'critical', `Lambda O2 B2S4 crítica · ${o2LambdaB2s4.toFixed(2)}`, {
+          o2_lambda_b2s4: o2LambdaB2s4,
+          o2_lmb_b2s4: o2LmbB2s4Obj ?? null,
+        })
+        raised.push('o2_lmb_b2s4_alert')
+      } else if (
+        spdOk &&
+        o2LambdaB2s4 >= warnL &&
+        o2LambdaB2s4 < alertL &&
+        !recentlyAlerted(deviceId, 'o2_lmb_b2s4_warn', 120)
+      ) {
+        insertAlert(deviceId, 'o2_lmb_b2s4_warn', 'warn', `Lambda O2 B2S4 alta · ${o2LambdaB2s4.toFixed(2)}`, {
+          o2_lambda_b2s4: o2LambdaB2s4,
+          o2_lmb_b2s4: o2LmbB2s4Obj ?? null,
+        })
+        raised.push('o2_lmb_b2s4_warn')
+      }
+    }
+
+    // Diesel exhaust fluid (OBD PID 019B)
+    const defFluidObj = signals.def_fluid as Record<string, unknown> | undefined
+    const defFluidPct =
+      typeof defFluidObj?.def_pct === 'number'
+        ? (defFluidObj.def_pct as number)
+        : typeof signals.def_fluid_pct === 'number'
+          ? (signals.def_fluid_pct as number)
+          : null
+    if (typeof defFluidPct === 'number') {
+      const warnPct = typeof signals.def_warn_pct === 'number' ? (signals.def_warn_pct as number) : 25
+      const alertPct = typeof signals.def_alert_pct === 'number' ? (signals.def_alert_pct as number) : 15
+      if (defFluidPct <= alertPct && !recentlyAlerted(deviceId, 'def_alert', 300)) {
+        insertAlert(deviceId, 'def_alert', 'critical', `DEF crítico · ${Math.round(defFluidPct)}%`, {
+          def_fluid_pct: defFluidPct,
+          def_fluid: defFluidObj ?? null,
+        })
+        raised.push('def_alert')
+      } else if (
+        defFluidPct <= warnPct &&
+        defFluidPct > alertPct &&
+        !recentlyAlerted(deviceId, 'def_warn', 300)
+      ) {
+        insertAlert(deviceId, 'def_warn', 'warn', `DEF bajo · ${Math.round(defFluidPct)}%`, {
+          def_fluid_pct: defFluidPct,
+          def_fluid: defFluidObj ?? null,
+        })
+        raised.push('def_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

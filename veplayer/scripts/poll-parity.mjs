@@ -53,6 +53,7 @@ for (const hex of pollKotlin) {
     // single-byte PIDs still return a field; 2-byte need more data — spot-check known
     const twoByte = [0x0c, 0x10, 0x34, 0x43, 0x44, 0x53, 0x59, 0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x5d, 0x63, 0x1f, 0x21, 0x31, 0x42, 0x5e, 0x7f, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x6d, 0x6e]
     const threeByte = [0x67, 0x68, 0x8b]
+    const defByte = [0x9b]
     const lambdaByte = [0x8c, 0x9c]
     const pmByte = [0x8f]
     const egtByte = [0x98, 0x99]
@@ -65,7 +66,13 @@ for (const hex of pollKotlin) {
         fail++
       }
     } else if (egtByte.includes(byte)) {
-      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 01 24 54`)
+      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 01 24 54 24 54`)
+      if (!Object.keys(got).length) {
+        console.error('registry parse empty for polled PID', hex)
+        fail++
+      }
+    } else if (defByte.includes(byte)) {
+      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 00 00 00 1A`)
       if (!Object.keys(got).length) {
         console.error('registry parse empty for polled PID', hex)
         fail++
