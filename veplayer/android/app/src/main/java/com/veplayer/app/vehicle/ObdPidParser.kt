@@ -318,6 +318,16 @@ object ObdPidParser {
         val hvPwrAvailPct: Float? = null,
         /** HEV charge current limit A (OBD PID 01BA bytes B/C). */
         val hvChgLimitA: Float? = null,
+        /** HEV min cell temperature °C (OBD PID 01B7 byte A). */
+        val hvCellMinTempC: Float? = null,
+        /** HEV discharge current limit A (OBD PID 01BA bytes D/E). */
+        val hvDisLimitA: Float? = null,
+        /** Cumulative energy into HVESS kWh (OBD PID 01BB bytes A–D). */
+        val hvEnrgInKwh: Float? = null,
+        /** Cumulative energy from HVESS kWh (OBD PID 01BC bytes A–D). */
+        val hvEnrgOutKwh: Float? = null,
+        /** HVESS total energy throughput Wh (OBD PID 01BD bytes A–D). */
+        val hvEnrgTputWh: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -325,6 +335,16 @@ object ObdPidParser {
         val distSinceClearKm: Float? = null,
         val batteryVoltageV: Float? = null,
     )
+
+    private fun u32Scaled(data: List<Int>, offset: Int, scale: Float): Float? {
+        if (data.size < offset + 4) return null
+        val raw =
+            (data[offset].toLong() shl 24) or
+                (data[offset + 1].toLong() shl 16) or
+                (data[offset + 2].toLong() shl 8) or
+                data[offset + 3].toLong()
+        return raw / scale
+    }
 
     fun extractPayloadBytes(raw: String): List<Int>? {
         val cleaned =
@@ -828,7 +848,7 @@ object ObdPidParser {
             }
             0xB7 -> {
                 if (data.size < 2) PidValues()
-                else PidValues(hvCellMaxTempC = data[1] - 40f)
+                else PidValues(hvCellMinTempC = data[0] - 40f, hvCellMaxTempC = data[1] - 40f)
             }
             0xB8 -> {
                 if (data.size < 2) PidValues()
@@ -848,11 +868,30 @@ object ObdPidParser {
                             val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
                             signed / 10f
                         } else null
+                    val dis =
+                        if (data.size >= 5) {
+                            val raw = (data[3] shl 8) or data[4]
+                            val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                            signed / 10f
+                        } else null
                     PidValues(
                         hvPwrAvailPct = data[0] * 100f / 255f,
                         hvChgLimitA = chg,
+                        hvDisLimitA = dis,
                     )
                 }
+            }
+            0xBB -> {
+                val kwh = u32Scaled(data, 0, 10f)
+                if (kwh == null) PidValues() else PidValues(hvEnrgInKwh = kwh)
+            }
+            0xBC -> {
+                val kwh = u32Scaled(data, 0, 10f)
+                if (kwh == null) PidValues() else PidValues(hvEnrgOutKwh = kwh)
+            }
+            0xBD -> {
+                val wh = u32Scaled(data, 0, 10f)
+                if (wh == null) PidValues() else PidValues(hvEnrgTputWh = wh)
             }
             0x9D -> {
                 if (data.size < 2) PidValues()
@@ -1073,6 +1112,11 @@ object ObdPidParser {
             hvCellMaxVoltageV = add.hvCellMaxVoltageV ?: base.hvCellMaxVoltageV,
             hvPwrAvailPct = add.hvPwrAvailPct ?: base.hvPwrAvailPct,
             hvChgLimitA = add.hvChgLimitA ?: base.hvChgLimitA,
+            hvCellMinTempC = add.hvCellMinTempC ?: base.hvCellMinTempC,
+            hvDisLimitA = add.hvDisLimitA ?: base.hvDisLimitA,
+            hvEnrgInKwh = add.hvEnrgInKwh ?: base.hvEnrgInKwh,
+            hvEnrgOutKwh = add.hvEnrgOutKwh ?: base.hvEnrgOutKwh,
+            hvEnrgTputWh = add.hvEnrgTputWh ?: base.hvEnrgTputWh,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

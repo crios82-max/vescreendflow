@@ -6913,6 +6913,166 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // HEV min cell temperature (OBD PID 01B7 byte A)
+    const hvCellMinTObj = signals.hv_cell_min_temp as Record<string, unknown> | undefined
+    const hvCellMinTC =
+      typeof hvCellMinTObj?.temp_c === 'number'
+        ? (hvCellMinTObj.temp_c as number)
+        : typeof signals.hv_cell_min_temp_c === 'number'
+          ? (signals.hv_cell_min_temp_c as number)
+          : null
+    if (typeof hvCellMinTC === 'number') {
+      const warnC = typeof signals.hv_cell_min_t_warn_c === 'number' ? (signals.hv_cell_min_t_warn_c as number) : 0
+      const alertC = typeof signals.hv_cell_min_t_alert_c === 'number' ? (signals.hv_cell_min_t_alert_c as number) : -5
+      if (hvCellMinTC <= alertC && !recentlyAlerted(deviceId, 'hv_cell_min_temp_alert', 120)) {
+        insertAlert(deviceId, 'hv_cell_min_temp_alert', 'critical', `Celda mínima crítica · ${Math.round(hvCellMinTC)} °C`, {
+          hv_cell_min_temp_c: hvCellMinTC,
+          hv_cell_min_temp: hvCellMinTObj ?? null,
+        })
+        raised.push('hv_cell_min_temp_alert')
+      } else if (
+        hvCellMinTC <= warnC &&
+        hvCellMinTC > alertC &&
+        !recentlyAlerted(deviceId, 'hv_cell_min_temp_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hv_cell_min_temp_warn', 'warn', `Celda mínima fría · ${Math.round(hvCellMinTC)} °C`, {
+          hv_cell_min_temp_c: hvCellMinTC,
+          hv_cell_min_temp: hvCellMinTObj ?? null,
+        })
+        raised.push('hv_cell_min_temp_warn')
+      }
+    }
+
+    // HEV discharge current limit (OBD PID 01BA bytes D/E)
+    const hvDisObj = signals.hv_dis_limit as Record<string, unknown> | undefined
+    const hvDisA =
+      typeof hvDisObj?.current_a === 'number'
+        ? (hvDisObj.current_a as number)
+        : typeof signals.hv_dis_limit_a === 'number'
+          ? (signals.hv_dis_limit_a as number)
+          : null
+    const hvDisSpeed =
+      typeof hvDisObj?.speed_kmh === 'number'
+        ? (hvDisObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : 0
+    const hvDisSpeedMin =
+      typeof signals.hv_dis_speed_min_kmh === 'number' ? (signals.hv_dis_speed_min_kmh as number) : 15
+    if (typeof hvDisA === 'number') {
+      const warnA = typeof signals.hv_dis_warn_a === 'number' ? (signals.hv_dis_warn_a as number) : 50
+      const alertA = typeof signals.hv_dis_alert_a === 'number' ? (signals.hv_dis_alert_a as number) : 25
+      const spdOk = hvDisSpeed >= hvDisSpeedMin
+      if (spdOk && hvDisA <= alertA && !recentlyAlerted(deviceId, 'hv_dis_limit_alert', 120)) {
+        insertAlert(deviceId, 'hv_dis_limit_alert', 'critical', `Límite descarga HV crítico · ${Math.round(hvDisA)}A`, {
+          hv_dis_limit_a: hvDisA,
+          hv_dis_limit: hvDisObj ?? null,
+        })
+        raised.push('hv_dis_limit_alert')
+      } else if (
+        spdOk &&
+        hvDisA > alertA &&
+        hvDisA <= warnA &&
+        !recentlyAlerted(deviceId, 'hv_dis_limit_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hv_dis_limit_warn', 'warn', `Límite descarga HV bajo · ${Math.round(hvDisA)}A`, {
+          hv_dis_limit_a: hvDisA,
+          hv_dis_limit: hvDisObj ?? null,
+        })
+        raised.push('hv_dis_limit_warn')
+      }
+    }
+
+    // Cumulative energy into HVESS (OBD PID 01BB)
+    const hvEnrgInObj = signals.hv_enrg_in as Record<string, unknown> | undefined
+    const hvEnrgInKwh =
+      typeof hvEnrgInObj?.kwh === 'number'
+        ? (hvEnrgInObj.kwh as number)
+        : typeof signals.hv_enrg_in_kwh === 'number'
+          ? (signals.hv_enrg_in_kwh as number)
+          : null
+    if (typeof hvEnrgInKwh === 'number') {
+      const warnK = typeof signals.hv_enrg_in_warn_kwh === 'number' ? (signals.hv_enrg_in_warn_kwh as number) : 15000
+      const alertK = typeof signals.hv_enrg_in_alert_kwh === 'number' ? (signals.hv_enrg_in_alert_kwh as number) : 25000
+      if (hvEnrgInKwh >= alertK && !recentlyAlerted(deviceId, 'hv_enrg_in_alert', 120)) {
+        insertAlert(deviceId, 'hv_enrg_in_alert', 'critical', `Energía HV acumulada crítica · ${Math.round(hvEnrgInKwh)}kWh`, {
+          hv_enrg_in_kwh: hvEnrgInKwh,
+          hv_enrg_in: hvEnrgInObj ?? null,
+        })
+        raised.push('hv_enrg_in_alert')
+      } else if (
+        hvEnrgInKwh >= warnK &&
+        hvEnrgInKwh < alertK &&
+        !recentlyAlerted(deviceId, 'hv_enrg_in_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hv_enrg_in_warn', 'warn', `Energía HV acumulada alta · ${Math.round(hvEnrgInKwh)}kWh`, {
+          hv_enrg_in_kwh: hvEnrgInKwh,
+          hv_enrg_in: hvEnrgInObj ?? null,
+        })
+        raised.push('hv_enrg_in_warn')
+      }
+    }
+
+    // Cumulative energy from HVESS (OBD PID 01BC)
+    const hvEnrgOutObj = signals.hv_enrg_out as Record<string, unknown> | undefined
+    const hvEnrgOutKwh =
+      typeof hvEnrgOutObj?.kwh === 'number'
+        ? (hvEnrgOutObj.kwh as number)
+        : typeof signals.hv_enrg_out_kwh === 'number'
+          ? (signals.hv_enrg_out_kwh as number)
+          : null
+    if (typeof hvEnrgOutKwh === 'number') {
+      const warnK = typeof signals.hv_enrg_out_warn_kwh === 'number' ? (signals.hv_enrg_out_warn_kwh as number) : 15000
+      const alertK = typeof signals.hv_enrg_out_alert_kwh === 'number' ? (signals.hv_enrg_out_alert_kwh as number) : 25000
+      if (hvEnrgOutKwh >= alertK && !recentlyAlerted(deviceId, 'hv_enrg_out_alert', 120)) {
+        insertAlert(deviceId, 'hv_enrg_out_alert', 'critical', `Energía descargada HV crítica · ${Math.round(hvEnrgOutKwh)}kWh`, {
+          hv_enrg_out_kwh: hvEnrgOutKwh,
+          hv_enrg_out: hvEnrgOutObj ?? null,
+        })
+        raised.push('hv_enrg_out_alert')
+      } else if (
+        hvEnrgOutKwh >= warnK &&
+        hvEnrgOutKwh < alertK &&
+        !recentlyAlerted(deviceId, 'hv_enrg_out_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hv_enrg_out_warn', 'warn', `Energía descargada HV alta · ${Math.round(hvEnrgOutKwh)}kWh`, {
+          hv_enrg_out_kwh: hvEnrgOutKwh,
+          hv_enrg_out: hvEnrgOutObj ?? null,
+        })
+        raised.push('hv_enrg_out_warn')
+      }
+    }
+
+    // HVESS total energy throughput (OBD PID 01BD)
+    const hvEnrgTputObj = signals.hv_enrg_tput as Record<string, unknown> | undefined
+    const hvEnrgTputWh =
+      typeof hvEnrgTputObj?.wh === 'number'
+        ? (hvEnrgTputObj.wh as number)
+        : typeof signals.hv_enrg_tput_wh === 'number'
+          ? (signals.hv_enrg_tput_wh as number)
+          : null
+    if (typeof hvEnrgTputWh === 'number') {
+      const warnWh = typeof signals.hv_enrg_tput_warn_wh === 'number' ? (signals.hv_enrg_tput_warn_wh as number) : 3e7
+      const alertWh = typeof signals.hv_enrg_tput_alert_wh === 'number' ? (signals.hv_enrg_tput_alert_wh as number) : 5e7
+      if (hvEnrgTputWh >= alertWh && !recentlyAlerted(deviceId, 'hv_enrg_tput_alert', 120)) {
+        insertAlert(deviceId, 'hv_enrg_tput_alert', 'critical', `Throughput HV crítico · ${Math.round(hvEnrgTputWh / 1000)}kWh`, {
+          hv_enrg_tput_wh: hvEnrgTputWh,
+          hv_enrg_tput: hvEnrgTputObj ?? null,
+        })
+        raised.push('hv_enrg_tput_alert')
+      } else if (
+        hvEnrgTputWh >= warnWh &&
+        hvEnrgTputWh < alertWh &&
+        !recentlyAlerted(deviceId, 'hv_enrg_tput_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hv_enrg_tput_warn', 'warn', `Throughput HV alto · ${Math.round(hvEnrgTputWh / 1000)}kWh`, {
+          hv_enrg_tput_wh: hvEnrgTputWh,
+          hv_enrg_tput: hvEnrgTputObj ?? null,
+        })
+        raised.push('hv_enrg_tput_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

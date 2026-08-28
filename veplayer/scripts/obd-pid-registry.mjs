@@ -20,6 +20,12 @@ export function extractPayloadBytes(raw) {
   return ints.slice(idx)
 }
 
+function u32Scaled(data, offset, scale) {
+  if (data.length < offset + 4) return null
+  const raw = data[offset] * 16777216 + data[offset + 1] * 65536 + data[offset + 2] * 256 + data[offset + 3]
+  return raw / scale
+}
+
 /** Mirrors ObdPidParser.parseMode01 */
 export function parseMode01(raw) {
   const bytes = extractPayloadBytes(raw)
@@ -364,7 +370,9 @@ export function parseMode01(raw) {
     case 0xb6:
       return data.length < 2 ? {} : { hvessVoltageV: (data[0] * 256 + data[1]) / 10 }
     case 0xb7:
-      return data.length < 2 ? {} : { hvCellMaxTempC: data[1] - 40 }
+      return data.length < 2
+        ? {}
+        : { hvCellMinTempC: data[0] - 40, hvCellMaxTempC: data[1] - 40 }
     case 0xb8:
       return data.length < 2 ? {} : { hvBalHours: data[0] * 256 + data[1] }
     case 0xb9:
@@ -375,10 +383,19 @@ export function parseMode01(raw) {
       if (data.length < 1) return {}
       const chgRaw = data.length >= 3 ? (data[1] << 8) | data[2] : null
       const chgSigned = chgRaw == null ? null : chgRaw & 0x8000 ? chgRaw - 0x10000 : chgRaw
+      const disRaw = data.length >= 5 ? (data[3] << 8) | data[4] : null
+      const disSigned = disRaw == null ? null : disRaw & 0x8000 ? disRaw - 0x10000 : disRaw
       return {
         hvPwrAvailPct: (data[0] * 100) / 255,
         hvChgLimitA: chgSigned == null ? null : chgSigned / 10,
+        hvDisLimitA: disSigned == null ? null : disSigned / 10,
       }
+    case 0xbb:
+      return data.length < 4 ? {} : { hvEnrgInKwh: u32Scaled(data, 0, 10) }
+    case 0xbc:
+      return data.length < 4 ? {} : { hvEnrgOutKwh: u32Scaled(data, 0, 10) }
+    case 0xbd:
+      return data.length < 4 ? {} : { hvEnrgTputWh: u32Scaled(data, 0, 10) }
     case 0x9e:
       return data.length < 2 ? {} : { engineExhaustFlowKgh: (data[0] * 256 + data[1]) / 20 }
     case 0x9f:
@@ -415,7 +432,7 @@ export const POLL_PID_HEX = [
   '010D', '010C', '0110', '010A', '0133', '010E', '014A', '0143', '0145', '0149', '014B', '014D',
   '0144', '014E', '0152', '0153', '0159', '014C', '015A', '0161', '0162', '0170', '0171', '0172',
   '0173', '0174', '0175', '0176', '0155', '0156', '0157', '0158', '0177', '0178', '015D', '015B',
-  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0190', '0191', '0192', '0193', '0198', '0199', '019C', '019A', '01B2', '01B4', '01B5', '01B6', '01B7', '01B8', '01B9', '01BA', '0194', '019D', '019E', '019F', '019B', '01A1', '01A5', '01A7', '01A8', '01A2', '01A3', '01A4', '01A6', '01A9', '01C5', '01C7', '01C3', '01C4', '01C8', '01C6', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
+  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0190', '0191', '0192', '0193', '0198', '0199', '019C', '019A', '01B2', '01B4', '01B5', '01B6', '01B7', '01B8', '01B9', '01BA', '01BB', '01BC', '01BD', '0194', '019D', '019E', '019F', '019B', '01A1', '01A5', '01A7', '01A8', '01A2', '01A3', '01A4', '01A6', '01A9', '01C5', '01C7', '01C3', '01C4', '01C8', '01C6', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
   '011F', '0121', '0131', '0134', '0142',
 ]
 
@@ -538,10 +555,13 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 B4 55', expect: { hvessTempC: 45 } },
   { raw: '41 B5 FC 18', expect: { hvessCurrentA: -100 } },
   { raw: '41 B6 0E 10', expect: { hvessVoltageV: 360 } },
-  { raw: '41 B7 40 58', expect: { hvCellMaxTempC: 48 } },
+  { raw: '41 B7 28 58', expect: { hvCellMinTempC: 0, hvCellMaxTempC: 48 } },
   { raw: '41 B8 01 2C', expect: { hvBalHours: 300 } },
   { raw: '41 B9 15 73 17 2C', expect: { hvCellMinVoltageV: (0x1573) / 1666.666, hvCellMaxVoltageV: (0x172c) / 1666.666 } },
-  { raw: '41 BA 14 01 F4', expect: { hvPwrAvailPct: (0x14 * 100) / 255, hvChgLimitA: 50 } },
+  { raw: '41 BA 14 01 F4 01 F4', expect: { hvPwrAvailPct: (0x14 * 100) / 255, hvChgLimitA: 50, hvDisLimitA: 50 } },
+  { raw: '41 BB 00 00 01 2C', expect: { hvEnrgInKwh: 30 } },
+  { raw: '41 BC 00 00 01 2C', expect: { hvEnrgOutKwh: 30 } },
+  { raw: '41 BD 00 00 27 10', expect: { hvEnrgTputWh: 1000 } },
   { raw: '41 9B 00 00 00 1A', expect: { defFluidPct: (0x1a * 100) / 255 } },
   { raw: '41 A5 01 BE', expect: { defDosingCmdPct: 0xbe / 2 } },
   { raw: '41 A1 00 03 84', expect: { noxCorrectedB1s1Ppm: 900 } },
@@ -801,6 +821,7 @@ export function runFaseFormulaChecks(fase, assert) {
       assert(curSigned / 10 === -100, 'pid 01B5 HVESS current')
       assert((0x0e * 256 + 0x10) / 10 === 360, 'pid 01B6 HVESS voltage')
       assert(0x58 - 40 === 48, 'pid 01B7 max cell temp')
+      assert(0x28 - 40 === 0, 'pid 01B7 min cell temp')
       break
     case 44:
       assert(0x01 * 256 + 0x2c === 300, 'pid 01B8 balance hours')
@@ -808,6 +829,15 @@ export function runFaseFormulaChecks(fase, assert) {
       assert((0x17 * 256 + 0x2c) / 1666.666 > 3.4, 'pid 01B9 max cell V')
       assert((0x14 * 100) / 255 < 20, 'pid 01BA power avail')
       assert((0x01 * 256 + 0xf4) / 10 === 50, 'pid 01BA charge limit')
+      break
+    case 45:
+      assert(0x28 - 40 === 0, 'pid 01B7 min cell temp byte A')
+      const disRaw = (0x01 << 8) | 0xf4
+      const disSigned = disRaw & 0x8000 ? disRaw - 0x10000 : disRaw
+      assert(disSigned / 10 === 50, 'pid 01BA discharge limit')
+      assert(u32Scaled([0, 0, 1, 0x2c], 0, 10) === 30, 'pid 01BB energy in kWh')
+      assert(u32Scaled([0, 0, 1, 0x2c], 0, 10) === 30, 'pid 01BC energy out kWh')
+      assert(u32Scaled([0, 0, 0x27, 0x10], 0, 10) === 1000, 'pid 01BD throughput Wh')
       break
     default:
       throw new Error(`unknown fase ${fase}`)

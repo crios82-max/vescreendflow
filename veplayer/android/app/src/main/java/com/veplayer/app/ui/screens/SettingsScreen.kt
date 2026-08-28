@@ -5625,6 +5625,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 45 OBD (01B7/BA/BB–BD HVESS):", color = Mist)
+            val hvCellMinTSt by com.veplayer.app.vehicle.HvCellMinTempMonitor.state.collectAsState()
+            val hvDisSt by com.veplayer.app.vehicle.HvDisLimitMonitor.state.collectAsState()
+            val hvEnrgInSt by com.veplayer.app.vehicle.HvEnrgInMonitor.state.collectAsState()
+            val hvEnrgOutSt by com.veplayer.app.vehicle.HvEnrgOutMonitor.state.collectAsState()
+            val hvEnrgTputSt by com.veplayer.app.vehicle.HvEnrgTputMonitor.state.collectAsState()
+            var f45MinT by remember {
+                mutableStateOf(if (prefs.hvCellMinTSimC != 0f) prefs.hvCellMinTSimC.toInt().toString() else "0")
+            }
+            var f45Dis by remember {
+                mutableStateOf(if (prefs.hvDisSimA > 0f) prefs.hvDisSimA.toInt().toString() else "0")
+            }
+            var f45In by remember {
+                mutableStateOf(if (prefs.hvEnrgInSimKwh > 0f) prefs.hvEnrgInSimKwh.toInt().toString() else "0")
+            }
+            var f45Out by remember {
+                mutableStateOf(if (prefs.hvEnrgOutSimKwh > 0f) prefs.hvEnrgOutSimKwh.toInt().toString() else "0")
+            }
+            var f45Tput by remember {
+                mutableStateOf(if (prefs.hvEnrgTputSimWh > 0f) prefs.hvEnrgTputSimWh.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f45MinT,
+                    onValueChange = { f45MinT = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("HvMinT") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f45Dis,
+                    onValueChange = { f45Dis = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("HvDis") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f45In,
+                    onValueChange = { f45In = it.filter { c -> c.isDigit() }.take(6) },
+                    label = { Text("HvIn") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f45Out,
+                    onValueChange = { f45Out = it.filter { c -> c.isDigit() }.take(6) },
+                    label = { Text("HvOut") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f45Tput,
+                    onValueChange = { f45Tput = it.filter { c -> c.isDigit() }.take(8) },
+                    label = { Text("HvTput") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.hvCellMinTSimC = f45MinT.toFloatOrNull() ?: 0f
+                    prefs.hvDisSimA = f45Dis.toFloatOrNull() ?: 0f
+                    prefs.hvEnrgInSimKwh = f45In.toFloatOrNull() ?: 0f
+                    prefs.hvEnrgOutSimKwh = f45Out.toFloatOrNull() ?: 0f
+                    prefs.hvEnrgTputSimWh = f45Tput.toFloatOrNull() ?: 0f
+                    status = "Fase 45 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 45") }
+            Text(
+                listOfNotNull(
+                    hvCellMinTSt.label.takeIf { it.isNotBlank() },
+                    hvDisSt.label.takeIf { it.isNotBlank() },
+                    hvEnrgInSt.label.takeIf { it.isNotBlank() },
+                    hvEnrgOutSt.label.takeIf { it.isNotBlank() },
+                    hvEnrgTputSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 45 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

@@ -1579,6 +1579,22 @@ Extiende bloque HEV **01B8–BA** (balanceo, celdas V, potencia, límite carga).
 npm run veplayer:fase44-smoke
 ```
 
+## HvMin · HvDis · HvIn/Out · HvTput (v2.34 · Fase 45)
+
+Cierra bloque HEV **01B7/BA/BB–BD** (min temp, descarga, energía acumulada, throughput).
+
+| PID | Señal | Alertas | HUD |
+|-----|-------|---------|-----|
+| 01B7 A | Min cell temp °C | `hv_cell_min_temp_warn` / `hv_cell_min_temp_alert` | `HvMin · XX°` |
+| 01BA D/E | Discharge limit A | `hv_dis_limit_warn` / `hv_dis_limit_alert` | `HvDis · XXA` |
+| 01BB | Energy into HVESS kWh | `hv_enrg_in_warn` / `hv_enrg_in_alert` | `HvIn · XXkWh` |
+| 01BC | Energy out HVESS kWh | `hv_enrg_out_warn` / `hv_enrg_out_alert` | `HvOut · XXkWh` |
+| 01BD | Total throughput Wh | `hv_enrg_tput_warn` / `hv_enrg_tput_alert` | `HvTput · XXkWh` |
+
+```bash
+npm run veplayer:fase45-smoke
+```
+
 ## Validation gate (pre-fase · v1.15)
 
 Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
@@ -1588,7 +1604,7 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 | `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
 | `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
 | `dbc-smoke` | DBC decode (Kotlin mirror) |
-| `fase16–44-smoke` | Alertas `fleetPro.ts` con heartbeats |
+| `fase16–45-smoke` | Alertas `fleetPro.ts` con heartbeats |
 
 ```bash
 # SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)
