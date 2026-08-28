@@ -1,5 +1,7 @@
 # Movify — Go Live (DNS + Mac mini + TestFlight)
 
+**Regresas el 18 sep?** → [REGRESO-18SEP.md](./REGRESO-18SEP.md) (checklist corto).
+
 Orden recomendado: **DNS → deploy → API público → TestFlight**.
 
 ## Paso 1 — Cloudflare DNS (5 min)

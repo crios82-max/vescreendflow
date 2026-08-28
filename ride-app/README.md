@@ -2,7 +2,7 @@
 
 Monorepo con backend Node/Express, apps web (pasajero + conductor + admin), app móvil Expo, Google Directions, matching automático, calificaciones, push y pagos Stripe/mock.
 
-Marca y dominios: [docs/BRAND.md](docs/BRAND.md)
+Marca y dominios: [docs/BRAND.md](docs/BRAND.md) · Go live: [docs/REGRESO-18SEP.md](docs/REGRESO-18SEP.md)
 
 ## Stack
 
