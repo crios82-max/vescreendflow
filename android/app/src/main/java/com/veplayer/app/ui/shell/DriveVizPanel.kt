@@ -213,6 +213,16 @@ import com.veplayer.app.vehicle.HvessPackVoltage
 import com.veplayer.app.vehicle.HvessPackVoltageMonitor
 import com.veplayer.app.vehicle.HvCellMaxTemp
 import com.veplayer.app.vehicle.HvCellMaxTempMonitor
+import com.veplayer.app.vehicle.HvBalHours
+import com.veplayer.app.vehicle.HvBalHoursMonitor
+import com.veplayer.app.vehicle.HvCellMinVolt
+import com.veplayer.app.vehicle.HvCellMinVoltMonitor
+import com.veplayer.app.vehicle.HvCellMaxVolt
+import com.veplayer.app.vehicle.HvCellMaxVoltMonitor
+import com.veplayer.app.vehicle.HvPwrAvail
+import com.veplayer.app.vehicle.HvPwrAvailMonitor
+import com.veplayer.app.vehicle.HvChgLimit
+import com.veplayer.app.vehicle.HvChgLimitMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -423,6 +433,11 @@ fun DriveVizPanel(
     val hvessCur by HvessCurrentMonitor.state.collectAsState()
     val hvessVolt by HvessPackVoltageMonitor.state.collectAsState()
     val hvCellMax by HvCellMaxTempMonitor.state.collectAsState()
+    val hvBal by HvBalHoursMonitor.state.collectAsState()
+    val hvCellMinV by HvCellMinVoltMonitor.state.collectAsState()
+    val hvCellMaxV by HvCellMaxVoltMonitor.state.collectAsState()
+    val hvPwr by HvPwrAvailMonitor.state.collectAsState()
+    val hvChg by HvChgLimitMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -616,6 +631,11 @@ fun DriveVizPanel(
             HvessCurrentMonitor.tick(prefs, snap)
             HvessPackVoltageMonitor.tick(prefs, snap)
             HvCellMaxTempMonitor.tick(prefs, snap)
+            HvBalHoursMonitor.tick(prefs, snap)
+            HvCellMinVoltMonitor.tick(prefs, snap)
+            HvCellMaxVoltMonitor.tick(prefs, snap)
+            HvPwrAvailMonitor.tick(prefs, snap)
+            HvChgLimitMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1520,6 +1540,21 @@ fun DriveVizPanel(
                 }
                 if (hvCellMax.showWarn || (prefs.hvCellMaxEnabled && hvCellMax.band == "ok" && hvCellMax.label.isNotBlank())) {
                     Text(hvCellMax.label, color = Color(HvCellMaxTemp.accentArgb(hvCellMax.band)), fontSize = 11.sp)
+                }
+                if (hvBal.showWarn || (prefs.hvBalEnabled && hvBal.band == "ok" && hvBal.label.isNotBlank())) {
+                    Text(hvBal.label, color = Color(HvBalHours.accentArgb(hvBal.band)), fontSize = 11.sp)
+                }
+                if (hvCellMinV.showWarn || (prefs.hvCellMinVEnabled && hvCellMinV.band == "ok" && hvCellMinV.label.isNotBlank())) {
+                    Text(hvCellMinV.label, color = Color(HvCellMinVolt.accentArgb(hvCellMinV.band)), fontSize = 11.sp)
+                }
+                if (hvCellMaxV.showWarn || (prefs.hvCellMaxVEnabled && hvCellMaxV.band == "ok" && hvCellMaxV.label.isNotBlank())) {
+                    Text(hvCellMaxV.label, color = Color(HvCellMaxVolt.accentArgb(hvCellMaxV.band)), fontSize = 11.sp)
+                }
+                if (hvPwr.showWarn || (prefs.hvPwrEnabled && hvPwr.band == "ok" && hvPwr.label.isNotBlank())) {
+                    Text(hvPwr.label, color = Color(HvPwrAvail.accentArgb(hvPwr.band)), fontSize = 11.sp)
+                }
+                if (hvChg.showWarn || (prefs.hvChgEnabled && hvChg.band == "ok" && hvChg.label.isNotBlank())) {
+                    Text(hvChg.label, color = Color(HvChgLimit.accentArgb(hvChg.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

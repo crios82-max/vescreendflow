@@ -5544,6 +5544,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 44 OBD (01B8–BA HVESS):", color = Mist)
+            val hvBalSt by com.veplayer.app.vehicle.HvBalHoursMonitor.state.collectAsState()
+            val hvCellMinVSt by com.veplayer.app.vehicle.HvCellMinVoltMonitor.state.collectAsState()
+            val hvCellMaxVSt by com.veplayer.app.vehicle.HvCellMaxVoltMonitor.state.collectAsState()
+            val hvPwrSt by com.veplayer.app.vehicle.HvPwrAvailMonitor.state.collectAsState()
+            val hvChgSt by com.veplayer.app.vehicle.HvChgLimitMonitor.state.collectAsState()
+            var f44Bal by remember {
+                mutableStateOf(if (prefs.hvBalSimH > 0f) prefs.hvBalSimH.toInt().toString() else "0")
+            }
+            var f44MinV by remember {
+                mutableStateOf(if (prefs.hvCellMinVSimV > 0f) prefs.hvCellMinVSimV.toString() else "0")
+            }
+            var f44MaxV by remember {
+                mutableStateOf(if (prefs.hvCellMaxVSimV > 0f) prefs.hvCellMaxVSimV.toString() else "0")
+            }
+            var f44Pwr by remember {
+                mutableStateOf(if (prefs.hvPwrSimPct > 0f) prefs.hvPwrSimPct.toInt().toString() else "0")
+            }
+            var f44Chg by remember {
+                mutableStateOf(if (prefs.hvChgSimA > 0f) prefs.hvChgSimA.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f44Bal,
+                    onValueChange = { f44Bal = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("HvBal") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f44MinV,
+                    onValueChange = { f44MinV = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("HvMinV") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f44MaxV,
+                    onValueChange = { f44MaxV = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("HvMaxV") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f44Pwr,
+                    onValueChange = { f44Pwr = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("HvPwr") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f44Chg,
+                    onValueChange = { f44Chg = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("HvChg") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.hvBalSimH = f44Bal.toFloatOrNull() ?: 0f
+                    prefs.hvCellMinVSimV = f44MinV.toFloatOrNull() ?: 0f
+                    prefs.hvCellMaxVSimV = f44MaxV.toFloatOrNull() ?: 0f
+                    prefs.hvPwrSimPct = f44Pwr.toFloatOrNull() ?: 0f
+                    prefs.hvChgSimA = f44Chg.toFloatOrNull() ?: 0f
+                    status = "Fase 44 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 44") }
+            Text(
+                listOfNotNull(
+                    hvBalSt.label.takeIf { it.isNotBlank() },
+                    hvCellMinVSt.label.takeIf { it.isNotBlank() },
+                    hvCellMaxVSt.label.takeIf { it.isNotBlank() },
+                    hvPwrSt.label.takeIf { it.isNotBlank() },
+                    hvChgSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 44 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

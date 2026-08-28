@@ -335,6 +335,9 @@ class ObdBluetoothClient(private val context: Context) {
                 "01B5", // HVESS current
                 "01B6", // HVESS pack voltage
                 "01B7", // max cell temperature
+                "01B8", // time since cell balancing
+                "01B9", // min/max cell voltage
+                "01BA", // power available / charge limit
                 "0194", // NOx reagent quality
                 "019B", // DEF fluid level
                 "01A1", // NOx corrected B1S1
