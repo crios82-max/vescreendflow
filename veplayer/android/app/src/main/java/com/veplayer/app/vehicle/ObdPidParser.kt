@@ -104,6 +104,16 @@ object ObdPidParser {
         val throttleCPct: Float? = null,
         /** Time run with MIL on min (OBD PID 0154). */
         val milTimeMin: Int? = null,
+        /** Catalyst temp bank 1 sensor 7 °C (OBD PID 017B). */
+        val catalystB1s7TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 7 °C (OBD PID 017C). */
+        val catalystB2s7TempC: Float? = null,
+        /** Fuel type code (OBD PID 0151). */
+        val fuelTypeCode: Int? = null,
+        /** Max equivalence ratio (OBD PID 014F). */
+        val maxEquivRatio: Float? = null,
+        /** Max MAF g/s (OBD PID 0150). */
+        val maxMafGps: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -310,6 +320,23 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(milTimeMin = (data[0] * 256) + data[1])
             }
+            0x7B -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB1s7TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x7C -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2s7TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x51 -> PidValues(fuelTypeCode = data.getOrNull(0))
+            0x4F -> {
+                if (data.size < 2) PidValues()
+                else PidValues(maxEquivRatio = ((data[0] * 256) + data[1]) / 32768f)
+            }
+            0x50 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(maxMafGps = ((data[0] * 256) + data[1]) / 100f)
+            }
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -386,6 +413,11 @@ object ObdPidParser {
             throttleBPct = add.throttleBPct ?: base.throttleBPct,
             throttleCPct = add.throttleCPct ?: base.throttleCPct,
             milTimeMin = add.milTimeMin ?: base.milTimeMin,
+            catalystB1s7TempC = add.catalystB1s7TempC ?: base.catalystB1s7TempC,
+            catalystB2s7TempC = add.catalystB2s7TempC ?: base.catalystB2s7TempC,
+            fuelTypeCode = add.fuelTypeCode ?: base.fuelTypeCode,
+            maxEquivRatio = add.maxEquivRatio ?: base.maxEquivRatio,
+            maxMafGps = add.maxMafGps ?: base.maxMafGps,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

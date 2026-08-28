@@ -1957,6 +1957,97 @@ class VePrefs(context: Context) {
         get() = sp.getInt("mil_time_sim_min", 0)
         set(value) = sp.edit().putInt("mil_time_sim_min", value.coerceIn(0, 600)).apply()
 
+    /** Catalyst temp B1S7 °C (OBD 017B). */
+    var catB1s7Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s7", true)
+        set(value) = sp.edit().putBoolean("cat_b1s7", value).apply()
+    var catB1s7Tts: Boolean
+        get() = sp.getBoolean("cat_b1s7_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s7_tts", value).apply()
+    var catB1s7WarnC: Float
+        get() = sp.getFloat("cat_b1s7_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s7_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s7AlertC: Float
+        get() = sp.getFloat("cat_b1s7_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s7_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s7SimC: Float
+        get() = sp.getFloat("cat_b1s7_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s7_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B2S7 °C (OBD 017C). */
+    var catB2s7Enabled: Boolean
+        get() = sp.getBoolean("cat_b2s7", true)
+        set(value) = sp.edit().putBoolean("cat_b2s7", value).apply()
+    var catB2s7Tts: Boolean
+        get() = sp.getBoolean("cat_b2s7_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2s7_tts", value).apply()
+    var catB2s7WarnC: Float
+        get() = sp.getFloat("cat_b2s7_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2s7_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2s7AlertC: Float
+        get() = sp.getFloat("cat_b2s7_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2s7_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2s7SimC: Float
+        get() = sp.getFloat("cat_b2s7_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2s7_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Fuel type (OBD 0151). */
+    var fuelTypeEnabled: Boolean
+        get() = sp.getBoolean("fuel_type", true)
+        set(value) = sp.edit().putBoolean("fuel_type", value).apply()
+    var fuelTypeTts: Boolean
+        get() = sp.getBoolean("fuel_type_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_type_tts", value).apply()
+    var fuelTypeExpected: Int
+        get() = sp.getInt("fuel_type_expected", 1)
+        set(value) = sp.edit().putInt("fuel_type_expected", value.coerceIn(1, 20)).apply()
+    var fuelTypeSpeedMinKmh: Float
+        get() = sp.getFloat("fuel_type_speed_min", 5f)
+        set(value) = sp.edit().putFloat("fuel_type_speed_min", value.coerceIn(0f, 60f)).apply()
+    var fuelTypeSimCode: Int
+        get() = sp.getInt("fuel_type_sim_code", 0)
+        set(value) = sp.edit().putInt("fuel_type_sim_code", value.coerceIn(0, 255)).apply()
+
+    /** Max equiv ratio (OBD 014F). */
+    var maxEquivEnabled: Boolean
+        get() = sp.getBoolean("max_equiv", true)
+        set(value) = sp.edit().putBoolean("max_equiv", value).apply()
+    var maxEquivTts: Boolean
+        get() = sp.getBoolean("max_equiv_tts", true)
+        set(value) = sp.edit().putBoolean("max_equiv_tts", value).apply()
+    var maxEquivWarnLow: Float
+        get() = sp.getFloat("max_equiv_warn_low", 0.88f)
+        set(value) = sp.edit().putFloat("max_equiv_warn_low", value.coerceIn(0.5f, 1.0f)).apply()
+    var maxEquivAlertLow: Float
+        get() = sp.getFloat("max_equiv_alert_low", 0.82f)
+        set(value) = sp.edit().putFloat("max_equiv_alert_low", value.coerceIn(0.4f, 0.95f)).apply()
+    var maxEquivWarnHigh: Float
+        get() = sp.getFloat("max_equiv_warn_high", 1.18f)
+        set(value) = sp.edit().putFloat("max_equiv_warn_high", value.coerceIn(1.0f, 1.5f)).apply()
+    var maxEquivAlertHigh: Float
+        get() = sp.getFloat("max_equiv_alert_high", 1.24f)
+        set(value) = sp.edit().putFloat("max_equiv_alert_high", value.coerceIn(1.05f, 2.0f)).apply()
+    var maxEquivSimRatio: Float
+        get() = sp.getFloat("max_equiv_sim_ratio", 0f)
+        set(value) = sp.edit().putFloat("max_equiv_sim_ratio", value.coerceIn(0f, 2.5f)).apply()
+
+    /** Max MAF g/s (OBD 0150). */
+    var maxMafEnabled: Boolean
+        get() = sp.getBoolean("max_maf", true)
+        set(value) = sp.edit().putBoolean("max_maf", value).apply()
+    var maxMafTts: Boolean
+        get() = sp.getBoolean("max_maf_tts", true)
+        set(value) = sp.edit().putBoolean("max_maf_tts", value).apply()
+    var maxMafWarnLowGps: Float
+        get() = sp.getFloat("max_maf_warn_low", 25f)
+        set(value) = sp.edit().putFloat("max_maf_warn_low", value.coerceIn(5f, 100f)).apply()
+    var maxMafAlertLowGps: Float
+        get() = sp.getFloat("max_maf_alert_low", 15f)
+        set(value) = sp.edit().putFloat("max_maf_alert_low", value.coerceIn(5f, 80f)).apply()
+    var maxMafSimGps: Float
+        get() = sp.getFloat("max_maf_sim_gps", 0f)
+        set(value) = sp.edit().putFloat("max_maf_sim_gps", value.coerceIn(0f, 400f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
