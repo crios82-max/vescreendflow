@@ -1475,6 +1475,20 @@ npm run veplayer:fase36-smoke
 npm run veplayer:fase37-smoke
 ```
 
+## FuelA/B · EPCS · NCD/PCD (v1.99 · Fase 38)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 01C3 | Fuel level A | `fuel_level_a_warn` / `fuel_level_a_alert` | `FuelA · XX%` |
+| 01C3 | Fuel level B | `fuel_level_b_warn` / `fuel_level_b_alert` | `FuelB · XX%` |
+| 01C4 | EPCS time | `epcs_time_warn` / `epcs_time_alert` | `EPCS · XXs` |
+| 01C4 | EPCS count | `epcs_count_warn` / `epcs_count_alert` | `EPCSn · XX` |
+| 01C8 | NOx/PCD lamp | `nox_pcd_lamp_alert` | `NCD/PCD` |
+
+```bash
+npm run veplayer:fase38-smoke
+```
+
 ## Validation gate (pre-fase · v1.15)
 
 Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
@@ -1484,7 +1498,7 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 | `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
 | `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
 | `dbc-smoke` | DBC decode (Kotlin mirror) |
-| `fase16–37-smoke` | Alertas `fleetPro.ts` con heartbeats |
+| `fase16–38-smoke` | Alertas `fleetPro.ts` con heartbeats |
 
 ```bash
 # SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)

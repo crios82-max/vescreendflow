@@ -252,6 +252,16 @@ object ObdPidParser {
         val fuelPressBKpa: Float? = null,
         /** Distance since reflash km (OBD PID 01C7). */
         val reflashDistKm: Float? = null,
+        /** Fuel level input A % (OBD PID 01C3 byte A). */
+        val fuelLevelInputAPct: Float? = null,
+        /** Fuel level input B % (OBD PID 01C3 byte B). */
+        val fuelLevelInputBPct: Float? = null,
+        /** EPCS diagnostic time sec (OBD PID 01C4 byte A). */
+        val epcsDiagTimeSec: Float? = null,
+        /** EPCS diagnostic count (OBD PID 01C4 byte B). */
+        val epcsDiagCount: Float? = null,
+        /** NOx/PCD warning lamp on (OBD PID 01C8). */
+        val noxPcdLampOn: Int? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -681,6 +691,24 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(reflashDistKm = ((data[0] * 256) + data[1]).toFloat())
             }
+            0xC3 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(
+                    fuelLevelInputAPct = data[0] * 100f / 255f,
+                    fuelLevelInputBPct = data[1] * 100f / 255f,
+                )
+            }
+            0xC4 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(
+                    epcsDiagTimeSec = data[0].toFloat(),
+                    epcsDiagCount = data[1].toFloat(),
+                )
+            }
+            0xC8 -> {
+                if (data.isEmpty()) PidValues()
+                else PidValues(noxPcdLampOn = if ((data[0] and 0x03) != 0) 1 else 0)
+            }
             0x9B -> {
                 if (data.size < 4) PidValues()
                 else PidValues(defFluidPct = data[3] * 100f / 255f)
@@ -850,6 +878,11 @@ object ObdPidParser {
             fuelPressAKpa = add.fuelPressAKpa ?: base.fuelPressAKpa,
             fuelPressBKpa = add.fuelPressBKpa ?: base.fuelPressBKpa,
             reflashDistKm = add.reflashDistKm ?: base.reflashDistKm,
+            fuelLevelInputAPct = add.fuelLevelInputAPct ?: base.fuelLevelInputAPct,
+            fuelLevelInputBPct = add.fuelLevelInputBPct ?: base.fuelLevelInputBPct,
+            epcsDiagTimeSec = add.epcsDiagTimeSec ?: base.epcsDiagTimeSec,
+            epcsDiagCount = add.epcsDiagCount ?: base.epcsDiagCount,
+            noxPcdLampOn = add.noxPcdLampOn ?: base.noxPcdLampOn,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

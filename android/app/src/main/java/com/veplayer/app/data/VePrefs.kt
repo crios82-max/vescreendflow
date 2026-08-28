@@ -3443,6 +3443,115 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("reflash_dist_sim_speed", 40f)
         set(value) = sp.edit().putFloat("reflash_dist_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Fuel level input A % (OBD 01C3). */
+    var fuelLvlAEnabled: Boolean
+        get() = sp.getBoolean("fuel_level_a", true)
+        set(value) = sp.edit().putBoolean("fuel_level_a", value).apply()
+    var fuelLvlATts: Boolean
+        get() = sp.getBoolean("fuel_level_a_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_level_a_tts", value).apply()
+    var fuelLvlAWarnPct: Float
+        get() = sp.getFloat("fuel_level_a_warn_pct", 15f)
+        set(value) = sp.edit().putFloat("fuel_level_a_warn_pct", value.coerceIn(5f, 50f)).apply()
+    var fuelLvlAAlertPct: Float
+        get() = sp.getFloat("fuel_level_a_alert_pct", 8f)
+        set(value) = sp.edit().putFloat("fuel_level_a_alert_pct", value.coerceIn(3f, 30f)).apply()
+    var fuelLvlASpeedMinKmh: Float
+        get() = sp.getFloat("fuel_level_a_speed_min", 20f)
+        set(value) = sp.edit().putFloat("fuel_level_a_speed_min", value.coerceIn(0f, 60f)).apply()
+    var fuelLvlASimPct: Float
+        get() = sp.getFloat("fuel_level_a_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("fuel_level_a_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var fuelLvlASimSpeedKmh: Float
+        get() = sp.getFloat("fuel_level_a_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("fuel_level_a_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Fuel level input B % (OBD 01C3). */
+    var fuelLvlBEnabled: Boolean
+        get() = sp.getBoolean("fuel_level_b", true)
+        set(value) = sp.edit().putBoolean("fuel_level_b", value).apply()
+    var fuelLvlBTts: Boolean
+        get() = sp.getBoolean("fuel_level_b_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_level_b_tts", value).apply()
+    var fuelLvlBWarnPct: Float
+        get() = sp.getFloat("fuel_level_b_warn_pct", 15f)
+        set(value) = sp.edit().putFloat("fuel_level_b_warn_pct", value.coerceIn(5f, 50f)).apply()
+    var fuelLvlBAlertPct: Float
+        get() = sp.getFloat("fuel_level_b_alert_pct", 8f)
+        set(value) = sp.edit().putFloat("fuel_level_b_alert_pct", value.coerceIn(3f, 30f)).apply()
+    var fuelLvlBSpeedMinKmh: Float
+        get() = sp.getFloat("fuel_level_b_speed_min", 20f)
+        set(value) = sp.edit().putFloat("fuel_level_b_speed_min", value.coerceIn(0f, 60f)).apply()
+    var fuelLvlBSimPct: Float
+        get() = sp.getFloat("fuel_level_b_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("fuel_level_b_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var fuelLvlBSimSpeedKmh: Float
+        get() = sp.getFloat("fuel_level_b_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("fuel_level_b_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** EPCS diagnostic time sec (OBD 01C4). */
+    var epcsTimeEnabled: Boolean
+        get() = sp.getBoolean("epcs_time", true)
+        set(value) = sp.edit().putBoolean("epcs_time", value).apply()
+    var epcsTimeTts: Boolean
+        get() = sp.getBoolean("epcs_time_tts", true)
+        set(value) = sp.edit().putBoolean("epcs_time_tts", value).apply()
+    var epcsTimeWarnSec: Float
+        get() = sp.getFloat("epcs_time_warn_sec", 120f)
+        set(value) = sp.edit().putFloat("epcs_time_warn_sec", value.coerceIn(30f, 600f)).apply()
+    var epcsTimeAlertSec: Float
+        get() = sp.getFloat("epcs_time_alert_sec", 180f)
+        set(value) = sp.edit().putFloat("epcs_time_alert_sec", value.coerceAtLeast(60f)).apply()
+    var epcsTimeSpeedMinKmh: Float
+        get() = sp.getFloat("epcs_time_speed_min", 20f)
+        set(value) = sp.edit().putFloat("epcs_time_speed_min", value.coerceIn(0f, 60f)).apply()
+    var epcsTimeSimSec: Float
+        get() = sp.getFloat("epcs_time_sim_sec", 0f)
+        set(value) = sp.edit().putFloat("epcs_time_sim_sec", value.coerceIn(0f, 255f)).apply()
+    var epcsTimeSimSpeedKmh: Float
+        get() = sp.getFloat("epcs_time_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("epcs_time_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** EPCS diagnostic count (OBD 01C4). */
+    var epcsCountEnabled: Boolean
+        get() = sp.getBoolean("epcs_count", true)
+        set(value) = sp.edit().putBoolean("epcs_count", value).apply()
+    var epcsCountTts: Boolean
+        get() = sp.getBoolean("epcs_count_tts", true)
+        set(value) = sp.edit().putBoolean("epcs_count_tts", value).apply()
+    var epcsCountWarn: Float
+        get() = sp.getFloat("epcs_count_warn", 50f)
+        set(value) = sp.edit().putFloat("epcs_count_warn", value.coerceIn(10f, 200f)).apply()
+    var epcsCountAlert: Float
+        get() = sp.getFloat("epcs_count_alert", 80f)
+        set(value) = sp.edit().putFloat("epcs_count_alert", value.coerceAtLeast(20f)).apply()
+    var epcsCountSpeedMinKmh: Float
+        get() = sp.getFloat("epcs_count_speed_min", 20f)
+        set(value) = sp.edit().putFloat("epcs_count_speed_min", value.coerceIn(0f, 60f)).apply()
+    var epcsCountSim: Float
+        get() = sp.getFloat("epcs_count_sim", 0f)
+        set(value) = sp.edit().putFloat("epcs_count_sim", value.coerceIn(0f, 255f)).apply()
+    var epcsCountSimSpeedKmh: Float
+        get() = sp.getFloat("epcs_count_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("epcs_count_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** NOx/PCD warning lamp (OBD 01C8). */
+    var noxPcdLampEnabled: Boolean
+        get() = sp.getBoolean("nox_pcd_lamp", true)
+        set(value) = sp.edit().putBoolean("nox_pcd_lamp", value).apply()
+    var noxPcdLampTts: Boolean
+        get() = sp.getBoolean("nox_pcd_lamp_tts", true)
+        set(value) = sp.edit().putBoolean("nox_pcd_lamp_tts", value).apply()
+    var noxPcdLampSpeedMinKmh: Float
+        get() = sp.getFloat("nox_pcd_lamp_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_pcd_lamp_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxPcdLampSim: Boolean
+        get() = sp.getBoolean("nox_pcd_lamp_sim", false)
+        set(value) = sp.edit().putBoolean("nox_pcd_lamp_sim", value).apply()
+    var noxPcdLampSimSpeedKmh: Float
+        get() = sp.getFloat("nox_pcd_lamp_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_pcd_lamp_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

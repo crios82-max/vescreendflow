@@ -178,6 +178,11 @@ import com.veplayer.app.vehicle.AbsDisableMonitor
 import com.veplayer.app.vehicle.FuelPressAMonitor
 import com.veplayer.app.vehicle.FuelPressBMonitor
 import com.veplayer.app.vehicle.ReflashDistanceMonitor
+import com.veplayer.app.vehicle.FuelLevelInputAMonitor
+import com.veplayer.app.vehicle.FuelLevelInputBMonitor
+import com.veplayer.app.vehicle.EpcsDiagTimeMonitor
+import com.veplayer.app.vehicle.EpcsDiagCountMonitor
+import com.veplayer.app.vehicle.NoxPcdLampMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -358,6 +363,11 @@ fun DriveVizPanel(
     val fuelPressA by FuelPressAMonitor.state.collectAsState()
     val fuelPressB by FuelPressBMonitor.state.collectAsState()
     val reflashDist by ReflashDistanceMonitor.state.collectAsState()
+    val fuelLvlA by FuelLevelInputAMonitor.state.collectAsState()
+    val fuelLvlB by FuelLevelInputBMonitor.state.collectAsState()
+    val epcsTime by EpcsDiagTimeMonitor.state.collectAsState()
+    val epcsCount by EpcsDiagCountMonitor.state.collectAsState()
+    val noxPcdLamp by NoxPcdLampMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -521,6 +531,11 @@ fun DriveVizPanel(
             FuelPressAMonitor.tick(prefs, snap)
             FuelPressBMonitor.tick(prefs, snap)
             ReflashDistanceMonitor.tick(prefs, snap)
+            FuelLevelInputAMonitor.tick(prefs, snap)
+            FuelLevelInputBMonitor.tick(prefs, snap)
+            EpcsDiagTimeMonitor.tick(prefs, snap)
+            EpcsDiagCountMonitor.tick(prefs, snap)
+            NoxPcdLampMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1335,6 +1350,21 @@ fun DriveVizPanel(
                 }
                 if (reflashDist.showWarn || (prefs.reflashDistEnabled && reflashDist.band == "ok" && reflashDist.label.isNotBlank())) {
                     Text(reflashDist.label, color = Color(com.veplayer.app.vehicle.ReflashDistance.accentArgb(reflashDist.band)), fontSize = 11.sp)
+                }
+                if (fuelLvlA.showWarn || (prefs.fuelLvlAEnabled && fuelLvlA.band == "ok" && fuelLvlA.label.isNotBlank())) {
+                    Text(fuelLvlA.label, color = Color(com.veplayer.app.vehicle.FuelLevelInputA.accentArgb(fuelLvlA.band)), fontSize = 11.sp)
+                }
+                if (fuelLvlB.showWarn || (prefs.fuelLvlBEnabled && fuelLvlB.band == "ok" && fuelLvlB.label.isNotBlank())) {
+                    Text(fuelLvlB.label, color = Color(com.veplayer.app.vehicle.FuelLevelInputB.accentArgb(fuelLvlB.band)), fontSize = 11.sp)
+                }
+                if (epcsTime.showWarn || (prefs.epcsTimeEnabled && epcsTime.band == "ok" && epcsTime.label.isNotBlank())) {
+                    Text(epcsTime.label, color = Color(com.veplayer.app.vehicle.EpcsDiagTime.accentArgb(epcsTime.band)), fontSize = 11.sp)
+                }
+                if (epcsCount.showWarn || (prefs.epcsCountEnabled && epcsCount.band == "ok" && epcsCount.label.isNotBlank())) {
+                    Text(epcsCount.label, color = Color(com.veplayer.app.vehicle.EpcsDiagCount.accentArgb(epcsCount.band)), fontSize = 11.sp)
+                }
+                if (noxPcdLamp.showWarn || (prefs.noxPcdLampEnabled && noxPcdLamp.band == "ok" && noxPcdLamp.label.isNotBlank())) {
+                    Text(noxPcdLamp.label, color = Color(com.veplayer.app.vehicle.NoxPcdLamp.accentArgb(noxPcdLamp.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(
