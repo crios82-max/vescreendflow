@@ -352,6 +352,19 @@ export function parseMode01(raw) {
       return data.length < 3 ? {} : { wwhObdCumulativeMiHours: data[1] * 256 + data[2] }
     case 0x9a:
       return data.length < 2 ? {} : { hybridEvBattVoltageV: (data[0] * 256 + data[1]) / 10 }
+    case 0xb2:
+      return data.length < 1 ? {} : { hvBattSohPct: (data[0] * 100) / 255 }
+    case 0xb4:
+      return data.length < 1 ? {} : { hvessTempC: data[0] - 40 }
+    case 0xb5:
+      if (data.length < 2) return {}
+      const curRaw = (data[0] << 8) | data[1]
+      const curSigned = curRaw & 0x8000 ? curRaw - 0x10000 : curRaw
+      return { hvessCurrentA: curSigned / 10 }
+    case 0xb6:
+      return data.length < 2 ? {} : { hvessVoltageV: (data[0] * 256 + data[1]) / 10 }
+    case 0xb7:
+      return data.length < 2 ? {} : { hvCellMaxTempC: data[1] - 40 }
     case 0x9e:
       return data.length < 2 ? {} : { engineExhaustFlowKgh: (data[0] * 256 + data[1]) / 20 }
     case 0x9f:
@@ -388,7 +401,7 @@ export const POLL_PID_HEX = [
   '010D', '010C', '0110', '010A', '0133', '010E', '014A', '0143', '0145', '0149', '014B', '014D',
   '0144', '014E', '0152', '0153', '0159', '014C', '015A', '0161', '0162', '0170', '0171', '0172',
   '0173', '0174', '0175', '0176', '0155', '0156', '0157', '0158', '0177', '0178', '015D', '015B',
-  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0190', '0191', '0192', '0193', '0198', '0199', '019C', '019A', '0194', '019D', '019E', '019F', '019B', '01A1', '01A5', '01A7', '01A8', '01A2', '01A3', '01A4', '01A6', '01A9', '01C5', '01C7', '01C3', '01C4', '01C8', '01C6', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
+  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0190', '0191', '0192', '0193', '0198', '0199', '019C', '019A', '01B2', '01B4', '01B5', '01B6', '01B7', '0194', '019D', '019E', '019F', '019B', '01A1', '01A5', '01A7', '01A8', '01A2', '01A3', '01A4', '01A6', '01A9', '01C5', '01C7', '01C3', '01C4', '01C8', '01C6', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
   '011F', '0121', '0131', '0134', '0142',
 ]
 
@@ -507,6 +520,11 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 94 00 00 00 00 00 00 00 00 01 2C 01 2C', expect: { noxEgrValveCounterHours: 300, noxMonitorMalfunctionHours: 300 } },
   { raw: '41 94 00 04 00 00 00 00 00 00 00 00 00 00', expect: { noxInduceLevel1: 2 } },
   { raw: '41 94 00 10 00 00 00 00 00 00 00 00 00 00', expect: { noxInduceLevel2: 2 } },
+  { raw: '41 B2 80', expect: { hvBattSohPct: (0x80 * 100) / 255 } },
+  { raw: '41 B4 55', expect: { hvessTempC: 45 } },
+  { raw: '41 B5 FC 18', expect: { hvessCurrentA: -100 } },
+  { raw: '41 B6 0E 10', expect: { hvessVoltageV: 360 } },
+  { raw: '41 B7 40 58', expect: { hvCellMaxTempC: 48 } },
   { raw: '41 9B 00 00 00 1A', expect: { defFluidPct: (0x1a * 100) / 255 } },
   { raw: '41 A5 01 BE', expect: { defDosingCmdPct: 0xbe / 2 } },
   { raw: '41 A1 00 03 84', expect: { noxCorrectedB1s1Ppm: 900 } },
@@ -757,6 +775,15 @@ export function runFaseFormulaChecks(fase, assert) {
       assert(((0x10 >> 3) & 0x03) === 2, 'pid 0194 induce L2 active')
       assert(0x01 * 256 + 0x2c === 300, 'pid 0194 EGR counter hours')
       assert(0x01 * 256 + 0x2c === 300, 'pid 0194 monitor malf hours')
+      break
+    case 43:
+      assert((0x80 * 100) / 255 > 49, 'pid 01B2 SOH')
+      assert(0x55 - 40 === 45, 'pid 01B4 HVESS temp')
+      const curRaw = (0xfc << 8) | 0x18
+      const curSigned = curRaw & 0x8000 ? curRaw - 0x10000 : curRaw
+      assert(curSigned / 10 === -100, 'pid 01B5 HVESS current')
+      assert((0x0e * 256 + 0x10) / 10 === 360, 'pid 01B6 HVESS voltage')
+      assert(0x58 - 40 === 48, 'pid 01B7 max cell temp')
       break
     default:
       throw new Error(`unknown fase ${fase}`)

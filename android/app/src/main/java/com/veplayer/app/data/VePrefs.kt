@@ -3946,6 +3946,97 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("nox_mal_sim_h", 0f)
         set(value) = sp.edit().putFloat("nox_mal_sim_h", value.coerceIn(0f, 65535f)).apply()
 
+    /** Traction battery SOH % (OBD 01B2). */
+    var hvSohEnabled: Boolean
+        get() = sp.getBoolean("hv_soh", true)
+        set(value) = sp.edit().putBoolean("hv_soh", value).apply()
+    var hvSohTts: Boolean
+        get() = sp.getBoolean("hv_soh_tts", true)
+        set(value) = sp.edit().putBoolean("hv_soh_tts", value).apply()
+    var hvSohWarnPct: Float
+        get() = sp.getFloat("hv_soh_warn_pct", 70f)
+        set(value) = sp.edit().putFloat("hv_soh_warn_pct", value.coerceIn(20f, 90f)).apply()
+    var hvSohAlertPct: Float
+        get() = sp.getFloat("hv_soh_alert_pct", 50f)
+        set(value) = sp.edit().putFloat("hv_soh_alert_pct", value.coerceIn(10f, 85f)).apply()
+    var hvSohSimPct: Float
+        get() = sp.getFloat("hv_soh_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("hv_soh_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    /** HVESS temperature °C (OBD 01B4). */
+    var hvessTempEnabled: Boolean
+        get() = sp.getBoolean("hvess_temp", true)
+        set(value) = sp.edit().putBoolean("hvess_temp", value).apply()
+    var hvessTempTts: Boolean
+        get() = sp.getBoolean("hvess_temp_tts", true)
+        set(value) = sp.edit().putBoolean("hvess_temp_tts", value).apply()
+    var hvessTempWarnC: Float
+        get() = sp.getFloat("hvess_temp_warn_c", 45f)
+        set(value) = sp.edit().putFloat("hvess_temp_warn_c", value.coerceIn(20f, 80f)).apply()
+    var hvessTempAlertC: Float
+        get() = sp.getFloat("hvess_temp_alert_c", 55f)
+        set(value) = sp.edit().putFloat("hvess_temp_alert_c", value.coerceIn(25f, 120f)).apply()
+    var hvessTempSimC: Float
+        get() = sp.getFloat("hvess_temp_sim_c", 0f)
+        set(value) = sp.edit().putFloat("hvess_temp_sim_c", value.coerceIn(0f, 200f)).apply()
+
+    /** HVESS current A (OBD 01B5). */
+    var hvessCurEnabled: Boolean
+        get() = sp.getBoolean("hvess_cur", true)
+        set(value) = sp.edit().putBoolean("hvess_cur", value).apply()
+    var hvessCurTts: Boolean
+        get() = sp.getBoolean("hvess_cur_tts", true)
+        set(value) = sp.edit().putBoolean("hvess_cur_tts", value).apply()
+    var hvessCurWarnA: Float
+        get() = sp.getFloat("hvess_cur_warn_a", 120f)
+        set(value) = sp.edit().putFloat("hvess_cur_warn_a", value.coerceIn(20f, 400f)).apply()
+    var hvessCurAlertA: Float
+        get() = sp.getFloat("hvess_cur_alert_a", 180f)
+        set(value) = sp.edit().putFloat("hvess_cur_alert_a", value.coerceIn(40f, 500f)).apply()
+    var hvessCurSpeedMinKmh: Float
+        get() = sp.getFloat("hvess_cur_speed_min", 10f)
+        set(value) = sp.edit().putFloat("hvess_cur_speed_min", value.coerceIn(0f, 60f)).apply()
+    var hvessCurSimA: Float
+        get() = sp.getFloat("hvess_cur_sim_a", 0f)
+        set(value) = sp.edit().putFloat("hvess_cur_sim_a", value.coerceIn(-500f, 500f)).apply()
+    var hvessCurSimSpeedKmh: Float
+        get() = sp.getFloat("hvess_cur_sim_speed", 0f)
+        set(value) = sp.edit().putFloat("hvess_cur_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** HVESS pack voltage V (OBD 01B6). */
+    var hvessVoltEnabled: Boolean
+        get() = sp.getBoolean("hvess_volt", true)
+        set(value) = sp.edit().putBoolean("hvess_volt", value).apply()
+    var hvessVoltTts: Boolean
+        get() = sp.getBoolean("hvess_volt_tts", true)
+        set(value) = sp.edit().putBoolean("hvess_volt_tts", value).apply()
+    var hvessVoltWarnV: Float
+        get() = sp.getFloat("hvess_volt_warn_v", 280f)
+        set(value) = sp.edit().putFloat("hvess_volt_warn_v", value.coerceIn(200f, 400f)).apply()
+    var hvessVoltAlertV: Float
+        get() = sp.getFloat("hvess_volt_alert_v", 260f)
+        set(value) = sp.edit().putFloat("hvess_volt_alert_v", value.coerceIn(150f, 390f)).apply()
+    var hvessVoltSimV: Float
+        get() = sp.getFloat("hvess_volt_sim_v", 0f)
+        set(value) = sp.edit().putFloat("hvess_volt_sim_v", value.coerceIn(0f, 1000f)).apply()
+
+    /** HEV max cell temp °C (OBD 01B7). */
+    var hvCellMaxEnabled: Boolean
+        get() = sp.getBoolean("hv_cell_max", true)
+        set(value) = sp.edit().putBoolean("hv_cell_max", value).apply()
+    var hvCellMaxTts: Boolean
+        get() = sp.getBoolean("hv_cell_max_tts", true)
+        set(value) = sp.edit().putBoolean("hv_cell_max_tts", value).apply()
+    var hvCellMaxWarnC: Float
+        get() = sp.getFloat("hv_cell_max_warn_c", 42f)
+        set(value) = sp.edit().putFloat("hv_cell_max_warn_c", value.coerceIn(20f, 60f)).apply()
+    var hvCellMaxAlertC: Float
+        get() = sp.getFloat("hv_cell_max_alert_c", 48f)
+        set(value) = sp.edit().putFloat("hv_cell_max_alert_c", value.coerceIn(25f, 80f)).apply()
+    var hvCellMaxSimC: Float
+        get() = sp.getFloat("hv_cell_max_sim_c", 0f)
+        set(value) = sp.edit().putFloat("hv_cell_max_sim_c", value.coerceIn(0f, 120f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

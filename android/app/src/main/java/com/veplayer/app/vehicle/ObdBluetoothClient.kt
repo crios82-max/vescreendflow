@@ -330,6 +330,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0192", // fuel system control status
                 "0193", // WWH-OBD cumulative MI counter
                 "019A", // hybrid/EV battery voltage
+                "01B2", // traction battery SOH
+                "01B4", // HVESS temperature
+                "01B5", // HVESS current
+                "01B6", // HVESS pack voltage
+                "01B7", // max cell temperature
                 "0194", // NOx reagent quality
                 "019B", // DEF fluid level
                 "01A1", // NOx corrected B1S1
