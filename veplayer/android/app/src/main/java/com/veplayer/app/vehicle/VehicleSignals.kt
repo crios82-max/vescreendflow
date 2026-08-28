@@ -247,6 +247,16 @@ data class VehicleSignals(
         val throttleGPct: Float? = null,
         /** Engine friction torque % (OBD PID 018E), signed. */
         val engineFrictionPct: Float? = null,
+        /** Catalyst temp bank 1 sensor 14 °C (OBD PID 0189). */
+        val catalystB1s14TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 14 °C (OBD PID 018A). */
+        val catalystB2s14TempC: Float? = null,
+        /** O2 wide-range lambda B1S1 (OBD PID 018C). */
+        val o2LambdaB1: Float? = null,
+        /** PM sensor normalized B1S1 % (OBD PID 018F). */
+        val pmSensorB1Pct: Float? = null,
+        /** PM sensor normalized B2S1 % (OBD PID 018F). */
+        val pmSensorB2Pct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -405,6 +415,11 @@ data class VehicleSignals(
             "dpf_trigger_pct" to dpfTriggerPct?.toDouble(),
             "throttle_g_pct" to throttleGPct?.toDouble(),
             "engine_friction_pct" to engineFrictionPct?.toDouble(),
+            "catalyst_b1s14_temp_c" to catalystB1s14TempC?.toDouble(),
+            "catalyst_b2s14_temp_c" to catalystB2s14TempC?.toDouble(),
+            "o2_lambda_b1" to o2LambdaB1?.toDouble(),
+            "pm_sensor_b1_pct" to pmSensorB1Pct?.toDouble(),
+            "pm_sensor_b2_pct" to pmSensorB2Pct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

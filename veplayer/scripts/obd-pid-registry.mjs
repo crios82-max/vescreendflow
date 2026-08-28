@@ -205,6 +205,16 @@ export function parseMode01(raw) {
       return data.length < 2 ? {} : { catalystB1s13TempC: (data[0] * 256 + data[1]) / 10 - 40 }
     case 0x88:
       return data.length < 2 ? {} : { catalystB2s13TempC: (data[0] * 256 + data[1]) / 10 - 40 }
+    case 0x89:
+      return data.length < 2 ? {} : { catalystB1s14TempC: (data[0] * 256 + data[1]) / 10 - 40 }
+    case 0x8a:
+      return data.length < 2 ? {} : { catalystB2s14TempC: (data[0] * 256 + data[1]) / 10 - 40 }
+    case 0x8c:
+      return data.length < 11 ? {} : { o2LambdaB1: (data[9] * 256 + data[10]) * 0.000122 }
+    case 0x8f:
+      const b1 = data.length >= 4 ? (data[2] * 256 + data[3]) / 100 : null
+      const b2 = data.length >= 7 ? (data[5] * 256 + data[6]) / 100 : null
+      return { pmSensorB1Pct: b1, pmSensorB2Pct: b2 }
     case 0x8b:
       return data.length < 3 ? {} : { dpfTriggerPct: (data[2] * 100) / 255 }
     case 0x8d:
@@ -229,7 +239,7 @@ export const POLL_PID_HEX = [
   '010D', '010C', '0110', '010A', '0133', '010E', '014A', '0143', '0145', '0149', '014B', '014D',
   '0144', '014E', '0152', '0153', '0159', '014C', '015A', '0161', '0162', '0170', '0171', '0172',
   '0173', '0174', '0175', '0176', '0155', '0156', '0157', '0158', '0177', '0178', '015D', '015B',
-  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
+  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
   '011F', '0121', '0131', '0134', '0142',
 ]
 
@@ -324,6 +334,10 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 09 9C', expect: { fuelTrimLtftB2Pct: 21.875 } },
   { raw: '41 87 24 54', expect: { catalystB1s13TempC: 890 } },
   { raw: '41 88 24 54', expect: { catalystB2s13TempC: 890 } },
+  { raw: '41 89 24 54', expect: { catalystB1s14TempC: 890 } },
+  { raw: '41 8A 24 54', expect: { catalystB2s14TempC: 890 } },
+  { raw: '41 8C 00 00 00 00 00 00 00 00 00 27 10', expect: { o2LambdaB1: 1.22 } },
+  { raw: '41 8F 00 00 23 28 00 23 28', expect: { pmSensorB1Pct: 90, pmSensorB2Pct: 90 } },
   { raw: '41 8B 00 00 D9', expect: { dpfTriggerPct: (0xd9 * 100) / 255 } },
   { raw: '41 8D E6', expect: { throttleGPct: (0xe6 * 100) / 255 } },
   { raw: '41 8E B9', expect: { engineFrictionPct: 60 } },
@@ -444,6 +458,13 @@ export function runFaseFormulaChecks(fase, assert) {
       assert((0xd9 * 100) / 255 > 84, 'pid 018B')
       assert((0xe6 * 100) / 255 > 90, 'pid 018D')
       assert(0xb9 - 125 === 60, 'pid 018E')
+      break
+    case 30:
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0189')
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 018A')
+      assert((0x27 * 256 + 0x10) * 0.000122 === 1.22, 'pid 018C')
+      assert((0x23 * 256 + 0x28) / 100 === 90, 'pid 018F B1')
+      assert((0x23 * 256 + 0x28) / 100 === 90, 'pid 018F B2')
       break
     default:
       throw new Error(`unknown fase ${fase}`)

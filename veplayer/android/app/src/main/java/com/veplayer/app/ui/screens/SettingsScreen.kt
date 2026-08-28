@@ -4441,6 +4441,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 30 OBD (189/8A/8C/8F):", color = Mist)
+            val catB1s14St by com.veplayer.app.vehicle.CatalystB1S14Monitor.state.collectAsState()
+            val catB2s14St by com.veplayer.app.vehicle.CatalystB2S14Monitor.state.collectAsState()
+            val o2LambdaSt by com.veplayer.app.vehicle.O2LambdaB1Monitor.state.collectAsState()
+            val pmB1St by com.veplayer.app.vehicle.PmSensorB1Monitor.state.collectAsState()
+            val pmB2St by com.veplayer.app.vehicle.PmSensorB2Monitor.state.collectAsState()
+            var f30B1s14 by remember {
+                mutableStateOf(if (prefs.catB1s14SimC > 0f) prefs.catB1s14SimC.toInt().toString() else "0")
+            }
+            var f30B2s14 by remember {
+                mutableStateOf(if (prefs.catB2s14SimC > 0f) prefs.catB2s14SimC.toInt().toString() else "0")
+            }
+            var f30O2 by remember {
+                mutableStateOf(if (prefs.o2LambdaSim > 0f) prefs.o2LambdaSim.toString() else "0")
+            }
+            var f30PmB1 by remember {
+                mutableStateOf(if (prefs.pmB1SimPct > 0f) prefs.pmB1SimPct.toInt().toString() else "0")
+            }
+            var f30PmB2 by remember {
+                mutableStateOf(if (prefs.pmB2SimPct > 0f) prefs.pmB2SimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f30B1s14,
+                    onValueChange = { f30B1s14 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S14 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f30B2s14,
+                    onValueChange = { f30B2s14 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S14 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f30O2,
+                    onValueChange = { f30O2 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2λ") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f30PmB1,
+                    onValueChange = { f30PmB1 = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("PMB1 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f30PmB2,
+                    onValueChange = { f30PmB2 = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("PMB2 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s14SimC = f30B1s14.toFloatOrNull() ?: 0f
+                    prefs.catB2s14SimC = f30B2s14.toFloatOrNull() ?: 0f
+                    prefs.o2LambdaSim = f30O2.toFloatOrNull() ?: 0f
+                    prefs.pmB1SimPct = f30PmB1.toFloatOrNull() ?: 0f
+                    prefs.pmB2SimPct = f30PmB2.toFloatOrNull() ?: 0f
+                    status = "Fase 30 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 30") }
+            Text(
+                listOfNotNull(
+                    catB1s14St.label.takeIf { it.isNotBlank() },
+                    catB2s14St.label.takeIf { it.isNotBlank() },
+                    o2LambdaSt.label.takeIf { it.isNotBlank() },
+                    pmB1St.label.takeIf { it.isNotBlank() },
+                    pmB2St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 30 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {
