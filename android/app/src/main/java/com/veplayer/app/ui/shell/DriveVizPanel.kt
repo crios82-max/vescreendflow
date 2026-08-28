@@ -291,8 +291,8 @@ fun DriveVizPanel(
 ) {
     val surround by SurroundEngine.snapshot.collectAsState()
     val media by VeMediaHub.nowPlaying.collectAsState()
-    val prefs = remember { VePrefs(LocalContext.current) }
     val context = LocalContext.current
+    val prefs = remember { VePrefs(context) }
     val fleet = remember { FleetClient(prefs) }
     val scope = rememberCoroutineScope()
     val hud by SpeedHudMonitor.state.collectAsState()

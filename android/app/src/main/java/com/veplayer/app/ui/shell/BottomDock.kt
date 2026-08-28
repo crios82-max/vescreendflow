@@ -32,7 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.modifier
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -45,6 +45,8 @@ import com.veplayer.app.ui.theme.Accent
 import com.veplayer.app.ui.theme.Mist
 import com.veplayer.app.ui.theme.Mute
 import com.veplayer.app.ui.theme.Teal
+import com.veplayer.app.vehicle.HvacClimate
+import com.veplayer.app.vehicle.HvacClimateMonitor
 import com.veplayer.app.vehicle.VehicleState
 
 private data class DockItem(
