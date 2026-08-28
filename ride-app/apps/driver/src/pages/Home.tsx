@@ -131,7 +131,7 @@ export default function Home() {
           </a>
         )}
         <div className="top-bar">
-          <span className="badge">{online ? '🟢 En línea' : '⚫ Offline'} — {user?.name}</span>
+          <span className={`badge${online ? ' badge--accent' : ''}`}>{online ? '🟢 En línea' : '⚫ Offline'} — {user?.name}</span>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn-secondary" onClick={() => setTab(tab === 'rides' ? 'history' : 'rides')}>
               {tab === 'rides' ? 'Historial' : 'Viajes'}

@@ -43,7 +43,7 @@ function RoutePolyline({ encoded }: { encoded: string }) {
     if (!map || path.length === 0) return;
     const line = new google.maps.Polyline({
       path,
-      strokeColor: '#3b82f6',
+      strokeColor: '#A3E635',
       strokeWeight: 5,
       strokeOpacity: 0.85,
     });
