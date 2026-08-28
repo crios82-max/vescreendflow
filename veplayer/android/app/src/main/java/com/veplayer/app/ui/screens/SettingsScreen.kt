@@ -5234,6 +5234,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 40 OBD (9D/9E/9F):", color = Mist)
+            val fuelGpsSt by com.veplayer.app.vehicle.EngineFuelRateGpsMonitor.state.collectAsState()
+            val exhFlowSt by com.veplayer.app.vehicle.EngineExhaustFlowMonitor.state.collectAsState()
+            val fsu1St by com.veplayer.app.vehicle.FuelSysUsePct1Monitor.state.collectAsState()
+            val fsu2St by com.veplayer.app.vehicle.FuelSysUsePct2Monitor.state.collectAsState()
+            val fsu3St by com.veplayer.app.vehicle.FuelSysUsePct3Monitor.state.collectAsState()
+            var f40FuelGps by remember {
+                mutableStateOf(if (prefs.engineFuelRateGpsSim > 0f) prefs.engineFuelRateGpsSim.toString() else "0")
+            }
+            var f40Exh by remember {
+                mutableStateOf(if (prefs.exhaustFlowSimKgh > 0f) prefs.exhaustFlowSimKgh.toInt().toString() else "0")
+            }
+            var f40Fsu1 by remember {
+                mutableStateOf(if (prefs.fuelSysUse1SimPct > 0f) prefs.fuelSysUse1SimPct.toInt().toString() else "0")
+            }
+            var f40Fsu2 by remember {
+                mutableStateOf(if (prefs.fuelSysUse2SimPct > 0f) prefs.fuelSysUse2SimPct.toInt().toString() else "0")
+            }
+            var f40Fsu3 by remember {
+                mutableStateOf(if (prefs.fuelSysUse3SimPct > 0f) prefs.fuelSysUse3SimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f40FuelGps,
+                    onValueChange = { f40FuelGps = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("FuelGPS") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f40Exh,
+                    onValueChange = { f40Exh = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("ExhFlow") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f40Fsu1,
+                    onValueChange = { f40Fsu1 = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("FSu1") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f40Fsu2,
+                    onValueChange = { f40Fsu2 = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("FSu2") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f40Fsu3,
+                    onValueChange = { f40Fsu3 = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("FSu3") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.engineFuelRateGpsSim = f40FuelGps.toFloatOrNull() ?: 0f
+                    prefs.exhaustFlowSimKgh = f40Exh.toFloatOrNull() ?: 0f
+                    prefs.fuelSysUse1SimPct = f40Fsu1.toFloatOrNull() ?: 0f
+                    prefs.fuelSysUse2SimPct = f40Fsu2.toFloatOrNull() ?: 0f
+                    prefs.fuelSysUse3SimPct = f40Fsu3.toFloatOrNull() ?: 0f
+                    status = "Fase 40 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 40") }
+            Text(
+                listOfNotNull(
+                    fuelGpsSt.label.takeIf { it.isNotBlank() },
+                    exhFlowSt.label.takeIf { it.isNotBlank() },
+                    fsu1St.label.takeIf { it.isNotBlank() },
+                    fsu2St.label.takeIf { it.isNotBlank() },
+                    fsu3St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 40 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

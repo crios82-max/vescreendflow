@@ -325,6 +325,11 @@ data class VehicleSignals(
         val dpfRemovalCounter: Float? = null,
         val reagentInjectionFailCounter: Float? = null,
         val particulateMonitorMalfunctionCounter: Float? = null,
+        val engineFuelRateGps: Float? = null,
+        val engineExhaustFlowKgh: Float? = null,
+        val fuelSysUsePct1: Float? = null,
+        val fuelSysUsePct2: Float? = null,
+        val fuelSysUsePct3: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -534,6 +539,11 @@ data class VehicleSignals(
             "dpf_removal_counter" to dpfRemovalCounter?.toDouble(),
             "reagent_injection_fail_counter" to reagentInjectionFailCounter?.toDouble(),
             "particulate_monitor_malfunction_counter" to particulateMonitorMalfunctionCounter?.toDouble(),
+            "engine_fuel_rate_gps" to engineFuelRateGps?.toDouble(),
+            "engine_exhaust_flow_kgh" to engineExhaustFlowKgh?.toDouble(),
+            "fuel_sys_use_pct1" to fuelSysUsePct1?.toDouble(),
+            "fuel_sys_use_pct2" to fuelSysUsePct2?.toDouble(),
+            "fuel_sys_use_pct3" to fuelSysUsePct3?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),

@@ -6071,6 +6071,210 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Engine fuel rate g/s (OBD PID 019D)
+    const fuelGpsObj = signals.engine_fuel_rate_gps as Record<string, unknown> | undefined
+    const fuelGpsRate =
+      typeof fuelGpsObj?.rate_gps === 'number'
+        ? (fuelGpsObj.rate_gps as number)
+        : typeof signals.engine_fuel_rate_gps_rate === 'number'
+          ? (signals.engine_fuel_rate_gps_rate as number)
+          : null
+    const fuelGpsSpeed =
+      typeof fuelGpsObj?.speed_kmh === 'number'
+        ? (fuelGpsObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof fuelGpsRate === 'number') {
+      const warnGps =
+        typeof signals.engine_fuel_rate_gps_warn === 'number' ? (signals.engine_fuel_rate_gps_warn as number) : 3
+      const alertGps =
+        typeof signals.engine_fuel_rate_gps_alert === 'number' ? (signals.engine_fuel_rate_gps_alert as number) : 5
+      const minSpd =
+        typeof signals.engine_fuel_rate_gps_speed_min_kmh === 'number'
+          ? (signals.engine_fuel_rate_gps_speed_min_kmh as number)
+          : 20
+      const spdOk = typeof fuelGpsSpeed === 'number' && fuelGpsSpeed >= minSpd
+      if (spdOk && fuelGpsRate >= alertGps && !recentlyAlerted(deviceId, 'engine_fuel_rate_gps_alert', 120)) {
+        insertAlert(deviceId, 'engine_fuel_rate_gps_alert', 'critical', `Tasa combustible motor crítica · ${fuelGpsRate.toFixed(1)} g/s`, {
+          engine_fuel_rate_gps_rate: fuelGpsRate,
+          engine_fuel_rate_gps: fuelGpsObj ?? null,
+        })
+        raised.push('engine_fuel_rate_gps_alert')
+      } else if (
+        spdOk &&
+        fuelGpsRate >= warnGps &&
+        fuelGpsRate < alertGps &&
+        !recentlyAlerted(deviceId, 'engine_fuel_rate_gps_warn', 120)
+      ) {
+        insertAlert(deviceId, 'engine_fuel_rate_gps_warn', 'warn', `Tasa combustible motor alta · ${fuelGpsRate.toFixed(1)} g/s`, {
+          engine_fuel_rate_gps_rate: fuelGpsRate,
+          engine_fuel_rate_gps: fuelGpsObj ?? null,
+        })
+        raised.push('engine_fuel_rate_gps_warn')
+      }
+    }
+
+    // Engine exhaust flow kg/h (OBD PID 019E)
+    const exhaustFlowObj = signals.exhaust_flow as Record<string, unknown> | undefined
+    const exhaustFlowKgh =
+      typeof exhaustFlowObj?.flow_kgh === 'number'
+        ? (exhaustFlowObj.flow_kgh as number)
+        : typeof signals.engine_exhaust_flow_kgh === 'number'
+          ? (signals.engine_exhaust_flow_kgh as number)
+          : null
+    const exhaustFlowSpeed =
+      typeof exhaustFlowObj?.speed_kmh === 'number'
+        ? (exhaustFlowObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof exhaustFlowKgh === 'number') {
+      const warnKgh = typeof signals.exhaust_flow_warn_kgh === 'number' ? (signals.exhaust_flow_warn_kgh as number) : 35
+      const alertKgh = typeof signals.exhaust_flow_alert_kgh === 'number' ? (signals.exhaust_flow_alert_kgh as number) : 50
+      const minSpd =
+        typeof signals.exhaust_flow_speed_min_kmh === 'number' ? (signals.exhaust_flow_speed_min_kmh as number) : 20
+      const spdOk = typeof exhaustFlowSpeed === 'number' && exhaustFlowSpeed >= minSpd
+      if (spdOk && exhaustFlowKgh >= alertKgh && !recentlyAlerted(deviceId, 'exhaust_flow_alert', 120)) {
+        insertAlert(deviceId, 'exhaust_flow_alert', 'critical', `Flujo exhaustivo crítico · ${Math.round(exhaustFlowKgh)} kg/h`, {
+          engine_exhaust_flow_kgh: exhaustFlowKgh,
+          exhaust_flow: exhaustFlowObj ?? null,
+        })
+        raised.push('exhaust_flow_alert')
+      } else if (
+        spdOk &&
+        exhaustFlowKgh >= warnKgh &&
+        exhaustFlowKgh < alertKgh &&
+        !recentlyAlerted(deviceId, 'exhaust_flow_warn', 120)
+      ) {
+        insertAlert(deviceId, 'exhaust_flow_warn', 'warn', `Flujo exhaustivo alto · ${Math.round(exhaustFlowKgh)} kg/h`, {
+          engine_exhaust_flow_kgh: exhaustFlowKgh,
+          exhaust_flow: exhaustFlowObj ?? null,
+        })
+        raised.push('exhaust_flow_warn')
+      }
+    }
+
+    // Fuel system use % 1 (OBD PID 019F byte B)
+    const fuelSysUse1Obj = signals.fuel_sys_use1 as Record<string, unknown> | undefined
+    const fuelSysUse1Pct =
+      typeof fuelSysUse1Obj?.use_pct === 'number'
+        ? (fuelSysUse1Obj.use_pct as number)
+        : typeof signals.fuel_sys_use_pct1 === 'number'
+          ? (signals.fuel_sys_use_pct1 as number)
+          : null
+    const fuelSysUse1Speed =
+      typeof fuelSysUse1Obj?.speed_kmh === 'number'
+        ? (fuelSysUse1Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof fuelSysUse1Pct === 'number') {
+      const warnPct = typeof signals.fuel_sys_use1_warn_pct === 'number' ? (signals.fuel_sys_use1_warn_pct as number) : 70
+      const alertPct = typeof signals.fuel_sys_use1_alert_pct === 'number' ? (signals.fuel_sys_use1_alert_pct as number) : 85
+      const minSpd =
+        typeof signals.fuel_sys_use1_speed_min_kmh === 'number' ? (signals.fuel_sys_use1_speed_min_kmh as number) : 20
+      const spdOk = typeof fuelSysUse1Speed === 'number' && fuelSysUse1Speed >= minSpd
+      if (spdOk && fuelSysUse1Pct >= alertPct && !recentlyAlerted(deviceId, 'fuel_sys_use1_alert', 120)) {
+        insertAlert(deviceId, 'fuel_sys_use1_alert', 'critical', `Uso combustible sistema 1 crítico · ${Math.round(fuelSysUse1Pct)}%`, {
+          fuel_sys_use_pct1: fuelSysUse1Pct,
+          fuel_sys_use1: fuelSysUse1Obj ?? null,
+        })
+        raised.push('fuel_sys_use1_alert')
+      } else if (
+        spdOk &&
+        fuelSysUse1Pct >= warnPct &&
+        fuelSysUse1Pct < alertPct &&
+        !recentlyAlerted(deviceId, 'fuel_sys_use1_warn', 120)
+      ) {
+        insertAlert(deviceId, 'fuel_sys_use1_warn', 'warn', `Uso combustible sistema 1 alto · ${Math.round(fuelSysUse1Pct)}%`, {
+          fuel_sys_use_pct1: fuelSysUse1Pct,
+          fuel_sys_use1: fuelSysUse1Obj ?? null,
+        })
+        raised.push('fuel_sys_use1_warn')
+      }
+    }
+
+    // Fuel system use % 2 (OBD PID 019F byte C)
+    const fuelSysUse2Obj = signals.fuel_sys_use2 as Record<string, unknown> | undefined
+    const fuelSysUse2Pct =
+      typeof fuelSysUse2Obj?.use_pct === 'number'
+        ? (fuelSysUse2Obj.use_pct as number)
+        : typeof signals.fuel_sys_use_pct2 === 'number'
+          ? (signals.fuel_sys_use_pct2 as number)
+          : null
+    const fuelSysUse2Speed =
+      typeof fuelSysUse2Obj?.speed_kmh === 'number'
+        ? (fuelSysUse2Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof fuelSysUse2Pct === 'number') {
+      const warnPct = typeof signals.fuel_sys_use2_warn_pct === 'number' ? (signals.fuel_sys_use2_warn_pct as number) : 70
+      const alertPct = typeof signals.fuel_sys_use2_alert_pct === 'number' ? (signals.fuel_sys_use2_alert_pct as number) : 85
+      const minSpd =
+        typeof signals.fuel_sys_use2_speed_min_kmh === 'number' ? (signals.fuel_sys_use2_speed_min_kmh as number) : 20
+      const spdOk = typeof fuelSysUse2Speed === 'number' && fuelSysUse2Speed >= minSpd
+      if (spdOk && fuelSysUse2Pct >= alertPct && !recentlyAlerted(deviceId, 'fuel_sys_use2_alert', 120)) {
+        insertAlert(deviceId, 'fuel_sys_use2_alert', 'critical', `Uso combustible sistema 2 crítico · ${Math.round(fuelSysUse2Pct)}%`, {
+          fuel_sys_use_pct2: fuelSysUse2Pct,
+          fuel_sys_use2: fuelSysUse2Obj ?? null,
+        })
+        raised.push('fuel_sys_use2_alert')
+      } else if (
+        spdOk &&
+        fuelSysUse2Pct >= warnPct &&
+        fuelSysUse2Pct < alertPct &&
+        !recentlyAlerted(deviceId, 'fuel_sys_use2_warn', 120)
+      ) {
+        insertAlert(deviceId, 'fuel_sys_use2_warn', 'warn', `Uso combustible sistema 2 alto · ${Math.round(fuelSysUse2Pct)}%`, {
+          fuel_sys_use_pct2: fuelSysUse2Pct,
+          fuel_sys_use2: fuelSysUse2Obj ?? null,
+        })
+        raised.push('fuel_sys_use2_warn')
+      }
+    }
+
+    // Fuel system use % 3 (OBD PID 019F byte D)
+    const fuelSysUse3Obj = signals.fuel_sys_use3 as Record<string, unknown> | undefined
+    const fuelSysUse3Pct =
+      typeof fuelSysUse3Obj?.use_pct === 'number'
+        ? (fuelSysUse3Obj.use_pct as number)
+        : typeof signals.fuel_sys_use_pct3 === 'number'
+          ? (signals.fuel_sys_use_pct3 as number)
+          : null
+    const fuelSysUse3Speed =
+      typeof fuelSysUse3Obj?.speed_kmh === 'number'
+        ? (fuelSysUse3Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof fuelSysUse3Pct === 'number') {
+      const warnPct = typeof signals.fuel_sys_use3_warn_pct === 'number' ? (signals.fuel_sys_use3_warn_pct as number) : 70
+      const alertPct = typeof signals.fuel_sys_use3_alert_pct === 'number' ? (signals.fuel_sys_use3_alert_pct as number) : 85
+      const minSpd =
+        typeof signals.fuel_sys_use3_speed_min_kmh === 'number' ? (signals.fuel_sys_use3_speed_min_kmh as number) : 20
+      const spdOk = typeof fuelSysUse3Speed === 'number' && fuelSysUse3Speed >= minSpd
+      if (spdOk && fuelSysUse3Pct >= alertPct && !recentlyAlerted(deviceId, 'fuel_sys_use3_alert', 120)) {
+        insertAlert(deviceId, 'fuel_sys_use3_alert', 'critical', `Uso combustible sistema 3 crítico · ${Math.round(fuelSysUse3Pct)}%`, {
+          fuel_sys_use_pct3: fuelSysUse3Pct,
+          fuel_sys_use3: fuelSysUse3Obj ?? null,
+        })
+        raised.push('fuel_sys_use3_alert')
+      } else if (
+        spdOk &&
+        fuelSysUse3Pct >= warnPct &&
+        fuelSysUse3Pct < alertPct &&
+        !recentlyAlerted(deviceId, 'fuel_sys_use3_warn', 120)
+      ) {
+        insertAlert(deviceId, 'fuel_sys_use3_warn', 'warn', `Uso combustible sistema 3 alto · ${Math.round(fuelSysUse3Pct)}%`, {
+          fuel_sys_use_pct3: fuelSysUse3Pct,
+          fuel_sys_use3: fuelSysUse3Obj ?? null,
+        })
+        raised.push('fuel_sys_use3_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

@@ -188,6 +188,11 @@ import com.veplayer.app.vehicle.ParticulateInduceAlertMonitor
 import com.veplayer.app.vehicle.DpfRemovalCounterMonitor
 import com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor
 import com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor
+import com.veplayer.app.vehicle.EngineFuelRateGpsMonitor
+import com.veplayer.app.vehicle.EngineExhaustFlowMonitor
+import com.veplayer.app.vehicle.FuelSysUsePct1Monitor
+import com.veplayer.app.vehicle.FuelSysUsePct2Monitor
+import com.veplayer.app.vehicle.FuelSysUsePct3Monitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -378,6 +383,11 @@ fun DriveVizPanel(
     val dpfRemoval by DpfRemovalCounterMonitor.state.collectAsState()
     val reagentFail by ReagentInjectionFailCounterMonitor.state.collectAsState()
     val particulateMalf by ParticulateMonitorMalfunctionCounterMonitor.state.collectAsState()
+    val engineFuelRateGps by EngineFuelRateGpsMonitor.state.collectAsState()
+    val exhaustFlow by EngineExhaustFlowMonitor.state.collectAsState()
+    val fuelSysUse1 by FuelSysUsePct1Monitor.state.collectAsState()
+    val fuelSysUse2 by FuelSysUsePct2Monitor.state.collectAsState()
+    val fuelSysUse3 by FuelSysUsePct3Monitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -551,6 +561,11 @@ fun DriveVizPanel(
             DpfRemovalCounterMonitor.tick(prefs, snap)
             ReagentInjectionFailCounterMonitor.tick(prefs, snap)
             ParticulateMonitorMalfunctionCounterMonitor.tick(prefs, snap)
+            EngineFuelRateGpsMonitor.tick(prefs, snap)
+            EngineExhaustFlowMonitor.tick(prefs, snap)
+            FuelSysUsePct1Monitor.tick(prefs, snap)
+            FuelSysUsePct2Monitor.tick(prefs, snap)
+            FuelSysUsePct3Monitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1395,6 +1410,21 @@ fun DriveVizPanel(
                 }
                 if (particulateMalf.showWarn || (prefs.particulateMalfEnabled && particulateMalf.band == "ok" && particulateMalf.label.isNotBlank())) {
                     Text(particulateMalf.label, color = Color(com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounter.accentArgb(particulateMalf.band)), fontSize = 11.sp)
+                }
+                if (engineFuelRateGps.showWarn || (prefs.engineFuelRateGpsEnabled && engineFuelRateGps.band == "ok" && engineFuelRateGps.label.isNotBlank())) {
+                    Text(engineFuelRateGps.label, color = Color(com.veplayer.app.vehicle.EngineFuelRateGps.accentArgb(engineFuelRateGps.band)), fontSize = 11.sp)
+                }
+                if (exhaustFlow.showWarn || (prefs.exhaustFlowEnabled && exhaustFlow.band == "ok" && exhaustFlow.label.isNotBlank())) {
+                    Text(exhaustFlow.label, color = Color(com.veplayer.app.vehicle.EngineExhaustFlow.accentArgb(exhaustFlow.band)), fontSize = 11.sp)
+                }
+                if (fuelSysUse1.showWarn || (prefs.fuelSysUse1Enabled && fuelSysUse1.band == "ok" && fuelSysUse1.label.isNotBlank())) {
+                    Text(fuelSysUse1.label, color = Color(com.veplayer.app.vehicle.FuelSysUsePct1.accentArgb(fuelSysUse1.band)), fontSize = 11.sp)
+                }
+                if (fuelSysUse2.showWarn || (prefs.fuelSysUse2Enabled && fuelSysUse2.band == "ok" && fuelSysUse2.label.isNotBlank())) {
+                    Text(fuelSysUse2.label, color = Color(com.veplayer.app.vehicle.FuelSysUsePct2.accentArgb(fuelSysUse2.band)), fontSize = 11.sp)
+                }
+                if (fuelSysUse3.showWarn || (prefs.fuelSysUse3Enabled && fuelSysUse3.band == "ok" && fuelSysUse3.label.isNotBlank())) {
+                    Text(fuelSysUse3.label, color = Color(com.veplayer.app.vehicle.FuelSysUsePct3.accentArgb(fuelSysUse3.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

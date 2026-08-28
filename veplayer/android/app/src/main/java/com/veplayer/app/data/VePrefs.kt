@@ -3655,6 +3655,121 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("particulate_malf_sim_speed", 40f)
         set(value) = sp.edit().putFloat("particulate_malf_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Engine fuel rate g/s (OBD 019D). */
+    var engineFuelRateGpsEnabled: Boolean
+        get() = sp.getBoolean("engine_fuel_rate_gps", true)
+        set(value) = sp.edit().putBoolean("engine_fuel_rate_gps", value).apply()
+    var engineFuelRateGpsTts: Boolean
+        get() = sp.getBoolean("engine_fuel_rate_gps_tts", true)
+        set(value) = sp.edit().putBoolean("engine_fuel_rate_gps_tts", value).apply()
+    var engineFuelRateGpsWarn: Float
+        get() = sp.getFloat("engine_fuel_rate_gps_warn", 3f)
+        set(value) = sp.edit().putFloat("engine_fuel_rate_gps_warn", value.coerceIn(0.5f, 50f)).apply()
+    var engineFuelRateGpsAlert: Float
+        get() = sp.getFloat("engine_fuel_rate_gps_alert", 5f)
+        set(value) = sp.edit().putFloat("engine_fuel_rate_gps_alert", value.coerceIn(1f, 80f)).apply()
+    var engineFuelRateGpsSpeedMinKmh: Float
+        get() = sp.getFloat("engine_fuel_rate_gps_speed_min", 20f)
+        set(value) = sp.edit().putFloat("engine_fuel_rate_gps_speed_min", value.coerceIn(0f, 60f)).apply()
+    var engineFuelRateGpsSim: Float
+        get() = sp.getFloat("engine_fuel_rate_gps_sim", 0f)
+        set(value) = sp.edit().putFloat("engine_fuel_rate_gps_sim", value.coerceIn(0f, 100f)).apply()
+    var engineFuelRateGpsSimSpeedKmh: Float
+        get() = sp.getFloat("engine_fuel_rate_gps_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("engine_fuel_rate_gps_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Engine exhaust flow kg/h (OBD 019E). */
+    var exhaustFlowEnabled: Boolean
+        get() = sp.getBoolean("exhaust_flow", true)
+        set(value) = sp.edit().putBoolean("exhaust_flow", value).apply()
+    var exhaustFlowTts: Boolean
+        get() = sp.getBoolean("exhaust_flow_tts", true)
+        set(value) = sp.edit().putBoolean("exhaust_flow_tts", value).apply()
+    var exhaustFlowWarnKgh: Float
+        get() = sp.getFloat("exhaust_flow_warn_kgh", 35f)
+        set(value) = sp.edit().putFloat("exhaust_flow_warn_kgh", value.coerceIn(5f, 500f)).apply()
+    var exhaustFlowAlertKgh: Float
+        get() = sp.getFloat("exhaust_flow_alert_kgh", 50f)
+        set(value) = sp.edit().putFloat("exhaust_flow_alert_kgh", value.coerceIn(10f, 800f)).apply()
+    var exhaustFlowSpeedMinKmh: Float
+        get() = sp.getFloat("exhaust_flow_speed_min", 20f)
+        set(value) = sp.edit().putFloat("exhaust_flow_speed_min", value.coerceIn(0f, 60f)).apply()
+    var exhaustFlowSimKgh: Float
+        get() = sp.getFloat("exhaust_flow_sim_kgh", 0f)
+        set(value) = sp.edit().putFloat("exhaust_flow_sim_kgh", value.coerceIn(0f, 2000f)).apply()
+    var exhaustFlowSimSpeedKmh: Float
+        get() = sp.getFloat("exhaust_flow_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("exhaust_flow_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Fuel system use % 1 (OBD 019F byte B). */
+    var fuelSysUse1Enabled: Boolean
+        get() = sp.getBoolean("fuel_sys_use1", true)
+        set(value) = sp.edit().putBoolean("fuel_sys_use1", value).apply()
+    var fuelSysUse1Tts: Boolean
+        get() = sp.getBoolean("fuel_sys_use1_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_sys_use1_tts", value).apply()
+    var fuelSysUse1WarnPct: Float
+        get() = sp.getFloat("fuel_sys_use1_warn_pct", 70f)
+        set(value) = sp.edit().putFloat("fuel_sys_use1_warn_pct", value.coerceIn(20f, 98f)).apply()
+    var fuelSysUse1AlertPct: Float
+        get() = sp.getFloat("fuel_sys_use1_alert_pct", 85f)
+        set(value) = sp.edit().putFloat("fuel_sys_use1_alert_pct", value.coerceIn(30f, 100f)).apply()
+    var fuelSysUse1SpeedMinKmh: Float
+        get() = sp.getFloat("fuel_sys_use1_speed_min", 20f)
+        set(value) = sp.edit().putFloat("fuel_sys_use1_speed_min", value.coerceIn(0f, 60f)).apply()
+    var fuelSysUse1SimPct: Float
+        get() = sp.getFloat("fuel_sys_use1_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("fuel_sys_use1_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var fuelSysUse1SimSpeedKmh: Float
+        get() = sp.getFloat("fuel_sys_use1_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("fuel_sys_use1_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Fuel system use % 2 (OBD 019F byte C). */
+    var fuelSysUse2Enabled: Boolean
+        get() = sp.getBoolean("fuel_sys_use2", true)
+        set(value) = sp.edit().putBoolean("fuel_sys_use2", value).apply()
+    var fuelSysUse2Tts: Boolean
+        get() = sp.getBoolean("fuel_sys_use2_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_sys_use2_tts", value).apply()
+    var fuelSysUse2WarnPct: Float
+        get() = sp.getFloat("fuel_sys_use2_warn_pct", 70f)
+        set(value) = sp.edit().putFloat("fuel_sys_use2_warn_pct", value.coerceIn(20f, 98f)).apply()
+    var fuelSysUse2AlertPct: Float
+        get() = sp.getFloat("fuel_sys_use2_alert_pct", 85f)
+        set(value) = sp.edit().putFloat("fuel_sys_use2_alert_pct", value.coerceIn(30f, 100f)).apply()
+    var fuelSysUse2SpeedMinKmh: Float
+        get() = sp.getFloat("fuel_sys_use2_speed_min", 20f)
+        set(value) = sp.edit().putFloat("fuel_sys_use2_speed_min", value.coerceIn(0f, 60f)).apply()
+    var fuelSysUse2SimPct: Float
+        get() = sp.getFloat("fuel_sys_use2_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("fuel_sys_use2_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var fuelSysUse2SimSpeedKmh: Float
+        get() = sp.getFloat("fuel_sys_use2_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("fuel_sys_use2_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Fuel system use % 3 (OBD 019F byte D). */
+    var fuelSysUse3Enabled: Boolean
+        get() = sp.getBoolean("fuel_sys_use3", true)
+        set(value) = sp.edit().putBoolean("fuel_sys_use3", value).apply()
+    var fuelSysUse3Tts: Boolean
+        get() = sp.getBoolean("fuel_sys_use3_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_sys_use3_tts", value).apply()
+    var fuelSysUse3WarnPct: Float
+        get() = sp.getFloat("fuel_sys_use3_warn_pct", 70f)
+        set(value) = sp.edit().putFloat("fuel_sys_use3_warn_pct", value.coerceIn(20f, 98f)).apply()
+    var fuelSysUse3AlertPct: Float
+        get() = sp.getFloat("fuel_sys_use3_alert_pct", 85f)
+        set(value) = sp.edit().putFloat("fuel_sys_use3_alert_pct", value.coerceIn(30f, 100f)).apply()
+    var fuelSysUse3SpeedMinKmh: Float
+        get() = sp.getFloat("fuel_sys_use3_speed_min", 20f)
+        set(value) = sp.edit().putFloat("fuel_sys_use3_speed_min", value.coerceIn(0f, 60f)).apply()
+    var fuelSysUse3SimPct: Float
+        get() = sp.getFloat("fuel_sys_use3_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("fuel_sys_use3_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var fuelSysUse3SimSpeedKmh: Float
+        get() = sp.getFloat("fuel_sys_use3_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("fuel_sys_use3_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
