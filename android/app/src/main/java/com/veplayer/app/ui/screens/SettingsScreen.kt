@@ -5315,6 +5315,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 41 OBD (90/91/92/93/9A):", color = Mist)
+            val wwhCmiSt by com.veplayer.app.vehicle.WwhObdContinuousMiMonitor.state.collectAsState()
+            val wwhB1St by com.veplayer.app.vehicle.WwhObdEcuB1HoursMonitor.state.collectAsState()
+            val fscSt by com.veplayer.app.vehicle.FuelSysCtlClosedMonitor.state.collectAsState()
+            val wwhCumSt by com.veplayer.app.vehicle.WwhObdCumulativeMiMonitor.state.collectAsState()
+            val hevVSt by com.veplayer.app.vehicle.HybridEvBattVoltageMonitor.state.collectAsState()
+            var f41WwhCmi by remember {
+                mutableStateOf(if (prefs.wwhContMiSimH > 0f) prefs.wwhContMiSimH.toInt().toString() else "0")
+            }
+            var f41WwhB1 by remember {
+                mutableStateOf(if (prefs.wwhEcuB1SimH > 0f) prefs.wwhEcuB1SimH.toInt().toString() else "0")
+            }
+            var f41Fsc by remember {
+                mutableStateOf(if (prefs.fuelSysCtlSimCount > 0f) prefs.fuelSysCtlSimCount.toInt().toString() else "0")
+            }
+            var f41WwhCum by remember {
+                mutableStateOf(if (prefs.wwhCumMiSimH > 0f) prefs.wwhCumMiSimH.toInt().toString() else "0")
+            }
+            var f41HevV by remember {
+                mutableStateOf(if (prefs.hevVoltSimV > 0f) prefs.hevVoltSimV.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f41WwhCmi,
+                    onValueChange = { f41WwhCmi = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("WwhCMI") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f41WwhB1,
+                    onValueChange = { f41WwhB1 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("WwhB1") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f41Fsc,
+                    onValueChange = { f41Fsc = it.filter { c -> c.isDigit() }.take(1) },
+                    label = { Text("FSCctl") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f41WwhCum,
+                    onValueChange = { f41WwhCum = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("WwhCum") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f41HevV,
+                    onValueChange = { f41HevV = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("HevV") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.wwhContMiSimH = f41WwhCmi.toFloatOrNull() ?: 0f
+                    prefs.wwhEcuB1SimH = f41WwhB1.toFloatOrNull() ?: 0f
+                    prefs.fuelSysCtlSimCount = f41Fsc.toFloatOrNull() ?: 0f
+                    prefs.wwhCumMiSimH = f41WwhCum.toFloatOrNull() ?: 0f
+                    prefs.hevVoltSimV = f41HevV.toFloatOrNull() ?: 0f
+                    status = "Fase 41 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 41") }
+            Text(
+                listOfNotNull(
+                    wwhCmiSt.label.takeIf { it.isNotBlank() },
+                    wwhB1St.label.takeIf { it.isNotBlank() },
+                    fscSt.label.takeIf { it.isNotBlank() },
+                    wwhCumSt.label.takeIf { it.isNotBlank() },
+                    hevVSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 41 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

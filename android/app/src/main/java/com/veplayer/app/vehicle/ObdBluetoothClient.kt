@@ -325,6 +325,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0198", // EGT B1S5
                 "0199", // EGT B2S5
                 "019C", // O2 lambda B1S3/B2S3
+                "0190", // WWH-OBD continuous MI counter
+                "0191", // WWH-OBD ECU B1 counter
+                "0192", // fuel system control status
+                "0193", // WWH-OBD cumulative MI counter
+                "019A", // hybrid/EV battery voltage
                 "0194", // NOx reagent quality
                 "019B", // DEF fluid level
                 "01A1", // NOx corrected B1S1

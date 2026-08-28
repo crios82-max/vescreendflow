@@ -193,6 +193,11 @@ import com.veplayer.app.vehicle.EngineExhaustFlowMonitor
 import com.veplayer.app.vehicle.FuelSysUsePct1Monitor
 import com.veplayer.app.vehicle.FuelSysUsePct2Monitor
 import com.veplayer.app.vehicle.FuelSysUsePct3Monitor
+import com.veplayer.app.vehicle.WwhObdContinuousMiMonitor
+import com.veplayer.app.vehicle.WwhObdEcuB1HoursMonitor
+import com.veplayer.app.vehicle.WwhObdCumulativeMiMonitor
+import com.veplayer.app.vehicle.FuelSysCtlClosedMonitor
+import com.veplayer.app.vehicle.HybridEvBattVoltageMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -388,6 +393,11 @@ fun DriveVizPanel(
     val fuelSysUse1 by FuelSysUsePct1Monitor.state.collectAsState()
     val fuelSysUse2 by FuelSysUsePct2Monitor.state.collectAsState()
     val fuelSysUse3 by FuelSysUsePct3Monitor.state.collectAsState()
+    val wwhContMi by WwhObdContinuousMiMonitor.state.collectAsState()
+    val wwhEcuB1 by WwhObdEcuB1HoursMonitor.state.collectAsState()
+    val wwhCumMi by WwhObdCumulativeMiMonitor.state.collectAsState()
+    val fuelSysCtl by FuelSysCtlClosedMonitor.state.collectAsState()
+    val hevVolt by HybridEvBattVoltageMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -566,6 +576,11 @@ fun DriveVizPanel(
             FuelSysUsePct1Monitor.tick(prefs, snap)
             FuelSysUsePct2Monitor.tick(prefs, snap)
             FuelSysUsePct3Monitor.tick(prefs, snap)
+            WwhObdContinuousMiMonitor.tick(prefs, snap)
+            WwhObdEcuB1HoursMonitor.tick(prefs, snap)
+            WwhObdCumulativeMiMonitor.tick(prefs, snap)
+            FuelSysCtlClosedMonitor.tick(prefs, snap)
+            HybridEvBattVoltageMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1425,6 +1440,21 @@ fun DriveVizPanel(
                 }
                 if (fuelSysUse3.showWarn || (prefs.fuelSysUse3Enabled && fuelSysUse3.band == "ok" && fuelSysUse3.label.isNotBlank())) {
                     Text(fuelSysUse3.label, color = Color(com.veplayer.app.vehicle.FuelSysUsePct3.accentArgb(fuelSysUse3.band)), fontSize = 11.sp)
+                }
+                if (wwhContMi.showWarn || (prefs.wwhContMiEnabled && wwhContMi.band == "ok" && wwhContMi.label.isNotBlank())) {
+                    Text(wwhContMi.label, color = Color(com.veplayer.app.vehicle.WwhObdContinuousMi.accentArgb(wwhContMi.band)), fontSize = 11.sp)
+                }
+                if (wwhEcuB1.showWarn || (prefs.wwhEcuB1Enabled && wwhEcuB1.band == "ok" && wwhEcuB1.label.isNotBlank())) {
+                    Text(wwhEcuB1.label, color = Color(com.veplayer.app.vehicle.WwhObdEcuB1Hours.accentArgb(wwhEcuB1.band)), fontSize = 11.sp)
+                }
+                if (wwhCumMi.showWarn || (prefs.wwhCumMiEnabled && wwhCumMi.band == "ok" && wwhCumMi.label.isNotBlank())) {
+                    Text(wwhCumMi.label, color = Color(com.veplayer.app.vehicle.WwhObdCumulativeMi.accentArgb(wwhCumMi.band)), fontSize = 11.sp)
+                }
+                if (fuelSysCtl.showWarn || (prefs.fuelSysCtlEnabled && fuelSysCtl.band == "ok" && fuelSysCtl.label.isNotBlank())) {
+                    Text(fuelSysCtl.label, color = Color(com.veplayer.app.vehicle.FuelSysCtlClosed.accentArgb(fuelSysCtl.band)), fontSize = 11.sp)
+                }
+                if (hevVolt.showWarn || (prefs.hevVoltEnabled && hevVolt.band == "ok" && hevVolt.label.isNotBlank())) {
+                    Text(hevVolt.label, color = Color(com.veplayer.app.vehicle.HybridEvBattVoltage.accentArgb(hevVolt.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

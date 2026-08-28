@@ -278,6 +278,16 @@ object ObdPidParser {
         val fuelSysUsePct1: Float? = null,
         val fuelSysUsePct2: Float? = null,
         val fuelSysUsePct3: Float? = null,
+        /** WWH-OBD continuous MI counter hours (OBD PID 0190 bytes B/C). */
+        val wwhObdContinuousMiHours: Float? = null,
+        /** WWH-OBD ECU B1 counter hours (OBD PID 0191 bytes D/E). */
+        val wwhObdEcuB1Hours: Float? = null,
+        /** Fuel system closed-loop control count (OBD PID 0192 byte B). */
+        val fuelSysCtlClosedCount: Float? = null,
+        /** WWH-OBD cumulative MI counter hours (OBD PID 0193 bytes B/C). */
+        val wwhObdCumulativeMiHours: Float? = null,
+        /** Hybrid/EV pack voltage V (OBD PID 019A bytes A/B). */
+        val hybridEvBattVoltageV: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -734,6 +744,26 @@ object ObdPidParser {
                     particulateMonitorMalfunctionCounter = (data[5] * 256 + data[6]).toFloat(),
                 )
             }
+            0x90 -> {
+                if (data.size < 3) PidValues()
+                else PidValues(wwhObdContinuousMiHours = (data[1] * 256 + data[2]).toFloat())
+            }
+            0x91 -> {
+                if (data.size < 5) PidValues()
+                else PidValues(wwhObdEcuB1Hours = (data[3] * 256 + data[4]).toFloat())
+            }
+            0x92 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(fuelSysCtlClosedCount = Integer.bitCount(data[1] and 0xFF).toFloat())
+            }
+            0x93 -> {
+                if (data.size < 3) PidValues()
+                else PidValues(wwhObdCumulativeMiHours = (data[1] * 256 + data[2]).toFloat())
+            }
+            0x9A -> {
+                if (data.size < 2) PidValues()
+                else PidValues(hybridEvBattVoltageV = (data[0] * 256 + data[1]) / 10f)
+            }
             0x9D -> {
                 if (data.size < 2) PidValues()
                 else PidValues(engineFuelRateGps = (data[0] * 256 + data[1]) / 200f)
@@ -933,6 +963,11 @@ object ObdPidParser {
             fuelSysUsePct1 = add.fuelSysUsePct1 ?: base.fuelSysUsePct1,
             fuelSysUsePct2 = add.fuelSysUsePct2 ?: base.fuelSysUsePct2,
             fuelSysUsePct3 = add.fuelSysUsePct3 ?: base.fuelSysUsePct3,
+            wwhObdContinuousMiHours = add.wwhObdContinuousMiHours ?: base.wwhObdContinuousMiHours,
+            wwhObdEcuB1Hours = add.wwhObdEcuB1Hours ?: base.wwhObdEcuB1Hours,
+            fuelSysCtlClosedCount = add.fuelSysCtlClosedCount ?: base.fuelSysCtlClosedCount,
+            wwhObdCumulativeMiHours = add.wwhObdCumulativeMiHours ?: base.wwhObdCumulativeMiHours,
+            hybridEvBattVoltageV = add.hybridEvBattVoltageV ?: base.hybridEvBattVoltageV,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

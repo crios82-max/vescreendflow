@@ -73,6 +73,10 @@ for (const hex of pollKotlin) {
     const epcsByte = [0xc4]
     const noxPcdByte = [0xc8]
     const particulateByte = [0xc6]
+    const wwhContMiByte = [0x90]
+    const wwhEcuB1Byte = [0x91]
+    const wwhCumMiByte = [0x93]
+    const hybridEvBattByte = [0x9a]
     const engineFuelRateByte = [0x9d]
     const exhaustFlowByte = [0x9e]
     const fuelSysUseByte = [0x9f]
@@ -169,6 +173,30 @@ for (const hex of pollKotlin) {
       }
     } else if (particulateByte.includes(byte)) {
       const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 02 01 2C 00 90 00 90`)
+      if (!Object.keys(got).length) {
+        console.error('registry parse empty for polled PID', hex)
+        fail++
+      }
+    } else if (wwhContMiByte.includes(byte)) {
+      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 00 00 90`)
+      if (!Object.keys(got).length) {
+        console.error('registry parse empty for polled PID', hex)
+        fail++
+      }
+    } else if (wwhEcuB1Byte.includes(byte)) {
+      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 00 00 00 01 2C`)
+      if (!Object.keys(got).length) {
+        console.error('registry parse empty for polled PID', hex)
+        fail++
+      }
+    } else if (wwhCumMiByte.includes(byte)) {
+      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 00 01 2C`)
+      if (!Object.keys(got).length) {
+        console.error('registry parse empty for polled PID', hex)
+        fail++
+      }
+    } else if (hybridEvBattByte.includes(byte)) {
+      const got = parseMode01(`41 ${byte.toString(16).padStart(2, '0')} 0E 10`)
       if (!Object.keys(got).length) {
         console.error('registry parse empty for polled PID', hex)
         fail++
