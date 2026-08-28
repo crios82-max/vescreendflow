@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { api, useAuth } from '@ride-app/web-shared';
+import { api, useAuth, BrandMark } from '@ride-app/web-shared';
 
 export default function Login() {
   const { login, user } = useAuth();
@@ -28,8 +28,7 @@ export default function Login() {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={onSubmit}>
-        <h1>Ride Pasajero</h1>
-        <p>Pide tu viaje al instante</p>
+        <BrandMark size="lg" showTagline />
         <label>
           Email
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />

@@ -1,6 +1,7 @@
 import { randomInt } from 'crypto';
 import { pool } from '../db.js';
 import { sendEmail } from './email.js';
+import { BRAND } from '@ride-app/shared';
 
 const OTP_TTL_MIN = 10;
 const DEV_OTP = '123456';
@@ -45,13 +46,13 @@ export async function sendPhoneOtp(userId: string, phone: string) {
     [userId, phone, code, expiresAt],
   );
 
-  const message = `Tu código Ride es: ${code}. Válido ${OTP_TTL_MIN} min.`;
+  const message = `Tu código ${BRAND.name} es: ${code}. Válido ${OTP_TTL_MIN} min.`;
   await sendSms(phone, message);
 
   if (process.env.OTP_EMAIL_FALLBACK === 'true') {
     const user = await pool.query('SELECT email FROM users WHERE id = $1', [userId]);
     if (user.rows[0]?.email) {
-      await sendEmail(user.rows[0].email as string, 'Código Ride', `<p>${message}</p>`);
+      await sendEmail(user.rows[0].email as string, `Código ${BRAND.name}`, `<p>${message}</p>`);
     }
   }
 

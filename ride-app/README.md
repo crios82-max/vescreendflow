@@ -1,6 +1,8 @@
-# Ride App — MVP tipo Uber
+# Movi — app de viajes (tipo Uber)
 
 Monorepo con backend Node/Express, apps web (pasajero + conductor + admin), app móvil Expo, Google Directions, matching automático, calificaciones, push y pagos Stripe/mock.
+
+Marca y dominios: [docs/BRAND.md](docs/BRAND.md)
 
 ## Stack
 

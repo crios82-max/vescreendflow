@@ -8,6 +8,10 @@
   font-family: Inter, system-ui, -apple-system, sans-serif;
   color: #fff;
   background: #000;
+  --brand-primary: #a3e635;
+  --brand-primary-on-dark: #000;
+  --brand-bg: #000;
+  --brand-surface: #111;
 }
 
 body {
@@ -77,8 +81,8 @@ input {
 .btn-primary {
   padding: 14px 18px;
   border-radius: 999px;
-  background: #fff;
-  color: #000;
+  background: var(--brand-primary);
+  color: var(--brand-primary-on-dark);
   font-weight: 600;
 }
 
@@ -366,9 +370,9 @@ input {
 }
 
 .tab-btn--active {
-  background: #fff;
-  color: #000;
-  border-color: #fff;
+  background: var(--brand-primary);
+  color: var(--brand-primary-on-dark);
+  border-color: var(--brand-primary);
 }
 
 .admin-page {

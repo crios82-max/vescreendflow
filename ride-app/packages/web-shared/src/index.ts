@@ -19,3 +19,5 @@ export { SplitFareForm } from './SplitFareForm';
 export { StripeCheckout } from './StripeCheckout';
 export { SavedCards } from './SavedCards';
 export { usePhoneVerified } from './PhoneVerifyBanner';
+export { BrandMark } from './BrandMark';
+export { BRAND, brandTitle, brandAppLabel } from '@ride-app/shared';

@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { pool } from '../../db.js';
+import { BRAND } from '@ride-app/shared';
 
 const router = Router();
 
@@ -14,7 +15,7 @@ router.post('/voice/connect', (req: Request, res: Response) => {
   res.type('text/xml');
   res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Say voice="alice" language="es-MX">Conectando llamada enmascarada de Ride.</Say>
+  <Say voice="alice" language="es-MX">Conectando llamada enmascarada de ${BRAND.name}.</Say>
   <Dial callerId="${from}" answerOnBridge="true">${callee}</Dial>
 </Response>`);
 });

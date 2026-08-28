@@ -8,11 +8,11 @@ ENV_FILE="${1:-$ROOT/.env}"
 cat <<'EOF'
 # === Ride App — bloque producción (copia a ride-app/.env) ===
 
-API_PUBLIC_URL=https://ride-api.vescreenflow.com
-VITE_API_URL=https://ride-api.vescreenflow.com
-EXPO_PUBLIC_API_URL=https://ride-api.vescreenflow.com
-PASSENGER_WEB_URL=https://ride.vescreenflow.com
-CORS_ORIGINS=https://ride-api.vescreenflow.com,https://ride.vescreenflow.com,http://localhost:5174,http://localhost:5175,http://localhost:5176
+API_PUBLIC_URL=https://movi-api.vescreenflow.com
+VITE_API_URL=https://movi-api.vescreenflow.com
+EXPO_PUBLIC_API_URL=https://movi-api.vescreenflow.com
+PASSENGER_WEB_URL=https://movi.vescreenflow.com
+CORS_ORIGINS=https://movi-api.vescreenflow.com,https://movi.vescreenflow.com,http://localhost:5174,http://localhost:5175,http://localhost:5176
 
 JWT_SECRET=<openssl rand -hex 32>
 
@@ -43,11 +43,11 @@ EOF
 
 echo ""
 echo "DNS Cloudflare (Proxied CNAME → 55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com):"
-echo "  ride-api"
+echo "  movi-api"
 echo "  ride"
 echo ""
-echo "Stripe webhook: https://ride-api.vescreenflow.com/webhooks/stripe"
-echo "Twilio voice:   https://ride-api.vescreenflow.com/webhooks/twilio/voice/connect"
+echo "Stripe webhook: https://movi-api.vescreenflow.com/webhooks/stripe"
+echo "Twilio voice:   https://movi-api.vescreenflow.com/webhooks/twilio/voice/connect"
 echo ""
 echo "Después de editar .env:"
 echo "  npm run build"

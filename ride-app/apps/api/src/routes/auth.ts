@@ -6,6 +6,7 @@ import { pool } from '../db.js';
 import { signToken } from '../middleware/auth.js';
 import { mapUser } from '../mappers.js';
 import { sendEmail } from '../services/email.js';
+import { BRAND } from '@ride-app/shared';
 
 const router = Router();
 
@@ -115,7 +116,7 @@ router.post('/forgot-password', async (req, res) => {
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
   await sendEmail(
     parsed.data.email,
-    'Restablecer contraseña — Ride App',
+    `Restablecer contraseña — ${BRAND.name}`,
     `<p>Usa este enlace para restablecer tu contraseña (válido 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
   );
 

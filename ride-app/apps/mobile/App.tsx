@@ -16,7 +16,7 @@ import * as Location from 'expo-location';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StatusBar } from 'expo-status-bar';
 import type { Ride, RideEstimate, User, VehicleType } from '@ride-app/shared';
-import { RIDE_STATUS_LABELS, VEHICLE_OPTIONS, VEHICLE_TYPES } from '@ride-app/shared';
+import { BRAND, RIDE_STATUS_LABELS, VEHICLE_OPTIONS, VEHICLE_TYPES } from '@ride-app/shared';
 import { mobileApi } from './src/api';
 import { getMobileSocket, reconnectSocket } from './src/socket';
 import { PlaceSearch } from './src/PlaceSearch';
@@ -268,7 +268,8 @@ export default function App() {
         <StatusBar style="light" />
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
           <ScrollView contentContainerStyle={styles.authScroll} keyboardShouldPersistTaps="handled">
-            <Text style={styles.title}>Ride</Text>
+            <Text style={styles.title}>{BRAND.name}</Text>
+            <Text style={styles.subtitle}>{BRAND.tagline}</Text>
             <Text style={styles.subtitle}>{connectionBadge}</Text>
 
             <Pressable onPress={() => setShowSettings(!showSettings)}>
@@ -651,8 +652,8 @@ const styles = StyleSheet.create({
   link: { color: '#aaa', textDecorationLine: 'underline', marginBottom: 8 },
   settingsBox: { gap: 8, marginBottom: 8 },
   input: { backgroundColor: '#111', color: '#fff', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#333' },
-  btn: { backgroundColor: '#fff', borderRadius: 999, padding: 16, alignItems: 'center', marginTop: 8 },
-  btnSmall: { backgroundColor: '#fff', borderRadius: 999, padding: 12, alignItems: 'center' },
+  btn: { backgroundColor: '#A3E635', borderRadius: 999, padding: 16, alignItems: 'center', marginTop: 8 },
+  btnSmall: { backgroundColor: '#A3E635', borderRadius: 999, padding: 12, alignItems: 'center' },
   btnDisabled: { opacity: 0.45 },
   btnSecondary: { backgroundColor: '#222', borderRadius: 999, padding: 14, alignItems: 'center', marginTop: 8 },
   btnSecondaryText: { color: '#fff', fontWeight: '600' },
@@ -660,7 +661,7 @@ const styles = StyleSheet.create({
   error: { color: '#ff8f8f' },
   row: { flexDirection: 'row', gap: 8 },
   chip: { backgroundColor: '#222', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999 },
-  chipActive: { backgroundColor: '#fff' },
+  chipActive: { backgroundColor: '#A3E635' },
   chipText: { color: '#fff' },
   chipTextActive: { color: '#000', fontWeight: '600' },
   sheet: { backgroundColor: '#111', padding: 16, borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '42%' },

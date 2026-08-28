@@ -12,15 +12,15 @@ Ver también: [CLOUDFLARE_TUNNEL.md](./CLOUDFLARE_TUNNEL.md), [STRIPE_LIVE.md](.
 ## 0. API público (antes de TestFlight)
 
 ```bash
-# Mac mini — DNS CNAME ride-api → tu túnel (ver CLOUDFLARE_TUNNEL.md)
-curl -sf https://ride-api.vescreenflow.com/health && echo OK
+# Mac mini — DNS CNAME movi-api → tu túnel (ver CLOUDFLARE_TUNNEL.md)
+curl -sf https://movi-api.vescreenflow.com/health && echo OK
 ```
 
 En `ride-app/.env`:
 
 ```
-API_PUBLIC_URL=https://ride-api.vescreenflow.com
-EXPO_PUBLIC_API_URL=https://ride-api.vescreenflow.com
+API_PUBLIC_URL=https://movi-api.vescreenflow.com
+EXPO_PUBLIC_API_URL=https://movi-api.vescreenflow.com
 ```
 
 ## 1. Configura `eas.json`
@@ -39,7 +39,7 @@ En [expo.dev](https://expo.dev) → proyecto `ride-app` → **Secrets**:
 
 | Secret | Valor |
 |--------|-------|
-| `EXPO_PUBLIC_API_URL` | `https://ride-api.vescreenflow.com` |
+| `EXPO_PUBLIC_API_URL` | `https://movi-api.vescreenflow.com` |
 | `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` | Tu Google Maps key |
 
 ## 3. TestFlight (un comando)
@@ -77,14 +77,14 @@ eas submit --platform android --profile production
 
 - **Nombre:** Ride
 - **Categoría:** Travel
-- **Privacy Policy URL:** `https://ride.vescreenflow.com/privacy`
-- **Terms:** `https://ride.vescreenflow.com/terms`
+- **Privacy Policy URL:** `https://movi.vescreenflow.com/privacy`
+- **Terms:** `https://movi.vescreenflow.com/terms`
 - **Screenshots:** iPhone 6.7" y 6.5" (mín. 3)
 
 ## 7. Twilio Voice
 
 ```
-API_PUBLIC_URL=https://ride-api.vescreenflow.com
+API_PUBLIC_URL=https://movi-api.vescreenflow.com
 TWILIO_ACCOUNT_SID=...
 TWILIO_AUTH_TOKEN=...
 TWILIO_PHONE_NUMBER=+1...
@@ -92,9 +92,9 @@ TWILIO_PHONE_NUMBER=+1...
 
 ## Checklist
 
-- [ ] DNS: `ride-api` + `ride` CNAME (ver [CLOUDFLARE_TUNNEL.md](./CLOUDFLARE_TUNNEL.md))
-- [ ] `curl https://ride-api.vescreenflow.com/health`
-- [ ] `curl -sf -o /dev/null https://ride.vescreenflow.com`
+- [ ] DNS: `movi-api` + `ride` CNAME (ver [CLOUDFLARE_TUNNEL.md](./CLOUDFLARE_TUNNEL.md))
+- [ ] `curl https://movi-api.vescreenflow.com/health`
+- [ ] `curl -sf -o /dev/null https://movi.vescreenflow.com`
 - [ ] `./scripts/setup-prod-env.sh` — vars OK
 - [ ] Stripe live + webhook (ver [STRIPE_LIVE.md](./STRIPE_LIVE.md))
 - [ ] EAS secrets configurados

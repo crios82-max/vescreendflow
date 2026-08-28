@@ -6,8 +6,8 @@ credentials-file: /Users/server/.cloudflared/YOUR_TUNNEL_ID.json
 protocol: http2
 
 ingress:
-  - hostname: ride-api.vescreenflow.com
+  - hostname: movi-api.vescreenflow.com
     service: http://127.0.0.1:4001
-  - hostname: ride.vescreenflow.com
+  - hostname: movi.vescreenflow.com
     service: http://127.0.0.1:5174
   - service: http_status:404
