@@ -8,4 +8,6 @@ protocol: http2
 ingress:
   - hostname: ride-api.vescreenflow.com
     service: http://127.0.0.1:4001
+  - hostname: ride.vescreenflow.com
+    service: http://127.0.0.1:5174
   - service: http_status:404

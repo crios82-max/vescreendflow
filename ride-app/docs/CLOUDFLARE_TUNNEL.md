@@ -1,14 +1,21 @@
-# Ride App — Cloudflare Tunnel (API público)
+# Ride App — Cloudflare Tunnel (API + web pasajero)
 
-Expone el API local `:4001` como `https://ride-api.vescreenflow.com` (ajusta hostname).
+Expone:
+
+| Hostname | Servicio local |
+|----------|----------------|
+| `ride-api.vescreenflow.com` | API `:4001` |
+| `ride.vescreenflow.com` | Web pasajero `:5174` |
 
 ## Opción A — Mismo túnel que vescreenflow (recomendado)
 
-El repo ya tiene túnel `55818726-7a1f-459c-a904-00f5487e6aad`. Añade ingress en `cloudflared/config.yml` del repo:
+El repo ya tiene túnel `55818726-7a1f-459c-a904-00f5487e6aad`. Ingress en `cloudflared/config.yml`:
 
 ```yaml
   - hostname: ride-api.vescreenflow.com
     service: http://127.0.0.1:4001
+  - hostname: ride.vescreenflow.com
+    service: http://127.0.0.1:5174
 ```
 
 DNS (Cloudflare → vescreenflow.com):
@@ -16,19 +23,15 @@ DNS (Cloudflare → vescreenflow.com):
 | Type | Name | Content | Proxy |
 |------|------|---------|-------|
 | CNAME | `ride-api` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
+| CNAME | `ride` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
 
-Reinicia el túnel en el Mac mini:
-
-```bash
-# Si corre con npm run tunnel, reinicia ese proceso
-# O con LaunchAgent del túnel maestro
-```
+Reinicia cloudflared en el Mac mini (`npm run tunnel` o LaunchAgent del túnel maestro).
 
 ## Opción B — LaunchAgent dedicado Ride
 
 ```bash
 cd ride-app
-export RIDE_TUNNEL_ID=55818726-7a1f-459c-a904-00f5487e6aad   # o tu tunnel nuevo
+export RIDE_TUNNEL_ID=55818726-7a1f-459c-a904-00f5487e6aad
 chmod +x macmini-stacks/install-ride-tunnel.sh
 ./macmini-stacks/install-ride-tunnel.sh
 ```
@@ -37,28 +40,33 @@ chmod +x macmini-stacks/install-ride-tunnel.sh
 
 ```bash
 API_PUBLIC_URL=https://ride-api.vescreenflow.com
+VITE_API_URL=https://ride-api.vescreenflow.com
 EXPO_PUBLIC_API_URL=https://ride-api.vescreenflow.com
-CORS_ORIGINS=https://ride-api.vescreenflow.com,http://localhost:5174,http://localhost:5175,http://localhost:5176
-PASSENGER_WEB_URL=http://localhost:5174
+PASSENGER_WEB_URL=https://ride.vescreenflow.com
+CORS_ORIGINS=https://ride-api.vescreenflow.com,https://ride.vescreenflow.com,http://localhost:5174,http://localhost:5175,http://localhost:5176
 STRIPE_CONNECT_REFRESH_URL=http://localhost:5175
 STRIPE_CONNECT_RETURN_URL=http://localhost:5175
 ```
 
-Luego:
+Importante: `VITE_API_URL` se embebe en el build de las webs. Tras cambiarlo:
 
 ```bash
-pm2 restart ride-api --update-env
+npm run build
+pm2 restart ride-api ride-passenger --update-env
 ```
 
 ## Verificar
 
 ```bash
+./scripts/check-prod.sh
+# o manual:
 curl -sf https://ride-api.vescreenflow.com/health && echo OK
+curl -sf -o /dev/null https://ride.vescreenflow.com && echo OK
 ```
 
 ## Twilio Voice
 
-Con `API_PUBLIC_URL` HTTPS, Twilio puede llamar:
+Con `API_PUBLIC_URL` HTTPS:
 
 `POST https://ride-api.vescreenflow.com/webhooks/twilio/voice/connect`
 
