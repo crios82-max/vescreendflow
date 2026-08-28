@@ -26,7 +26,13 @@ chmod +x scripts/start-stack.sh scripts/stop-stack.sh
 
 ## Bloque para `autostart.sh`
 
-Agrega esto en `~/Library/Application Support/macmini-stacks/autostart.sh`, **después** de que Docker Desktop esté arriba:
+**Recomendado:** usa el instalador desde la raíz del repo:
+
+```bash
+./macmini-stacks/install-ride-app.sh [/ruta/al/ride-app]
+```
+
+**Manual:** agrega esto en `~/Library/Application Support/macmini-stacks/autostart.sh`, **después** de que Docker Desktop esté arriba:
 
 ```bash
 # --- Ride App (:4001 / :5174 / :5175 / db :5436) ---

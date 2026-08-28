@@ -77,14 +77,15 @@ npm run pm2:stop
 
 Si accedes desde otra máquina en la red, agrega las URLs en `CORS_ORIGINS` del `.env`.
 
-### Autostart Mac mini
-
-Ver [`docs/macmini-autostart.md`](docs/macmini-autostart.md) para integrar con `com.macmini.stacks.autostart`.
+### Autostart Mac mini (un comando)
 
 ```bash
-chmod +x scripts/start-stack.sh
-./scripts/start-stack.sh   # docker + pm2, idempotente
+# desde la raíz del repo, en el Mac mini:
+chmod +x macmini-stacks/install-ride-app.sh
+./macmini-stacks/install-ride-app.sh
 ```
+
+Instala el bloque en `com.macmini.stacks.autostart` y levanta el stack. Detalle: [`docs/macmini-autostart.md`](docs/macmini-autostart.md) y [`../macmini-stacks/README.md`](../macmini-stacks/README.md).
 
 ## Flujo demo
 
