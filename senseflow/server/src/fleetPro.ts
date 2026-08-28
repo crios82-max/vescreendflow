@@ -5482,6 +5482,188 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // OBD odometer (OBD PID 01A6)
+    const obdOdoObj = signals.obd_odometer as Record<string, unknown> | undefined
+    const obdOdoKm =
+      typeof obdOdoObj?.odometer_km === 'number'
+        ? (obdOdoObj.odometer_km as number)
+        : typeof signals.obd_odometer_km === 'number'
+          ? (signals.obd_odometer_km as number)
+          : null
+    const obdOdoSpeed =
+      typeof obdOdoObj?.speed_kmh === 'number'
+        ? (obdOdoObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof obdOdoKm === 'number') {
+      const warnKm = typeof signals.obd_odometer_warn_km === 'number' ? (signals.obd_odometer_warn_km as number) : 120000
+      const alertKm = typeof signals.obd_odometer_alert_km === 'number' ? (signals.obd_odometer_alert_km as number) : 160000
+      const minSpd = typeof signals.obd_odometer_speed_min_kmh === 'number' ? (signals.obd_odometer_speed_min_kmh as number) : 20
+      const spdOk = typeof obdOdoSpeed === 'number' && obdOdoSpeed >= minSpd
+      if (spdOk && obdOdoKm >= alertKm && !recentlyAlerted(deviceId, 'obd_odometer_alert', 120)) {
+        insertAlert(deviceId, 'obd_odometer_alert', 'critical', `Odómetro OBD crítico · ${Math.round(obdOdoKm)} km`, {
+          obd_odometer_km: obdOdoKm,
+          obd_odometer: obdOdoObj ?? null,
+        })
+        raised.push('obd_odometer_alert')
+      } else if (
+        spdOk &&
+        obdOdoKm >= warnKm &&
+        obdOdoKm < alertKm &&
+        !recentlyAlerted(deviceId, 'obd_odometer_warn', 120)
+      ) {
+        insertAlert(deviceId, 'obd_odometer_warn', 'warn', `Odómetro OBD alto · ${Math.round(obdOdoKm)} km`, {
+          obd_odometer_km: obdOdoKm,
+          obd_odometer: obdOdoObj ?? null,
+        })
+        raised.push('obd_odometer_warn')
+      }
+    }
+
+    // ABS disable switch (OBD PID 01A9)
+    const absDisableObj = signals.abs_disable as Record<string, unknown> | undefined
+    const absDisabled =
+      typeof absDisableObj?.disabled === 'boolean'
+        ? absDisableObj.disabled
+        : typeof signals.abs_disabled === 'number'
+          ? (signals.abs_disabled as number) === 1
+          : null
+    const absDisableSpeed =
+      typeof absDisableObj?.speed_kmh === 'number'
+        ? (absDisableObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (absDisabled === true) {
+      const minSpd = typeof signals.abs_disable_speed_min_kmh === 'number' ? (signals.abs_disable_speed_min_kmh as number) : 20
+      const spdOk = typeof absDisableSpeed === 'number' && absDisableSpeed >= minSpd
+      if (spdOk && !recentlyAlerted(deviceId, 'abs_disable_alert', 120)) {
+        insertAlert(deviceId, 'abs_disable_alert', 'critical', 'ABS desactivado mientras conduces', {
+          abs_disabled: true,
+          abs_disable: absDisableObj ?? null,
+        })
+        raised.push('abs_disable_alert')
+      }
+    }
+
+    // Fuel pressure A (OBD PID 01C5)
+    const fuelPressAObj = signals.fuel_press_a as Record<string, unknown> | undefined
+    const fuelPressAKpa =
+      typeof fuelPressAObj?.pressure_kpa === 'number'
+        ? (fuelPressAObj.pressure_kpa as number)
+        : typeof signals.fuel_press_a_kpa === 'number'
+          ? (signals.fuel_press_a_kpa as number)
+          : null
+    const fuelPressASpeed =
+      typeof fuelPressAObj?.speed_kmh === 'number'
+        ? (fuelPressAObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof fuelPressAKpa === 'number') {
+      const warnKpa = typeof signals.fuel_press_a_warn_kpa === 'number' ? (signals.fuel_press_a_warn_kpa as number) : 4000
+      const alertKpa = typeof signals.fuel_press_a_alert_kpa === 'number' ? (signals.fuel_press_a_alert_kpa as number) : 4800
+      const minSpd = typeof signals.fuel_press_a_speed_min_kmh === 'number' ? (signals.fuel_press_a_speed_min_kmh as number) : 20
+      const spdOk = typeof fuelPressASpeed === 'number' && fuelPressASpeed >= minSpd
+      if (spdOk && fuelPressAKpa >= alertKpa && !recentlyAlerted(deviceId, 'fuel_press_a_alert', 120)) {
+        insertAlert(deviceId, 'fuel_press_a_alert', 'critical', `Presión combustible A crítica · ${Math.round(fuelPressAKpa)} kPa`, {
+          fuel_press_a_kpa: fuelPressAKpa,
+          fuel_press_a: fuelPressAObj ?? null,
+        })
+        raised.push('fuel_press_a_alert')
+      } else if (
+        spdOk &&
+        fuelPressAKpa >= warnKpa &&
+        fuelPressAKpa < alertKpa &&
+        !recentlyAlerted(deviceId, 'fuel_press_a_warn', 120)
+      ) {
+        insertAlert(deviceId, 'fuel_press_a_warn', 'warn', `Presión combustible A alta · ${Math.round(fuelPressAKpa)} kPa`, {
+          fuel_press_a_kpa: fuelPressAKpa,
+          fuel_press_a: fuelPressAObj ?? null,
+        })
+        raised.push('fuel_press_a_warn')
+      }
+    }
+
+    // Fuel pressure B (OBD PID 01C5)
+    const fuelPressBObj = signals.fuel_press_b as Record<string, unknown> | undefined
+    const fuelPressBKpa =
+      typeof fuelPressBObj?.pressure_kpa === 'number'
+        ? (fuelPressBObj.pressure_kpa as number)
+        : typeof signals.fuel_press_b_kpa === 'number'
+          ? (signals.fuel_press_b_kpa as number)
+          : null
+    const fuelPressBSpeed =
+      typeof fuelPressBObj?.speed_kmh === 'number'
+        ? (fuelPressBObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof fuelPressBKpa === 'number') {
+      const warnKpa = typeof signals.fuel_press_b_warn_kpa === 'number' ? (signals.fuel_press_b_warn_kpa as number) : 4000
+      const alertKpa = typeof signals.fuel_press_b_alert_kpa === 'number' ? (signals.fuel_press_b_alert_kpa as number) : 4800
+      const minSpd = typeof signals.fuel_press_b_speed_min_kmh === 'number' ? (signals.fuel_press_b_speed_min_kmh as number) : 20
+      const spdOk = typeof fuelPressBSpeed === 'number' && fuelPressBSpeed >= minSpd
+      if (spdOk && fuelPressBKpa >= alertKpa && !recentlyAlerted(deviceId, 'fuel_press_b_alert', 120)) {
+        insertAlert(deviceId, 'fuel_press_b_alert', 'critical', `Presión combustible B crítica · ${Math.round(fuelPressBKpa)} kPa`, {
+          fuel_press_b_kpa: fuelPressBKpa,
+          fuel_press_b: fuelPressBObj ?? null,
+        })
+        raised.push('fuel_press_b_alert')
+      } else if (
+        spdOk &&
+        fuelPressBKpa >= warnKpa &&
+        fuelPressBKpa < alertKpa &&
+        !recentlyAlerted(deviceId, 'fuel_press_b_warn', 120)
+      ) {
+        insertAlert(deviceId, 'fuel_press_b_warn', 'warn', `Presión combustible B alta · ${Math.round(fuelPressBKpa)} kPa`, {
+          fuel_press_b_kpa: fuelPressBKpa,
+          fuel_press_b: fuelPressBObj ?? null,
+        })
+        raised.push('fuel_press_b_warn')
+      }
+    }
+
+    // Distance since reflash (OBD PID 01C7)
+    const reflashObj = signals.reflash_dist as Record<string, unknown> | undefined
+    const reflashKm =
+      typeof reflashObj?.distance_km === 'number'
+        ? (reflashObj.distance_km as number)
+        : typeof signals.reflash_dist_km === 'number'
+          ? (signals.reflash_dist_km as number)
+          : null
+    const reflashSpeed =
+      typeof reflashObj?.speed_kmh === 'number'
+        ? (reflashObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof reflashKm === 'number') {
+      const warnKm = typeof signals.reflash_dist_warn_km === 'number' ? (signals.reflash_dist_warn_km as number) : 5000
+      const alertKm = typeof signals.reflash_dist_alert_km === 'number' ? (signals.reflash_dist_alert_km as number) : 10000
+      const minSpd = typeof signals.reflash_dist_speed_min_kmh === 'number' ? (signals.reflash_dist_speed_min_kmh as number) : 20
+      const spdOk = typeof reflashSpeed === 'number' && reflashSpeed >= minSpd
+      if (spdOk && reflashKm >= alertKm && !recentlyAlerted(deviceId, 'reflash_dist_alert', 120)) {
+        insertAlert(deviceId, 'reflash_dist_alert', 'critical', `Distancia reflash crítica · ${Math.round(reflashKm)} km`, {
+          reflash_dist_km: reflashKm,
+          reflash_dist: reflashObj ?? null,
+        })
+        raised.push('reflash_dist_alert')
+      } else if (
+        spdOk &&
+        reflashKm >= warnKm &&
+        reflashKm < alertKm &&
+        !recentlyAlerted(deviceId, 'reflash_dist_warn', 120)
+      ) {
+        insertAlert(deviceId, 'reflash_dist_warn', 'warn', `Distancia reflash alta · ${Math.round(reflashKm)} km`, {
+          reflash_dist_km: reflashKm,
+          reflash_dist: reflashObj ?? null,
+        })
+        raised.push('reflash_dist_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

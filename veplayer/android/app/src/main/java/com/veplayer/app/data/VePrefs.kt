@@ -3334,6 +3334,115 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("trans_gear_sim_speed", 40f)
         set(value) = sp.edit().putFloat("trans_gear_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** OBD odometer km (OBD 01A6). */
+    var obdOdoEnabled: Boolean
+        get() = sp.getBoolean("obd_odometer", true)
+        set(value) = sp.edit().putBoolean("obd_odometer", value).apply()
+    var obdOdoTts: Boolean
+        get() = sp.getBoolean("obd_odometer_tts", true)
+        set(value) = sp.edit().putBoolean("obd_odometer_tts", value).apply()
+    var obdOdoWarnKm: Float
+        get() = sp.getFloat("obd_odometer_warn_km", 120000f)
+        set(value) = sp.edit().putFloat("obd_odometer_warn_km", value.coerceIn(10000f, 500000f)).apply()
+    var obdOdoAlertKm: Float
+        get() = sp.getFloat("obd_odometer_alert_km", 160000f)
+        set(value) = sp.edit().putFloat("obd_odometer_alert_km", value.coerceAtLeast(20000f)).apply()
+    var obdOdoSpeedMinKmh: Float
+        get() = sp.getFloat("obd_odometer_speed_min", 20f)
+        set(value) = sp.edit().putFloat("obd_odometer_speed_min", value.coerceIn(0f, 60f)).apply()
+    var obdOdoSimKm: Float
+        get() = sp.getFloat("obd_odometer_sim_km", 0f)
+        set(value) = sp.edit().putFloat("obd_odometer_sim_km", value.coerceIn(0f, 500000f)).apply()
+    var obdOdoSimSpeedKmh: Float
+        get() = sp.getFloat("obd_odometer_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("obd_odometer_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** ABS disable switch (OBD 01A9). */
+    var absDisableEnabled: Boolean
+        get() = sp.getBoolean("abs_disable", true)
+        set(value) = sp.edit().putBoolean("abs_disable", value).apply()
+    var absDisableTts: Boolean
+        get() = sp.getBoolean("abs_disable_tts", true)
+        set(value) = sp.edit().putBoolean("abs_disable_tts", value).apply()
+    var absDisableSpeedMinKmh: Float
+        get() = sp.getFloat("abs_disable_speed_min", 20f)
+        set(value) = sp.edit().putFloat("abs_disable_speed_min", value.coerceIn(0f, 60f)).apply()
+    var absDisableSim: Boolean
+        get() = sp.getBoolean("abs_disable_sim", false)
+        set(value) = sp.edit().putBoolean("abs_disable_sim", value).apply()
+    var absDisableSimSpeedKmh: Float
+        get() = sp.getFloat("abs_disable_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("abs_disable_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Fuel pressure A kPa (OBD 01C5). */
+    var fuelPressAEnabled: Boolean
+        get() = sp.getBoolean("fuel_press_a", true)
+        set(value) = sp.edit().putBoolean("fuel_press_a", value).apply()
+    var fuelPressATts: Boolean
+        get() = sp.getBoolean("fuel_press_a_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_press_a_tts", value).apply()
+    var fuelPressAWarnKpa: Float
+        get() = sp.getFloat("fuel_press_a_warn_kpa", 4000f)
+        set(value) = sp.edit().putFloat("fuel_press_a_warn_kpa", value.coerceIn(500f, 5000f)).apply()
+    var fuelPressAAlertKpa: Float
+        get() = sp.getFloat("fuel_press_a_alert_kpa", 4800f)
+        set(value) = sp.edit().putFloat("fuel_press_a_alert_kpa", value.coerceAtLeast(1000f)).apply()
+    var fuelPressASpeedMinKmh: Float
+        get() = sp.getFloat("fuel_press_a_speed_min", 20f)
+        set(value) = sp.edit().putFloat("fuel_press_a_speed_min", value.coerceIn(0f, 60f)).apply()
+    var fuelPressASimKpa: Float
+        get() = sp.getFloat("fuel_press_a_sim_kpa", 0f)
+        set(value) = sp.edit().putFloat("fuel_press_a_sim_kpa", value.coerceIn(0f, 5177f)).apply()
+    var fuelPressASimSpeedKmh: Float
+        get() = sp.getFloat("fuel_press_a_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("fuel_press_a_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Fuel pressure B kPa (OBD 01C5). */
+    var fuelPressBEnabled: Boolean
+        get() = sp.getBoolean("fuel_press_b", true)
+        set(value) = sp.edit().putBoolean("fuel_press_b", value).apply()
+    var fuelPressBTts: Boolean
+        get() = sp.getBoolean("fuel_press_b_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_press_b_tts", value).apply()
+    var fuelPressBWarnKpa: Float
+        get() = sp.getFloat("fuel_press_b_warn_kpa", 4000f)
+        set(value) = sp.edit().putFloat("fuel_press_b_warn_kpa", value.coerceIn(500f, 5000f)).apply()
+    var fuelPressBAlertKpa: Float
+        get() = sp.getFloat("fuel_press_b_alert_kpa", 4800f)
+        set(value) = sp.edit().putFloat("fuel_press_b_alert_kpa", value.coerceAtLeast(1000f)).apply()
+    var fuelPressBSpeedMinKmh: Float
+        get() = sp.getFloat("fuel_press_b_speed_min", 20f)
+        set(value) = sp.edit().putFloat("fuel_press_b_speed_min", value.coerceIn(0f, 60f)).apply()
+    var fuelPressBSimKpa: Float
+        get() = sp.getFloat("fuel_press_b_sim_kpa", 0f)
+        set(value) = sp.edit().putFloat("fuel_press_b_sim_kpa", value.coerceIn(0f, 5177f)).apply()
+    var fuelPressBSimSpeedKmh: Float
+        get() = sp.getFloat("fuel_press_b_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("fuel_press_b_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Distance since reflash km (OBD 01C7). */
+    var reflashDistEnabled: Boolean
+        get() = sp.getBoolean("reflash_dist", true)
+        set(value) = sp.edit().putBoolean("reflash_dist", value).apply()
+    var reflashDistTts: Boolean
+        get() = sp.getBoolean("reflash_dist_tts", true)
+        set(value) = sp.edit().putBoolean("reflash_dist_tts", value).apply()
+    var reflashDistWarnKm: Float
+        get() = sp.getFloat("reflash_dist_warn_km", 5000f)
+        set(value) = sp.edit().putFloat("reflash_dist_warn_km", value.coerceIn(500f, 50000f)).apply()
+    var reflashDistAlertKm: Float
+        get() = sp.getFloat("reflash_dist_alert_km", 10000f)
+        set(value) = sp.edit().putFloat("reflash_dist_alert_km", value.coerceAtLeast(1000f)).apply()
+    var reflashDistSpeedMinKmh: Float
+        get() = sp.getFloat("reflash_dist_speed_min", 20f)
+        set(value) = sp.edit().putFloat("reflash_dist_speed_min", value.coerceIn(0f, 60f)).apply()
+    var reflashDistSimKm: Float
+        get() = sp.getFloat("reflash_dist_sim_km", 0f)
+        set(value) = sp.edit().putFloat("reflash_dist_sim_km", value.coerceIn(0f, 65535f)).apply()
+    var reflashDistSimSpeedKmh: Float
+        get() = sp.getFloat("reflash_dist_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("reflash_dist_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

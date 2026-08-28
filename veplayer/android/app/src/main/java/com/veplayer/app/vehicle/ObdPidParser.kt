@@ -240,6 +240,18 @@ object ObdPidParser {
         val evapSysVaporPa: Float? = null,
         /** Transmission actual gear ratio (OBD PID 01A4 bytes C/D). */
         val transGearRatio: Float? = null,
+        /** OBD odometer km (OBD PID 01A6). */
+        val obdOdometerKm: Float? = null,
+        /** ABS disable supported flag (OBD PID 01A9 byte A bit0). */
+        val absDisableSupported: Int? = null,
+        /** ABS disable active flag (OBD PID 01A9 byte B bit0). */
+        val absDisabled: Int? = null,
+        /** Fuel pressure A kPa (OBD PID 01C5 bytes A/B). */
+        val fuelPressAKpa: Float? = null,
+        /** Fuel pressure B kPa (OBD PID 01C5 bytes C/D). */
+        val fuelPressBKpa: Float? = null,
+        /** Distance since reflash km (OBD PID 01C7). */
+        val reflashDistKm: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -642,6 +654,33 @@ object ObdPidParser {
                 if (data.size < 4 || (data[0] and 0x02) == 0) PidValues()
                 else PidValues(transGearRatio = ((data[2] * 256) + data[3]) / 1000f)
             }
+            0xA6 -> {
+                if (data.size < 4) PidValues()
+                else {
+                    val raw =
+                        ((data[0].toLong() shl 24) or (data[1].toLong() shl 16) or
+                            (data[2].toLong() shl 8) or data[3].toLong())
+                    PidValues(obdOdometerKm = raw / 10f)
+                }
+            }
+            0xA9 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(
+                    absDisableSupported = if ((data[0] and 0x01) != 0) 1 else 0,
+                    absDisabled = if ((data[1] and 0x01) != 0) 1 else 0,
+                )
+            }
+            0xC5 -> {
+                if (data.size < 4) PidValues()
+                else PidValues(
+                    fuelPressAKpa = ((data[0] * 256) + data[1]).toFloat(),
+                    fuelPressBKpa = ((data[2] * 256) + data[3]).toFloat(),
+                )
+            }
+            0xC7 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(reflashDistKm = ((data[0] * 256) + data[1]).toFloat())
+            }
             0x9B -> {
                 if (data.size < 4) PidValues()
                 else PidValues(defFluidPct = data[3] * 100f / 255f)
@@ -805,6 +844,12 @@ object ObdPidParser {
             cylinderFuelRateMg = add.cylinderFuelRateMg ?: base.cylinderFuelRateMg,
             evapSysVaporPa = add.evapSysVaporPa ?: base.evapSysVaporPa,
             transGearRatio = add.transGearRatio ?: base.transGearRatio,
+            obdOdometerKm = add.obdOdometerKm ?: base.obdOdometerKm,
+            absDisableSupported = add.absDisableSupported ?: base.absDisableSupported,
+            absDisabled = add.absDisabled ?: base.absDisabled,
+            fuelPressAKpa = add.fuelPressAKpa ?: base.fuelPressAKpa,
+            fuelPressBKpa = add.fuelPressBKpa ?: base.fuelPressBKpa,
+            reflashDistKm = add.reflashDistKm ?: base.reflashDistKm,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

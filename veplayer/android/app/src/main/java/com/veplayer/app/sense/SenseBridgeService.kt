@@ -1489,6 +1489,63 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.TransGearRatio.toJsonMap(
                                             com.veplayer.app.vehicle.TransGearRatioMonitor.state.value,
                                         ),
+                                    "obd_odometer_warn_km" to prefs.obdOdoWarnKm.toDouble(),
+                                    "obd_odometer_alert_km" to prefs.obdOdoAlertKm.toDouble(),
+                                    "obd_odometer_speed_min_kmh" to prefs.obdOdoSpeedMinKmh.toDouble(),
+                                    "obd_odometer_km" to
+                                        (if (prefs.obdOdoSimKm > 0f) prefs.obdOdoSimKm
+                                        else com.veplayer.app.vehicle.ObdOdometerMonitor.state.value.odometerKm
+                                            ?: snap.obdOdometerKm
+                                        )?.toDouble(),
+                                    "obd_odometer" to
+                                        com.veplayer.app.vehicle.ObdOdometer.toJsonMap(
+                                            com.veplayer.app.vehicle.ObdOdometerMonitor.state.value,
+                                        ),
+                                    "abs_disable_speed_min_kmh" to prefs.absDisableSpeedMinKmh.toDouble(),
+                                    "abs_disable_supported" to
+                                        (if (prefs.absDisableSim) 1 else snap.absDisableSupported ?: 0),
+                                    "abs_disabled" to
+                                        (if (prefs.absDisableSim) 1 else snap.absDisabled ?: 0),
+                                    "abs_disable" to
+                                        com.veplayer.app.vehicle.AbsDisable.toJsonMap(
+                                            com.veplayer.app.vehicle.AbsDisableMonitor.state.value,
+                                        ),
+                                    "fuel_press_a_warn_kpa" to prefs.fuelPressAWarnKpa.toDouble(),
+                                    "fuel_press_a_alert_kpa" to prefs.fuelPressAAlertKpa.toDouble(),
+                                    "fuel_press_a_speed_min_kmh" to prefs.fuelPressASpeedMinKmh.toDouble(),
+                                    "fuel_press_a_kpa" to
+                                        (if (prefs.fuelPressASimKpa > 0f) prefs.fuelPressASimKpa
+                                        else com.veplayer.app.vehicle.FuelPressAMonitor.state.value.pressureKpa
+                                            ?: snap.fuelPressAKpa
+                                        )?.toDouble(),
+                                    "fuel_press_a" to
+                                        com.veplayer.app.vehicle.FuelPressA.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressAMonitor.state.value,
+                                        ),
+                                    "fuel_press_b_warn_kpa" to prefs.fuelPressBWarnKpa.toDouble(),
+                                    "fuel_press_b_alert_kpa" to prefs.fuelPressBAlertKpa.toDouble(),
+                                    "fuel_press_b_speed_min_kmh" to prefs.fuelPressBSpeedMinKmh.toDouble(),
+                                    "fuel_press_b_kpa" to
+                                        (if (prefs.fuelPressBSimKpa > 0f) prefs.fuelPressBSimKpa
+                                        else com.veplayer.app.vehicle.FuelPressBMonitor.state.value.pressureKpa
+                                            ?: snap.fuelPressBKpa
+                                        )?.toDouble(),
+                                    "fuel_press_b" to
+                                        com.veplayer.app.vehicle.FuelPressB.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressBMonitor.state.value,
+                                        ),
+                                    "reflash_dist_warn_km" to prefs.reflashDistWarnKm.toDouble(),
+                                    "reflash_dist_alert_km" to prefs.reflashDistAlertKm.toDouble(),
+                                    "reflash_dist_speed_min_kmh" to prefs.reflashDistSpeedMinKmh.toDouble(),
+                                    "reflash_dist_km" to
+                                        (if (prefs.reflashDistSimKm > 0f) prefs.reflashDistSimKm
+                                        else com.veplayer.app.vehicle.ReflashDistanceMonitor.state.value.distanceKm
+                                            ?: snap.reflashDistKm
+                                        )?.toDouble(),
+                                    "reflash_dist" to
+                                        com.veplayer.app.vehicle.ReflashDistance.toJsonMap(
+                                            com.veplayer.app.vehicle.ReflashDistanceMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -3119,6 +3176,63 @@ class SenseBridgeService : Service() {
                                     "trans_gear" to
                                         com.veplayer.app.vehicle.TransGearRatio.toJsonMap(
                                             com.veplayer.app.vehicle.TransGearRatioMonitor.state.value,
+                                        ),
+                                    "obd_odometer_warn_km" to prefs.obdOdoWarnKm.toDouble(),
+                                    "obd_odometer_alert_km" to prefs.obdOdoAlertKm.toDouble(),
+                                    "obd_odometer_speed_min_kmh" to prefs.obdOdoSpeedMinKmh.toDouble(),
+                                    "obd_odometer_km" to
+                                        (if (prefs.obdOdoSimKm > 0f) prefs.obdOdoSimKm
+                                        else com.veplayer.app.vehicle.ObdOdometerMonitor.state.value.odometerKm
+                                            ?: snap.obdOdometerKm
+                                        )?.toDouble(),
+                                    "obd_odometer" to
+                                        com.veplayer.app.vehicle.ObdOdometer.toJsonMap(
+                                            com.veplayer.app.vehicle.ObdOdometerMonitor.state.value,
+                                        ),
+                                    "abs_disable_speed_min_kmh" to prefs.absDisableSpeedMinKmh.toDouble(),
+                                    "abs_disable_supported" to
+                                        (if (prefs.absDisableSim) 1 else snap.absDisableSupported ?: 0),
+                                    "abs_disabled" to
+                                        (if (prefs.absDisableSim) 1 else snap.absDisabled ?: 0),
+                                    "abs_disable" to
+                                        com.veplayer.app.vehicle.AbsDisable.toJsonMap(
+                                            com.veplayer.app.vehicle.AbsDisableMonitor.state.value,
+                                        ),
+                                    "fuel_press_a_warn_kpa" to prefs.fuelPressAWarnKpa.toDouble(),
+                                    "fuel_press_a_alert_kpa" to prefs.fuelPressAAlertKpa.toDouble(),
+                                    "fuel_press_a_speed_min_kmh" to prefs.fuelPressASpeedMinKmh.toDouble(),
+                                    "fuel_press_a_kpa" to
+                                        (if (prefs.fuelPressASimKpa > 0f) prefs.fuelPressASimKpa
+                                        else com.veplayer.app.vehicle.FuelPressAMonitor.state.value.pressureKpa
+                                            ?: snap.fuelPressAKpa
+                                        )?.toDouble(),
+                                    "fuel_press_a" to
+                                        com.veplayer.app.vehicle.FuelPressA.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressAMonitor.state.value,
+                                        ),
+                                    "fuel_press_b_warn_kpa" to prefs.fuelPressBWarnKpa.toDouble(),
+                                    "fuel_press_b_alert_kpa" to prefs.fuelPressBAlertKpa.toDouble(),
+                                    "fuel_press_b_speed_min_kmh" to prefs.fuelPressBSpeedMinKmh.toDouble(),
+                                    "fuel_press_b_kpa" to
+                                        (if (prefs.fuelPressBSimKpa > 0f) prefs.fuelPressBSimKpa
+                                        else com.veplayer.app.vehicle.FuelPressBMonitor.state.value.pressureKpa
+                                            ?: snap.fuelPressBKpa
+                                        )?.toDouble(),
+                                    "fuel_press_b" to
+                                        com.veplayer.app.vehicle.FuelPressB.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressBMonitor.state.value,
+                                        ),
+                                    "reflash_dist_warn_km" to prefs.reflashDistWarnKm.toDouble(),
+                                    "reflash_dist_alert_km" to prefs.reflashDistAlertKm.toDouble(),
+                                    "reflash_dist_speed_min_kmh" to prefs.reflashDistSpeedMinKmh.toDouble(),
+                                    "reflash_dist_km" to
+                                        (if (prefs.reflashDistSimKm > 0f) prefs.reflashDistSimKm
+                                        else com.veplayer.app.vehicle.ReflashDistanceMonitor.state.value.distanceKm
+                                            ?: snap.reflashDistKm
+                                        )?.toDouble(),
+                                    "reflash_dist" to
+                                        com.veplayer.app.vehicle.ReflashDistance.toJsonMap(
+                                            com.veplayer.app.vehicle.ReflashDistanceMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
