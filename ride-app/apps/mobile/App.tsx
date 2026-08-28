@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Linking,
   Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -25,6 +25,7 @@ import { defaultApiUrl, getApiUrl } from './src/storage';
 import { registerForPushNotifications } from './src/push';
 import { decodePolyline } from './src/polyline';
 import { openTurnByTurnNavigation } from './src/navigation';
+import { appStyles as styles, colors, placeholderColor } from './src/theme';
 
 type Screen = 'auth' | 'home';
 type Tab = 'ride' | 'history';
@@ -255,12 +256,12 @@ export default function App() {
   if (!ready) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color="#fff" size="large" />
+        <ActivityIndicator color={colors.primary} size="large" />
       </View>
     );
   }
 
-  const connectionBadge = apiConnected === null ? '…' : apiConnected ? '🟢 API' : '🔴 Sin API';
+  const connectionBadge = apiConnected === null ? '…' : apiConnected ? 'Conectado al API' : 'Sin conexión al API';
 
   if (screen === 'auth') {
     return (
@@ -268,9 +269,14 @@ export default function App() {
         <StatusBar style="light" />
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
           <ScrollView contentContainerStyle={styles.authScroll} keyboardShouldPersistTaps="handled">
-            <Text style={styles.title}>{BRAND.name}</Text>
-            <Text style={styles.subtitle}>{BRAND.tagline}</Text>
-            <Text style={styles.subtitle}>{connectionBadge}</Text>
+            <Image source={require('./assets/icon.png')} style={styles.authLogo} accessibilityLabel={BRAND.name} />
+            <Text style={styles.brandName}>
+              Movi<Text style={styles.brandNameAccent}>fy</Text>
+            </Text>
+            <Text style={styles.tagline}>{BRAND.tagline}</Text>
+            <Text style={apiConnected ? styles.connectionOk : apiConnected === false ? styles.connectionBad : styles.muted}>
+              {connectionBadge}
+            </Text>
 
             <Pressable onPress={() => setShowSettings(!showSettings)}>
               <Text style={styles.link}>Configurar servidor API</Text>
@@ -284,7 +290,7 @@ export default function App() {
                   autoCapitalize="none"
                   autoCorrect={false}
                   placeholder="http://192.168.x.x:4001"
-                  placeholderTextColor="#666"
+                  placeholderTextColor={placeholderColor}
                 />
                 <Pressable style={styles.btnSmall} onPress={saveApiUrl}>
                   <Text style={styles.btnText}>Guardar y probar</Text>
@@ -311,7 +317,7 @@ export default function App() {
               </View>
             )}
             {mode === 'register' && (
-              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#888" value={form.name} onChangeText={(name) => setForm({ ...form, name })} />
+              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor={placeholderColor} value={form.name} onChangeText={(name) => setForm({ ...form, name })} />
             )}
             {mode === 'register' && role === 'driver' && (
               <View style={styles.row}>
@@ -328,11 +334,11 @@ export default function App() {
                 ))}
               </View>
             )}
-            <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" autoCapitalize="none" keyboardType="email-address" value={form.email} onChangeText={(email) => setForm({ ...form, email })} />
-            <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor="#888" secureTextEntry value={form.password} onChangeText={(password) => setForm({ ...form, password })} />
+            <TextInput style={styles.input} placeholder="Email" placeholderTextColor={placeholderColor} autoCapitalize="none" keyboardType="email-address" value={form.email} onChangeText={(email) => setForm({ ...form, email })} />
+            <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor={placeholderColor} secureTextEntry value={form.password} onChangeText={(password) => setForm({ ...form, password })} />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <Pressable style={[styles.btn, apiConnected === false && styles.btnDisabled]} onPress={submitAuth} disabled={loading || apiConnected === false}>
-              {loading ? <ActivityIndicator color="#000" /> : <Text style={styles.btnText}>{mode === 'login' ? 'Entrar' : 'Crear cuenta'}</Text>}
+              {loading ? <ActivityIndicator color={colors.primaryOnDark} /> : <Text style={styles.btnText}>{mode === 'login' ? 'Entrar' : 'Crear cuenta'}</Text>}
             </Pressable>
             {apiConnected === false && (
               <Text style={styles.muted}>Sin conexión al API. Puedes seguir viendo la UI cuando vuelvas a casa.</Text>
@@ -350,6 +356,7 @@ export default function App() {
   return (
     <View style={styles.flex}>
       <StatusBar style="light" />
+      <StatusBar style="light" />
       {mapCenter && (
         <MapView
           style={styles.map}
@@ -363,27 +370,27 @@ export default function App() {
           showsUserLocation
           showsMyLocationButton
         >
-          {(pickup ?? position) && <Marker coordinate={(pickup ?? position)!} title="Origen" pinColor="#fff" />}
-          {dropoff && <Marker coordinate={dropoff} title="Destino" pinColor="green" />}
-          {driverPos && <Marker coordinate={driverPos} title="Conductor" pinColor="#3b82f6" />}
-          {routeCoords.length > 0 && <Polyline coordinates={routeCoords} strokeColor="#3b82f6" strokeWidth={4} />}
+          {(pickup ?? position) && <Marker coordinate={(pickup ?? position)!} title="Origen" pinColor={colors.mapPickup} />}
+          {dropoff && <Marker coordinate={dropoff} title="Destino" pinColor={colors.primary} />}
+          {driverPos && <Marker coordinate={driverPos} title="Conductor" pinColor={colors.mapDriver} />}
+          {routeCoords.length > 0 && <Polyline coordinates={routeCoords} strokeColor={colors.mapRoute} strokeWidth={4} />}
         </MapView>
       )}
       {user?.role === 'passenger' && !ride && (
         <SafeAreaView style={styles.searchOverlay}>
           <PlaceSearch placeholder="Origen" bias={position} onSelect={(p) => setPickup(p)} />
           <PlaceSearch placeholder="¿A dónde vas?" bias={pickup ?? position} onSelect={(p) => setDropoff(p)} />
-          <TextInput style={styles.input} placeholder="Parada opcional" placeholderTextColor="#666" value={stop?.address ?? ''} editable={false} />
+          <TextInput style={styles.input} placeholder="Parada opcional" placeholderTextColor={placeholderColor} value={stop?.address ?? ''} editable={false} />
           <PlaceSearch placeholder="Agregar parada" bias={pickup ?? position} onSelect={(p) => setStop(p)} />
-          <TextInput style={styles.input} placeholder="Viaje para (nombre)" placeholderTextColor="#666" value={rideForName} onChangeText={setRideForName} />
+          <TextInput style={styles.input} placeholder="Viaje para (nombre)" placeholderTextColor={placeholderColor} value={rideForName} onChangeText={setRideForName} />
         </SafeAreaView>
       )}
       <SafeAreaView style={styles.sheet}>
         {user?.role === 'passenger' && !phoneVerified && (
           <View style={styles.settingsBox}>
             <Text style={styles.muted}>Verifica tu teléfono</Text>
-            <TextInput style={styles.input} placeholder="+58..." value={phoneInput} onChangeText={setPhoneInput} placeholderTextColor="#666" />
-            <TextInput style={styles.input} placeholder="Código 6 dígitos" value={otpInput} onChangeText={setOtpInput} placeholderTextColor="#666" keyboardType="number-pad" />
+            <TextInput style={styles.input} placeholder="+58..." value={phoneInput} onChangeText={setPhoneInput} placeholderTextColor={placeholderColor} />
+            <TextInput style={styles.input} placeholder="Código 6 dígitos" value={otpInput} onChangeText={setOtpInput} placeholderTextColor={placeholderColor} keyboardType="number-pad" />
             <View style={styles.row}>
               <Pressable style={styles.btnSmall} onPress={async () => {
                 const r = await mobileApi.sendPhoneOtp(phoneInput);
@@ -436,7 +443,7 @@ export default function App() {
                     onSelect={setVehicleType}
                   />
                 )}
-                <TextInput style={styles.input} placeholder="Código promo" placeholderTextColor="#666" value={promoCode} onChangeText={setPromoCode} autoCapitalize="characters" />
+                <TextInput style={styles.input} placeholder="Código promo" placeholderTextColor={placeholderColor} value={promoCode} onChangeText={setPromoCode} autoCapitalize="characters" />
                 {promoCode ? (
                   <Pressable style={styles.btnSmall} onPress={async () => {
                     const sub = selectedOption?.estimatedPrice ?? 0;
@@ -455,9 +462,11 @@ export default function App() {
               </>
             ) : (
               <>
-                <Text style={styles.status}>{RIDE_STATUS_LABELS[ride.status]}</Text>
+                <View style={styles.statusPill}>
+                  <Text style={styles.statusPillText}>{RIDE_STATUS_LABELS[ride.status]}</Text>
+                </View>
                 {etaPickup != null && ['accepted', 'arriving'].includes(ride.status) && (
-                  <Text style={styles.muted}>Llega en ~{etaPickup} min</Text>
+                  <Text style={styles.etaText}>Llega en ~{etaPickup} min</Text>
                 )}
                 <Text style={styles.muted}>{VEHICLE_OPTIONS[ride.vehicleType].label}</Text>
                 <Text style={styles.price}>${ride.finalPrice ?? ride.estimatedPrice}</Text>
@@ -508,7 +517,7 @@ export default function App() {
                 )}
                 {ride.driverId && ['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                   <View style={styles.row}>
-                    <TextInput style={[styles.input, { flex: 1 }]} placeholder="Chat..." value={chatText} onChangeText={setChatText} placeholderTextColor="#666" />
+                    <TextInput style={[styles.input, { flex: 1 }]} placeholder="Chat..." value={chatText} onChangeText={setChatText} placeholderTextColor={placeholderColor} />
                     <Pressable style={styles.btnSmall} onPress={async () => {
                       if (!chatText.trim()) return;
                       await mobileApi.sendChatMessage(ride.id, chatText.trim());
@@ -518,7 +527,7 @@ export default function App() {
                 )}
                 {ride.status === 'completed' && ride.paymentStatus === 'paid' && !rated && (
                   <View style={styles.ratingBox}>
-                    <Text style={styles.status}>Califica tu viaje</Text>
+                    <Text style={styles.statusPillText}>Califica tu viaje</Text>
                     {[1, 2, 3, 4, 5].map((stars) => (
                       <Pressable
                         key={stars}
@@ -568,7 +577,9 @@ export default function App() {
               </>
             ) : (
               <>
-                <Text style={styles.status}>{RIDE_STATUS_LABELS[ride.status]}</Text>
+                <View style={styles.statusPill}>
+                  <Text style={styles.statusPillText}>{RIDE_STATUS_LABELS[ride.status]}</Text>
+                </View>
                 {ride.status === 'accepted' && (
                   <Pressable style={styles.btn} onPress={async () => {
                     openTurnByTurnNavigation(ride.pickupLat, ride.pickupLng, ride.pickupAddress, false);
@@ -598,7 +609,7 @@ export default function App() {
                 )}
                 {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                   <View style={styles.row}>
-                    <TextInput style={[styles.input, { flex: 1 }]} placeholder="Chat pasajero..." value={chatText} onChangeText={setChatText} placeholderTextColor="#666" />
+                    <TextInput style={[styles.input, { flex: 1 }]} placeholder="Chat pasajero..." value={chatText} onChangeText={setChatText} placeholderTextColor={placeholderColor} />
                     <Pressable style={styles.btnSmall} onPress={async () => {
                       if (!chatText.trim()) return;
                       await mobileApi.sendChatMessage(ride.id, chatText.trim());
@@ -608,7 +619,7 @@ export default function App() {
                 )}
                 {ride.status === 'completed' && !rated && (
                   <View style={styles.ratingBox}>
-                    <Text style={styles.status}>Califica al pasajero</Text>
+                    <Text style={styles.statusPillText}>Califica al pasajero</Text>
                     {[5, 4, 3].map((stars) => (
                       <Pressable
                         key={stars}
@@ -640,38 +651,3 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#000' },
-  center: { flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center' },
-  container: { flex: 1, backgroundColor: '#000' },
-  authScroll: { padding: 20, gap: 12 },
-  map: { flex: 1 },
-  searchOverlay: { position: 'absolute', top: 0, left: 16, right: 16, zIndex: 20, gap: 8 },
-  title: { color: '#fff', fontSize: 32, fontWeight: '800' },
-  subtitle: { color: '#888', marginBottom: 4 },
-  link: { color: '#aaa', textDecorationLine: 'underline', marginBottom: 8 },
-  settingsBox: { gap: 8, marginBottom: 8 },
-  input: { backgroundColor: '#111', color: '#fff', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#333' },
-  btn: { backgroundColor: '#A3E635', borderRadius: 999, padding: 16, alignItems: 'center', marginTop: 8 },
-  btnSmall: { backgroundColor: '#A3E635', borderRadius: 999, padding: 12, alignItems: 'center' },
-  btnDisabled: { opacity: 0.45 },
-  btnSecondary: { backgroundColor: '#222', borderRadius: 999, padding: 14, alignItems: 'center', marginTop: 8 },
-  btnSecondaryText: { color: '#fff', fontWeight: '600' },
-  btnText: { color: '#000', fontWeight: '700', fontSize: 16 },
-  error: { color: '#ff8f8f' },
-  row: { flexDirection: 'row', gap: 8 },
-  chip: { backgroundColor: '#222', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999 },
-  chipActive: { backgroundColor: '#A3E635' },
-  chipText: { color: '#fff' },
-  chipTextActive: { color: '#000', fontWeight: '600' },
-  sheet: { backgroundColor: '#111', padding: 16, borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '42%' },
-  sheetHeader: { marginBottom: 10 },
-  sheetTitle: { color: '#fff', fontSize: 20, fontWeight: '700' },
-  roleBadge: { color: '#888', fontSize: 13, marginTop: 2 },
-  muted: { color: '#aaa', marginBottom: 8, fontSize: 14 },
-  price: { color: '#fff', fontSize: 22, fontWeight: '700', marginBottom: 8 },
-  status: { color: '#fff', fontSize: 18, fontWeight: '600', marginBottom: 8 },
-  card: { backgroundColor: '#0d0d0d', borderRadius: 14, padding: 14, marginTop: 10, gap: 6, borderWidth: 1, borderColor: '#222' },
-  cardTitle: { color: '#fff', fontSize: 18, fontWeight: '700' },
-  ratingBox: { gap: 6, marginTop: 8 },
-});
