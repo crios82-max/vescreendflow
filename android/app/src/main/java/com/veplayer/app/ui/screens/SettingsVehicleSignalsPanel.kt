@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,18 +65,25 @@ internal fun SettingsVehicleSignalsPanel(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val live by VehicleState.state.collectAsState()
-    SettingsVehicleSignalsPart1a(prefs, signalSource, onSignalSourceChange, obdAddr, onObdAddrChange, canBackend, onCanBackendChange, canIface, onCanIfaceChange, onStatus, context, scope, live)
-    SettingsVehicleSignalsPart1b(prefs, onStatus, scope, live)
-    SettingsVehicleSignalsPart1c(prefs, onStatus, scope, live)
-    SettingsVehicleSignalsPart1d(prefs, onStatus, scope, live)
-    SettingsVehicleSignalsPart1e(prefs, onStatus, scope)
-    SettingsVehicleSignalsPart2(prefs, onStatus, scope)
-    SettingsVehicleSignalsPart3(prefs, onStatus, scope)
-    SettingsVehicleSignalsPart4(prefs, onStatus, scope)
+    SettingsVehicleSignalsPreamble(prefs, signalSource, onSignalSourceChange, obdAddr, onObdAddrChange, canBackend, onCanBackendChange, canIface, onCanIfaceChange, onStatus, context, scope, live)
+    SettingsVehicleSignalsNavPanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsSpeedHudPanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsFuelHudPanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsIdlePanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsSosPanel(prefs, onStatus, scope, live)
+    SettingsVehicleSignalsRemolquePanel(prefs, onStatus, scope, live)
+    SettingsVehicleSignalsFuelDropPanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsTpmsPanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsBatteryPanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsIncidentPanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsMaintPanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsFleetVoicePanel(prefs, onStatus, scope, live)
+    SettingsVehicleSignalsConductorPanel(prefs, onStatus, scope, live)
+    SettingsVehicleSignalsClimaHvacPanel(prefs, onStatus, scope)
 }
 
 @Composable
-private fun SettingsVehicleSignalsPart1a(
+private fun SettingsVehicleSignalsPreamble(
     prefs: VePrefs, signalSource: String, onSignalSourceChange: (String) -> Unit, obdAddr: String, onObdAddrChange: (String) -> Unit, canBackend: String, onCanBackendChange: (String) -> Unit, canIface: String, onCanIfaceChange: (String) -> Unit, onStatus: (String) -> Unit, context: android.content.Context, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
 ) {
             Text("Fuente activa: ${SignalSourceKind.fromId(signalSource).label}", color = Mist)
@@ -519,6 +527,12 @@ private fun SettingsVehicleSignalsPart1a(
             }
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsNavPanel(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
         PanelBlock("Navegación") {
             var navOn by remember { mutableStateOf(prefs.navEnabled) }
             var destName by remember { mutableStateOf(prefs.navDestName) }
@@ -764,6 +778,12 @@ private fun SettingsVehicleSignalsPart1a(
             )
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsSpeedHudPanel(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
         PanelBlock("Speed HUD") {
             var hudOn by remember { mutableStateOf(prefs.speedHudEnabled) }
             var lim by remember { mutableStateOf(prefs.speedLimitKmh.toFloat()) }
@@ -841,6 +861,12 @@ private fun SettingsVehicleSignalsPart1a(
             )
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsFuelHudPanel(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
         PanelBlock("Fuel / Range HUD") {
             var fuelOn by remember { mutableStateOf(prefs.fuelHudEnabled) }
             var warnPct by remember { mutableStateOf(prefs.fuelWarnPct) }
@@ -931,6 +957,12 @@ private fun SettingsVehicleSignalsPart1a(
             ) { Text("Probar voz energía") }
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsIdlePanel(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
         PanelBlock("Idle / ralentí") {
             var idleOn by remember { mutableStateOf(prefs.idleAlertEnabled) }
             var warnSec by remember { mutableStateOf(prefs.idleWarnSec.toFloat()) }
@@ -1016,7 +1048,7 @@ private fun SettingsVehicleSignalsPart1a(
 }
 
 @Composable
-private fun SettingsVehicleSignalsPart1b(
+private fun SettingsVehicleSignalsSosPanel(
     prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
 ) {
         PanelBlock("SOS / pánico") {
@@ -1099,6 +1131,12 @@ private fun SettingsVehicleSignalsPart1b(
             }
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsRemolquePanel(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
+) {
         PanelBlock("Remolque / movimiento no autorizado") {
             var towOn by remember { mutableStateOf(prefs.towEnabled) }
             var towTts by remember { mutableStateOf(prefs.towTts) }
@@ -1394,6 +1432,12 @@ private fun SettingsVehicleSignalsPart1b(
             )
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsFuelDropPanel(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
         PanelBlock("Caída brusca de combustible") {
             var dropOn by remember { mutableStateOf(prefs.fuelDropEnabled) }
             var dropTts by remember { mutableStateOf(prefs.fuelDropTts) }
@@ -1425,12 +1469,6 @@ private fun SettingsVehicleSignalsPart1b(
                 Text("TTS caída combustible", color = Mist)
                 Switch(
                     checked = dropTts,
-}
-
-@Composable
-private fun SettingsVehicleSignalsPart1c(
-    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
-) {
                     onCheckedChange = {
                         dropTts = it
                         prefs.fuelDropTts = it
@@ -1461,6 +1499,12 @@ private fun SettingsVehicleSignalsPart1c(
             )
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsTpmsPanel(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
         PanelBlock("TPMS por rueda") {
             var tpmsOn by remember { mutableStateOf(prefs.tpmsHudEnabled) }
             var tpmsTts by remember { mutableStateOf(prefs.tpmsTts) }
@@ -1522,6 +1566,12 @@ private fun SettingsVehicleSignalsPart1c(
             )
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsBatteryPanel(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
         PanelBlock("Batería 12V") {
             var battOn by remember { mutableStateOf(prefs.battVoltEnabled) }
             var battTts by remember { mutableStateOf(prefs.battVoltTts) }
@@ -1583,6 +1633,12 @@ private fun SettingsVehicleSignalsPart1c(
             )
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsIncidentPanel(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
         PanelBlock("Incidente (reporte flota)") {
             var incOn by remember { mutableStateOf(prefs.incidentEnabled) }
             var incClip by remember { mutableStateOf(prefs.incidentClipEnabled) }
@@ -1670,6 +1726,12 @@ private fun SettingsVehicleSignalsPart1c(
             )
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsMaintPanel(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
         PanelBlock("Mantenimiento odómetro") {
             var maintOn by remember { mutableStateOf(prefs.maintenanceEnabled) }
             var maintTts by remember { mutableStateOf(prefs.maintenanceTts) }
@@ -1752,6 +1814,12 @@ private fun SettingsVehicleSignalsPart1c(
             ) { Text("Restablecer intervalos") }
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsFleetVoicePanel(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
+) {
         PanelBlock("Flota voz / inbox") {
             var alertsOn by remember { mutableStateOf(prefs.fleetAlertsEnabled) }
             var ttsAlerts by remember { mutableStateOf(prefs.fleetTtsAlerts) }
@@ -1893,7 +1961,7 @@ private fun SettingsVehicleSignalsPart1c(
 }
 
 @Composable
-private fun SettingsVehicleSignalsPart1d(
+private fun SettingsVehicleSignalsConductorPanel(
     prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
 ) {
         PanelBlock("Conductor") {
@@ -2337,7 +2405,7 @@ private fun SettingsVehicleSignalsPart1d(
 }
 
 @Composable
-private fun SettingsVehicleSignalsPart1e(
+private fun SettingsVehicleSignalsClimaHvacPanel(
     prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
 ) {
         PanelBlock("Clima HVAC") {
@@ -3070,10 +3138,15 @@ private fun SettingsVehicleSignalsPart1e(
                 color = if (o2St.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+    SettingsVehicleSignalsObdFase16_22(prefs, onStatus, scope)
+    SettingsVehicleSignalsObdFase23_30(prefs, onStatus, scope)
+    SettingsVehicleSignalsObdFase31_40(prefs, onStatus, scope)
+    SettingsVehicleSignalsObdFase41_45(prefs, onStatus, scope)
+        }
 }
 
 @Composable
-private fun SettingsVehicleSignalsPart2(
+private fun SettingsVehicleSignalsObdFase16_22(
     prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
 ) {
             Text("Fase 16 OBD (0143/45/49/4B/4D):", color = Mist)
@@ -3562,6 +3635,12 @@ private fun SettingsVehicleSignalsPart2(
                 color = Mute,
                 fontSize = 12.sp,
             )
+}
+
+@Composable
+private fun SettingsVehicleSignalsObdFase23_30(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
             Text("Fase 22 OBD (0179/7A/47/48/54):", color = Mist)
             val catB1s6St by com.veplayer.app.vehicle.CatalystB1S6Monitor.state.collectAsState()
             val catB2s6St by com.veplayer.app.vehicle.CatalystB2S6Monitor.state.collectAsState()
@@ -4281,7 +4360,7 @@ private fun SettingsVehicleSignalsPart2(
 }
 
 @Composable
-private fun SettingsVehicleSignalsPart3(
+private fun SettingsVehicleSignalsObdFase31_40(
     prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
 ) {
             Text("Fase 31 OBD (198/99/9C/94):", color = Mist)
@@ -5080,7 +5159,7 @@ private fun SettingsVehicleSignalsPart3(
 }
 
 @Composable
-private fun SettingsVehicleSignalsPart4(
+private fun SettingsVehicleSignalsObdFase41_45(
     prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
 ) {
             Text("Fase 41 OBD (90/91/92/93/9A):", color = Mist)
