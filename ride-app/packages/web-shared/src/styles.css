@@ -685,13 +685,13 @@ textarea {
 }
 
 .lang-switcher__btn {
-  padding: 6px 10px;
+  padding: 5px 8px;
   border-radius: 999px;
   background: transparent;
   color: var(--brand-text-muted);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
 }
 
 .lang-switcher__btn--active {

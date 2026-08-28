@@ -1,10 +1,26 @@
 import type { Locale, TranslationParams } from './types.js';
-import { es } from './es.js';
-import { en } from './en.js';
-import { it } from './it.js';
+import {
+  dictionaries,
+  FALLBACK_LOCALE,
+  LOCALE_LABELS,
+  SUPPORTED_LOCALES,
+  detectLocaleFromLanguage,
+  isLocale,
+} from './locales.js';
 
 export type { Locale, TranslationParams } from './types.js';
-export { LOCALES, LOCALE_LABELS } from './types.js';
+export {
+  SUPPORTED_LOCALES,
+  SUPPORTED_LOCALES as LOCALES,
+  LOCALE_LABELS,
+  LOCALE_META,
+  LOCALE_DETECT_ORDER,
+  DEFAULT_LOCALE,
+  FALLBACK_LOCALE,
+  dictionaries,
+  isLocale,
+  detectLocaleFromLanguage,
+} from './locales.js';
 
 export const LOCALE_STORAGE_KEY = 'movify_locale';
 
@@ -13,8 +29,6 @@ type RideStatus =
   | 'in_progress' | 'completed' | 'cancelled';
 
 type VehicleType = 'standard' | 'comfort' | 'xl' | 'vans';
-
-const dictionaries = { es, en, it } as const;
 
 export type TranslationKey = string;
 
@@ -30,7 +44,7 @@ function getNested(obj: Record<string, unknown>, path: string): string | undefin
 
 export function translate(locale: Locale, key: TranslationKey, params?: TranslationParams): string {
   const dict = dictionaries[locale] as unknown as Record<string, unknown>;
-  const fallback = dictionaries.es as unknown as Record<string, unknown>;
+  const fallback = dictionaries[FALLBACK_LOCALE] as unknown as Record<string, unknown>;
   let text = getNested(dict, key) ?? getNested(fallback, key) ?? key;
   if (params) {
     for (const [k, v] of Object.entries(params)) {
@@ -42,16 +56,14 @@ export function translate(locale: Locale, key: TranslationKey, params?: Translat
 
 export function detectLocale(): Locale {
   if (typeof navigator !== 'undefined') {
-    const lang = navigator.language.toLowerCase();
-    if (lang.startsWith('en')) return 'en';
-    if (lang.startsWith('it')) return 'it';
+    return detectLocaleFromLanguage(navigator.language);
   }
-  return 'es';
+  return FALLBACK_LOCALE;
 }
 
 export function getStoredLocale(read: (key: string) => string | null): Locale {
   const stored = read(LOCALE_STORAGE_KEY);
-  if (stored === 'en' || stored === 'es' || stored === 'it') return stored;
+  if (stored && isLocale(stored)) return stored;
   return detectLocale();
 }
 
