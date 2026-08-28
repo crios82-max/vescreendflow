@@ -122,6 +122,11 @@ import com.veplayer.app.vehicle.CatalystB2S9Monitor
 import com.veplayer.app.vehicle.CoolantEct2Monitor
 import com.veplayer.app.vehicle.IatSensor2Monitor
 import com.veplayer.app.vehicle.TurboInletPressureMonitor
+import com.veplayer.app.vehicle.CatalystB1S10Monitor
+import com.veplayer.app.vehicle.CatalystB2S10Monitor
+import com.veplayer.app.vehicle.EgrTemperatureMonitor
+import com.veplayer.app.vehicle.DieselIntakeAirflowMonitor
+import com.veplayer.app.vehicle.ThrottleActuatorMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -240,6 +245,11 @@ fun DriveVizPanel(
     val ect2 by CoolantEct2Monitor.state.collectAsState()
     val iat2 by IatSensor2Monitor.state.collectAsState()
     val turboInlet by TurboInletPressureMonitor.state.collectAsState()
+    val catB1s10 by CatalystB1S10Monitor.state.collectAsState()
+    val catB2s10 by CatalystB2S10Monitor.state.collectAsState()
+    val egrTemp by EgrTemperatureMonitor.state.collectAsState()
+    val dieselIaf by DieselIntakeAirflowMonitor.state.collectAsState()
+    val thrAct by ThrottleActuatorMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -344,6 +354,11 @@ fun DriveVizPanel(
             CoolantEct2Monitor.tick(prefs, snap)
             IatSensor2Monitor.tick(prefs, snap)
             TurboInletPressureMonitor.tick(prefs, snap)
+            CatalystB1S10Monitor.tick(prefs, snap)
+            CatalystB2S10Monitor.tick(prefs, snap)
+            EgrTemperatureMonitor.tick(prefs, snap)
+            DieselIntakeAirflowMonitor.tick(prefs, snap)
+            ThrottleActuatorMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -981,6 +996,21 @@ fun DriveVizPanel(
                 }
                 if (turboInlet.showWarn || (prefs.turboInletEnabled && turboInlet.band == "ok" && turboInlet.label.isNotBlank())) {
                     Text(turboInlet.label, color = Color(com.veplayer.app.vehicle.TurboInletPressure.accentArgb(turboInlet.band)), fontSize = 11.sp)
+                }
+                if (catB1s10.showWarn || (prefs.catB1s10Enabled && catB1s10.band == "ok" && catB1s10.label.isNotBlank())) {
+                    Text(catB1s10.label, color = Color(com.veplayer.app.vehicle.CatalystB1S10.accentArgb(catB1s10.band)), fontSize = 11.sp)
+                }
+                if (catB2s10.showWarn || (prefs.catB2s10Enabled && catB2s10.band == "ok" && catB2s10.label.isNotBlank())) {
+                    Text(catB2s10.label, color = Color(com.veplayer.app.vehicle.CatalystB2S10.accentArgb(catB2s10.band)), fontSize = 11.sp)
+                }
+                if (egrTemp.showWarn || (prefs.egrTempEnabled && egrTemp.band == "ok" && egrTemp.label.isNotBlank())) {
+                    Text(egrTemp.label, color = Color(com.veplayer.app.vehicle.EgrTemperature.accentArgb(egrTemp.band)), fontSize = 11.sp)
+                }
+                if (dieselIaf.showWarn || (prefs.dieselIafEnabled && dieselIaf.band == "ok" && dieselIaf.label.isNotBlank())) {
+                    Text(dieselIaf.label, color = Color(com.veplayer.app.vehicle.DieselIntakeAirflow.accentArgb(dieselIaf.band)), fontSize = 11.sp)
+                }
+                if (thrAct.showWarn || (prefs.thrActEnabled && thrAct.band == "ok" && thrAct.label.isNotBlank())) {
+                    Text(thrAct.label, color = Color(com.veplayer.app.vehicle.ThrottleActuator.accentArgb(thrAct.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

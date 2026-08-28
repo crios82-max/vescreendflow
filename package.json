@@ -79,6 +79,7 @@
     "veplayer:fase23-smoke": "node veplayer/scripts/fase23-smoke.mjs",
     "veplayer:fase24-smoke": "node veplayer/scripts/fase24-smoke.mjs",
     "veplayer:fase25-smoke": "node veplayer/scripts/fase25-smoke.mjs",
+    "veplayer:fase26-smoke": "node veplayer/scripts/fase26-smoke.mjs",
     "veplayer:poll-parity": "node veplayer/scripts/poll-parity.mjs",
     "veplayer:validate-gate": "node veplayer/scripts/validate-gate.mjs",
     "veplayer:nav-tts-smoke": "node veplayer/scripts/nav-tts-smoke.mjs",

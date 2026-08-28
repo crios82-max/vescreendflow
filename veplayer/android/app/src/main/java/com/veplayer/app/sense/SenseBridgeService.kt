@@ -861,6 +861,64 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.TurboInletPressure.toJsonMap(
                                             com.veplayer.app.vehicle.TurboInletPressureMonitor.state.value,
                                         ),
+                                    "cat_b1s10_warn_c" to prefs.catB1s10WarnC.toDouble(),
+                                    "cat_b1s10_alert_c" to prefs.catB1s10AlertC.toDouble(),
+                                    "catalyst_b1s10_temp_c" to
+                                        (if (prefs.catB1s10SimC > 0f) prefs.catB1s10SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S10Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s10TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s10" to
+                                        com.veplayer.app.vehicle.CatalystB1S10.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S10Monitor.state.value,
+                                        ),
+                                    "cat_b2s10_warn_c" to prefs.catB2s10WarnC.toDouble(),
+                                    "cat_b2s10_alert_c" to prefs.catB2s10AlertC.toDouble(),
+                                    "catalyst_b2s10_temp_c" to
+                                        (if (prefs.catB2s10SimC > 0f) prefs.catB2s10SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S10Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s10TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s10" to
+                                        com.veplayer.app.vehicle.CatalystB2S10.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S10Monitor.state.value,
+                                        ),
+                                    "egr_temp_warn_c" to prefs.egrTempWarnC.toDouble(),
+                                    "egr_temp_alert_c" to prefs.egrTempAlertC.toDouble(),
+                                    "egr_temp_speed_min_kmh" to prefs.egrTempSpeedMinKmh.toDouble(),
+                                    "egr_temp_c" to
+                                        (if (prefs.egrTempSimC > 0f) prefs.egrTempSimC
+                                        else com.veplayer.app.vehicle.EgrTemperatureMonitor.state.value.tempC
+                                            ?: snap.egrTempC
+                                        )?.toDouble(),
+                                    "egr_temp" to
+                                        com.veplayer.app.vehicle.EgrTemperature.toJsonMap(
+                                            com.veplayer.app.vehicle.EgrTemperatureMonitor.state.value,
+                                        ),
+                                    "diesel_iaf_warn_pct" to prefs.dieselIafWarnPct.toDouble(),
+                                    "diesel_iaf_alert_pct" to prefs.dieselIafAlertPct.toDouble(),
+                                    "diesel_iaf_speed_min_kmh" to prefs.dieselIafSpeedMinKmh.toDouble(),
+                                    "diesel_iaf_cmd_pct" to
+                                        (if (prefs.dieselIafSimPct > 0f) prefs.dieselIafSimPct
+                                        else com.veplayer.app.vehicle.DieselIntakeAirflowMonitor.state.value.flowPct
+                                            ?: snap.dieselIafCmdPct
+                                        )?.toDouble(),
+                                    "diesel_iaf" to
+                                        com.veplayer.app.vehicle.DieselIntakeAirflow.toJsonMap(
+                                            com.veplayer.app.vehicle.DieselIntakeAirflowMonitor.state.value,
+                                        ),
+                                    "thr_act_warn_pct" to prefs.thrActWarnPct.toDouble(),
+                                    "thr_act_alert_pct" to prefs.thrActAlertPct.toDouble(),
+                                    "thr_act_speed_min_kmh" to prefs.thrActSpeedMinKmh.toDouble(),
+                                    "thr_actuator_pct" to
+                                        (if (prefs.thrActSimPct > 0f) prefs.thrActSimPct
+                                        else com.veplayer.app.vehicle.ThrottleActuatorMonitor.state.value.actuatorPct
+                                            ?: snap.thrActuatorPct
+                                        )?.toDouble(),
+                                    "thr_act" to
+                                        com.veplayer.app.vehicle.ThrottleActuator.toJsonMap(
+                                            com.veplayer.app.vehicle.ThrottleActuatorMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -1863,6 +1921,64 @@ class SenseBridgeService : Service() {
                                     "turbo_inlet" to
                                         com.veplayer.app.vehicle.TurboInletPressure.toJsonMap(
                                             com.veplayer.app.vehicle.TurboInletPressureMonitor.state.value,
+                                        ),
+                                    "cat_b1s10_warn_c" to prefs.catB1s10WarnC.toDouble(),
+                                    "cat_b1s10_alert_c" to prefs.catB1s10AlertC.toDouble(),
+                                    "catalyst_b1s10_temp_c" to
+                                        (if (prefs.catB1s10SimC > 0f) prefs.catB1s10SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S10Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s10TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s10" to
+                                        com.veplayer.app.vehicle.CatalystB1S10.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S10Monitor.state.value,
+                                        ),
+                                    "cat_b2s10_warn_c" to prefs.catB2s10WarnC.toDouble(),
+                                    "cat_b2s10_alert_c" to prefs.catB2s10AlertC.toDouble(),
+                                    "catalyst_b2s10_temp_c" to
+                                        (if (prefs.catB2s10SimC > 0f) prefs.catB2s10SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S10Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s10TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s10" to
+                                        com.veplayer.app.vehicle.CatalystB2S10.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S10Monitor.state.value,
+                                        ),
+                                    "egr_temp_warn_c" to prefs.egrTempWarnC.toDouble(),
+                                    "egr_temp_alert_c" to prefs.egrTempAlertC.toDouble(),
+                                    "egr_temp_speed_min_kmh" to prefs.egrTempSpeedMinKmh.toDouble(),
+                                    "egr_temp_c" to
+                                        (if (prefs.egrTempSimC > 0f) prefs.egrTempSimC
+                                        else com.veplayer.app.vehicle.EgrTemperatureMonitor.state.value.tempC
+                                            ?: snap.egrTempC
+                                        )?.toDouble(),
+                                    "egr_temp" to
+                                        com.veplayer.app.vehicle.EgrTemperature.toJsonMap(
+                                            com.veplayer.app.vehicle.EgrTemperatureMonitor.state.value,
+                                        ),
+                                    "diesel_iaf_warn_pct" to prefs.dieselIafWarnPct.toDouble(),
+                                    "diesel_iaf_alert_pct" to prefs.dieselIafAlertPct.toDouble(),
+                                    "diesel_iaf_speed_min_kmh" to prefs.dieselIafSpeedMinKmh.toDouble(),
+                                    "diesel_iaf_cmd_pct" to
+                                        (if (prefs.dieselIafSimPct > 0f) prefs.dieselIafSimPct
+                                        else com.veplayer.app.vehicle.DieselIntakeAirflowMonitor.state.value.flowPct
+                                            ?: snap.dieselIafCmdPct
+                                        )?.toDouble(),
+                                    "diesel_iaf" to
+                                        com.veplayer.app.vehicle.DieselIntakeAirflow.toJsonMap(
+                                            com.veplayer.app.vehicle.DieselIntakeAirflowMonitor.state.value,
+                                        ),
+                                    "thr_act_warn_pct" to prefs.thrActWarnPct.toDouble(),
+                                    "thr_act_alert_pct" to prefs.thrActAlertPct.toDouble(),
+                                    "thr_act_speed_min_kmh" to prefs.thrActSpeedMinKmh.toDouble(),
+                                    "thr_actuator_pct" to
+                                        (if (prefs.thrActSimPct > 0f) prefs.thrActSimPct
+                                        else com.veplayer.app.vehicle.ThrottleActuatorMonitor.state.value.actuatorPct
+                                            ?: snap.thrActuatorPct
+                                        )?.toDouble(),
+                                    "thr_act" to
+                                        com.veplayer.app.vehicle.ThrottleActuator.toJsonMap(
+                                            com.veplayer.app.vehicle.ThrottleActuatorMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

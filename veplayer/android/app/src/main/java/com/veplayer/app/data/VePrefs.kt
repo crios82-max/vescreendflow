@@ -2230,6 +2230,100 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("turbo_inlet_sim_kpa", 0f)
         set(value) = sp.edit().putFloat("turbo_inlet_sim_kpa", value.coerceIn(0f, 255f)).apply()
 
+    /** Catalyst temp B1S10 °C (OBD 0181). */
+    var catB1s10Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s10", true)
+        set(value) = sp.edit().putBoolean("cat_b1s10", value).apply()
+    var catB1s10Tts: Boolean
+        get() = sp.getBoolean("cat_b1s10_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s10_tts", value).apply()
+    var catB1s10WarnC: Float
+        get() = sp.getFloat("cat_b1s10_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s10_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s10AlertC: Float
+        get() = sp.getFloat("cat_b1s10_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s10_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s10SimC: Float
+        get() = sp.getFloat("cat_b1s10_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s10_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B2S10 °C (OBD 0182). */
+    var catB2s10Enabled: Boolean
+        get() = sp.getBoolean("cat_b2s10", true)
+        set(value) = sp.edit().putBoolean("cat_b2s10", value).apply()
+    var catB2s10Tts: Boolean
+        get() = sp.getBoolean("cat_b2s10_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2s10_tts", value).apply()
+    var catB2s10WarnC: Float
+        get() = sp.getFloat("cat_b2s10_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2s10_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2s10AlertC: Float
+        get() = sp.getFloat("cat_b2s10_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2s10_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2s10SimC: Float
+        get() = sp.getFloat("cat_b2s10_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2s10_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** EGR temperature °C (OBD 016B). */
+    var egrTempEnabled: Boolean
+        get() = sp.getBoolean("egr_temp", true)
+        set(value) = sp.edit().putBoolean("egr_temp", value).apply()
+    var egrTempTts: Boolean
+        get() = sp.getBoolean("egr_temp_tts", true)
+        set(value) = sp.edit().putBoolean("egr_temp_tts", value).apply()
+    var egrTempWarnC: Float
+        get() = sp.getFloat("egr_temp_warn_c", 350f)
+        set(value) = sp.edit().putFloat("egr_temp_warn_c", value.coerceIn(200f, 600f)).apply()
+    var egrTempAlertC: Float
+        get() = sp.getFloat("egr_temp_alert_c", 450f)
+        set(value) = sp.edit().putFloat("egr_temp_alert_c", value.coerceAtLeast(250f)).apply()
+    var egrTempSpeedMinKmh: Float
+        get() = sp.getFloat("egr_temp_speed_min", 10f)
+        set(value) = sp.edit().putFloat("egr_temp_speed_min", value.coerceIn(0f, 60f)).apply()
+    var egrTempSimC: Float
+        get() = sp.getFloat("egr_temp_sim_c", 0f)
+        set(value) = sp.edit().putFloat("egr_temp_sim_c", value.coerceIn(0f, 800f)).apply()
+
+    /** Diesel intake air flow % (OBD 016A). */
+    var dieselIafEnabled: Boolean
+        get() = sp.getBoolean("diesel_iaf", true)
+        set(value) = sp.edit().putBoolean("diesel_iaf", value).apply()
+    var dieselIafTts: Boolean
+        get() = sp.getBoolean("diesel_iaf_tts", true)
+        set(value) = sp.edit().putBoolean("diesel_iaf_tts", value).apply()
+    var dieselIafWarnPct: Float
+        get() = sp.getFloat("diesel_iaf_warn_pct", 75f)
+        set(value) = sp.edit().putFloat("diesel_iaf_warn_pct", value.coerceIn(40f, 95f)).apply()
+    var dieselIafAlertPct: Float
+        get() = sp.getFloat("diesel_iaf_alert_pct", 88f)
+        set(value) = sp.edit().putFloat("diesel_iaf_alert_pct", value.coerceAtLeast(50f)).apply()
+    var dieselIafSpeedMinKmh: Float
+        get() = sp.getFloat("diesel_iaf_speed_min", 15f)
+        set(value) = sp.edit().putFloat("diesel_iaf_speed_min", value.coerceIn(0f, 60f)).apply()
+    var dieselIafSimPct: Float
+        get() = sp.getFloat("diesel_iaf_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("diesel_iaf_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    /** Throttle actuator % (OBD 016C). */
+    var thrActEnabled: Boolean
+        get() = sp.getBoolean("thr_act", true)
+        set(value) = sp.edit().putBoolean("thr_act", value).apply()
+    var thrActTts: Boolean
+        get() = sp.getBoolean("thr_act_tts", true)
+        set(value) = sp.edit().putBoolean("thr_act_tts", value).apply()
+    var thrActWarnPct: Float
+        get() = sp.getFloat("thr_act_warn_pct", 85f)
+        set(value) = sp.edit().putFloat("thr_act_warn_pct", value.coerceIn(50f, 98f)).apply()
+    var thrActAlertPct: Float
+        get() = sp.getFloat("thr_act_alert_pct", 92f)
+        set(value) = sp.edit().putFloat("thr_act_alert_pct", value.coerceAtLeast(55f)).apply()
+    var thrActSpeedMinKmh: Float
+        get() = sp.getFloat("thr_act_speed_min", 10f)
+        set(value) = sp.edit().putFloat("thr_act_speed_min", value.coerceIn(0f, 60f)).apply()
+    var thrActSimPct: Float
+        get() = sp.getFloat("thr_act_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("thr_act_sim_pct", value.coerceIn(0f, 100f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
