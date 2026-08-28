@@ -4211,6 +4211,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 27 OBD (183/84/69/6E/6D):", color = Mist)
+            val catB1s11St by com.veplayer.app.vehicle.CatalystB1S11Monitor.state.collectAsState()
+            val catB2s11St by com.veplayer.app.vehicle.CatalystB2S11Monitor.state.collectAsState()
+            val egrActualSt by com.veplayer.app.vehicle.ActualEgrMonitor.state.collectAsState()
+            val injectCtrlSt by com.veplayer.app.vehicle.InjectPressureControlMonitor.state.collectAsState()
+            val fuelCtrlSt by com.veplayer.app.vehicle.FuelPressureControlMonitor.state.collectAsState()
+            var f27B1s11 by remember {
+                mutableStateOf(if (prefs.catB1s11SimC > 0f) prefs.catB1s11SimC.toInt().toString() else "0")
+            }
+            var f27B2s11 by remember {
+                mutableStateOf(if (prefs.catB2s11SimC > 0f) prefs.catB2s11SimC.toInt().toString() else "0")
+            }
+            var f27EgrAct by remember {
+                mutableStateOf(if (prefs.egrActualSimPct > 0f) prefs.egrActualSimPct.toInt().toString() else "0")
+            }
+            var f27Inject by remember {
+                mutableStateOf(if (prefs.injectCtrlSimKpa > 0f) prefs.injectCtrlSimKpa.toInt().toString() else "0")
+            }
+            var f27FuelCtrl by remember {
+                mutableStateOf(if (prefs.fuelCtrlSimKpa > 0f) prefs.fuelCtrlSimKpa.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f27B1s11,
+                    onValueChange = { f27B1s11 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S11 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f27B2s11,
+                    onValueChange = { f27B2s11 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S11 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f27EgrAct,
+                    onValueChange = { f27EgrAct = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("EgrAct %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f27Inject,
+                    onValueChange = { f27Inject = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("Inject kPa") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f27FuelCtrl,
+                    onValueChange = { f27FuelCtrl = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("FuelCtrl kPa") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s11SimC = f27B1s11.toFloatOrNull() ?: 0f
+                    prefs.catB2s11SimC = f27B2s11.toFloatOrNull() ?: 0f
+                    prefs.egrActualSimPct = f27EgrAct.toFloatOrNull() ?: 0f
+                    prefs.injectCtrlSimKpa = f27Inject.toFloatOrNull() ?: 0f
+                    prefs.fuelCtrlSimKpa = f27FuelCtrl.toFloatOrNull() ?: 0f
+                    status = "Fase 27 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 27") }
+            Text(
+                listOfNotNull(
+                    catB1s11St.label.takeIf { it.isNotBlank() },
+                    catB2s11St.label.takeIf { it.isNotBlank() },
+                    egrActualSt.label.takeIf { it.isNotBlank() },
+                    injectCtrlSt.label.takeIf { it.isNotBlank() },
+                    fuelCtrlSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 27 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

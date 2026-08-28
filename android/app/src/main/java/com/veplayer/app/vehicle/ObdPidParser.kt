@@ -144,6 +144,16 @@ object ObdPidParser {
         val dieselIafCmdPct: Float? = null,
         /** Commanded throttle actuator % (OBD PID 016C). */
         val thrActuatorPct: Float? = null,
+        /** Catalyst temp bank 1 sensor 11 °C (OBD PID 0183). */
+        val catalystB1s11TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 11 °C (OBD PID 0184). */
+        val catalystB2s11TempC: Float? = null,
+        /** Actual EGR % (OBD PID 0169). */
+        val actualEgrPct: Float? = null,
+        /** Injection pressure control kPa (OBD PID 016E). */
+        val injectCtrlKpa: Float? = null,
+        /** Fuel pressure control kPa (OBD PID 016D). */
+        val fuelCtrlKpa: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -409,6 +419,23 @@ object ObdPidParser {
             }
             0x6A -> PidValues(dieselIafCmdPct = data.getOrNull(0)?.let { it * 100f / 255f })
             0x6C -> PidValues(thrActuatorPct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x83 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB1s11TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x84 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2s11TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x69 -> PidValues(actualEgrPct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x6E -> {
+                if (data.size < 2) PidValues()
+                else PidValues(injectCtrlKpa = ((data[0] * 256) + data[1]) / 10f)
+            }
+            0x6D -> {
+                if (data.size < 2) PidValues()
+                else PidValues(fuelCtrlKpa = ((data[0] * 256) + data[1]) / 10f)
+            }
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -505,6 +532,11 @@ object ObdPidParser {
             egrTempC = add.egrTempC ?: base.egrTempC,
             dieselIafCmdPct = add.dieselIafCmdPct ?: base.dieselIafCmdPct,
             thrActuatorPct = add.thrActuatorPct ?: base.thrActuatorPct,
+            catalystB1s11TempC = add.catalystB1s11TempC ?: base.catalystB1s11TempC,
+            catalystB2s11TempC = add.catalystB2s11TempC ?: base.catalystB2s11TempC,
+            actualEgrPct = add.actualEgrPct ?: base.actualEgrPct,
+            injectCtrlKpa = add.injectCtrlKpa ?: base.injectCtrlKpa,
+            fuelCtrlKpa = add.fuelCtrlKpa ?: base.fuelCtrlKpa,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

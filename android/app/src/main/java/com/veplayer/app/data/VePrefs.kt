@@ -2324,6 +2324,100 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("thr_act_sim_pct", 0f)
         set(value) = sp.edit().putFloat("thr_act_sim_pct", value.coerceIn(0f, 100f)).apply()
 
+    /** Catalyst temp B1S11 °C (OBD 0183). */
+    var catB1s11Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s11", true)
+        set(value) = sp.edit().putBoolean("cat_b1s11", value).apply()
+    var catB1s11Tts: Boolean
+        get() = sp.getBoolean("cat_b1s11_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s11_tts", value).apply()
+    var catB1s11WarnC: Float
+        get() = sp.getFloat("cat_b1s11_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s11_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s11AlertC: Float
+        get() = sp.getFloat("cat_b1s11_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s11_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s11SimC: Float
+        get() = sp.getFloat("cat_b1s11_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s11_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B2S11 °C (OBD 0184). */
+    var catB2s11Enabled: Boolean
+        get() = sp.getBoolean("cat_b2s11", true)
+        set(value) = sp.edit().putBoolean("cat_b2s11", value).apply()
+    var catB2s11Tts: Boolean
+        get() = sp.getBoolean("cat_b2s11_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2s11_tts", value).apply()
+    var catB2s11WarnC: Float
+        get() = sp.getFloat("cat_b2s11_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2s11_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2s11AlertC: Float
+        get() = sp.getFloat("cat_b2s11_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2s11_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2s11SimC: Float
+        get() = sp.getFloat("cat_b2s11_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2s11_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Actual EGR % (OBD 0169). */
+    var egrActualEnabled: Boolean
+        get() = sp.getBoolean("egr_actual", true)
+        set(value) = sp.edit().putBoolean("egr_actual", value).apply()
+    var egrActualTts: Boolean
+        get() = sp.getBoolean("egr_actual_tts", true)
+        set(value) = sp.edit().putBoolean("egr_actual_tts", value).apply()
+    var egrActualWarnPct: Float
+        get() = sp.getFloat("egr_actual_warn_pct", 55f)
+        set(value) = sp.edit().putFloat("egr_actual_warn_pct", value.coerceIn(25f, 90f)).apply()
+    var egrActualAlertPct: Float
+        get() = sp.getFloat("egr_actual_alert_pct", 70f)
+        set(value) = sp.edit().putFloat("egr_actual_alert_pct", value.coerceAtLeast(30f)).apply()
+    var egrActualSpeedMinKmh: Float
+        get() = sp.getFloat("egr_actual_speed_min", 15f)
+        set(value) = sp.edit().putFloat("egr_actual_speed_min", value.coerceIn(0f, 60f)).apply()
+    var egrActualSimPct: Float
+        get() = sp.getFloat("egr_actual_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("egr_actual_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    /** Injection pressure control kPa (OBD 016E). */
+    var injectCtrlEnabled: Boolean
+        get() = sp.getBoolean("inject_ctrl", true)
+        set(value) = sp.edit().putBoolean("inject_ctrl", value).apply()
+    var injectCtrlTts: Boolean
+        get() = sp.getBoolean("inject_ctrl_tts", true)
+        set(value) = sp.edit().putBoolean("inject_ctrl_tts", value).apply()
+    var injectCtrlWarnKpa: Float
+        get() = sp.getFloat("inject_ctrl_warn_kpa", 8000f)
+        set(value) = sp.edit().putFloat("inject_ctrl_warn_kpa", value.coerceIn(2000f, 20000f)).apply()
+    var injectCtrlAlertKpa: Float
+        get() = sp.getFloat("inject_ctrl_alert_kpa", 12000f)
+        set(value) = sp.edit().putFloat("inject_ctrl_alert_kpa", value.coerceAtLeast(3000f)).apply()
+    var injectCtrlSpeedMinKmh: Float
+        get() = sp.getFloat("inject_ctrl_speed_min", 10f)
+        set(value) = sp.edit().putFloat("inject_ctrl_speed_min", value.coerceIn(0f, 60f)).apply()
+    var injectCtrlSimKpa: Float
+        get() = sp.getFloat("inject_ctrl_sim_kpa", 0f)
+        set(value) = sp.edit().putFloat("inject_ctrl_sim_kpa", value.coerceIn(0f, 25000f)).apply()
+
+    /** Fuel pressure control kPa (OBD 016D). */
+    var fuelCtrlEnabled: Boolean
+        get() = sp.getBoolean("fuel_ctrl", true)
+        set(value) = sp.edit().putBoolean("fuel_ctrl", value).apply()
+    var fuelCtrlTts: Boolean
+        get() = sp.getBoolean("fuel_ctrl_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_ctrl_tts", value).apply()
+    var fuelCtrlWarnKpa: Float
+        get() = sp.getFloat("fuel_ctrl_warn_kpa", 6000f)
+        set(value) = sp.edit().putFloat("fuel_ctrl_warn_kpa", value.coerceIn(1500f, 15000f)).apply()
+    var fuelCtrlAlertKpa: Float
+        get() = sp.getFloat("fuel_ctrl_alert_kpa", 9000f)
+        set(value) = sp.edit().putFloat("fuel_ctrl_alert_kpa", value.coerceAtLeast(2000f)).apply()
+    var fuelCtrlSpeedMinKmh: Float
+        get() = sp.getFloat("fuel_ctrl_speed_min", 10f)
+        set(value) = sp.edit().putFloat("fuel_ctrl_speed_min", value.coerceIn(0f, 60f)).apply()
+    var fuelCtrlSimKpa: Float
+        get() = sp.getFloat("fuel_ctrl_sim_kpa", 0f)
+        set(value) = sp.edit().putFloat("fuel_ctrl_sim_kpa", value.coerceIn(0f, 20000f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
