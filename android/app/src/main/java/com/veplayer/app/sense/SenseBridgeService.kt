@@ -1196,6 +1196,63 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.NoxReagentQuality.toJsonMap(
                                             com.veplayer.app.vehicle.NoxReagentQualityMonitor.state.value,
                                         ),
+                                    "egt_b1s6_warn_c" to prefs.egtB1s6WarnC.toDouble(),
+                                    "egt_b1s6_alert_c" to prefs.egtB1s6AlertC.toDouble(),
+                                    "egt_b1s6_temp_c" to
+                                        (if (prefs.egtB1s6SimC > 0f) prefs.egtB1s6SimC
+                                        else com.veplayer.app.vehicle.EgtB1S6Monitor.state.value.egtTempC
+                                            ?: snap.egtB1s6TempC
+                                        )?.toDouble(),
+                                    "egt_b1s6" to
+                                        com.veplayer.app.vehicle.EgtB1S6.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB1S6Monitor.state.value,
+                                        ),
+                                    "egt_b2s6_warn_c" to prefs.egtB2s6WarnC.toDouble(),
+                                    "egt_b2s6_alert_c" to prefs.egtB2s6AlertC.toDouble(),
+                                    "egt_b2s6_temp_c" to
+                                        (if (prefs.egtB2s6SimC > 0f) prefs.egtB2s6SimC
+                                        else com.veplayer.app.vehicle.EgtB2S6Monitor.state.value.egtTempC
+                                            ?: snap.egtB2s6TempC
+                                        )?.toDouble(),
+                                    "egt_b2s6" to
+                                        com.veplayer.app.vehicle.EgtB2S6.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB2S6Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b1s4_warn" to prefs.o2LambdaB1s4Warn.toDouble(),
+                                    "o2_lmb_b1s4_alert" to prefs.o2LambdaB1s4Alert.toDouble(),
+                                    "o2_lmb_b1s4_speed_min_kmh" to prefs.o2LambdaB1s4SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b1s4" to
+                                        (if (prefs.o2LambdaB1s4Sim > 0f) prefs.o2LambdaB1s4Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB1S4Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB1s4
+                                        )?.toDouble(),
+                                    "o2_lmb_b1s4" to
+                                        com.veplayer.app.vehicle.O2LambdaB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB1S4Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b2s4_warn" to prefs.o2LambdaB2s4Warn.toDouble(),
+                                    "o2_lmb_b2s4_alert" to prefs.o2LambdaB2s4Alert.toDouble(),
+                                    "o2_lmb_b2s4_speed_min_kmh" to prefs.o2LambdaB2s4SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b2s4" to
+                                        (if (prefs.o2LambdaB2s4Sim > 0f) prefs.o2LambdaB2s4Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB2S4Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB2s4
+                                        )?.toDouble(),
+                                    "o2_lmb_b2s4" to
+                                        com.veplayer.app.vehicle.O2LambdaB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB2S4Monitor.state.value,
+                                        ),
+                                    "def_warn_pct" to prefs.defFluidWarnPct.toDouble(),
+                                    "def_alert_pct" to prefs.defFluidAlertPct.toDouble(),
+                                    "def_fluid_pct" to
+                                        (if (prefs.defFluidSimPct > 0f) prefs.defFluidSimPct
+                                        else com.veplayer.app.vehicle.DefFluidMonitor.state.value.defPct
+                                            ?: snap.defFluidPct
+                                        )?.toDouble(),
+                                    "def_fluid" to
+                                        com.veplayer.app.vehicle.DefFluid.toJsonMap(
+                                            com.veplayer.app.vehicle.DefFluidMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -2533,6 +2590,63 @@ class SenseBridgeService : Service() {
                                     "nox_reagent" to
                                         com.veplayer.app.vehicle.NoxReagentQuality.toJsonMap(
                                             com.veplayer.app.vehicle.NoxReagentQualityMonitor.state.value,
+                                        ),
+                                    "egt_b1s6_warn_c" to prefs.egtB1s6WarnC.toDouble(),
+                                    "egt_b1s6_alert_c" to prefs.egtB1s6AlertC.toDouble(),
+                                    "egt_b1s6_temp_c" to
+                                        (if (prefs.egtB1s6SimC > 0f) prefs.egtB1s6SimC
+                                        else com.veplayer.app.vehicle.EgtB1S6Monitor.state.value.egtTempC
+                                            ?: snap.egtB1s6TempC
+                                        )?.toDouble(),
+                                    "egt_b1s6" to
+                                        com.veplayer.app.vehicle.EgtB1S6.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB1S6Monitor.state.value,
+                                        ),
+                                    "egt_b2s6_warn_c" to prefs.egtB2s6WarnC.toDouble(),
+                                    "egt_b2s6_alert_c" to prefs.egtB2s6AlertC.toDouble(),
+                                    "egt_b2s6_temp_c" to
+                                        (if (prefs.egtB2s6SimC > 0f) prefs.egtB2s6SimC
+                                        else com.veplayer.app.vehicle.EgtB2S6Monitor.state.value.egtTempC
+                                            ?: snap.egtB2s6TempC
+                                        )?.toDouble(),
+                                    "egt_b2s6" to
+                                        com.veplayer.app.vehicle.EgtB2S6.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB2S6Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b1s4_warn" to prefs.o2LambdaB1s4Warn.toDouble(),
+                                    "o2_lmb_b1s4_alert" to prefs.o2LambdaB1s4Alert.toDouble(),
+                                    "o2_lmb_b1s4_speed_min_kmh" to prefs.o2LambdaB1s4SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b1s4" to
+                                        (if (prefs.o2LambdaB1s4Sim > 0f) prefs.o2LambdaB1s4Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB1S4Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB1s4
+                                        )?.toDouble(),
+                                    "o2_lmb_b1s4" to
+                                        com.veplayer.app.vehicle.O2LambdaB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB1S4Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b2s4_warn" to prefs.o2LambdaB2s4Warn.toDouble(),
+                                    "o2_lmb_b2s4_alert" to prefs.o2LambdaB2s4Alert.toDouble(),
+                                    "o2_lmb_b2s4_speed_min_kmh" to prefs.o2LambdaB2s4SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b2s4" to
+                                        (if (prefs.o2LambdaB2s4Sim > 0f) prefs.o2LambdaB2s4Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB2S4Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB2s4
+                                        )?.toDouble(),
+                                    "o2_lmb_b2s4" to
+                                        com.veplayer.app.vehicle.O2LambdaB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB2S4Monitor.state.value,
+                                        ),
+                                    "def_warn_pct" to prefs.defFluidWarnPct.toDouble(),
+                                    "def_alert_pct" to prefs.defFluidAlertPct.toDouble(),
+                                    "def_fluid_pct" to
+                                        (if (prefs.defFluidSimPct > 0f) prefs.defFluidSimPct
+                                        else com.veplayer.app.vehicle.DefFluidMonitor.state.value.defPct
+                                            ?: snap.defFluidPct
+                                        )?.toDouble(),
+                                    "def_fluid" to
+                                        com.veplayer.app.vehicle.DefFluid.toJsonMap(
+                                            com.veplayer.app.vehicle.DefFluidMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

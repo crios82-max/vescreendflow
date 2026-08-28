@@ -2801,6 +2801,103 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("nox_req_sim_h", 0f)
         set(value) = sp.edit().putFloat("nox_req_sim_h", value.coerceIn(0f, 65535f)).apply()
 
+    /** EGT B1S6 °C (OBD 0198). */
+    var egtB1s6Enabled: Boolean
+        get() = sp.getBoolean("egt_b1s6", true)
+        set(value) = sp.edit().putBoolean("egt_b1s6", value).apply()
+    var egtB1s6Tts: Boolean
+        get() = sp.getBoolean("egt_b1s6_tts", true)
+        set(value) = sp.edit().putBoolean("egt_b1s6_tts", value).apply()
+    var egtB1s6WarnC: Float
+        get() = sp.getFloat("egt_b1s6_warn_c", 750f)
+        set(value) = sp.edit().putFloat("egt_b1s6_warn_c", value.coerceAtLeast(400f)).apply()
+    var egtB1s6AlertC: Float
+        get() = sp.getFloat("egt_b1s6_alert_c", 850f)
+        set(value) = sp.edit().putFloat("egt_b1s6_alert_c", value.coerceAtLeast(450f)).apply()
+    var egtB1s6SimC: Float
+        get() = sp.getFloat("egt_b1s6_sim_c", 0f)
+        set(value) = sp.edit().putFloat("egt_b1s6_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** EGT B2S6 °C (OBD 0199). */
+    var egtB2s6Enabled: Boolean
+        get() = sp.getBoolean("egt_b2s6", true)
+        set(value) = sp.edit().putBoolean("egt_b2s6", value).apply()
+    var egtB2s6Tts: Boolean
+        get() = sp.getBoolean("egt_b2s6_tts", true)
+        set(value) = sp.edit().putBoolean("egt_b2s6_tts", value).apply()
+    var egtB2s6WarnC: Float
+        get() = sp.getFloat("egt_b2s6_warn_c", 750f)
+        set(value) = sp.edit().putFloat("egt_b2s6_warn_c", value.coerceAtLeast(400f)).apply()
+    var egtB2s6AlertC: Float
+        get() = sp.getFloat("egt_b2s6_alert_c", 850f)
+        set(value) = sp.edit().putFloat("egt_b2s6_alert_c", value.coerceAtLeast(450f)).apply()
+    var egtB2s6SimC: Float
+        get() = sp.getFloat("egt_b2s6_sim_c", 0f)
+        set(value) = sp.edit().putFloat("egt_b2s6_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** O2 lambda B1S4 (OBD 019C). */
+    var o2LambdaB1s4Enabled: Boolean
+        get() = sp.getBoolean("o2_lmb_b1s4", true)
+        set(value) = sp.edit().putBoolean("o2_lmb_b1s4", value).apply()
+    var o2LambdaB1s4Tts: Boolean
+        get() = sp.getBoolean("o2_lmb_b1s4_tts", true)
+        set(value) = sp.edit().putBoolean("o2_lmb_b1s4_tts", value).apply()
+    var o2LambdaB1s4Warn: Float
+        get() = sp.getFloat("o2_lmb_b1s4_warn", 1.10f)
+        set(value) = sp.edit().putFloat("o2_lmb_b1s4_warn", value.coerceIn(0.9f, 1.5f)).apply()
+    var o2LambdaB1s4Alert: Float
+        get() = sp.getFloat("o2_lmb_b1s4_alert", 1.15f)
+        set(value) = sp.edit().putFloat("o2_lmb_b1s4_alert", value.coerceAtLeast(0.92f)).apply()
+    var o2LambdaB1s4SpeedMinKmh: Float
+        get() = sp.getFloat("o2_lmb_b1s4_speed_min", 20f)
+        set(value) = sp.edit().putFloat("o2_lmb_b1s4_speed_min", value.coerceIn(0f, 60f)).apply()
+    var o2LambdaB1s4Sim: Float
+        get() = sp.getFloat("o2_lmb_b1s4_sim", 0f)
+        set(value) = sp.edit().putFloat("o2_lmb_b1s4_sim", value.coerceIn(0f, 2f)).apply()
+    var o2LambdaB1s4SimSpeedKmh: Float
+        get() = sp.getFloat("o2_lmb_b1s4_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("o2_lmb_b1s4_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** O2 lambda B2S4 (OBD 019C). */
+    var o2LambdaB2s4Enabled: Boolean
+        get() = sp.getBoolean("o2_lmb_b2s4", true)
+        set(value) = sp.edit().putBoolean("o2_lmb_b2s4", value).apply()
+    var o2LambdaB2s4Tts: Boolean
+        get() = sp.getBoolean("o2_lmb_b2s4_tts", true)
+        set(value) = sp.edit().putBoolean("o2_lmb_b2s4_tts", value).apply()
+    var o2LambdaB2s4Warn: Float
+        get() = sp.getFloat("o2_lmb_b2s4_warn", 1.10f)
+        set(value) = sp.edit().putFloat("o2_lmb_b2s4_warn", value.coerceIn(0.9f, 1.5f)).apply()
+    var o2LambdaB2s4Alert: Float
+        get() = sp.getFloat("o2_lmb_b2s4_alert", 1.15f)
+        set(value) = sp.edit().putFloat("o2_lmb_b2s4_alert", value.coerceAtLeast(0.92f)).apply()
+    var o2LambdaB2s4SpeedMinKmh: Float
+        get() = sp.getFloat("o2_lmb_b2s4_speed_min", 20f)
+        set(value) = sp.edit().putFloat("o2_lmb_b2s4_speed_min", value.coerceIn(0f, 60f)).apply()
+    var o2LambdaB2s4Sim: Float
+        get() = sp.getFloat("o2_lmb_b2s4_sim", 0f)
+        set(value) = sp.edit().putFloat("o2_lmb_b2s4_sim", value.coerceIn(0f, 2f)).apply()
+    var o2LambdaB2s4SimSpeedKmh: Float
+        get() = sp.getFloat("o2_lmb_b2s4_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("o2_lmb_b2s4_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Diesel exhaust fluid % (OBD 019B). */
+    var defFluidEnabled: Boolean
+        get() = sp.getBoolean("def_fluid", true)
+        set(value) = sp.edit().putBoolean("def_fluid", value).apply()
+    var defFluidTts: Boolean
+        get() = sp.getBoolean("def_fluid_tts", true)
+        set(value) = sp.edit().putBoolean("def_fluid_tts", value).apply()
+    var defFluidWarnPct: Float
+        get() = sp.getFloat("def_warn_pct", 25f)
+        set(value) = sp.edit().putFloat("def_warn_pct", value.coerceIn(10f, 50f)).apply()
+    var defFluidAlertPct: Float
+        get() = sp.getFloat("def_alert_pct", 15f)
+        set(value) = sp.edit().putFloat("def_alert_pct", value.coerceAtMost(25f).coerceAtLeast(5f)).apply()
+    var defFluidSimPct: Float
+        get() = sp.getFloat("def_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("def_sim_pct", value.coerceIn(0f, 100f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
