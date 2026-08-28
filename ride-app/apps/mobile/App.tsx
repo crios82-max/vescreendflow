@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -15,12 +17,14 @@ import { StatusBar } from 'expo-status-bar';
 import type { Ride, User } from '@ride-app/shared';
 import { RIDE_STATUS_LABELS } from '@ride-app/shared';
 import { mobileApi } from './src/api';
-import { mobileSocket } from './src/socket';
+import { getMobileSocket, reconnectSocket } from './src/socket';
 import { PlaceSearch } from './src/PlaceSearch';
+import { defaultApiUrl, getApiUrl } from './src/storage';
 
 type Screen = 'auth' | 'home';
 
 export default function App() {
+  const [ready, setReady] = useState(false);
   const [screen, setScreen] = useState<Screen>('auth');
   const [user, setUser] = useState<User | null>(null);
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -28,16 +32,47 @@ export default function App() {
   const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [apiUrlInput, setApiUrlInput] = useState(defaultApiUrl());
+  const [apiConnected, setApiConnected] = useState<boolean | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   const [position, setPosition] = useState<{ latitude: number; longitude: number } | null>(null);
   const [pickup, setPickup] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
   const [dropoff, setDropoff] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
   const [ride, setRide] = useState<Ride | null>(null);
-  const [estimate, setEstimate] = useState<{ estimatedPrice: number; distanceKm: number } | null>(null);
+  const [driverPos, setDriverPos] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [estimate, setEstimate] = useState<{ estimatedPrice: number; distanceKm: number; durationMin: number } | null>(null);
   const [online, setOnline] = useState(false);
   const [pending, setPending] = useState<Array<{ id: string; pickupAddress: string; estimatedPrice: number }>>([]);
 
   useEffect(() => {
+    (async () => {
+      await mobileApi.init();
+      const url = await getApiUrl();
+      setApiUrlInput(url);
+      await checkApi();
+      setReady(true);
+    })();
+  }, []);
+
+  const checkApi = async () => {
+    try {
+      await mobileApi.health();
+      setApiConnected(true);
+    } catch {
+      setApiConnected(false);
+    }
+  };
+
+  const saveApiUrl = async () => {
+    await mobileApi.setApiUrl(apiUrlInput);
+    await reconnectSocket();
+    await checkApi();
+    setShowSettings(false);
+  };
+
+  useEffect(() => {
+    if (!ready) return;
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') return;
@@ -46,27 +81,55 @@ export default function App() {
       setPosition(coords);
       setPickup({ ...coords, address: 'Mi ubicación' });
     })();
-  }, []);
+  }, [ready]);
 
   useEffect(() => {
     if (!ride) return;
-    mobileSocket.emit('join:ride', ride.id);
-    const onUpdate = (updated: Ride) => setRide(updated);
-    mobileSocket.on('ride:updated', onUpdate);
-    return () => mobileSocket.off('ride:updated', onUpdate);
+    let cleanup = () => {};
+    (async () => {
+      const socket = await getMobileSocket();
+      socket.emit('join:ride', ride.id);
+      const onUpdate = (updated: Ride) => setRide(updated);
+      const onLocation = (data: { lat: number; lng: number }) =>
+        setDriverPos({ latitude: data.lat, longitude: data.lng });
+      socket.on('ride:updated', onUpdate);
+      socket.on('driver:location', onLocation);
+      cleanup = () => {
+        socket.off('ride:updated', onUpdate);
+        socket.off('driver:location', onLocation);
+      };
+    })();
+    return () => cleanup();
   }, [ride?.id]);
 
   useEffect(() => {
     if (user?.role !== 'driver' || !online) return;
-    const sub = Location.watchPositionAsync(
-      { accuracy: Location.Accuracy.High, distanceInterval: 10 },
-      (loc) => {
-        const coords = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
-        setPosition(coords);
-        mobileApi.sendLocation(coords.latitude, coords.longitude).catch(() => {});
-      },
-    );
-    return () => { sub.then((s) => s.remove()); };
+    let sub: Location.LocationSubscription | null = null;
+    let socketCleanup = () => {};
+    (async () => {
+      sub = await Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.High, distanceInterval: 10 },
+        (loc) => {
+          const coords = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
+          setPosition(coords);
+          mobileApi.sendLocation(coords.latitude, coords.longitude).catch(() => {});
+        },
+      );
+      const socket = await getMobileSocket();
+      socket.emit('join:drivers');
+      const loadPending = () => mobileApi.getPendingRides().then((r) => setPending(r.rides)).catch(() => {});
+      socket.on('ride:requested', loadPending);
+      socket.on('ride:taken', loadPending);
+      loadPending();
+      socketCleanup = () => {
+        socket.off('ride:requested', loadPending);
+        socket.off('ride:taken', loadPending);
+      };
+    })();
+    return () => {
+      sub?.remove();
+      socketCleanup();
+    };
   }, [user?.role, online]);
 
   const submitAuth = async () => {
@@ -133,88 +196,137 @@ export default function App() {
       return;
     }
     await mobileApi.goOnline(position.latitude, position.longitude);
-    mobileSocket.emit('join:drivers');
     setOnline(true);
     const list = await mobileApi.getPendingRides();
     setPending(list.rides);
   };
 
+  if (!ready) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator color="#fff" size="large" />
+      </View>
+    );
+  }
+
+  const connectionBadge = apiConnected === null ? '…' : apiConnected ? '🟢 API' : '🔴 Sin API';
+
   if (screen === 'auth') {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar style="light" />
-        <Text style={styles.title}>Ride Mobile</Text>
-        <View style={styles.row}>
-          <Pressable style={[styles.chip, mode === 'login' && styles.chipActive]} onPress={() => setMode('login')}><Text>Login</Text></Pressable>
-          <Pressable style={[styles.chip, mode === 'register' && styles.chipActive]} onPress={() => setMode('register')}><Text>Registro</Text></Pressable>
-        </View>
-        {mode === 'register' && (
-          <View style={styles.row}>
-            <Pressable style={[styles.chip, role === 'passenger' && styles.chipActive]} onPress={() => setRole('passenger')}><Text>Pasajero</Text></Pressable>
-            <Pressable style={[styles.chip, role === 'driver' && styles.chipActive]} onPress={() => setRole('driver')}><Text>Conductor</Text></Pressable>
-          </View>
-        )}
-        {mode === 'register' && <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#888" value={form.name} onChangeText={(name) => setForm({ ...form, name })} />}
-        <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" autoCapitalize="none" value={form.email} onChangeText={(email) => setForm({ ...form, email })} />
-        <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor="#888" secureTextEntry value={form.password} onChangeText={(password) => setForm({ ...form, password })} />
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        <Pressable style={styles.btn} onPress={submitAuth} disabled={loading}>
-          {loading ? <ActivityIndicator color="#000" /> : <Text style={styles.btnText}>{mode === 'login' ? 'Entrar' : 'Crear cuenta'}</Text>}
-        </Pressable>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
+          <ScrollView contentContainerStyle={styles.authScroll} keyboardShouldPersistTaps="handled">
+            <Text style={styles.title}>Ride</Text>
+            <Text style={styles.subtitle}>{connectionBadge}</Text>
+
+            <Pressable onPress={() => setShowSettings(!showSettings)}>
+              <Text style={styles.link}>Configurar servidor API</Text>
+            </Pressable>
+            {showSettings && (
+              <View style={styles.settingsBox}>
+                <TextInput
+                  style={styles.input}
+                  value={apiUrlInput}
+                  onChangeText={setApiUrlInput}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  placeholder="http://192.168.x.x:4001"
+                  placeholderTextColor="#666"
+                />
+                <Pressable style={styles.btnSmall} onPress={saveApiUrl}>
+                  <Text style={styles.btnText}>Guardar y probar</Text>
+                </Pressable>
+              </View>
+            )}
+
+            <View style={styles.row}>
+              <Pressable style={[styles.chip, mode === 'login' && styles.chipActive]} onPress={() => setMode('login')}>
+                <Text style={mode === 'login' ? styles.chipTextActive : styles.chipText}>Login</Text>
+              </Pressable>
+              <Pressable style={[styles.chip, mode === 'register' && styles.chipActive]} onPress={() => setMode('register')}>
+                <Text style={mode === 'register' ? styles.chipTextActive : styles.chipText}>Registro</Text>
+              </Pressable>
+            </View>
+            {mode === 'register' && (
+              <View style={styles.row}>
+                <Pressable style={[styles.chip, role === 'passenger' && styles.chipActive]} onPress={() => setRole('passenger')}>
+                  <Text style={role === 'passenger' ? styles.chipTextActive : styles.chipText}>Pasajero</Text>
+                </Pressable>
+                <Pressable style={[styles.chip, role === 'driver' && styles.chipActive]} onPress={() => setRole('driver')}>
+                  <Text style={role === 'driver' ? styles.chipTextActive : styles.chipText}>Conductor</Text>
+                </Pressable>
+              </View>
+            )}
+            {mode === 'register' && (
+              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#888" value={form.name} onChangeText={(name) => setForm({ ...form, name })} />
+            )}
+            <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" autoCapitalize="none" keyboardType="email-address" value={form.email} onChangeText={(email) => setForm({ ...form, email })} />
+            <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor="#888" secureTextEntry value={form.password} onChangeText={(password) => setForm({ ...form, password })} />
+            {error ? <Text style={styles.error}>{error}</Text> : null}
+            <Pressable style={[styles.btn, apiConnected === false && styles.btnDisabled]} onPress={submitAuth} disabled={loading || apiConnected === false}>
+              {loading ? <ActivityIndicator color="#000" /> : <Text style={styles.btnText}>{mode === 'login' ? 'Entrar' : 'Crear cuenta'}</Text>}
+            </Pressable>
+            {apiConnected === false && (
+              <Text style={styles.muted}>Sin conexión al API. Puedes seguir viendo la UI cuando vuelvas a casa.</Text>
+            )}
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     );
   }
 
+  const mapCenter = driverPos ?? dropoff ?? pickup ?? position;
+
   return (
     <View style={styles.flex}>
       <StatusBar style="light" />
-      {position && (
+      {mapCenter && (
         <MapView
           style={styles.map}
           provider={PROVIDER_GOOGLE}
           region={{
-            latitude: dropoff?.latitude ?? pickup?.latitude ?? position.latitude,
-            longitude: dropoff?.longitude ?? pickup?.longitude ?? position.longitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
+            latitude: mapCenter.latitude,
+            longitude: mapCenter.longitude,
+            latitudeDelta: 0.04,
+            longitudeDelta: 0.04,
           }}
+          showsUserLocation
+          showsMyLocationButton
         >
-          {(pickup ?? position) && <Marker coordinate={pickup ?? position} title="Origen" />}
+          {(pickup ?? position) && <Marker coordinate={(pickup ?? position)!} title="Origen" pinColor="#fff" />}
           {dropoff && <Marker coordinate={dropoff} title="Destino" pinColor="green" />}
+          {driverPos && <Marker coordinate={driverPos} title="Conductor" pinColor="#3b82f6" />}
         </MapView>
       )}
       {user?.role === 'passenger' && !ride && (
-        <View style={styles.searchOverlay}>
-          <PlaceSearch
-            placeholder="Origen"
-            bias={position}
-            onSelect={(place) => setPickup(place)}
-          />
-          <PlaceSearch
-            placeholder="¿A dónde vas?"
-            bias={pickup ?? position}
-            onSelect={(place) => setDropoff(place)}
-          />
-        </View>
+        <SafeAreaView style={styles.searchOverlay}>
+          <PlaceSearch placeholder="Origen" bias={position} onSelect={(p) => setPickup(p)} />
+          <PlaceSearch placeholder="¿A dónde vas?" bias={pickup ?? position} onSelect={(p) => setDropoff(p)} />
+        </SafeAreaView>
       )}
       <SafeAreaView style={styles.sheet}>
-        <Text style={styles.sheetTitle}>{user?.name} — {user?.role === 'passenger' ? 'Pasajero' : 'Conductor'}</Text>
+        <View style={styles.sheetHeader}>
+          <Text style={styles.sheetTitle}>{user?.name}</Text>
+          <Text style={styles.roleBadge}>{user?.role === 'passenger' ? 'Pasajero' : 'Conductor'} · {connectionBadge}</Text>
+        </View>
         {user?.role === 'passenger' ? (
-          <ScrollView>
+          <ScrollView keyboardShouldPersistTaps="handled">
             {!ride ? (
               <>
-                <Text style={styles.muted}>
-                  {dropoff ? `${dropoff.address}` : 'Busca origen y destino arriba'}
-                </Text>
-                {estimate && <Text style={styles.muted}>${estimate.estimatedPrice} — {estimate.distanceKm} km</Text>}
-                <Pressable style={styles.btn} onPress={requestRide} disabled={!dropoff || loading}>
-                  <Text style={styles.btnText}>Pedir Ride</Text>
+                {dropoff && <Text style={styles.muted} numberOfLines={2}>{dropoff.address}</Text>}
+                {estimate && (
+                  <Text style={styles.price}>${estimate.estimatedPrice} · {estimate.distanceKm} km · ~{Math.round(estimate.durationMin)} min</Text>
+                )}
+                {error ? <Text style={styles.error}>{error}</Text> : null}
+                <Pressable style={[styles.btn, (!dropoff || loading) && styles.btnDisabled]} onPress={requestRide} disabled={!dropoff || loading}>
+                  <Text style={styles.btnText}>{loading ? 'Solicitando…' : 'Pedir Ride'}</Text>
                 </Pressable>
               </>
             ) : (
               <>
-                <Text>{RIDE_STATUS_LABELS[ride.status]}</Text>
-                <Text style={styles.muted}>${ride.finalPrice ?? ride.estimatedPrice}</Text>
+                <Text style={styles.status}>{RIDE_STATUS_LABELS[ride.status]}</Text>
+                <Text style={styles.price}>${ride.finalPrice ?? ride.estimatedPrice}</Text>
                 {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
                   <Pressable style={styles.btn} onPress={async () => {
                     const r = await mobileApi.payRide(ride.id);
@@ -228,7 +340,7 @@ export default function App() {
                     await mobileApi.updateRideStatus(ride.id, 'cancelled');
                     setRide(null);
                   }}>
-                    <Text>Cancelar</Text>
+                    <Text style={styles.btnSecondaryText}>Cancelar</Text>
                   </Pressable>
                 )}
               </>
@@ -243,11 +355,9 @@ export default function App() {
                 </Pressable>
                 {pending.map((p) => (
                   <View key={p.id} style={styles.card}>
-                    <Text>${p.estimatedPrice} — {p.pickupAddress}</Text>
-                    <Pressable style={styles.btn} onPress={async () => {
-                      const accepted = await mobileApi.acceptRide(p.id);
-                      setRide(accepted);
-                    }}>
+                    <Text style={styles.cardTitle}>${p.estimatedPrice}</Text>
+                    <Text style={styles.muted} numberOfLines={2}>{p.pickupAddress}</Text>
+                    <Pressable style={styles.btn} onPress={async () => setRide(await mobileApi.acceptRide(p.id))}>
                       <Text style={styles.btnText}>Aceptar</Text>
                     </Pressable>
                   </View>
@@ -255,7 +365,7 @@ export default function App() {
               </>
             ) : (
               <>
-                <Text>{RIDE_STATUS_LABELS[ride.status]}</Text>
+                <Text style={styles.status}>{RIDE_STATUS_LABELS[ride.status]}</Text>
                 {ride.status === 'accepted' && (
                   <Pressable style={styles.btn} onPress={async () => setRide(await mobileApi.updateRideStatus(ride.id, 'arriving'))}>
                     <Text style={styles.btnText}>En camino</Text>
@@ -278,8 +388,8 @@ export default function App() {
             )}
           </ScrollView>
         )}
-        <Pressable style={styles.btnSecondary} onPress={() => { setUser(null); setScreen('auth'); setRide(null); }}>
-          <Text>Salir</Text>
+        <Pressable style={styles.btnSecondary} onPress={() => { mobileApi.setToken(null); setUser(null); setScreen('auth'); setRide(null); }}>
+          <Text style={styles.btnSecondaryText}>Salir</Text>
         </Pressable>
       </SafeAreaView>
     </View>
@@ -288,27 +398,35 @@ export default function App() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: '#000' },
-  container: { flex: 1, backgroundColor: '#000', padding: 20, gap: 12 },
+  center: { flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center' },
+  container: { flex: 1, backgroundColor: '#000' },
+  authScroll: { padding: 20, gap: 12 },
   map: { flex: 1 },
-  searchOverlay: {
-    position: 'absolute',
-    top: 56,
-    left: 16,
-    right: 16,
-    zIndex: 20,
-    gap: 8,
-  },
-  title: { color: '#fff', fontSize: 28, fontWeight: '700' },
+  searchOverlay: { position: 'absolute', top: 0, left: 16, right: 16, zIndex: 20, gap: 8 },
+  title: { color: '#fff', fontSize: 32, fontWeight: '800' },
+  subtitle: { color: '#888', marginBottom: 4 },
+  link: { color: '#aaa', textDecorationLine: 'underline', marginBottom: 8 },
+  settingsBox: { gap: 8, marginBottom: 8 },
   input: { backgroundColor: '#111', color: '#fff', borderRadius: 12, padding: 14, borderWidth: 1, borderColor: '#333' },
-  btn: { backgroundColor: '#fff', borderRadius: 999, padding: 14, alignItems: 'center', marginTop: 8 },
-  btnSecondary: { backgroundColor: '#222', borderRadius: 999, padding: 12, alignItems: 'center', marginTop: 8 },
-  btnText: { color: '#000', fontWeight: '700' },
+  btn: { backgroundColor: '#fff', borderRadius: 999, padding: 16, alignItems: 'center', marginTop: 8 },
+  btnSmall: { backgroundColor: '#fff', borderRadius: 999, padding: 12, alignItems: 'center' },
+  btnDisabled: { opacity: 0.45 },
+  btnSecondary: { backgroundColor: '#222', borderRadius: 999, padding: 14, alignItems: 'center', marginTop: 8 },
+  btnSecondaryText: { color: '#fff', fontWeight: '600' },
+  btnText: { color: '#000', fontWeight: '700', fontSize: 16 },
   error: { color: '#ff8f8f' },
   row: { flexDirection: 'row', gap: 8 },
-  chip: { backgroundColor: '#222', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999 },
+  chip: { backgroundColor: '#222', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999 },
   chipActive: { backgroundColor: '#fff' },
-  sheet: { backgroundColor: '#111', padding: 16, borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '40%' },
-  sheetTitle: { color: '#fff', fontSize: 18, fontWeight: '600', marginBottom: 8 },
-  muted: { color: '#aaa', marginBottom: 8 },
-  card: { backgroundColor: '#0d0d0d', borderRadius: 12, padding: 12, marginTop: 8, gap: 8 },
+  chipText: { color: '#fff' },
+  chipTextActive: { color: '#000', fontWeight: '600' },
+  sheet: { backgroundColor: '#111', padding: 16, borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '42%' },
+  sheetHeader: { marginBottom: 10 },
+  sheetTitle: { color: '#fff', fontSize: 20, fontWeight: '700' },
+  roleBadge: { color: '#888', fontSize: 13, marginTop: 2 },
+  muted: { color: '#aaa', marginBottom: 8, fontSize: 14 },
+  price: { color: '#fff', fontSize: 22, fontWeight: '700', marginBottom: 8 },
+  status: { color: '#fff', fontSize: 18, fontWeight: '600', marginBottom: 8 },
+  card: { backgroundColor: '#0d0d0d', borderRadius: 14, padding: 14, marginTop: 10, gap: 6, borderWidth: 1, borderColor: '#222' },
+  cardTitle: { color: '#fff', fontSize: 18, fontWeight: '700' },
 });

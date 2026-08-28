@@ -1,5 +1,23 @@
-import { io } from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
+import { getApiUrl } from './storage';
 
-const SOCKET_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4001';
+let socket: Socket | null = null;
+let socketUrl = '';
 
-export const mobileSocket = io(SOCKET_URL, { autoConnect: true });
+export async function getMobileSocket(): Promise<Socket> {
+  const url = await getApiUrl();
+  if (!socket || socketUrl !== url) {
+    socket?.disconnect();
+    socketUrl = url;
+    socket = io(url, { autoConnect: true, transports: ['websocket', 'polling'] });
+  }
+  return socket;
+}
+
+export async function reconnectSocket(): Promise<void> {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
+  await getMobileSocket();
+}
