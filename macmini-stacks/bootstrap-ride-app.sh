@@ -42,7 +42,7 @@ npm install --legacy-peer-deps
 
 echo ">> docker + migraciones..."
 docker compose up -d
-chmod +x scripts/migrate.sh scripts/start-stack.sh scripts/stop-stack.sh scripts/check-prod.sh scripts/setup-prod-env.sh scripts/go-live.sh scripts/setup-eas-secrets.sh scripts/eas-testflight.sh
+chmod +x scripts/migrate.sh scripts/start-stack.sh scripts/stop-stack.sh scripts/check-prod.sh scripts/setup-prod-env.sh scripts/go-live.sh scripts/setup-eas-secrets.sh scripts/eas-testflight.sh scripts/prep-local.sh
 ./scripts/migrate.sh
 
 echo ">> build..."
