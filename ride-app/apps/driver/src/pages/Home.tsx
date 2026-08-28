@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Ride, VehicleType } from '@ride-app/shared';
 import { RIDE_STATUS_LABELS, vehicleTypeLabel } from '@ride-app/shared';
-import { api, getSocket, GoogleMapsProvider, HistoryPanel, MapView, RatingForm, useAuth } from '@ride-app/web-shared';
+import { api, getSocket, GoogleMapsProvider, HistoryPanel, MapView, RatingForm, ChatPanel, useAuth } from '@ride-app/web-shared';
 
 interface PendingRide {
   id: string;
@@ -188,6 +188,17 @@ export default function Home() {
               )}
               {ride.status === 'in_progress' && (
                 <button className="btn-primary" onClick={() => updateStatus('completed')}>Completar viaje</button>
+              )}
+              {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
+                <>
+                  <button className="btn-secondary" type="button" onClick={async () => {
+                    const c = await api.getRideContact(ride.id);
+                    if (c.dialUrl) window.location.href = c.dialUrl;
+                    else if (c.dialNumber) window.location.href = `tel:${c.dialNumber}`;
+                    else alert(c.hint ?? 'Sin teléfono');
+                  }}>Llamar pasajero</button>
+                  <ChatPanel rideId={ride.id} />
+                </>
               )}
               {showRating && (
                 <RatingForm

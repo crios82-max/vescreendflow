@@ -14,13 +14,15 @@ import adminRoutes from './routes/admin.js';
 import placesRoutes from './routes/places.js';
 import walletRoutes from './routes/wallet.js';
 import promoRoutes from './routes/promos.js';
-import chatRoutes from './routes/chat.js';
+import { createChatRouter } from './routes/chat.js';
 import sosRoutes from './routes/sos.js';
 import shareRoutes from './routes/share.js';
 import onboardingRoutes from './routes/onboarding.js';
 import connectRoutes from './routes/connect.js';
 import verifyRoutes from './routes/verify.js';
 import splitRoutes from './routes/split.js';
+import contactRoutes from './routes/contact.js';
+import webhookRoutes from './routes/webhooks.js';
 import { pool } from './db.js';
 import { activateScheduledRides } from './services/matching.js';
 
@@ -39,6 +41,9 @@ const io = new Server(httpServer, {
 });
 
 app.use(cors({ origin: corsOrigins, credentials: true }));
+
+// Stripe webhooks need raw body
+app.use('/webhooks', express.raw({ type: 'application/json' }), webhookRoutes);
 app.use(express.json());
 
 app.get('/health', async (_req, res) => {
@@ -59,13 +64,14 @@ app.use('/admin', adminRoutes);
 app.use('/places', placesRoutes);
 app.use('/wallet', walletRoutes);
 app.use('/promos', promoRoutes);
-app.use('/chat', chatRoutes);
+app.use('/chat', createChatRouter(io));
 app.use('/sos', sosRoutes);
 app.use('/share', shareRoutes);
 app.use('/onboarding', onboardingRoutes);
 app.use('/connect', connectRoutes);
 app.use('/verify', verifyRoutes);
 app.use('/split', splitRoutes);
+app.use('/contact', contactRoutes);
 
 // Activate scheduled rides every minute
 setInterval(async () => {

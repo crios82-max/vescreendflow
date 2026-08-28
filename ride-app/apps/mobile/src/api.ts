@@ -173,6 +173,29 @@ class MobileApi {
   getPhoneVerifyStatus() {
     return this.request<{ phone: string | null; verified: boolean }>('/verify/phone/status');
   }
+
+  getChatMessages(rideId: string) {
+    return this.request<{ messages: Array<{ id: string; senderName?: string; message: string }> }>(`/chat/${rideId}`);
+  }
+
+  sendChatMessage(rideId: string, message: string) {
+    return this.request(`/chat/${rideId}`, { method: 'POST', body: JSON.stringify({ message }) });
+  }
+
+  validatePromo(code: string, subtotal: number) {
+    return this.request<{ valid: boolean; discount: number; code?: string }>('/promos/validate', {
+      method: 'POST',
+      body: JSON.stringify({ code, subtotal }),
+    });
+  }
+
+  getWalletBalance() {
+    return this.request<{ balance: number }>('/wallet/balance');
+  }
+
+  getRideContact(rideId: string) {
+    return this.request<{ name: string; dialNumber: string | null; dialUrl?: string; hint?: string }>(`/contact/rides/${rideId}`);
+  }
 }
 
 export const mobileApi = new MobileApi();

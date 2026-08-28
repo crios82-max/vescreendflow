@@ -13,16 +13,32 @@ router.get('/:token', async (req, res) => {
     ? await pool.query('SELECT lat, lng FROM driver_profiles WHERE user_id = $1', [ride.driverId])
     : { rows: [] };
 
+  const stops = await pool.query(
+    'SELECT address, lat, lng, stop_order FROM ride_stops WHERE ride_id = $1 ORDER BY stop_order',
+    [ride.id],
+  );
+
   res.json({
     ride: {
       id: ride.id,
       status: ride.status,
       pickupAddress: ride.pickupAddress,
       dropoffAddress: ride.dropoffAddress,
+      pickupLat: ride.pickupLat,
+      pickupLng: ride.pickupLng,
+      dropoffLat: ride.dropoffLat,
+      dropoffLng: ride.dropoffLng,
+      routePolyline: ride.routePolyline,
       etaPickupMin: ride.etaPickupMin,
       etaDropoffMin: ride.etaDropoffMin,
       vehicleType: ride.vehicleType,
     },
+    stops: stops.rows.map((s) => ({
+      address: s.address,
+      lat: Number(s.lat),
+      lng: Number(s.lng),
+      order: s.stop_order,
+    })),
     driverLocation: driver.rows[0]
       ? { lat: Number(driver.rows[0].lat), lng: Number(driver.rows[0].lng) }
       : null,

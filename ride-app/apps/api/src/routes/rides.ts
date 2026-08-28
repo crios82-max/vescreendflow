@@ -8,7 +8,7 @@ import { mapRide } from '../mappers.js';
 import { resolveTripMetrics } from '../services/directions.js';
 import { autoAssignDriver, findNearestDriver, activateScheduledRides } from '../services/matching.js';
 import { notifyRideEvent } from '../services/push.js';
-import { processRidePayment, createPaymentIntent, confirmPaymentIntent } from '../services/stripe.js';
+import { processRidePayment, createPaymentIntent, confirmPaymentIntent, chargeCancellationFee } from '../services/stripe.js';
 import { computeSurgeMultiplier } from '../services/surge.js';
 import { buildFareBreakdown } from '../services/fare.js';
 import { validatePromo, redeemPromo } from '../services/promo.js';
@@ -41,6 +41,7 @@ const locationSchema = z.object({
   dropoffLat: z.number(),
   dropoffLng: z.number(),
   promoCode: z.string().optional(),
+  stops: z.array(stopSchema).max(3).optional(),
 });
 
 const createRideSchema = locationSchema.extend({
@@ -48,11 +49,16 @@ const createRideSchema = locationSchema.extend({
   scheduledAt: z.string().datetime().optional(),
   rideForName: z.string().optional(),
   rideForPhone: z.string().optional(),
-  stops: z.array(stopSchema).max(3).optional(),
 });
 
-function tripMetrics(pickupLat: number, pickupLng: number, dropoffLat: number, dropoffLng: number) {
-  return resolveTripMetrics(pickupLat, pickupLng, dropoffLat, dropoffLng);
+function tripMetrics(
+  pickupLat: number,
+  pickupLng: number,
+  dropoffLat: number,
+  dropoffLng: number,
+  stops?: Array<{ lat: number; lng: number }>,
+) {
+  return resolveTripMetrics(pickupLat, pickupLng, dropoffLat, dropoffLng, stops ?? []);
 }
 
 async function driverConnectAccountId(driverId: string | null): Promise<string | null> {
@@ -73,8 +79,8 @@ export function createRidesRouter(io: SocketServer) {
     const parsed = locationSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-    const { pickupLat, pickupLng, dropoffLat, dropoffLng, promoCode } = parsed.data;
-    const metrics = await tripMetrics(pickupLat, pickupLng, dropoffLat, dropoffLng);
+    const { pickupLat, pickupLng, dropoffLat, dropoffLng, promoCode, stops } = parsed.data;
+    const metrics = await tripMetrics(pickupLat, pickupLng, dropoffLat, dropoffLng, stops);
     const p = pricing();
     const surge = await computeSurgeMultiplier(pickupLat, pickupLng);
     const estimate = buildRideEstimate(
@@ -128,7 +134,9 @@ export function createRidesRouter(io: SocketServer) {
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
     const data = parsed.data;
-    const metrics = await tripMetrics(data.pickupLat, data.pickupLng, data.dropoffLat, data.dropoffLng);
+    const metrics = await tripMetrics(
+      data.pickupLat, data.pickupLng, data.dropoffLat, data.dropoffLng, data.stops,
+    );
     const p = pricing();
     const surge = await computeSurgeMultiplier(data.pickupLat, data.pickupLng);
 
@@ -431,6 +439,11 @@ export function createRidesRouter(io: SocketServer) {
     );
 
     const ride = mapRide(result.rows[0]);
+
+    if (cancellationFee && cancellationFee > 0 && isPassenger) {
+      await chargeCancellationFee(userId, cancellationFee, ride.id, debitWallet);
+    }
+
     if (next === 'cancelled' && isDriver && current.driverId) {
       await pool.query(
         `UPDATE rides SET driver_id = NULL, status = 'requested', accepted_at = NULL WHERE id = $1`,

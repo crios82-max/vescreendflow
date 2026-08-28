@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import { z } from 'zod';
 import { pool } from '../db.js';
 import { signToken } from '../middleware/auth.js';
 import { mapUser } from '../mappers.js';
+import { sendEmail } from '../services/email.js';
 
 const router = Router();
 
@@ -90,6 +92,58 @@ router.post('/login', async (req, res) => {
   const user = mapUser(row);
   const token = signToken({ userId: user.id, role: user.role });
   res.json({ token, user });
+});
+
+router.post('/forgot-password', async (req, res) => {
+  const schema = z.object({ email: z.string().email() });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const result = await pool.query('SELECT id FROM users WHERE email = $1', [parsed.data.email]);
+  if (result.rows.length === 0) {
+    return res.json({ ok: true, message: 'Si el email existe, recibirás instrucciones' });
+  }
+
+  const token = randomBytes(32).toString('hex');
+  const expires = new Date(Date.now() + 60 * 60 * 1000);
+  await pool.query(
+    `INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)`,
+    [result.rows[0].id, token, expires],
+  );
+
+  const baseUrl = process.env.PASSENGER_WEB_URL ?? 'http://localhost:5174';
+  const resetUrl = `${baseUrl}/reset-password?token=${token}`;
+  await sendEmail(
+    parsed.data.email,
+    'Restablecer contraseña — Ride App',
+    `<p>Usa este enlace para restablecer tu contraseña (válido 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
+  );
+
+  res.json({ ok: true, message: 'Si el email existe, recibirás instrucciones', devResetUrl: process.env.NODE_ENV !== 'production' ? resetUrl : undefined });
+});
+
+router.post('/reset-password', async (req, res) => {
+  const schema = z.object({
+    token: z.string().min(10),
+    password: z.string().min(6),
+  });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const tokenResult = await pool.query(
+    `SELECT * FROM password_reset_tokens WHERE token = $1 AND used_at IS NULL AND expires_at > NOW()`,
+    [parsed.data.token],
+  );
+  if (tokenResult.rows.length === 0) {
+    return res.status(400).json({ error: 'Token inválido o expirado' });
+  }
+
+  const hash = await bcrypt.hash(parsed.data.password, 10);
+  const userId = tokenResult.rows[0].user_id;
+  await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [hash, userId]);
+  await pool.query('UPDATE password_reset_tokens SET used_at = NOW() WHERE id = $1', [tokenResult.rows[0].id]);
+
+  res.json({ ok: true });
 });
 
 export default router;

@@ -4,6 +4,8 @@ import { authMiddleware } from '../middleware/auth.js';
 import { pool } from '../db.js';
 import { mapRide, mapUser } from '../mappers.js';
 import { sendPushToUser } from '../services/push.js';
+import { refundStripePayment } from '../services/stripe.js';
+import { creditWallet } from '../services/wallet.js';
 
 const router = Router();
 
@@ -133,20 +135,28 @@ router.post('/rides/:id/refund', async (req, res) => {
   const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
   if (rideResult.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
 
+  const ride = mapRide(rideResult.rows[0]);
+  const amount = ride.finalPrice ?? ride.estimatedPrice;
+
+  const paymentResult = await pool.query(
+    `SELECT stripe_payment_intent_id, status FROM payments WHERE ride_id = $1 ORDER BY created_at DESC LIMIT 1`,
+    [req.params.id],
+  );
+  const payment = paymentResult.rows[0];
+  let stripeRefund = { refunded: false, mock: true };
+
+  if (payment?.stripe_payment_intent_id && payment.status === 'paid') {
+    stripeRefund = await refundStripePayment(payment.stripe_payment_intent_id);
+  }
+
   await pool.query(`UPDATE rides SET payment_status = 'failed' WHERE id = $1`, [req.params.id]);
   await pool.query(`UPDATE payments SET status = 'failed' WHERE ride_id = $1`, [req.params.id]);
 
-  const ride = mapRide(rideResult.rows[0]);
-  await pool.query(
-    `INSERT INTO wallet_transactions (user_id, amount, type, description, ride_id)
-     VALUES ($1, $2, 'credit', 'Reembolso admin', $3)`,
-    [ride.passengerId, ride.finalPrice ?? ride.estimatedPrice, ride.id],
-  );
-  await pool.query(
-    `UPDATE users SET wallet_balance = wallet_balance + $1 WHERE id = $2`,
-    [ride.finalPrice ?? ride.estimatedPrice, ride.passengerId],
-  );
-  res.json({ ok: true });
+  if (!stripeRefund.refunded) {
+    await creditWallet(ride.passengerId, amount, 'Reembolso admin', ride.id);
+  }
+
+  res.json({ ok: true, stripeRefund });
 });
 
 router.get('/sos', async (_req, res) => {

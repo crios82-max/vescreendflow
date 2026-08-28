@@ -71,3 +71,30 @@ export async function confirmPaymentIntent(paymentIntentId: string) {
   if (!stripe) return null;
   return stripe.paymentIntents.retrieve(paymentIntentId);
 }
+
+export async function refundStripePayment(paymentIntentId: string, amountCents?: number) {
+  const stripe = getStripe();
+  if (!stripe) return { refunded: false, mock: true };
+
+  const refund = await stripe.refunds.create({
+    payment_intent: paymentIntentId,
+    ...(amountCents != null ? { amount: amountCents } : {}),
+  });
+  return { refunded: true, refundId: refund.id, mock: false };
+}
+
+export async function chargeCancellationFee(
+  userId: string,
+  amount: number,
+  rideId: string,
+  debitWallet: (userId: string, amount: number, desc: string, rideId?: string) => Promise<boolean>,
+) {
+  const charged = await debitWallet(userId, amount, 'Fee por cancelación', rideId);
+  if (charged) return { method: 'wallet', charged: true };
+
+  const stripe = getStripe();
+  if (!stripe) return { method: 'mock', charged: true };
+
+  // Off-session charge would need saved payment method — mark as owed for now
+  return { method: 'pending', charged: false };
+}

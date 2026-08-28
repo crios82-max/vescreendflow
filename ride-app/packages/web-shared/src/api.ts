@@ -214,8 +214,8 @@ class ApiClient {
     return this.request<{ users: number; drivers: number; rides: number; revenue: number; pendingDrivers: number; sosLast24h: number }>('/admin/stats');
   }
 
-  getPendingDrivers() {
-    return this.request<{ drivers: Array<{ userId: string; name: string; email: string }> }>('/admin/drivers/pending');
+  getAdminRides() {
+    return this.request<{ rides: Array<Ride & { passengerName?: string; driverName?: string }> }>('/admin/rides');
   }
 
   approveDriver(userId: string) {
@@ -237,12 +237,57 @@ class ApiClient {
     });
   }
 
-  getAdminRides() {
-    return this.request<{ rides: Array<Ride & { passengerName?: string; driverName?: string }> }>('/admin/rides');
+  getAdminUsers() {
+    return this.request<{ users: Array<User & { isAdmin: boolean; banned?: boolean; createdAt: string }> }>('/admin/users');
   }
 
-  getAdminUsers() {
-    return this.request<{ users: Array<User & { isAdmin: boolean; createdAt: string }> }>('/admin/users');
+  rejectDriver(userId: string, reason?: string) {
+    return this.request(`/admin/drivers/${userId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  unbanUser(userId: string) {
+    return this.request(`/admin/users/${userId}/unban`, { method: 'POST' });
+  }
+
+  refundRide(rideId: string) {
+    return this.request<{ ok: boolean }>(`/admin/rides/${rideId}/refund`, { method: 'POST' });
+  }
+
+  getAdminSos() {
+    return this.request<{ events: Array<{ id: string; user_id: string; ride_id: string; name: string; pickup_address: string; lat: number | null; lng: number | null; created_at: string }> }>('/admin/sos');
+  }
+
+  getAdminPromos() {
+    return this.request<{ promos: Array<{ code: string; discount_type: string; discount_value: number; max_uses: number | null; uses_count: number; active: boolean }> }>('/admin/promos');
+  }
+
+  createPromo(body: { code: string; discountType: 'percent' | 'fixed'; discountValue: number; maxUses?: number }) {
+    return this.request('/admin/promos', { method: 'POST', body: JSON.stringify(body) });
+  }
+
+  getPendingDrivers() {
+    return this.request<{ drivers: Array<{ userId: string; name: string; email: string; vehicleType?: string; licenseUrl?: string; idUrl?: string; vehiclePhotoUrl?: string }> }>('/admin/drivers/pending');
+  }
+
+  getRideContact(rideId: string) {
+    return this.request<{ name: string; masked: boolean; dialNumber: string | null; dialUrl?: string; hint?: string }>(`/contact/rides/${rideId}`);
+  }
+
+  forgotPassword(email: string) {
+    return this.request<{ ok: boolean; devResetUrl?: string }>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  resetPassword(token: string, password: string) {
+    return this.request<{ ok: boolean }>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    });
   }
 
   registerPushToken(token: string, platform?: string) {

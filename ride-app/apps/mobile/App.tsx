@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   SafeAreaView,
@@ -60,6 +61,10 @@ export default function App() {
   const [phoneVerified, setPhoneVerified] = useState(true);
   const [phoneInput, setPhoneInput] = useState('');
   const [otpInput, setOtpInput] = useState('');
+  const [promoCode, setPromoCode] = useState('');
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [chatText, setChatText] = useState('');
+  const [chatMessages, setChatMessages] = useState<Array<{ id: string; senderName?: string; message: string }>>([]);
 
   useEffect(() => {
     (async () => {
@@ -100,7 +105,11 @@ export default function App() {
   }, [ready]);
 
   useEffect(() => {
-    if (!ride) return;
+    if (!ride?.id) return;
+    const loadChat = () => mobileApi.getChatMessages(ride.id).then((r) => setChatMessages(r.messages)).catch(() => {});
+    loadChat();
+    const chatInterval = setInterval(loadChat, 5000);
+
     let cleanup = () => {};
     (async () => {
       const socket = await getMobileSocket();
@@ -117,7 +126,10 @@ export default function App() {
         socket.off('driver:location', onLocation);
       };
     })();
-    return () => cleanup();
+    return () => {
+      cleanup();
+      clearInterval(chatInterval);
+    };
   }, [ride?.id]);
 
   useEffect(() => {
@@ -423,6 +435,16 @@ export default function App() {
                     onSelect={setVehicleType}
                   />
                 )}
+                <TextInput style={styles.input} placeholder="Código promo" placeholderTextColor="#666" value={promoCode} onChangeText={setPromoCode} autoCapitalize="characters" />
+                {promoCode ? (
+                  <Pressable style={styles.btnSmall} onPress={async () => {
+                    const sub = selectedOption?.estimatedPrice ?? 0;
+                    const r = await mobileApi.validatePromo(promoCode, sub);
+                    setPromoDiscount(r.valid ? r.discount : 0);
+                  }}>
+                    <Text style={styles.btnText}>{promoDiscount > 0 ? `-$${promoDiscount} aplicado` : 'Aplicar promo'}</Text>
+                  </Pressable>
+                ) : null}
                 {error ? <Text style={styles.error}>{error}</Text> : null}
                 <Pressable style={[styles.btn, (!dropoff || loading) && styles.btnDisabled]} onPress={requestRide} disabled={!dropoff || loading}>
                   <Text style={styles.btnText}>
@@ -465,7 +487,34 @@ export default function App() {
                   <Pressable style={styles.btnSecondary} onPress={() => mobileApi.triggerSos(ride.id, position?.latitude, position?.longitude)}>
                     <Text style={styles.btnSecondaryText}>SOS</Text>
                   </Pressable>
+                  {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
+                    <Pressable style={styles.btnSecondary} onPress={async () => {
+                      const c = await mobileApi.getRideContact(ride.id);
+                      if (c.dialUrl) Linking.openURL(c.dialUrl);
+                      else if (c.dialNumber) Linking.openURL(`tel:${c.dialNumber}`);
+                      else alert(c.hint ?? 'Sin teléfono');
+                    }}>
+                      <Text style={styles.btnSecondaryText}>Llamar</Text>
+                    </Pressable>
+                  )}
                 </View>
+                {chatMessages.length > 0 && (
+                  <View style={styles.settingsBox}>
+                    {chatMessages.slice(-4).map((m) => (
+                      <Text key={m.id} style={styles.muted}>{m.senderName}: {m.message}</Text>
+                    ))}
+                  </View>
+                )}
+                {ride.driverId && ['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
+                  <View style={styles.row}>
+                    <TextInput style={[styles.input, { flex: 1 }]} placeholder="Chat..." value={chatText} onChangeText={setChatText} placeholderTextColor="#666" />
+                    <Pressable style={styles.btnSmall} onPress={async () => {
+                      if (!chatText.trim()) return;
+                      await mobileApi.sendChatMessage(ride.id, chatText.trim());
+                      setChatText('');
+                    }}><Text style={styles.btnText}>→</Text></Pressable>
+                  </View>
+                )}
                 {ride.status === 'completed' && ride.paymentStatus === 'paid' && !rated && (
                   <View style={styles.ratingBox}>
                     <Text style={styles.status}>Califica tu viaje</Text>
@@ -545,6 +594,16 @@ export default function App() {
                       <Text style={styles.btnText}>Completar</Text>
                     </Pressable>
                   </>
+                )}
+                {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
+                  <View style={styles.row}>
+                    <TextInput style={[styles.input, { flex: 1 }]} placeholder="Chat pasajero..." value={chatText} onChangeText={setChatText} placeholderTextColor="#666" />
+                    <Pressable style={styles.btnSmall} onPress={async () => {
+                      if (!chatText.trim()) return;
+                      await mobileApi.sendChatMessage(ride.id, chatText.trim());
+                      setChatText('');
+                    }}><Text style={styles.btnText}>→</Text></Pressable>
+                  </View>
                 )}
                 {ride.status === 'completed' && !rated && (
                   <View style={styles.ratingBox}>

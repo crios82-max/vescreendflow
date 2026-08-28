@@ -89,6 +89,8 @@ docker compose up -d
 ./scripts/migrate.sh
 ```
 
+Incluye migración `006_missing_features.sql` (password reset tokens).
+
 ### Producción (Stripe Connect, SMTP, OTP)
 
 En `.env`:

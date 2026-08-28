@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from './api';
+import { getSocket } from './socket';
 
 interface Props {
   rideId: string;
@@ -13,8 +14,17 @@ export function ChatPanel({ rideId }: Props) {
 
   useEffect(() => {
     load();
-    const t = setInterval(load, 5000);
-    return () => clearInterval(t);
+    const socket = getSocket();
+    socket.emit('join:ride', rideId);
+    const onMessage = (msg: { id: string; senderName?: string; message: string }) => {
+      setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+    };
+    socket.on('chat:message', onMessage);
+    const t = setInterval(load, 15000);
+    return () => {
+      socket.off('chat:message', onMessage);
+      clearInterval(t);
+    };
   }, [rideId]);
 
   return (
