@@ -257,6 +257,16 @@ data class VehicleSignals(
         val pmSensorB1Pct: Float? = null,
         /** PM sensor normalized B2S1 % (OBD PID 018F). */
         val pmSensorB2Pct: Float? = null,
+        /** EGT bank 1 sensor 5 °C (OBD PID 0198). */
+        val egtB1s5TempC: Float? = null,
+        /** EGT bank 2 sensor 5 °C (OBD PID 0199). */
+        val egtB2s5TempC: Float? = null,
+        /** O2 lambda bank 1 sensor 3 (OBD PID 019C). */
+        val o2LambdaB1s3: Float? = null,
+        /** O2 lambda bank 2 sensor 3 (OBD PID 019C). */
+        val o2LambdaB2s3: Float? = null,
+        /** NOx reagent quality counter hours (OBD PID 0194). */
+        val noxReagentQualHours: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -420,6 +430,11 @@ data class VehicleSignals(
             "o2_lambda_b1" to o2LambdaB1?.toDouble(),
             "pm_sensor_b1_pct" to pmSensorB1Pct?.toDouble(),
             "pm_sensor_b2_pct" to pmSensorB2Pct?.toDouble(),
+            "egt_b1s5_temp_c" to egtB1s5TempC?.toDouble(),
+            "egt_b2s5_temp_c" to egtB2s5TempC?.toDouble(),
+            "o2_lambda_b1s3" to o2LambdaB1s3?.toDouble(),
+            "o2_lambda_b2s3" to o2LambdaB2s3?.toDouble(),
+            "nox_reagent_qual_hours" to noxReagentQualHours?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

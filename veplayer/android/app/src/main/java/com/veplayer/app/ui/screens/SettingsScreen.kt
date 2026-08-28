@@ -4522,6 +4522,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 31 OBD (198/99/9C/94):", color = Mist)
+            val egtB1s5St by com.veplayer.app.vehicle.EgtB1S5Monitor.state.collectAsState()
+            val egtB2s5St by com.veplayer.app.vehicle.EgtB2S5Monitor.state.collectAsState()
+            val o2LmbB1s3St by com.veplayer.app.vehicle.O2LambdaB1S3Monitor.state.collectAsState()
+            val o2LmbB2s3St by com.veplayer.app.vehicle.O2LambdaB2S3Monitor.state.collectAsState()
+            val noxReqSt by com.veplayer.app.vehicle.NoxReagentQualityMonitor.state.collectAsState()
+            var f31EgtB1 by remember {
+                mutableStateOf(if (prefs.egtB1s5SimC > 0f) prefs.egtB1s5SimC.toInt().toString() else "0")
+            }
+            var f31EgtB2 by remember {
+                mutableStateOf(if (prefs.egtB2s5SimC > 0f) prefs.egtB2s5SimC.toInt().toString() else "0")
+            }
+            var f31O2B1s3 by remember {
+                mutableStateOf(if (prefs.o2LambdaB1s3Sim > 0f) prefs.o2LambdaB1s3Sim.toString() else "0")
+            }
+            var f31O2B2s3 by remember {
+                mutableStateOf(if (prefs.o2LambdaB2s3Sim > 0f) prefs.o2LambdaB2s3Sim.toString() else "0")
+            }
+            var f31Nox by remember {
+                mutableStateOf(if (prefs.noxReqSimH > 0f) prefs.noxReqSimH.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f31EgtB1,
+                    onValueChange = { f31EgtB1 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB1S5") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f31EgtB2,
+                    onValueChange = { f31EgtB2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB2S5") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f31O2B1s3,
+                    onValueChange = { f31O2B1s3 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2λ3") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f31O2B2s3,
+                    onValueChange = { f31O2B2s3 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2λ23") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f31Nox,
+                    onValueChange = { f31Nox = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("NOxReq h") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.egtB1s5SimC = f31EgtB1.toFloatOrNull() ?: 0f
+                    prefs.egtB2s5SimC = f31EgtB2.toFloatOrNull() ?: 0f
+                    prefs.o2LambdaB1s3Sim = f31O2B1s3.toFloatOrNull() ?: 0f
+                    prefs.o2LambdaB2s3Sim = f31O2B2s3.toFloatOrNull() ?: 0f
+                    prefs.noxReqSimH = f31Nox.toFloatOrNull() ?: 0f
+                    status = "Fase 31 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 31") }
+            Text(
+                listOfNotNull(
+                    egtB1s5St.label.takeIf { it.isNotBlank() },
+                    egtB2s5St.label.takeIf { it.isNotBlank() },
+                    o2LmbB1s3St.label.takeIf { it.isNotBlank() },
+                    o2LmbB2s3St.label.takeIf { it.isNotBlank() },
+                    noxReqSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 31 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

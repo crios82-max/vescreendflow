@@ -4401,6 +4401,174 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // EGT B1S5 (OBD PID 0198)
+    const egtB1s5Obj = signals.egt_b1s5 as Record<string, unknown> | undefined
+    const egtB1s5TempC =
+      typeof egtB1s5Obj?.egt_temp_c === 'number'
+        ? (egtB1s5Obj.egt_temp_c as number)
+        : typeof signals.egt_b1s5_temp_c === 'number'
+          ? (signals.egt_b1s5_temp_c as number)
+          : null
+    if (typeof egtB1s5TempC === 'number') {
+      const warnC = typeof signals.egt_b1s5_warn_c === 'number' ? (signals.egt_b1s5_warn_c as number) : 750
+      const alertC = typeof signals.egt_b1s5_alert_c === 'number' ? (signals.egt_b1s5_alert_c as number) : 850
+      if (egtB1s5TempC >= alertC && !recentlyAlerted(deviceId, 'egt_b1s5_alert', 300)) {
+        insertAlert(deviceId, 'egt_b1s5_alert', 'critical', `EGT B1S5 crítico · ${Math.round(egtB1s5TempC)} °C`, {
+          egt_b1s5_temp_c: egtB1s5TempC,
+          egt_b1s5: egtB1s5Obj ?? null,
+        })
+        raised.push('egt_b1s5_alert')
+      } else if (
+        egtB1s5TempC >= warnC &&
+        egtB1s5TempC < alertC &&
+        !recentlyAlerted(deviceId, 'egt_b1s5_warn', 300)
+      ) {
+        insertAlert(deviceId, 'egt_b1s5_warn', 'warn', `EGT B1S5 caliente · ${Math.round(egtB1s5TempC)} °C`, {
+          egt_b1s5_temp_c: egtB1s5TempC,
+          egt_b1s5: egtB1s5Obj ?? null,
+        })
+        raised.push('egt_b1s5_warn')
+      }
+    }
+
+    // EGT B2S5 (OBD PID 0199)
+    const egtB2s5Obj = signals.egt_b2s5 as Record<string, unknown> | undefined
+    const egtB2s5TempC =
+      typeof egtB2s5Obj?.egt_temp_c === 'number'
+        ? (egtB2s5Obj.egt_temp_c as number)
+        : typeof signals.egt_b2s5_temp_c === 'number'
+          ? (signals.egt_b2s5_temp_c as number)
+          : null
+    if (typeof egtB2s5TempC === 'number') {
+      const warnC = typeof signals.egt_b2s5_warn_c === 'number' ? (signals.egt_b2s5_warn_c as number) : 750
+      const alertC = typeof signals.egt_b2s5_alert_c === 'number' ? (signals.egt_b2s5_alert_c as number) : 850
+      if (egtB2s5TempC >= alertC && !recentlyAlerted(deviceId, 'egt_b2s5_alert', 300)) {
+        insertAlert(deviceId, 'egt_b2s5_alert', 'critical', `EGT B2S5 crítico · ${Math.round(egtB2s5TempC)} °C`, {
+          egt_b2s5_temp_c: egtB2s5TempC,
+          egt_b2s5: egtB2s5Obj ?? null,
+        })
+        raised.push('egt_b2s5_alert')
+      } else if (
+        egtB2s5TempC >= warnC &&
+        egtB2s5TempC < alertC &&
+        !recentlyAlerted(deviceId, 'egt_b2s5_warn', 300)
+      ) {
+        insertAlert(deviceId, 'egt_b2s5_warn', 'warn', `EGT B2S5 caliente · ${Math.round(egtB2s5TempC)} °C`, {
+          egt_b2s5_temp_c: egtB2s5TempC,
+          egt_b2s5: egtB2s5Obj ?? null,
+        })
+        raised.push('egt_b2s5_warn')
+      }
+    }
+
+    // O2 lambda B1S3 (OBD PID 019C)
+    const o2LmbB1s3Obj = signals.o2_lmb_b1s3 as Record<string, unknown> | undefined
+    const o2LambdaB1s3 =
+      typeof o2LmbB1s3Obj?.lambda === 'number'
+        ? (o2LmbB1s3Obj.lambda as number)
+        : typeof signals.o2_lambda_b1s3 === 'number'
+          ? (signals.o2_lambda_b1s3 as number)
+          : null
+    const o2LmbB1s3Speed =
+      typeof o2LmbB1s3Obj?.speed_kmh === 'number'
+        ? (o2LmbB1s3Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof o2LambdaB1s3 === 'number') {
+      const warnL = typeof signals.o2_lmb_b1s3_warn === 'number' ? (signals.o2_lmb_b1s3_warn as number) : 1.1
+      const alertL = typeof signals.o2_lmb_b1s3_alert === 'number' ? (signals.o2_lmb_b1s3_alert as number) : 1.15
+      const minSpd = typeof signals.o2_lmb_b1s3_speed_min_kmh === 'number' ? (signals.o2_lmb_b1s3_speed_min_kmh as number) : 20
+      const spdOk = typeof o2LmbB1s3Speed === 'number' && o2LmbB1s3Speed >= minSpd
+      if (spdOk && o2LambdaB1s3 >= alertL && !recentlyAlerted(deviceId, 'o2_lmb_b1s3_alert', 120)) {
+        insertAlert(deviceId, 'o2_lmb_b1s3_alert', 'critical', `Lambda O2 B1S3 crítica · ${o2LambdaB1s3.toFixed(2)}`, {
+          o2_lambda_b1s3: o2LambdaB1s3,
+          o2_lmb_b1s3: o2LmbB1s3Obj ?? null,
+        })
+        raised.push('o2_lmb_b1s3_alert')
+      } else if (
+        spdOk &&
+        o2LambdaB1s3 >= warnL &&
+        o2LambdaB1s3 < alertL &&
+        !recentlyAlerted(deviceId, 'o2_lmb_b1s3_warn', 120)
+      ) {
+        insertAlert(deviceId, 'o2_lmb_b1s3_warn', 'warn', `Lambda O2 B1S3 alta · ${o2LambdaB1s3.toFixed(2)}`, {
+          o2_lambda_b1s3: o2LambdaB1s3,
+          o2_lmb_b1s3: o2LmbB1s3Obj ?? null,
+        })
+        raised.push('o2_lmb_b1s3_warn')
+      }
+    }
+
+    // O2 lambda B2S3 (OBD PID 019C)
+    const o2LmbB2s3Obj = signals.o2_lmb_b2s3 as Record<string, unknown> | undefined
+    const o2LambdaB2s3 =
+      typeof o2LmbB2s3Obj?.lambda === 'number'
+        ? (o2LmbB2s3Obj.lambda as number)
+        : typeof signals.o2_lambda_b2s3 === 'number'
+          ? (signals.o2_lambda_b2s3 as number)
+          : null
+    const o2LmbB2s3Speed =
+      typeof o2LmbB2s3Obj?.speed_kmh === 'number'
+        ? (o2LmbB2s3Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof o2LambdaB2s3 === 'number') {
+      const warnL = typeof signals.o2_lmb_b2s3_warn === 'number' ? (signals.o2_lmb_b2s3_warn as number) : 1.1
+      const alertL = typeof signals.o2_lmb_b2s3_alert === 'number' ? (signals.o2_lmb_b2s3_alert as number) : 1.15
+      const minSpd = typeof signals.o2_lmb_b2s3_speed_min_kmh === 'number' ? (signals.o2_lmb_b2s3_speed_min_kmh as number) : 20
+      const spdOk = typeof o2LmbB2s3Speed === 'number' && o2LmbB2s3Speed >= minSpd
+      if (spdOk && o2LambdaB2s3 >= alertL && !recentlyAlerted(deviceId, 'o2_lmb_b2s3_alert', 120)) {
+        insertAlert(deviceId, 'o2_lmb_b2s3_alert', 'critical', `Lambda O2 B2S3 crítica · ${o2LambdaB2s3.toFixed(2)}`, {
+          o2_lambda_b2s3: o2LambdaB2s3,
+          o2_lmb_b2s3: o2LmbB2s3Obj ?? null,
+        })
+        raised.push('o2_lmb_b2s3_alert')
+      } else if (
+        spdOk &&
+        o2LambdaB2s3 >= warnL &&
+        o2LambdaB2s3 < alertL &&
+        !recentlyAlerted(deviceId, 'o2_lmb_b2s3_warn', 120)
+      ) {
+        insertAlert(deviceId, 'o2_lmb_b2s3_warn', 'warn', `Lambda O2 B2S3 alta · ${o2LambdaB2s3.toFixed(2)}`, {
+          o2_lambda_b2s3: o2LambdaB2s3,
+          o2_lmb_b2s3: o2LmbB2s3Obj ?? null,
+        })
+        raised.push('o2_lmb_b2s3_warn')
+      }
+    }
+
+    // NOx reagent quality (OBD PID 0194)
+    const noxReagentObj = signals.nox_reagent as Record<string, unknown> | undefined
+    const noxReagentQualHours =
+      typeof noxReagentObj?.qual_hours === 'number'
+        ? (noxReagentObj.qual_hours as number)
+        : typeof signals.nox_reagent_qual_hours === 'number'
+          ? (signals.nox_reagent_qual_hours as number)
+          : null
+    if (typeof noxReagentQualHours === 'number') {
+      const warnH = typeof signals.nox_req_warn_h === 'number' ? (signals.nox_req_warn_h as number) : 10
+      const alertH = typeof signals.nox_req_alert_h === 'number' ? (signals.nox_req_alert_h as number) : 20
+      if (noxReagentQualHours >= alertH && !recentlyAlerted(deviceId, 'nox_req_alert', 300)) {
+        insertAlert(deviceId, 'nox_req_alert', 'critical', `Reactivo NOx crítico · ${Math.round(noxReagentQualHours)} h`, {
+          nox_reagent_qual_hours: noxReagentQualHours,
+          nox_reagent: noxReagentObj ?? null,
+        })
+        raised.push('nox_req_alert')
+      } else if (
+        noxReagentQualHours >= warnH &&
+        noxReagentQualHours < alertH &&
+        !recentlyAlerted(deviceId, 'nox_req_warn', 300)
+      ) {
+        insertAlert(deviceId, 'nox_req_warn', 'warn', `Reactivo NOx bajo · ${Math.round(noxReagentQualHours)} h`, {
+          nox_reagent_qual_hours: noxReagentQualHours,
+          nox_reagent: noxReagentObj ?? null,
+        })
+        raised.push('nox_req_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

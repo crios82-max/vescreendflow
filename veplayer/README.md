@@ -1377,6 +1377,20 @@ npm run veplayer:fase29-smoke
 npm run veplayer:fase30-smoke
 ```
 
+## EGT B1S5/B2S5 · O2λ3 · NOx reagent (v1.64 · Fase 31)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0198 | EGT B1S5 | `egt_b1s5_warn` / `egt_b1s5_alert` | `EGTB1S5 · XXX°C` |
+| 0199 | EGT B2S5 | `egt_b2s5_warn` / `egt_b2s5_alert` | `EGTB2S5 · XXX°C` |
+| 019C | O2λ B1S3 | `o2_lmb_b1s3_warn` / `o2_lmb_b1s3_alert` | `O2λ3 · X.XX` |
+| 019C | O2λ B2S3 | `o2_lmb_b2s3_warn` / `o2_lmb_b2s3_alert` | `O2λ23 · X.XX` |
+| 0194 | NOx reagent qual | `nox_req_warn` / `nox_req_alert` | `NOxReq · XXh` |
+
+```bash
+npm run veplayer:fase31-smoke
+```
+
 ## Validation gate (pre-fase · v1.15)
 
 Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
@@ -1386,7 +1400,7 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 | `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
 | `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
 | `dbc-smoke` | DBC decode (Kotlin mirror) |
-| `fase16–30-smoke` | Alertas `fleetPro.ts` con heartbeats |
+| `fase16–31-smoke` | Alertas `fleetPro.ts` con heartbeats |
 
 ```bash
 # SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)

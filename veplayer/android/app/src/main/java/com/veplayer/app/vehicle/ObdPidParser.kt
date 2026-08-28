@@ -182,6 +182,16 @@ object ObdPidParser {
         val pmSensorB1Pct: Float? = null,
         /** PM sensor normalized B2S1 % (OBD PID 018F bytes F/G). */
         val pmSensorB2Pct: Float? = null,
+        /** EGT bank 1 sensor 5 °C (OBD PID 0198 bytes B/C). */
+        val egtB1s5TempC: Float? = null,
+        /** EGT bank 2 sensor 5 °C (OBD PID 0199 bytes B/C). */
+        val egtB2s5TempC: Float? = null,
+        /** O2 lambda bank 1 sensor 3 (OBD PID 019C bytes J/K). */
+        val o2LambdaB1s3: Float? = null,
+        /** O2 lambda bank 2 sensor 3 (OBD PID 019C bytes N/O). */
+        val o2LambdaB2s3: Float? = null,
+        /** NOx reagent quality counter hours (OBD PID 0194 bytes C/D). */
+        val noxReagentQualHours: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -498,6 +508,23 @@ object ObdPidParser {
                 val b2 = if (data.size >= 7) ((data[5] * 256) + data[6]) / 100f else null
                 PidValues(pmSensorB1Pct = b1, pmSensorB2Pct = b2)
             }
+            0x94 -> {
+                if (data.size < 4) PidValues()
+                else PidValues(noxReagentQualHours = ((data[2] * 256) + data[3]).toFloat())
+            }
+            0x98 -> {
+                if (data.size < 3) PidValues()
+                else PidValues(egtB1s5TempC = ((data[1] * 256) + data[2]) / 10f - 40f)
+            }
+            0x99 -> {
+                if (data.size < 3) PidValues()
+                else PidValues(egtB2s5TempC = ((data[1] * 256) + data[2]) / 10f - 40f)
+            }
+            0x9C -> {
+                val b1s3 = if (data.size >= 11) ((data[9] * 256) + data[10]) * 0.000122f else null
+                val b2s3 = if (data.size >= 15) ((data[13] * 256) + data[14]) * 0.000122f else null
+                PidValues(o2LambdaB1s3 = b1s3, o2LambdaB2s3 = b2s3)
+            }
             0x8B -> {
                 if (data.size < 3) PidValues()
                 else PidValues(dpfTriggerPct = data[2] * 100f / 255f)
@@ -628,6 +655,11 @@ object ObdPidParser {
             o2LambdaB1 = add.o2LambdaB1 ?: base.o2LambdaB1,
             pmSensorB1Pct = add.pmSensorB1Pct ?: base.pmSensorB1Pct,
             pmSensorB2Pct = add.pmSensorB2Pct ?: base.pmSensorB2Pct,
+            egtB1s5TempC = add.egtB1s5TempC ?: base.egtB1s5TempC,
+            egtB2s5TempC = add.egtB2s5TempC ?: base.egtB2s5TempC,
+            o2LambdaB1s3 = add.o2LambdaB1s3 ?: base.o2LambdaB1s3,
+            o2LambdaB2s3 = add.o2LambdaB2s3 ?: base.o2LambdaB2s3,
+            noxReagentQualHours = add.noxReagentQualHours ?: base.noxReagentQualHours,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,
