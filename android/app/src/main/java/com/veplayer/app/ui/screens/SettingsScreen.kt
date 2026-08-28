@@ -3887,6 +3887,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 23 OBD (017B/7C/51/4F/50):", color = Mist)
+            val catB1s7St by com.veplayer.app.vehicle.CatalystB1S7Monitor.state.collectAsState()
+            val catB2s7St by com.veplayer.app.vehicle.CatalystB2S7Monitor.state.collectAsState()
+            val fuelTypeSt by com.veplayer.app.vehicle.FuelTypeMonitor.state.collectAsState()
+            val maxEquivSt by com.veplayer.app.vehicle.MaxEquivRatioMonitor.state.collectAsState()
+            val maxMafSt by com.veplayer.app.vehicle.MaxMafGpsMonitor.state.collectAsState()
+            var f23B1s7 by remember {
+                mutableStateOf(if (prefs.catB1s7SimC > 0f) prefs.catB1s7SimC.toInt().toString() else "0")
+            }
+            var f23B2s7 by remember {
+                mutableStateOf(if (prefs.catB2s7SimC > 0f) prefs.catB2s7SimC.toInt().toString() else "0")
+            }
+            var f23Fuel by remember {
+                mutableStateOf(if (prefs.fuelTypeSimCode > 0) prefs.fuelTypeSimCode.toString() else "0")
+            }
+            var f23MaxL by remember {
+                mutableStateOf(if (prefs.maxEquivSimRatio != 0f) prefs.maxEquivSimRatio.toString() else "0")
+            }
+            var f23MaxMaf by remember {
+                mutableStateOf(if (prefs.maxMafSimGps > 0f) prefs.maxMafSimGps.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f23B1s7,
+                    onValueChange = { f23B1s7 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S7 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f23B2s7,
+                    onValueChange = { f23B2s7 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S7 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f23Fuel,
+                    onValueChange = { f23Fuel = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("Fuel code") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f23MaxL,
+                    onValueChange = { f23MaxL = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("Maxλ") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f23MaxMaf,
+                    onValueChange = { f23MaxMaf = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("MaxMAF") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s7SimC = f23B1s7.toFloatOrNull() ?: 0f
+                    prefs.catB2s7SimC = f23B2s7.toFloatOrNull() ?: 0f
+                    prefs.fuelTypeSimCode = f23Fuel.toIntOrNull() ?: 0
+                    prefs.maxEquivSimRatio = f23MaxL.toFloatOrNull() ?: 0f
+                    prefs.maxMafSimGps = f23MaxMaf.toFloatOrNull() ?: 0f
+                    status = "Fase 23 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 23") }
+            Text(
+                listOfNotNull(
+                    catB1s7St.label.takeIf { it.isNotBlank() },
+                    catB2s7St.label.takeIf { it.isNotBlank() },
+                    fuelTypeSt.label.takeIf { it.isNotBlank() },
+                    maxEquivSt.label.takeIf { it.isNotBlank() },
+                    maxMafSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 23 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

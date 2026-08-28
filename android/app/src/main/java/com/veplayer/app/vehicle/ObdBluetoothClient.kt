@@ -287,6 +287,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0147", // throttle B
                 "0148", // throttle C
                 "0154", // time MIL on
+                "017B", // catalyst B1S7 temp
+                "017C", // catalyst B2S7 temp
+                "0151", // fuel type
+                "014F", // max equiv ratio
+                "0150", // max MAF
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim

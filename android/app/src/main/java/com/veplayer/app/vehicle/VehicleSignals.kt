@@ -179,6 +179,16 @@ data class VehicleSignals(
         val throttleCPct: Float? = null,
         /** Time run with MIL on min (OBD PID 0154). */
         val milTimeMin: Int? = null,
+        /** Catalyst temp bank 1 sensor 7 °C (OBD PID 017B). */
+        val catalystB1s7TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 7 °C (OBD PID 017C). */
+        val catalystB2s7TempC: Float? = null,
+        /** Fuel type code (OBD PID 0151). */
+        val fuelTypeCode: Int? = null,
+        /** Max equivalence ratio (OBD PID 014F). */
+        val maxEquivRatio: Float? = null,
+        /** Max MAF g/s (OBD PID 0150). */
+        val maxMafGps: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -303,6 +313,11 @@ data class VehicleSignals(
             "throttle_b_pct" to throttleBPct?.toDouble(),
             "throttle_c_pct" to throttleCPct?.toDouble(),
             "mil_time_min" to milTimeMin,
+            "catalyst_b1s7_temp_c" to catalystB1s7TempC?.toDouble(),
+            "catalyst_b2s7_temp_c" to catalystB2s7TempC?.toDouble(),
+            "fuel_type_code" to fuelTypeCode,
+            "max_equiv_ratio" to maxEquivRatio?.toDouble(),
+            "max_maf_gps" to maxMafGps?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),
