@@ -5091,6 +5091,201 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // NOx corrected B1S2 (OBD PID 01A1)
+    const noxCorrB1s2Obj = signals.nox_corr_b1s2 as Record<string, unknown> | undefined
+    const noxCorrB1s2Ppm =
+      typeof noxCorrB1s2Obj?.nox_ppm === 'number'
+        ? (noxCorrB1s2Obj.nox_ppm as number)
+        : typeof signals.nox_corrected_b1s2_ppm === 'number'
+          ? (signals.nox_corrected_b1s2_ppm as number)
+          : null
+    const noxCorrB1s2Speed =
+      typeof noxCorrB1s2Obj?.speed_kmh === 'number'
+        ? (noxCorrB1s2Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof noxCorrB1s2Ppm === 'number') {
+      const warnP = typeof signals.nox_corr_b1s2_warn === 'number' ? (signals.nox_corr_b1s2_warn as number) : 600
+      const alertP = typeof signals.nox_corr_b1s2_alert === 'number' ? (signals.nox_corr_b1s2_alert as number) : 800
+      const minSpd = typeof signals.nox_corr_b1s2_speed_min_kmh === 'number' ? (signals.nox_corr_b1s2_speed_min_kmh as number) : 20
+      const spdOk = typeof noxCorrB1s2Speed === 'number' && noxCorrB1s2Speed >= minSpd
+      if (spdOk && noxCorrB1s2Ppm >= alertP && !recentlyAlerted(deviceId, 'nox_corr_b1s2_alert', 120)) {
+        insertAlert(deviceId, 'nox_corr_b1s2_alert', 'critical', `NOx corregido B1S2 crítico · ${Math.round(noxCorrB1s2Ppm)} ppm`, {
+          nox_corrected_b1s2_ppm: noxCorrB1s2Ppm,
+          nox_corr_b1s2: noxCorrB1s2Obj ?? null,
+        })
+        raised.push('nox_corr_b1s2_alert')
+      } else if (
+        spdOk &&
+        noxCorrB1s2Ppm >= warnP &&
+        noxCorrB1s2Ppm < alertP &&
+        !recentlyAlerted(deviceId, 'nox_corr_b1s2_warn', 120)
+      ) {
+        insertAlert(deviceId, 'nox_corr_b1s2_warn', 'warn', `NOx corregido B1S2 alto · ${Math.round(noxCorrB1s2Ppm)} ppm`, {
+          nox_corrected_b1s2_ppm: noxCorrB1s2Ppm,
+          nox_corr_b1s2: noxCorrB1s2Obj ?? null,
+        })
+        raised.push('nox_corr_b1s2_warn')
+      }
+    }
+
+    // NOx corrected B2S1 (OBD PID 01A1)
+    const noxCorrB2s1Obj = signals.nox_corr_b2s1 as Record<string, unknown> | undefined
+    const noxCorrB2s1Ppm =
+      typeof noxCorrB2s1Obj?.nox_ppm === 'number'
+        ? (noxCorrB2s1Obj.nox_ppm as number)
+        : typeof signals.nox_corrected_b2s1_ppm === 'number'
+          ? (signals.nox_corrected_b2s1_ppm as number)
+          : null
+    const noxCorrB2s1Speed =
+      typeof noxCorrB2s1Obj?.speed_kmh === 'number'
+        ? (noxCorrB2s1Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof noxCorrB2s1Ppm === 'number') {
+      const warnP = typeof signals.nox_corr_b2s1_warn === 'number' ? (signals.nox_corr_b2s1_warn as number) : 600
+      const alertP = typeof signals.nox_corr_b2s1_alert === 'number' ? (signals.nox_corr_b2s1_alert as number) : 800
+      const minSpd = typeof signals.nox_corr_b2s1_speed_min_kmh === 'number' ? (signals.nox_corr_b2s1_speed_min_kmh as number) : 20
+      const spdOk = typeof noxCorrB2s1Speed === 'number' && noxCorrB2s1Speed >= minSpd
+      if (spdOk && noxCorrB2s1Ppm >= alertP && !recentlyAlerted(deviceId, 'nox_corr_b2s1_alert', 120)) {
+        insertAlert(deviceId, 'nox_corr_b2s1_alert', 'critical', `NOx corregido B2S1 crítico · ${Math.round(noxCorrB2s1Ppm)} ppm`, {
+          nox_corrected_b2s1_ppm: noxCorrB2s1Ppm,
+          nox_corr_b2s1: noxCorrB2s1Obj ?? null,
+        })
+        raised.push('nox_corr_b2s1_alert')
+      } else if (
+        spdOk &&
+        noxCorrB2s1Ppm >= warnP &&
+        noxCorrB2s1Ppm < alertP &&
+        !recentlyAlerted(deviceId, 'nox_corr_b2s1_warn', 120)
+      ) {
+        insertAlert(deviceId, 'nox_corr_b2s1_warn', 'warn', `NOx corregido B2S1 alto · ${Math.round(noxCorrB2s1Ppm)} ppm`, {
+          nox_corrected_b2s1_ppm: noxCorrB2s1Ppm,
+          nox_corr_b2s1: noxCorrB2s1Obj ?? null,
+        })
+        raised.push('nox_corr_b2s1_warn')
+      }
+    }
+
+    // NOx corrected B2S2 (OBD PID 01A1)
+    const noxCorrB2s2Obj = signals.nox_corr_b2s2 as Record<string, unknown> | undefined
+    const noxCorrB2s2Ppm =
+      typeof noxCorrB2s2Obj?.nox_ppm === 'number'
+        ? (noxCorrB2s2Obj.nox_ppm as number)
+        : typeof signals.nox_corrected_b2s2_ppm === 'number'
+          ? (signals.nox_corrected_b2s2_ppm as number)
+          : null
+    const noxCorrB2s2Speed =
+      typeof noxCorrB2s2Obj?.speed_kmh === 'number'
+        ? (noxCorrB2s2Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof noxCorrB2s2Ppm === 'number') {
+      const warnP = typeof signals.nox_corr_b2s2_warn === 'number' ? (signals.nox_corr_b2s2_warn as number) : 600
+      const alertP = typeof signals.nox_corr_b2s2_alert === 'number' ? (signals.nox_corr_b2s2_alert as number) : 800
+      const minSpd = typeof signals.nox_corr_b2s2_speed_min_kmh === 'number' ? (signals.nox_corr_b2s2_speed_min_kmh as number) : 20
+      const spdOk = typeof noxCorrB2s2Speed === 'number' && noxCorrB2s2Speed >= minSpd
+      if (spdOk && noxCorrB2s2Ppm >= alertP && !recentlyAlerted(deviceId, 'nox_corr_b2s2_alert', 120)) {
+        insertAlert(deviceId, 'nox_corr_b2s2_alert', 'critical', `NOx corregido B2S2 crítico · ${Math.round(noxCorrB2s2Ppm)} ppm`, {
+          nox_corrected_b2s2_ppm: noxCorrB2s2Ppm,
+          nox_corr_b2s2: noxCorrB2s2Obj ?? null,
+        })
+        raised.push('nox_corr_b2s2_alert')
+      } else if (
+        spdOk &&
+        noxCorrB2s2Ppm >= warnP &&
+        noxCorrB2s2Ppm < alertP &&
+        !recentlyAlerted(deviceId, 'nox_corr_b2s2_warn', 120)
+      ) {
+        insertAlert(deviceId, 'nox_corr_b2s2_warn', 'warn', `NOx corregido B2S2 alto · ${Math.round(noxCorrB2s2Ppm)} ppm`, {
+          nox_corrected_b2s2_ppm: noxCorrB2s2Ppm,
+          nox_corr_b2s2: noxCorrB2s2Obj ?? null,
+        })
+        raised.push('nox_corr_b2s2_warn')
+      }
+    }
+
+    // NOx concentration S3 (OBD PID 01A7)
+    const noxConcS3Obj = signals.nox_conc_s3 as Record<string, unknown> | undefined
+    const noxConcS3Ppm =
+      typeof noxConcS3Obj?.nox_ppm === 'number'
+        ? (noxConcS3Obj.nox_ppm as number)
+        : typeof signals.nox_conc_s3_ppm === 'number'
+          ? (signals.nox_conc_s3_ppm as number)
+          : null
+    const noxConcS3Speed =
+      typeof noxConcS3Obj?.speed_kmh === 'number'
+        ? (noxConcS3Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof noxConcS3Ppm === 'number') {
+      const warnP = typeof signals.nox_conc_s3_warn === 'number' ? (signals.nox_conc_s3_warn as number) : 600
+      const alertP = typeof signals.nox_conc_s3_alert === 'number' ? (signals.nox_conc_s3_alert as number) : 800
+      const minSpd = typeof signals.nox_conc_s3_speed_min_kmh === 'number' ? (signals.nox_conc_s3_speed_min_kmh as number) : 20
+      const spdOk = typeof noxConcS3Speed === 'number' && noxConcS3Speed >= minSpd
+      if (spdOk && noxConcS3Ppm >= alertP && !recentlyAlerted(deviceId, 'nox_conc_s3_alert', 120)) {
+        insertAlert(deviceId, 'nox_conc_s3_alert', 'critical', `NOx concentración S3 crítica · ${Math.round(noxConcS3Ppm)} ppm`, {
+          nox_conc_s3_ppm: noxConcS3Ppm,
+          nox_conc_s3: noxConcS3Obj ?? null,
+        })
+        raised.push('nox_conc_s3_alert')
+      } else if (
+        spdOk &&
+        noxConcS3Ppm >= warnP &&
+        noxConcS3Ppm < alertP &&
+        !recentlyAlerted(deviceId, 'nox_conc_s3_warn', 120)
+      ) {
+        insertAlert(deviceId, 'nox_conc_s3_warn', 'warn', `NOx concentración S3 alta · ${Math.round(noxConcS3Ppm)} ppm`, {
+          nox_conc_s3_ppm: noxConcS3Ppm,
+          nox_conc_s3: noxConcS3Obj ?? null,
+        })
+        raised.push('nox_conc_s3_warn')
+      }
+    }
+
+    // NOx concentration S4 (OBD PID 01A7)
+    const noxConcS4Obj = signals.nox_conc_s4 as Record<string, unknown> | undefined
+    const noxConcS4Ppm =
+      typeof noxConcS4Obj?.nox_ppm === 'number'
+        ? (noxConcS4Obj.nox_ppm as number)
+        : typeof signals.nox_conc_s4_ppm === 'number'
+          ? (signals.nox_conc_s4_ppm as number)
+          : null
+    const noxConcS4Speed =
+      typeof noxConcS4Obj?.speed_kmh === 'number'
+        ? (noxConcS4Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof noxConcS4Ppm === 'number') {
+      const warnP = typeof signals.nox_conc_s4_warn === 'number' ? (signals.nox_conc_s4_warn as number) : 600
+      const alertP = typeof signals.nox_conc_s4_alert === 'number' ? (signals.nox_conc_s4_alert as number) : 800
+      const minSpd = typeof signals.nox_conc_s4_speed_min_kmh === 'number' ? (signals.nox_conc_s4_speed_min_kmh as number) : 20
+      const spdOk = typeof noxConcS4Speed === 'number' && noxConcS4Speed >= minSpd
+      if (spdOk && noxConcS4Ppm >= alertP && !recentlyAlerted(deviceId, 'nox_conc_s4_alert', 120)) {
+        insertAlert(deviceId, 'nox_conc_s4_alert', 'critical', `NOx concentración S4 crítica · ${Math.round(noxConcS4Ppm)} ppm`, {
+          nox_conc_s4_ppm: noxConcS4Ppm,
+          nox_conc_s4: noxConcS4Obj ?? null,
+        })
+        raised.push('nox_conc_s4_alert')
+      } else if (
+        spdOk &&
+        noxConcS4Ppm >= warnP &&
+        noxConcS4Ppm < alertP &&
+        !recentlyAlerted(deviceId, 'nox_conc_s4_warn', 120)
+      ) {
+        insertAlert(deviceId, 'nox_conc_s4_warn', 'warn', `NOx concentración S4 alta · ${Math.round(noxConcS4Ppm)} ppm`, {
+          nox_conc_s4_ppm: noxConcS4Ppm,
+          nox_conc_s4: noxConcS4Obj ?? null,
+        })
+        raised.push('nox_conc_s4_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

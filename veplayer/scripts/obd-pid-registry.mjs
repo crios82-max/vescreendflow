@@ -251,7 +251,20 @@ export function parseMode01(raw) {
     case 0xa5:
       return data.length < 2 ? {} : { defDosingCmdPct: data[1] / 2 }
     case 0xa1:
-      return data.length < 3 ? {} : { noxCorrectedB1s1Ppm: data[1] * 256 + data[2] }
+      const s1 = data.length >= 3 ? data[1] * 256 + data[2] : null
+      const s2 = data.length >= 5 ? data[3] * 256 + data[4] : null
+      const b2s1 = data.length >= 7 ? data[5] * 256 + data[6] : null
+      const b2s2 = data.length >= 9 ? data[7] * 256 + data[8] : null
+      return {
+        noxCorrectedB1s1Ppm: s1,
+        noxCorrectedB1s2Ppm: s2,
+        noxCorrectedB2s1Ppm: b2s1,
+        noxCorrectedB2s2Ppm: b2s2,
+      }
+    case 0xa7:
+      return data.length < 4
+        ? {}
+        : { noxConcS3Ppm: data[0] * 256 + data[1], noxConcS4Ppm: data[2] * 256 + data[3] }
     case 0x9b:
       return data.length < 4 ? {} : { defFluidPct: (data[3] * 100) / 255 }
     case 0x8b:
@@ -278,7 +291,7 @@ export const POLL_PID_HEX = [
   '010D', '010C', '0110', '010A', '0133', '010E', '014A', '0143', '0145', '0149', '014B', '014D',
   '0144', '014E', '0152', '0153', '0159', '014C', '015A', '0161', '0162', '0170', '0171', '0172',
   '0173', '0174', '0175', '0176', '0155', '0156', '0157', '0158', '0177', '0178', '015D', '015B',
-  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0198', '0199', '019C', '0194', '019B', '01A1', '01A5', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
+  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0198', '0199', '019C', '0194', '019B', '01A1', '01A5', '01A7', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
   '011F', '0121', '0131', '0134', '0142',
 ]
 
@@ -396,6 +409,11 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 9B 00 00 00 1A', expect: { defFluidPct: (0x1a * 100) / 255 } },
   { raw: '41 A5 01 BE', expect: { defDosingCmdPct: 0xbe / 2 } },
   { raw: '41 A1 00 03 84', expect: { noxCorrectedB1s1Ppm: 900 } },
+  { raw: '41 A1 00 00 00 03 84', expect: { noxCorrectedB1s2Ppm: 900 } },
+  { raw: '41 A1 00 00 00 00 00 03 84', expect: { noxCorrectedB2s1Ppm: 900 } },
+  { raw: '41 A1 00 00 00 00 00 00 00 03 84', expect: { noxCorrectedB2s2Ppm: 900 } },
+  { raw: '41 A7 03 84 00 00', expect: { noxConcS3Ppm: 900, noxConcS4Ppm: 0 } },
+  { raw: '41 A7 00 00 03 84', expect: { noxConcS3Ppm: 0, noxConcS4Ppm: 900 } },
   { raw: '41 8B 00 00 D9', expect: { dpfTriggerPct: (0xd9 * 100) / 255 } },
   { raw: '41 8D E6', expect: { throttleGPct: (0xe6 * 100) / 255 } },
   { raw: '41 8E B9', expect: { engineFrictionPct: 60 } },
@@ -551,6 +569,13 @@ export function runFaseFormulaChecks(fase, assert) {
       assert((0x27 * 256 + 0x10) * 0.001526 > 15, 'pid 019C O2 conc B2S4')
       assert(0xbe / 2 === 95, 'pid 01A5 DEF dose')
       assert((0x03 * 256 + 0x84) === 900, 'pid 01A1 NOx corr')
+      break
+    case 35:
+      assert((0x03 * 256 + 0x84) === 900, 'pid 01A1 NOx corr B1S2')
+      assert((0x03 * 256 + 0x84) === 900, 'pid 01A1 NOx corr B2S1')
+      assert((0x03 * 256 + 0x84) === 900, 'pid 01A1 NOx corr B2S2')
+      assert((0x03 * 256 + 0x84) === 900, 'pid 01A7 NOx conc S3')
+      assert((0x03 * 256 + 0x84) === 900, 'pid 01A7 NOx conc S4')
       break
     default:
       throw new Error(`unknown fase ${fase}`)

@@ -329,6 +329,7 @@ class ObdBluetoothClient(private val context: Context) {
                 "019B", // DEF fluid level
                 "01A1", // NOx corrected B1S1
                 "01A5", // DEF dosing command
+                "01A7", // NOx concentration S3/S4
                 "018B", // DPF aftertreatment
                 "018D", // throttle G
                 "018E", // engine friction torque
