@@ -305,6 +305,11 @@ data class VehicleSignals(
         val noxConcS3Ppm: Float? = null,
         /** NOx concentration sensor 4 ppm (OBD PID 01A7). */
         val noxConcS4Ppm: Float? = null,
+        val noxCorrectedS3Ppm: Float? = null,
+        val noxCorrectedS4Ppm: Float? = null,
+        val cylinderFuelRateMg: Float? = null,
+        val evapSysVaporPa: Float? = null,
+        val transGearRatio: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -494,6 +499,11 @@ data class VehicleSignals(
             "nox_corrected_b2s2_ppm" to noxCorrectedB2s2Ppm?.toDouble(),
             "nox_conc_s3_ppm" to noxConcS3Ppm?.toDouble(),
             "nox_conc_s4_ppm" to noxConcS4Ppm?.toDouble(),
+            "nox_corrected_s3_ppm" to noxCorrectedS3Ppm?.toDouble(),
+            "nox_corrected_s4_ppm" to noxCorrectedS4Ppm?.toDouble(),
+            "cylinder_fuel_rate_mg" to cylinderFuelRateMg?.toDouble(),
+            "evap_sys_vapor_pa" to evapSysVaporPa?.toDouble(),
+            "trans_gear_ratio" to transGearRatio?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),

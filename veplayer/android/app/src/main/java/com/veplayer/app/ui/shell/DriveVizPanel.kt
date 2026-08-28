@@ -168,6 +168,11 @@ import com.veplayer.app.vehicle.NoxCorrectedB2S1Monitor
 import com.veplayer.app.vehicle.NoxCorrectedB2S2Monitor
 import com.veplayer.app.vehicle.NoxConcS3Monitor
 import com.veplayer.app.vehicle.NoxConcS4Monitor
+import com.veplayer.app.vehicle.NoxCorrectedS3Monitor
+import com.veplayer.app.vehicle.NoxCorrectedS4Monitor
+import com.veplayer.app.vehicle.CylinderFuelRateMonitor
+import com.veplayer.app.vehicle.EvapSysVaporMonitor
+import com.veplayer.app.vehicle.TransGearRatioMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -338,6 +343,11 @@ fun DriveVizPanel(
     val noxCorrB2s2 by NoxCorrectedB2S2Monitor.state.collectAsState()
     val noxConcS3 by NoxConcS3Monitor.state.collectAsState()
     val noxConcS4 by NoxConcS4Monitor.state.collectAsState()
+    val noxCorrS3 by NoxCorrectedS3Monitor.state.collectAsState()
+    val noxCorrS4 by NoxCorrectedS4Monitor.state.collectAsState()
+    val cylFuel by CylinderFuelRateMonitor.state.collectAsState()
+    val evapSysVapor by EvapSysVaporMonitor.state.collectAsState()
+    val transGear by TransGearRatioMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -491,6 +501,11 @@ fun DriveVizPanel(
             NoxCorrectedB2S2Monitor.tick(prefs, snap)
             NoxConcS3Monitor.tick(prefs, snap)
             NoxConcS4Monitor.tick(prefs, snap)
+            NoxCorrectedS3Monitor.tick(prefs, snap)
+            NoxCorrectedS4Monitor.tick(prefs, snap)
+            CylinderFuelRateMonitor.tick(prefs, snap)
+            EvapSysVaporMonitor.tick(prefs, snap)
+            TransGearRatioMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1275,6 +1290,21 @@ fun DriveVizPanel(
                 }
                 if (noxConcS4.showWarn || (prefs.noxConcS4Enabled && noxConcS4.band == "ok" && noxConcS4.label.isNotBlank())) {
                     Text(noxConcS4.label, color = Color(com.veplayer.app.vehicle.NoxConcS4.accentArgb(noxConcS4.band)), fontSize = 11.sp)
+                }
+                if (noxCorrS3.showWarn || (prefs.noxCorrS3Enabled && noxCorrS3.band == "ok" && noxCorrS3.label.isNotBlank())) {
+                    Text(noxCorrS3.label, color = Color(com.veplayer.app.vehicle.NoxCorrectedS3.accentArgb(noxCorrS3.band)), fontSize = 11.sp)
+                }
+                if (noxCorrS4.showWarn || (prefs.noxCorrS4Enabled && noxCorrS4.band == "ok" && noxCorrS4.label.isNotBlank())) {
+                    Text(noxCorrS4.label, color = Color(com.veplayer.app.vehicle.NoxCorrectedS4.accentArgb(noxCorrS4.band)), fontSize = 11.sp)
+                }
+                if (cylFuel.showWarn || (prefs.cylFuelEnabled && cylFuel.band == "ok" && cylFuel.label.isNotBlank())) {
+                    Text(cylFuel.label, color = Color(com.veplayer.app.vehicle.CylinderFuelRate.accentArgb(cylFuel.band)), fontSize = 11.sp)
+                }
+                if (evapSysVapor.showWarn || (prefs.evapSysVaporEnabled && evapSysVapor.band == "ok" && evapSysVapor.label.isNotBlank())) {
+                    Text(evapSysVapor.label, color = Color(com.veplayer.app.vehicle.EvapSysVapor.accentArgb(evapSysVapor.band)), fontSize = 11.sp)
+                }
+                if (transGear.showWarn || (prefs.transGearEnabled && transGear.band == "ok" && transGear.label.isNotBlank())) {
+                    Text(transGear.label, color = Color(com.veplayer.app.vehicle.TransGearRatio.accentArgb(transGear.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(
