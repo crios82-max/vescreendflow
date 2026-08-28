@@ -21,6 +21,7 @@ router.get('/:token', async (req, res) => {
       dropoffAddress: ride.dropoffAddress,
       etaPickupMin: ride.etaPickupMin,
       etaDropoffMin: ride.etaDropoffMin,
+      vehicleType: ride.vehicleType,
     },
     driverLocation: driver.rows[0]
       ? { lat: Number(driver.rows[0].lat), lng: Number(driver.rows[0].lng) }

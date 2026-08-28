@@ -55,6 +55,8 @@ export default function App() {
   const [rated, setRated] = useState(false);
   const [tipAmount, setTipAmount] = useState(2);
   const [etaPickup, setEtaPickup] = useState<number | null>(null);
+  const [rideForName, setRideForName] = useState('');
+  const [stop, setStop] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
   const [phoneVerified, setPhoneVerified] = useState(true);
   const [phoneInput, setPhoneInput] = useState('');
   const [otpInput, setOtpInput] = useState('');
@@ -184,6 +186,8 @@ export default function App() {
         dropoffLat: dropoff.latitude,
         dropoffLng: dropoff.longitude,
         vehicleType,
+        rideForName: rideForName || undefined,
+        stops: stop ? [{ address: stop.address, lat: stop.latitude, lng: stop.longitude }] : undefined,
       });
       setRide(created);
     } catch (err) {
@@ -356,6 +360,9 @@ export default function App() {
         <SafeAreaView style={styles.searchOverlay}>
           <PlaceSearch placeholder="Origen" bias={position} onSelect={(p) => setPickup(p)} />
           <PlaceSearch placeholder="¿A dónde vas?" bias={pickup ?? position} onSelect={(p) => setDropoff(p)} />
+          <TextInput style={styles.input} placeholder="Parada opcional" placeholderTextColor="#666" value={stop?.address ?? ''} editable={false} />
+          <PlaceSearch placeholder="Agregar parada" bias={pickup ?? position} onSelect={(p) => setStop(p)} />
+          <TextInput style={styles.input} placeholder="Viaje para (nombre)" placeholderTextColor="#666" value={rideForName} onChangeText={setRideForName} />
         </SafeAreaView>
       )}
       <SafeAreaView style={styles.sheet}>

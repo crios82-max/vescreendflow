@@ -3,6 +3,7 @@ import { useAuth } from '@ride-app/web-shared';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
+import Share from './pages/Share';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -17,6 +18,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/share/:token" element={<Share />} />
       <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
     </Routes>
   );

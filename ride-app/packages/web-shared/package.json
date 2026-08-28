@@ -6,6 +6,8 @@
   "main": "./src/index.ts",
   "dependencies": {
     "@ride-app/shared": "*",
+    "@stripe/react-stripe-js": "^3.1.1",
+    "@stripe/stripe-js": "^5.5.0",
     "@vis.gl/react-google-maps": "^1.5.2",
     "socket.io-client": "^4.8.1"
   },

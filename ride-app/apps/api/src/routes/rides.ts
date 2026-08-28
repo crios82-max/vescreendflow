@@ -8,7 +8,7 @@ import { mapRide } from '../mappers.js';
 import { resolveTripMetrics } from '../services/directions.js';
 import { autoAssignDriver, findNearestDriver, activateScheduledRides } from '../services/matching.js';
 import { notifyRideEvent } from '../services/push.js';
-import { processRidePayment, createPaymentIntent } from '../services/stripe.js';
+import { processRidePayment, createPaymentIntent, confirmPaymentIntent } from '../services/stripe.js';
 import { computeSurgeMultiplier } from '../services/surge.js';
 import { buildFareBreakdown } from '../services/fare.js';
 import { validatePromo, redeemPromo } from '../services/promo.js';
@@ -325,6 +325,17 @@ export function createRidesRouter(io: SocketServer) {
       const ok = await debitWallet(req.auth!.userId, amount + tipAmount, 'Pago de viaje', ride.id);
       if (!ok) return res.status(400).json({ error: 'Saldo insuficiente en wallet' });
       paymentInfo = { method: 'wallet', cardLast4: '0000', stripePaymentIntentId: null, total: amount + tipAmount };
+    } else if (parsed.data.paymentIntentId) {
+      const intent = await confirmPaymentIntent(parsed.data.paymentIntentId);
+      if (!intent || intent.status !== 'succeeded') {
+        return res.status(400).json({ error: 'Pago no confirmado en Stripe' });
+      }
+      paymentInfo = {
+        method: 'stripe',
+        cardLast4: '4242',
+        stripePaymentIntentId: intent.id,
+        total: amount + tipAmount,
+      };
     } else {
       paymentInfo = await processRidePayment(amount, ride.id, tipAmount, await driverConnectAccountId(ride.driverId));
     }

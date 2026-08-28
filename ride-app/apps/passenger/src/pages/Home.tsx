@@ -17,6 +17,9 @@ import {
   PromoInput,
   SavedPlacesBar,
   ChatPanel,
+  PhoneVerifyBanner,
+  SplitFareForm,
+  StripeCheckout,
   type PlaceResult,
 } from '@ride-app/web-shared';
 
@@ -43,6 +46,10 @@ export default function Home() {
   const [etaPickup, setEtaPickup] = useState<number | null>(null);
   const [etaDropoff, setEtaDropoff] = useState<number | null>(null);
   const [useWallet, setUseWallet] = useState(false);
+  const [stop, setStop] = useState<Point | null>(null);
+  const [rideForName, setRideForName] = useState('');
+  const [rideForPhone, setRideForPhone] = useState('');
+  const [stripeSecret, setStripeSecret] = useState<string | null>(null);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) => {
@@ -117,6 +124,9 @@ export default function Home() {
         vehicleType,
         promoCode: promoCode || undefined,
         scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
+        rideForName: rideForName || undefined,
+        rideForPhone: rideForPhone || undefined,
+        stops: stop ? [{ address: stop.address, lat: stop.lat, lng: stop.lng }] : undefined,
       });
       setRide(created);
       setRated(false);
@@ -138,6 +148,11 @@ export default function Home() {
     if (!ride) return;
     setLoading(true);
     try {
+      const intent = await api.createPaymentIntent(ride.id, tipAmount);
+      if (intent.clientSecret) {
+        setStripeSecret(intent.clientSecret);
+        return;
+      }
       const result = await api.payRide(ride.id, { tipAmount, useWallet });
       setRide(result.ride);
     } catch (err) {
@@ -203,9 +218,18 @@ export default function Home() {
                   onSelect={onDropoffSelect}
                 />
                 <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
+                <PlaceAutocomplete
+                  label="Parada intermedia (opcional)"
+                  placeholder="Agregar parada"
+                  bias={pickup ?? locationBias}
+                  onSelect={(p) => setStop(p)}
+                />
+                <input className="place-input" placeholder="Viaje para: nombre" value={rideForName} onChange={(e) => setRideForName(e.target.value)} />
+                <input className="place-input" placeholder="Teléfono contacto" value={rideForPhone} onChange={(e) => setRideForPhone(e.target.value)} />
               </div>
             )}
             <div className="bottom-sheet">
+              <PhoneVerifyBanner />
               {!ride ? (
                 <>
                   <h2>{readyToBook ? 'Confirmar viaje' : 'Busca origen y destino'}</h2>
@@ -258,9 +282,9 @@ export default function Home() {
                   <div className="extras-row">
                     <button className="btn-secondary" type="button" onClick={async () => {
                       const s = await api.shareRide(ride.id);
-                      const url = `${window.location.origin}${s.shareUrl}`;
+                      const url = `${window.location.origin}/share/${s.shareToken}`;
                       navigator.clipboard.writeText(url).catch(() => {});
-                      alert('Link copiado: ' + url);
+                      alert('Link copiado');
                     }}>Compartir</button>
                     <button className="btn-danger" type="button" onClick={() => api.triggerSos(ride.id, pickup?.lat, pickup?.lng)}>SOS</button>
                   </div>
@@ -274,14 +298,26 @@ export default function Home() {
                   )}
                   {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
                     <>
+                      <SplitFareForm rideId={ride.id} />
                       <TipSelector value={tipAmount} onChange={setTipAmount} />
                       <label className="meta-row">
                         <span>Pagar con wallet</span>
                         <input type="checkbox" checked={useWallet} onChange={(e) => setUseWallet(e.target.checked)} />
                       </label>
-                      <button className="btn-primary" onClick={payRide} disabled={loading}>
-                        {loading ? 'Procesando...' : `Pagar $${(ride.finalPrice ?? ride.estimatedPrice) + tipAmount}`}
-                      </button>
+                      {stripeSecret ? (
+                        <StripeCheckout
+                          clientSecret={stripeSecret}
+                          onSuccess={async (paymentIntentId) => {
+                            const result = await api.payRide(ride.id, { tipAmount, paymentIntentId });
+                            setRide(result.ride);
+                            setStripeSecret(null);
+                          }}
+                        />
+                      ) : (
+                        <button className="btn-primary" onClick={payRide} disabled={loading}>
+                          {loading ? 'Procesando...' : `Pagar $${(ride.finalPrice ?? ride.estimatedPrice) + tipAmount}`}
+                        </button>
+                      )}
                     </>
                   )}
                   {showRating && (

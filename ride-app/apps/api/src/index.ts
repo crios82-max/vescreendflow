@@ -20,6 +20,7 @@ import shareRoutes from './routes/share.js';
 import onboardingRoutes from './routes/onboarding.js';
 import connectRoutes from './routes/connect.js';
 import verifyRoutes from './routes/verify.js';
+import splitRoutes from './routes/split.js';
 import { pool } from './db.js';
 import { activateScheduledRides } from './services/matching.js';
 
@@ -64,6 +65,7 @@ app.use('/share', shareRoutes);
 app.use('/onboarding', onboardingRoutes);
 app.use('/connect', connectRoutes);
 app.use('/verify', verifyRoutes);
+app.use('/split', splitRoutes);
 
 // Activate scheduled rides every minute
 setInterval(async () => {

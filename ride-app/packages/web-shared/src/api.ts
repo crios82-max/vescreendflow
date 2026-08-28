@@ -97,7 +97,7 @@ class ApiClient {
     }> }>('/drivers/pending-rides');
   }
 
-  payRide(id: string, body?: { tipAmount?: number; useWallet?: boolean }) {
+  payRide(id: string, body?: { tipAmount?: number; useWallet?: boolean; paymentIntentId?: string }) {
     return this.request<{ payment: { id: string; amount: number; cardLast4: string; tipAmount?: number }; ride: Ride }>(
       `/rides/${id}/pay`,
       { method: 'POST', body: JSON.stringify(body ?? {}) },
@@ -187,6 +187,27 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ phone, code }),
     });
+  }
+
+  splitFare(rideId: string, emails: string[]) {
+    return this.request<{ perPerson: number; yourShare: number; participants: number }>(
+      `/split/ride/${rideId}`,
+      { method: 'POST', body: JSON.stringify({ emails }) },
+    );
+  }
+
+  getShareTrip(token: string) {
+    return this.request<{
+      ride: { status: string; pickupAddress: string; dropoffAddress: string; etaPickupMin: number | null };
+      driverLocation: { lat: number; lng: number } | null;
+    }>(`/share/${token}`);
+  }
+
+  createPaymentIntent(rideId: string, tipAmount = 0) {
+    return this.request<{ clientSecret?: string; mock?: boolean; amount?: number }>(
+      `/rides/${rideId}/payment-intent`,
+      { method: 'POST', body: JSON.stringify({ tipAmount }) },
+    );
   }
 
   getAdminStats() {

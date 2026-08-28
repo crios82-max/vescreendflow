@@ -14,3 +14,6 @@ export { TipSelector } from './TipSelector';
 export { PromoInput } from './PromoInput';
 export { SavedPlacesBar } from './SavedPlacesBar';
 export { ChatPanel } from './ChatPanel';
+export { PhoneVerifyBanner } from './PhoneVerifyBanner';
+export { SplitFareForm } from './SplitFareForm';
+export { StripeCheckout } from './StripeCheckout';
