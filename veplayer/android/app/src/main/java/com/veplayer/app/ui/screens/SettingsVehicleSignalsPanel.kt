@@ -64,14 +64,18 @@ internal fun SettingsVehicleSignalsPanel(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val live by VehicleState.state.collectAsState()
-    SettingsVehicleSignalsPart1(prefs, signalSource, onSignalSourceChange, obdAddr, onObdAddrChange, canBackend, onCanBackendChange, canIface, onCanIfaceChange, onStatus, context, scope, live)
+    SettingsVehicleSignalsPart1a(prefs, signalSource, onSignalSourceChange, obdAddr, onObdAddrChange, canBackend, onCanBackendChange, canIface, onCanIfaceChange, onStatus, context, scope, live)
+    SettingsVehicleSignalsPart1b(prefs, onStatus, scope, live)
+    SettingsVehicleSignalsPart1c(prefs, onStatus, scope, live)
+    SettingsVehicleSignalsPart1d(prefs, onStatus, scope, live)
+    SettingsVehicleSignalsPart1e(prefs, onStatus, scope)
     SettingsVehicleSignalsPart2(prefs, onStatus, scope)
     SettingsVehicleSignalsPart3(prefs, onStatus, scope)
     SettingsVehicleSignalsPart4(prefs, onStatus, scope)
 }
 
 @Composable
-private fun SettingsVehicleSignalsPart1(
+private fun SettingsVehicleSignalsPart1a(
     prefs: VePrefs, signalSource: String, onSignalSourceChange: (String) -> Unit, obdAddr: String, onObdAddrChange: (String) -> Unit, canBackend: String, onCanBackendChange: (String) -> Unit, canIface: String, onCanIfaceChange: (String) -> Unit, onStatus: (String) -> Unit, context: android.content.Context, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
 ) {
             Text("Fuente activa: ${SignalSourceKind.fromId(signalSource).label}", color = Mist)
@@ -81,7 +85,7 @@ private fun SettingsVehicleSignalsPart1(
                     if (selected) {
                         Button(
                             onClick = {
-                                onSignalSourceChange(kind.id)
+                                signalSource = kind.id
                                 prefs.signalSource = kind.id
                                 CanBusManager.rebind()
                                 onStatus("Fuente → ${kind.label}")
@@ -90,7 +94,7 @@ private fun SettingsVehicleSignalsPart1(
                     } else {
                         OutlinedButton(
                             onClick = {
-                                onSignalSourceChange(kind.id)
+                                signalSource = kind.id
                                 prefs.signalSource = kind.id
                                 CanBusManager.rebind()
                                 onStatus("Fuente → ${kind.label}")
@@ -106,7 +110,7 @@ private fun SettingsVehicleSignalsPart1(
                     if (selected) {
                         Button(
                             onClick = {
-                                onCanBackendChange(b.id)
+                                canBackend = b.id
                                 prefs.canBackend = b.id
                                 if (signalSource == "can") CanBusManager.rebind()
                                 onStatus("CAN → ${b.label}")
@@ -115,7 +119,7 @@ private fun SettingsVehicleSignalsPart1(
                     } else {
                         OutlinedButton(
                             onClick = {
-                                onCanBackendChange(b.id)
+                                canBackend = b.id
                                 prefs.canBackend = b.id
                                 if (signalSource == "can") CanBusManager.rebind()
                                 onStatus("CAN → ${b.label}")
@@ -126,7 +130,7 @@ private fun SettingsVehicleSignalsPart1(
             }
             OutlinedTextField(
                 value = canIface,
-                onValueChange = { onCanIfaceChange(it) },
+                onValueChange = { canIface = it },
                 label = { Text("SocketCAN iface") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -185,7 +189,7 @@ private fun SettingsVehicleSignalsPart1(
                             r.onSuccess {
                                 if (signalSource == "can") CanBusManager.rebind()
                                 onStatus("DBC flota OK · $it")
-                            }.onFailure { onStatus(it.message ?: "DBC download fail" })
+                            }.onFailure { onStatus(it.message ?: "DBC download fail") }
                         }
                     },
                 ) { Text("Desde SenseFlow") }
@@ -227,7 +231,7 @@ private fun SettingsVehicleSignalsPart1(
                             r.onSuccess {
                                 BrandBus.refresh(context)
                                 onStatus("Marca demo OK · $it")
-                            }.onFailure { onStatus(it.message ?: "brand fail" })
+                            }.onFailure { onStatus(it.message ?: "brand fail") }
                         }
                     },
                 ) { Text("Demo marca") }
@@ -241,7 +245,7 @@ private fun SettingsVehicleSignalsPart1(
             }
             OutlinedTextField(
                 value = obdAddr,
-                onValueChange = { onObdAddrChange(it) },
+                onValueChange = { obdAddr = it },
                 label = { Text("OBD ELM327 MAC") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -288,7 +292,7 @@ private fun SettingsVehicleSignalsPart1(
                             obdAddr = d.address
                             prefs.obdDeviceAddress = d.address
                             prefs.signalSource = "obd"
-                            onSignalSourceChange("obd")
+                            signalSource = "obd"
                             CanBusManager.rebind()
                             onStatus("OBD → ${d.name} (${d.address})")
                         },
@@ -422,7 +426,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.milDistSimKm = milDistSim.toFloatOrNull() ?: 0f
-                    onStatus("MIL dist sim ${prefs.milDistSimKm.toInt()} km · warn ${prefs.milDistWarnKm.toInt()} / alert ${prefs.milDistAlertKm.toInt()}")
+                    onStatus(                        "MIL dist sim ${prefs.milDistSimKm.toInt()} km · warn ${prefs.milDistWarnKm.toInt()} / alert ${prefs.milDistAlertKm.toInt()}")
                 },
             ) { Text("Aplicar sim MIL km") }
             Text(
@@ -480,7 +484,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.distClearSimKm = clearSim.toFloatOrNull() ?: 0f
-                    onStatus("Clear sim ${prefs.distClearSimKm.toInt()} km · warn ${prefs.distClearWarnKm.toInt()} / alert ${prefs.distClearAlertKm.toInt()}")
+                    onStatus(                        "Clear sim ${prefs.distClearSimKm.toInt()} km · warn ${prefs.distClearWarnKm.toInt()} / alert ${prefs.distClearAlertKm.toInt()}")
                 },
             ) { Text("Aplicar sim clear") }
             Text(
@@ -745,7 +749,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.routeDevSimM = routeDevSim.toFloatOrNull() ?: 0f
-                    onStatus("Route sim ${prefs.routeDevSimM.toInt()} m · warn ${prefs.routeDevWarnM.toInt()} / alert ${prefs.routeDevAlertM.toInt()} · hold ${prefs.routeDevHoldSec.toInt()} s")
+                    onStatus(                        "Route sim ${prefs.routeDevSimM.toInt()} m · warn ${prefs.routeDevWarnM.toInt()} / alert ${prefs.routeDevAlertM.toInt()} · hold ${prefs.routeDevHoldSec.toInt()} s")
                 },
             ) { Text("Aplicar sim desvío") }
             Text(
@@ -1009,6 +1013,12 @@ private fun SettingsVehicleSignalsPart1(
             }
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsPart1b(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
+) {
         PanelBlock("SOS / pánico") {
             var panicOn by remember { mutableStateOf(prefs.panicEnabled) }
             var clipOn by remember { mutableStateOf(prefs.sosClipEnabled) }
@@ -1073,10 +1083,10 @@ private fun SettingsVehicleSignalsPart1(
                         scope.launch {
                             com.veplayer.app.fleet.PanicBus.trigger(prefs, fleetLocal, context)
                                 .onSuccess {
-                                    onStatus("SOS enviado") +
-                                            (it.clipUrl?.let { u -> " · clip $u" } ?: "")
+                                    onStatus(                                        "SOS enviado" +
+                                            (it.clipUrl?.let { u -> " · clip $u" } ?: ""))
                                 }
-                                .onFailure { onStatus("SOS fail: ${it.message}" })
+                                .onFailure { onStatus("SOS fail: ${it.message}") }
                         }
                     },
                 ) { Text("Enviar SOS") }
@@ -1189,13 +1199,11 @@ private fun SettingsVehicleSignalsPart1(
                     onCheckedChange = {
                         pbrakeSimOn = it
                         prefs.pbrakeSim = it
-                        onStatus(
-                            if (it) {
+                        onStatus(                            if (it) {
                                 "P-brake sim ON · ${prefs.pbrakeSimKmh.toInt()} km/h"
                             } else {
                                 "P-brake sim OFF"
-                            }
-                        )
+                            })
                     },
                 )
             }
@@ -1251,13 +1259,11 @@ private fun SettingsVehicleSignalsPart1(
                     onCheckedChange = {
                         gearRollSimOn = it
                         prefs.gearRollSim = it
-                        onStatus(
-                            if (it) {
+                        onStatus(                            if (it) {
                                 "Gear roll sim ${prefs.gearRollSimGear} · ${prefs.gearRollSimKmh.toInt()} km/h"
                             } else {
                                 "Gear roll sim OFF"
-                            }
-                        )
+                            })
                     },
                 )
             }
@@ -1316,7 +1322,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.turnStuckSimSec = turnStuckSim.toFloatOrNull() ?: 0f
-                    onStatus("Turn stuck sim ${prefs.turnStuckSimSec.toInt()}s · warn ${prefs.turnStuckWarnSec.toInt()} / alert ${prefs.turnStuckAlertSec.toInt()}")
+                    onStatus(                        "Turn stuck sim ${prefs.turnStuckSimSec.toInt()}s · warn ${prefs.turnStuckWarnSec.toInt()} / alert ${prefs.turnStuckAlertSec.toInt()}")
                 },
             ) { Text("Aplicar sim intermitente") }
             Text(
@@ -1374,7 +1380,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.hazardStuckSimSec = hazardSim.toFloatOrNull() ?: 0f
-                    onStatus("Hazard sim ${prefs.hazardStuckSimSec.toInt()}s · warn ${prefs.hazardStuckWarnSec.toInt()} / alert ${prefs.hazardStuckAlertSec.toInt()}")
+                    onStatus(                        "Hazard sim ${prefs.hazardStuckSimSec.toInt()}s · warn ${prefs.hazardStuckWarnSec.toInt()} / alert ${prefs.hazardStuckAlertSec.toInt()}")
                 },
             ) { Text("Aplicar sim hazard") }
             Text(
@@ -1419,6 +1425,12 @@ private fun SettingsVehicleSignalsPart1(
                 Text("TTS caída combustible", color = Mist)
                 Switch(
                     checked = dropTts,
+}
+
+@Composable
+private fun SettingsVehicleSignalsPart1c(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
+) {
                     onCheckedChange = {
                         dropTts = it
                         prefs.fuelDropTts = it
@@ -1435,7 +1447,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.fuelDropSimDropPct = dropSim.toFloatOrNull() ?: 0f
-                    onStatus("Fuel drop sim −${prefs.fuelDropSimDropPct.toInt()}% · warn ${prefs.fuelDropWarnPct.toInt()} / alert ${prefs.fuelDropAlertPct.toInt()} · ${prefs.fuelDropWindowSec.toInt()}s")
+                    onStatus(                        "Fuel drop sim −${prefs.fuelDropSimDropPct.toInt()}% · warn ${prefs.fuelDropWarnPct.toInt()} / alert ${prefs.fuelDropAlertPct.toInt()} · ${prefs.fuelDropWindowSec.toInt()}s")
                 },
             ) { Text("Aplicar sim") }
             Text(
@@ -1496,7 +1508,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.tpmsSimFlPsi = tpmsSim.toFloatOrNull() ?: 0f
-                    onStatus("TPMS sim FL ${prefs.tpmsSimFlPsi.toInt()} · warn ${prefs.tpmsWarnPsi.toInt()} / alert ${prefs.tpmsAlertPsi.toInt()} psi")
+                    onStatus(                        "TPMS sim FL ${prefs.tpmsSimFlPsi.toInt()} · warn ${prefs.tpmsWarnPsi.toInt()} / alert ${prefs.tpmsAlertPsi.toInt()} psi")
                 },
             ) { Text("Aplicar sim FL") }
             Text(
@@ -1557,7 +1569,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.battVoltSimV = battSim.toFloatOrNull() ?: 0f
-                    onStatus("Batt sim ${prefs.battVoltSimV} V · warn ${prefs.battVoltWarnV} / alert ${prefs.battVoltAlertV}")
+                    onStatus(                        "Batt sim ${prefs.battVoltSimV} V · warn ${prefs.battVoltWarnV} / alert ${prefs.battVoltAlertV}")
                 },
             ) { Text("Aplicar sim V") }
             Text(
@@ -1639,10 +1651,10 @@ private fun SettingsVehicleSignalsPart1(
                             note = incNote.ifBlank { null },
                             withClip = incClip,
                         ).onSuccess {
-                            onStatus("Incidente #${it.lastAlertId ?: ")—"}" +
+                            onStatus(                                "Incidente #${it.lastAlertId ?: "—"}" +)
                                     (it.lastClipUrl?.let { u -> " · $u" } ?: "")
                             incNote = ""
-                        }.onFailure { onStatus("Incidente fail: ${it.message}" })
+                        }.onFailure { onStatus("Incidente fail: ${it.message}") }
                     }
                 },
             ) { Text("Enviar incidente") }
@@ -1837,7 +1849,7 @@ private fun SettingsVehicleSignalsPart1(
                                         com.veplayer.app.nav.NavTts.speakNow("Mensaje confirmado.")
                                     }
                                     onStatus("Msg acked #${p.alertId}")
-                                }.onFailure { onStatus("Ack fail: ${it.message}" })
+                                }.onFailure { onStatus("Ack fail: ${it.message}") }
                             }
                         },
                     ) { Text("Ack") }
@@ -1862,7 +1874,7 @@ private fun SettingsVehicleSignalsPart1(
                                             com.veplayer.app.nav.NavTts.speakNow("Respuesta enviada. $reply.")
                                         }
                                         onStatus("Reply: $reply")
-                                    }.onFailure { onStatus("Reply fail: ${it.message}" })
+                                    }.onFailure { onStatus("Reply fail: ${it.message}") }
                                 }
                             },
                         ) { Text(label) }
@@ -1878,6 +1890,12 @@ private fun SettingsVehicleSignalsPart1(
             }
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsPart1d(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
+) {
         PanelBlock("Conductor") {
             var driverCode by remember { mutableStateOf(prefs.driverCode) }
             var driverPin by remember { mutableStateOf("") }
@@ -1992,8 +2010,8 @@ private fun SettingsVehicleSignalsPart1(
                                 withContext(Dispatchers.IO) {
                                     com.veplayer.app.fleet.ShiftTracker.start(prefs)
                                 }
-                            r.onSuccess { onStatus("Turno #${it.id} abierto" })
-                                .onFailure { onStatus("Turno start: ${it.message}" })
+                            r.onSuccess { onStatus("Turno #${it.id} abierto") }
+                                .onFailure { onStatus("Turno start: ${it.message}") }
                         }
                     },
                 ) { Text("Abrir turno") }
@@ -2006,14 +2024,12 @@ private fun SettingsVehicleSignalsPart1(
                                 }
                             r.onSuccess {
                                 val sum = com.veplayer.app.fleet.ShiftTracker.summary.value
-                                onStatus(
-                                    if (sum.show) {
+                                onStatus(                                    if (sum.show) {
                                         sum.message
                                     } else {
                                         "Turno cerrado · ${"%.1f".format(it.distanceKm)} km"
-                                    }
-                                )
-                            }.onFailure { onStatus("Turno end: ${it.message}" })
+                                    })
+                            }.onFailure { onStatus("Turno end: ${it.message}") }
                         }
                     },
                 ) { Text("Cerrar turno") }
@@ -2064,7 +2080,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.driverScoreSimScore = scoreSim.toFloatOrNull() ?: 0f
-                    onStatus("Score sim ${prefs.driverScoreSimScore.toInt()} · warn ${prefs.driverScoreWarn.toInt()} / alert ${prefs.driverScoreAlert.toInt()}")
+                    onStatus(                        "Score sim ${prefs.driverScoreSimScore.toInt()} · warn ${prefs.driverScoreWarn.toInt()} / alert ${prefs.driverScoreAlert.toInt()}")
                 },
             ) { Text("Aplicar sim score") }
             Text(
@@ -2127,7 +2143,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.ecoLiveSimScore = ecoLiveSim.toFloatOrNull() ?: 0f
-                    onStatus("Eco sim ${prefs.ecoLiveSimScore.toInt()} · warn ${prefs.ecoLiveWarn.toInt()} / alert ${prefs.ecoLiveAlert.toInt()}")
+                    onStatus(                        "Eco sim ${prefs.ecoLiveSimScore.toInt()} · warn ${prefs.ecoLiveWarn.toInt()} / alert ${prefs.ecoLiveAlert.toInt()}")
                 },
             ) { Text("Aplicar sim eco") }
             Text(
@@ -2191,7 +2207,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.engineRuntimeSimHours = runtimeSim.toFloatOrNull() ?: 0f
-                    onStatus("Runtime sim ${prefs.engineRuntimeSimHours} h · warn ${prefs.engineRuntimeWarnHours} / alert ${prefs.engineRuntimeAlertHours}")
+                    onStatus(                        "Runtime sim ${prefs.engineRuntimeSimHours} h · warn ${prefs.engineRuntimeWarnHours} / alert ${prefs.engineRuntimeAlertHours}")
                 },
             ) { Text("Aplicar sim motor") }
             Text(
@@ -2304,7 +2320,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.restSimDriveMin = restSim.toFloatOrNull() ?: 0f
-                    onStatus("Rest sim ${prefs.restSimDriveMin.toInt()} min · warn ${prefs.restDriveWarnMin.toInt()} / alert ${prefs.restDriveAlertMin.toInt()} · reset ${prefs.restResetMin.toInt()} min")
+                    onStatus(                        "Rest sim ${prefs.restSimDriveMin.toInt()} min · warn ${prefs.restDriveWarnMin.toInt()} / alert ${prefs.restDriveAlertMin.toInt()} · reset ${prefs.restResetMin.toInt()} min")
                 },
             ) { Text("Aplicar sim descanso") }
             Text(
@@ -2318,6 +2334,12 @@ private fun SettingsVehicleSignalsPart1(
             )
         }
 
+}
+
+@Composable
+private fun SettingsVehicleSignalsPart1e(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
         PanelBlock("Clima HVAC") {
             var hvacOn by remember { mutableStateOf(prefs.hvacPanelEnabled) }
             Row(
@@ -2384,7 +2406,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.cabinOvertempSimC = cabinSim.toFloatOrNull() ?: 0f
-                    onStatus("Cabina sim ${prefs.cabinOvertempSimC}° · warn ${prefs.cabinWarnC.toInt()} / alert ${prefs.cabinAlertC.toInt()}")
+                    onStatus(                        "Cabina sim ${prefs.cabinOvertempSimC}° · warn ${prefs.cabinWarnC.toInt()} / alert ${prefs.cabinAlertC.toInt()}")
                 },
             ) { Text("Aplicar sim cabina") }
             Text(
@@ -2446,7 +2468,7 @@ private fun SettingsVehicleSignalsPart1(
                         if (v != null) {
                             prefs.iceSimC = v
                             prefs.iceSimOn = true
-                            onStatus("Hielo sim ${prefs.iceSimC}° · warn ≤${prefs.iceWarnC.toInt()} / alert ≤${prefs.iceAlertC.toInt()}")
+                            onStatus(                                "Hielo sim ${prefs.iceSimC}° · warn ≤${prefs.iceWarnC.toInt()} / alert ≤${prefs.iceAlertC.toInt()}")
                         } else {
                             prefs.iceSimOn = false
                             onStatus("Hielo sim off (live)")
@@ -2514,7 +2536,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.coolantSimC = coolSim.toFloatOrNull() ?: 0f
-                    onStatus("Coolant sim ${prefs.coolantSimC}° · warn ${prefs.coolantWarnC.toInt()} / alert ${prefs.coolantAlertC.toInt()}")
+                    onStatus(                        "Coolant sim ${prefs.coolantSimC}° · warn ${prefs.coolantWarnC.toInt()} / alert ${prefs.coolantAlertC.toInt()}")
                 },
             ) { Text("Aplicar sim refrigerante") }
             Text(
@@ -2572,7 +2594,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.oilTempSimC = oilSim.toFloatOrNull() ?: 0f
-                    onStatus("Oil sim ${prefs.oilTempSimC}° · warn ${prefs.oilTempWarnC.toInt()} / alert ${prefs.oilTempAlertC.toInt()}")
+                    onStatus(                        "Oil sim ${prefs.oilTempSimC}° · warn ${prefs.oilTempWarnC.toInt()} / alert ${prefs.oilTempAlertC.toInt()}")
                 },
             ) { Text("Aplicar sim aceite") }
             Text(
@@ -2630,7 +2652,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.catalystSimC = catSim.toFloatOrNull() ?: 0f
-                    onStatus("Cat sim ${prefs.catalystSimC.toInt()}° · warn ${prefs.catalystWarnC.toInt()} / alert ${prefs.catalystAlertC.toInt()}")
+                    onStatus(                        "Cat sim ${prefs.catalystSimC.toInt()}° · warn ${prefs.catalystWarnC.toInt()} / alert ${prefs.catalystAlertC.toInt()}")
                 },
             ) { Text("Aplicar sim catalizador") }
             Text(
@@ -2688,7 +2710,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.intakeAirSimC = iatSim.toFloatOrNull() ?: 0f
-                    onStatus("IAT sim ${prefs.intakeAirSimC}° · warn ${prefs.intakeAirWarnC.toInt()} / alert ${prefs.intakeAirAlertC.toInt()}")
+                    onStatus(                        "IAT sim ${prefs.intakeAirSimC}° · warn ${prefs.intakeAirWarnC.toInt()} / alert ${prefs.intakeAirAlertC.toInt()}")
                 },
             ) { Text("Aplicar sim IAT") }
             Text(
@@ -2746,7 +2768,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.fuelRateSimLph = fuelRateSim.toFloatOrNull() ?: 0f
-                    onStatus("Fuel rate sim ${prefs.fuelRateSimLph.toInt()} L/h · warn ${prefs.fuelRateWarnLph.toInt()} / alert ${prefs.fuelRateAlertLph.toInt()}")
+                    onStatus(                        "Fuel rate sim ${prefs.fuelRateSimLph.toInt()} L/h · warn ${prefs.fuelRateWarnLph.toInt()} / alert ${prefs.fuelRateAlertLph.toInt()}")
                 },
             ) { Text("Aplicar sim consumo") }
             Text(
@@ -2804,7 +2826,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.mafSimGps = mafSim.toFloatOrNull() ?: 0f
-                    onStatus("MAF sim ${prefs.mafSimGps.toInt()} g/s · warn ${prefs.mafWarnGps.toInt()} / alert ${prefs.mafAlertGps.toInt()}")
+                    onStatus(                        "MAF sim ${prefs.mafSimGps.toInt()} g/s · warn ${prefs.mafWarnGps.toInt()} / alert ${prefs.mafAlertGps.toInt()}")
                 },
             ) { Text("Aplicar sim MAF") }
             Text(
@@ -2862,7 +2884,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.fuelPressSimKpa = fuelPressSim.toFloatOrNull() ?: 0f
-                    onStatus("FuelP sim ${prefs.fuelPressSimKpa.toInt()} kPa · warn ≤${prefs.fuelPressWarnKpa.toInt()} / alert ≤${prefs.fuelPressAlertKpa.toInt()}")
+                    onStatus(                        "FuelP sim ${prefs.fuelPressSimKpa.toInt()} kPa · warn ≤${prefs.fuelPressWarnKpa.toInt()} / alert ≤${prefs.fuelPressAlertKpa.toInt()}")
                 },
             ) { Text("Aplicar sim presión") }
             Text(
@@ -2920,7 +2942,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.baroSimKpa = baroSim.toFloatOrNull() ?: 0f
-                    onStatus("Baro sim ${prefs.baroSimKpa.toInt()} kPa · low ${prefs.baroAlertLowKpa.toInt()}/${prefs.baroWarnLowKpa.toInt()} · high ${prefs.baroWarnHighKpa.toInt()}/${prefs.baroAlertHighKpa.toInt()}")
+                    onStatus(                        "Baro sim ${prefs.baroSimKpa.toInt()} kPa · low ${prefs.baroAlertLowKpa.toInt()}/${prefs.baroWarnLowKpa.toInt()} · high ${prefs.baroWarnHighKpa.toInt()}/${prefs.baroAlertHighKpa.toInt()}")
                 },
             ) { Text("Aplicar sim baro") }
             Text(
@@ -2978,7 +3000,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.timingSimDeg = timingSim.toFloatOrNull() ?: 0f
-                    onStatus("Timing sim ${prefs.timingSimDeg.toInt()}° · warn ${prefs.timingWarnDeg.toInt()} / alert ${prefs.timingAlertDeg.toInt()}")
+                    onStatus(                        "Timing sim ${prefs.timingSimDeg.toInt()}° · warn ${prefs.timingWarnDeg.toInt()} / alert ${prefs.timingAlertDeg.toInt()}")
                 },
             ) { Text("Aplicar sim timing") }
             Text(
@@ -3036,7 +3058,7 @@ private fun SettingsVehicleSignalsPart1(
             OutlinedButton(
                 onClick = {
                     prefs.o2SimVolts = o2Sim.toFloatOrNull() ?: 0f
-                    onStatus("O2 sim ${prefs.o2SimVolts} V · low ${prefs.o2AlertLowV}/${prefs.o2WarnLowV} · high ${prefs.o2WarnHighV}/${prefs.o2AlertHighV}")
+                    onStatus(                        "O2 sim ${prefs.o2SimVolts} V · low ${prefs.o2AlertLowV}/${prefs.o2WarnLowV} · high ${prefs.o2WarnHighV}/${prefs.o2AlertHighV}")
                 },
             ) { Text("Aplicar sim O2") }
             Text(
@@ -3048,6 +3070,12 @@ private fun SettingsVehicleSignalsPart1(
                 color = if (o2St.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+}
+
+@Composable
+private fun SettingsVehicleSignalsPart2(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
             Text("Fase 16 OBD (0143/45/49/4B/4D):", color = Mist)
             val absLoadSt by com.veplayer.app.vehicle.AbsoluteLoadMonitor.state.collectAsState()
             val relThrSt by com.veplayer.app.vehicle.RelativeThrottleMonitor.state.collectAsState()
@@ -3074,12 +3102,6 @@ private fun SettingsVehicleSignalsPart1(
                     value = f16Abs,
                     onValueChange = { f16Abs = it.filter { c -> c.isDigit() }.take(3) },
                     label = { Text("AbsL %") },
-}
-
-@Composable
-private fun SettingsVehicleSignalsPart2(
-    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
-) {
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                 )
@@ -4256,6 +4278,12 @@ private fun SettingsVehicleSignalsPart2(
                 color = Mute,
                 fontSize = 12.sp,
             )
+}
+
+@Composable
+private fun SettingsVehicleSignalsPart3(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
             Text("Fase 31 OBD (198/99/9C/94):", color = Mist)
             val egtB1s5St by com.veplayer.app.vehicle.EgtB1S5Monitor.state.collectAsState()
             val egtB2s5St by com.veplayer.app.vehicle.EgtB2S5Monitor.state.collectAsState()
@@ -4282,12 +4310,6 @@ private fun SettingsVehicleSignalsPart2(
                     value = f31EgtB1,
                     onValueChange = { f31EgtB1 = it.filter { c -> c.isDigit() }.take(4) },
                     label = { Text("EGTB1S5") },
-}
-
-@Composable
-private fun SettingsVehicleSignalsPart3(
-    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
-) {
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                 )
@@ -5055,6 +5077,12 @@ private fun SettingsVehicleSignalsPart3(
                 color = Mute,
                 fontSize = 12.sp,
             )
+}
+
+@Composable
+private fun SettingsVehicleSignalsPart4(
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+) {
             Text("Fase 41 OBD (90/91/92/93/9A):", color = Mist)
             val wwhCmiSt by com.veplayer.app.vehicle.WwhObdContinuousMiMonitor.state.collectAsState()
             val wwhB1St by com.veplayer.app.vehicle.WwhObdEcuB1HoursMonitor.state.collectAsState()
@@ -5081,12 +5109,6 @@ private fun SettingsVehicleSignalsPart3(
                     value = f41WwhCmi,
                     onValueChange = { f41WwhCmi = it.filter { c -> c.isDigit() }.take(4) },
                     label = { Text("WwhCMI") },
-}
-
-@Composable
-private fun SettingsVehicleSignalsPart4(
-    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
-) {
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                 )
@@ -5496,7 +5518,7 @@ private fun SettingsVehicleSignalsPart4(
             OutlinedButton(
                 onClick = {
                     prefs.rpmSim = rpmSim.toFloatOrNull() ?: 0f
-                    onStatus("RPM sim ${prefs.rpmSim.toInt()} · warn ${prefs.rpmWarn.toInt()} / alert ${prefs.rpmAlert.toInt()}")
+                    onStatus(                        "RPM sim ${prefs.rpmSim.toInt()} · warn ${prefs.rpmWarn.toInt()} / alert ${prefs.rpmAlert.toInt()}")
                 },
             ) { Text("Aplicar sim RPM") }
             Text(
@@ -5554,7 +5576,7 @@ private fun SettingsVehicleSignalsPart4(
             OutlinedButton(
                 onClick = {
                     prefs.engineLoadSimPct = loadSim.toFloatOrNull() ?: 0f
-                    onStatus("Load sim ${prefs.engineLoadSimPct.toInt()}% · warn ${prefs.engineLoadWarnPct.toInt()} / alert ${prefs.engineLoadAlertPct.toInt()}")
+                    onStatus(                        "Load sim ${prefs.engineLoadSimPct.toInt()}% · warn ${prefs.engineLoadWarnPct.toInt()} / alert ${prefs.engineLoadAlertPct.toInt()}")
                 },
             ) { Text("Aplicar sim carga") }
             Text(
@@ -5612,7 +5634,7 @@ private fun SettingsVehicleSignalsPart4(
             OutlinedButton(
                 onClick = {
                     prefs.stftSimPct = stftSim.toFloatOrNull() ?: 0f
-                    onStatus("STFT sim ${prefs.stftSimPct.toInt()}% · warn ±${prefs.stftWarnPct.toInt()} / alert ±${prefs.stftAlertPct.toInt()}")
+                    onStatus(                        "STFT sim ${prefs.stftSimPct.toInt()}% · warn ±${prefs.stftWarnPct.toInt()} / alert ±${prefs.stftAlertPct.toInt()}")
                 },
             ) { Text("Aplicar sim STFT") }
             Text(
@@ -5670,7 +5692,7 @@ private fun SettingsVehicleSignalsPart4(
             OutlinedButton(
                 onClick = {
                     prefs.ltftSimPct = ltftSim.toFloatOrNull() ?: 0f
-                    onStatus("LTFT sim ${prefs.ltftSimPct.toInt()}% · warn ±${prefs.ltftWarnPct.toInt()} / alert ±${prefs.ltftAlertPct.toInt()}")
+                    onStatus(                        "LTFT sim ${prefs.ltftSimPct.toInt()}% · warn ±${prefs.ltftWarnPct.toInt()} / alert ±${prefs.ltftAlertPct.toInt()}")
                 },
             ) { Text("Aplicar sim LTFT") }
             Text(
@@ -5728,7 +5750,7 @@ private fun SettingsVehicleSignalsPart4(
             OutlinedButton(
                 onClick = {
                     prefs.mapSimKpa = mapSim.toFloatOrNull() ?: 0f
-                    onStatus("MAP sim ${prefs.mapSimKpa.toInt()} kPa · warn ${prefs.mapWarnKpa.toInt()} / alert ${prefs.mapAlertKpa.toInt()}")
+                    onStatus(                        "MAP sim ${prefs.mapSimKpa.toInt()} kPa · warn ${prefs.mapWarnKpa.toInt()} / alert ${prefs.mapAlertKpa.toInt()}")
                 },
             ) { Text("Aplicar sim MAP") }
             Text(
@@ -5786,7 +5808,7 @@ private fun SettingsVehicleSignalsPart4(
             OutlinedButton(
                 onClick = {
                     prefs.throttleSimPct = thrSim.toFloatOrNull() ?: 0f
-                    onStatus("Throttle sim ${prefs.throttleSimPct.toInt()}% · warn ${prefs.throttleWarnPct.toInt()} / alert ${prefs.throttleAlertPct.toInt()} · hold ${prefs.throttleAlertHoldSec.toInt()}s")
+                    onStatus(                        "Throttle sim ${prefs.throttleSimPct.toInt()}% · warn ${prefs.throttleWarnPct.toInt()} / alert ${prefs.throttleAlertPct.toInt()} · hold ${prefs.throttleAlertHoldSec.toInt()}s")
                 },
             ) { Text("Aplicar sim acelerador") }
             Text(
@@ -5799,6 +5821,7 @@ private fun SettingsVehicleSignalsPart4(
                 color = if (thrSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+        }
 }
 
 private fun fmtPsi(v: Float?): String = v?.let { "%.1f".format(it) } ?: "—"
