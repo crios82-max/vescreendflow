@@ -1,11 +1,12 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   type Locale,
   type TranslationKey,
   type TranslationParams,
   translate,
-  detectLocale,
-  getStoredLocale,
+  detectLocaleFromBrowser,
+  getManualLocale,
+  hasManualLocale,
   setStoredLocale,
   LOCALE_STORAGE_KEY,
   LOCALES,
@@ -14,6 +15,7 @@ import {
   vehicleLabel,
   brandTagline,
 } from '@ride-app/shared';
+import { detectLocaleWeb } from './detectLocaleWeb';
 
 interface I18nState {
   locale: Locale;
@@ -43,10 +45,28 @@ function writeStorage(key: string, value: string): void {
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(() => getStoredLocale(readStorage));
+  const [locale, setLocaleState] = useState<Locale>(
+    () => getManualLocale(readStorage) ?? detectLocaleFromBrowser(),
+  );
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
+
+  useEffect(() => {
+    if (hasManualLocale(readStorage)) return;
+    let cancelled = false;
+    detectLocaleWeb().then((detected) => {
+      if (!cancelled) {
+        setLocaleState(detected);
+        document.documentElement.lang = detected;
+      }
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   const setLocale = useCallback((next: Locale) => {
-    setStoredLocale(writeStorage, next);
+    setStoredLocale(writeStorage, next, true);
     setLocaleState(next);
     document.documentElement.lang = next;
   }, []);
@@ -96,4 +116,4 @@ export function LanguageSwitcher({ className = '' }: { className?: string }) {
   );
 }
 
-export { LOCALE_STORAGE_KEY, LOCALES, LOCALE_LABELS, detectLocale, translate };
+export { LOCALE_STORAGE_KEY, LOCALES, LOCALE_LABELS, detectLocaleFromBrowser as detectLocale, translate };

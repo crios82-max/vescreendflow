@@ -4,9 +4,16 @@ import {
   FALLBACK_LOCALE,
   LOCALE_LABELS,
   SUPPORTED_LOCALES,
-  detectLocaleFromLanguage,
   isLocale,
 } from './locales.js';
+import {
+  LOCALE_MANUAL_KEY,
+  detectLocaleFromBrowser,
+  detectLocaleFromLanguageTag,
+  getManualLocale,
+  hasManualLocale,
+  resolveLocaleFromPlace,
+} from './detect.js';
 
 export type { Locale, TranslationParams } from './types.js';
 export {
@@ -19,8 +26,23 @@ export {
   FALLBACK_LOCALE,
   dictionaries,
   isLocale,
-  detectLocaleFromLanguage,
 } from './locales.js';
+export {
+  LOCALE_MANUAL_KEY,
+  detectLocaleFromLanguageTag,
+  detectLocaleFromLanguages,
+  detectLocaleFromBrowser,
+  resolveLocaleFromPlace,
+  hasManualLocale,
+  getManualLocale,
+  clearManualLocale,
+  type DetectLocaleOptions,
+} from './detect.js';
+export {
+  COUNTRY_TO_LOCALE,
+  localeFromCountry,
+  localeFromTimezone,
+} from './regions.js';
 
 export const LOCALE_STORAGE_KEY = 'movify_locale';
 
@@ -54,21 +76,27 @@ export function translate(locale: Locale, key: TranslationKey, params?: Translat
   return text;
 }
 
+/** @deprecated Usa detectLocaleFromBrowser o resolveLocaleFromPlace */
 export function detectLocale(): Locale {
-  if (typeof navigator !== 'undefined') {
-    return detectLocaleFromLanguage(navigator.language);
-  }
-  return FALLBACK_LOCALE;
+  return detectLocaleFromBrowser();
+}
+
+/** Alias para compatibilidad */
+export function detectLocaleFromLanguage(lang: string): Locale {
+  return detectLocaleFromLanguageTag(lang) ?? FALLBACK_LOCALE;
 }
 
 export function getStoredLocale(read: (key: string) => string | null): Locale {
-  const stored = read(LOCALE_STORAGE_KEY);
-  if (stored && isLocale(stored)) return stored;
-  return detectLocale();
+  return getManualLocale(read) ?? detectLocaleFromBrowser();
 }
 
-export function setStoredLocale(write: (key: string, value: string) => void, locale: Locale): void {
+export function setStoredLocale(
+  write: (key: string, value: string) => void,
+  locale: Locale,
+  manual = false,
+): void {
   write(LOCALE_STORAGE_KEY, locale);
+  if (manual) write(LOCALE_MANUAL_KEY, '1');
 }
 
 export function rideStatusLabel(locale: Locale, status: RideStatus): string {

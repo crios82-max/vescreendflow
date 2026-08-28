@@ -36,13 +36,3 @@ export const dictionaries = { es, en, it, pt } as const;
 export function isLocale(value: string): value is Locale {
   return (SUPPORTED_LOCALES as readonly string[]).includes(value);
 }
-
-export function detectLocaleFromLanguage(lang: string): Locale {
-  const normalized = lang.toLowerCase();
-  for (const code of LOCALE_DETECT_ORDER) {
-    if (LOCALE_META[code].browserPrefixes.some((prefix) => normalized.startsWith(prefix))) {
-      return code;
-    }
-  }
-  return DEFAULT_LOCALE;
-}

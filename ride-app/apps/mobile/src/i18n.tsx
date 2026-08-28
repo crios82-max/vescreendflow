@@ -5,15 +5,16 @@ import {
   type TranslationKey,
   type TranslationParams,
   translate,
-  detectLocale,
-  getStoredLocale,
   setStoredLocale,
   LOCALE_STORAGE_KEY,
+  LOCALE_MANUAL_KEY,
   LOCALES,
   rideStatusLabel,
   vehicleLabel,
   brandTagline,
+  isLocale,
 } from '@ride-app/shared';
+import { detectLocaleMobile } from './detectLocaleMobile';
 
 interface MobileI18nState {
   locale: Locale;
@@ -27,12 +28,11 @@ interface MobileI18nState {
 
 const MobileI18nContext = createContext<MobileI18nState | null>(null);
 
-async function readLocale(): Promise<Locale> {
+async function readStorage(key: string): Promise<string | null> {
   try {
-    const stored = await AsyncStorage.getItem(LOCALE_STORAGE_KEY);
-    return getStoredLocale(() => stored);
+    return await AsyncStorage.getItem(key);
   } catch {
-    return detectLocale();
+    return null;
   }
 }
 
@@ -41,14 +41,25 @@ export function MobileI18nProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    readLocale().then((value) => {
-      setLocaleState(value);
+    (async () => {
+      const manual = await readStorage(LOCALE_MANUAL_KEY);
+      if (manual === '1') {
+        const stored = await readStorage(LOCALE_STORAGE_KEY);
+        if (stored && isLocale(stored)) {
+          setLocaleState(stored);
+          setReady(true);
+          return;
+        }
+      }
+
+      const detected = await detectLocaleMobile();
+      setLocaleState(detected);
       setReady(true);
-    });
+    })();
   }, []);
 
   const setLocale = useCallback(async (next: Locale) => {
-    setStoredLocale((key, value) => { void AsyncStorage.setItem(key, value); }, next);
+    setStoredLocale((key, value) => { void AsyncStorage.setItem(key, value); }, next, true);
     setLocaleState(next);
   }, []);
 
