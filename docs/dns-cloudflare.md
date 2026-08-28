@@ -16,6 +16,7 @@ Cloudflare → **vescreenflow.com** → **DNS** → **Records**:
 | CNAME | `@` | `vescreenflow.pages.dev` | Proxied |
 | CNAME | `www` | `vescreenflow.pages.dev` | Proxied |
 | CNAME | `api` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
+| CNAME | `ride-api` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
 
 También en **Pages → vescreenflow → Custom domains** añade `vescreenflow.com` y `www.vescreenflow.com` (valida el dominio).
 

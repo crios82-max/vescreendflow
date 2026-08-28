@@ -1,0 +1,11 @@
+# Cloudflare Tunnel — Ride App API (:4001)
+# Copia a ~/.cloudflared/ride-app-config.yml y ajusta tunnel ID + credentials
+
+tunnel: YOUR_TUNNEL_ID
+credentials-file: /Users/server/.cloudflared/YOUR_TUNNEL_ID.json
+protocol: http2
+
+ingress:
+  - hostname: ride-api.vescreenflow.com
+    service: http://127.0.0.1:4001
+  - service: http_status:404

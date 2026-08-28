@@ -17,7 +17,7 @@
       "ios": { "simulator": false },
       "android": { "buildType": "apk" },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://ride-api.tudominio.com"
+        "EXPO_PUBLIC_API_URL": "https://ride-api.vescreenflow.com"
       }
     },
     "production": {
@@ -30,7 +30,17 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://ride-api.tudominio.com"
+        "EXPO_PUBLIC_API_URL": "https://ride-api.vescreenflow.com"
+      }
+    },
+    "testflight": {
+      "extends": "production",
+      "distribution": "store",
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://ride-api.vescreenflow.com"
       }
     }
   },

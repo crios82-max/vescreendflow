@@ -1,4 +1,6 @@
-# Ride App — App Store / Play Store
+# Ride App — App Store / Play Store / TestFlight
+
+Ver también: [CLOUDFLARE_TUNNEL.md](./CLOUDFLARE_TUNNEL.md) (API público obligatorio para móvil fuera de LAN).
 
 ## Requisitos previos
 
@@ -7,83 +9,90 @@
 | iOS | Apple Developer ($99/año), App Store Connect app creada |
 | Android | Google Play Console ($25 una vez), service account JSON |
 
+## 0. API público (antes de TestFlight)
+
+```bash
+# Mac mini — DNS CNAME ride-api → tu túnel (ver CLOUDFLARE_TUNNEL.md)
+curl -sf https://ride-api.vescreenflow.com/health && echo OK
+```
+
+En `ride-app/.env`:
+
+```
+API_PUBLIC_URL=https://ride-api.vescreenflow.com
+EXPO_PUBLIC_API_URL=https://ride-api.vescreenflow.com
+```
+
 ## 1. Configura `eas.json`
 
-Edita `apps/mobile/eas.json`:
+Edita `apps/mobile/eas.json` → `submit.production.ios`:
 
 ```json
-"submit": {
-  "production": {
-    "ios": {
-      "appleId": "tu@email.com",
-      "ascAppId": "1234567890",
-      "appleTeamId": "ABCDE12345"
-    },
-    "android": {
-      "serviceAccountKeyPath": "./google-play-service-account.json",
-      "track": "internal"
-    }
-  }
-}
+"appleId": "tu@email.com",
+"ascAppId": "1234567890",
+"appleTeamId": "ABCDE12345"
 ```
 
 ## 2. Variables EAS (secrets)
 
-En [expo.dev](https://expo.dev) → tu proyecto → Secrets:
+En [expo.dev](https://expo.dev) → proyecto `ride-app` → **Secrets**:
 
 | Secret | Valor |
 |--------|-------|
-| `EXPO_PUBLIC_API_URL` | `https://ride-api.tudominio.com` |
+| `EXPO_PUBLIC_API_URL` | `https://ride-api.vescreenflow.com` |
 | `EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` | Tu Google Maps key |
 
-## 3. Build
+## 3. TestFlight (un comando)
+
+```bash
+cd ride-app
+chmod +x scripts/eas-testflight.sh
+./scripts/eas-testflight.sh testflight ios
+```
+
+O manual:
 
 ```bash
 cd ride-app/apps/mobile
-npm install -g eas-cli
 eas login
+npm run testflight
+```
+
+## 4. Build producción
+
+```bash
+cd ride-app/apps/mobile
 eas build --profile production --platform ios
 eas build --profile production --platform android
 ```
 
-## 4. Submit
+## 5. Submit stores
 
 ```bash
 eas submit --platform ios --profile production
 eas submit --platform android --profile production
 ```
 
-## 5. Metadata App Store (manual en App Store Connect)
+## 6. Metadata App Store Connect
 
 - **Nombre:** Ride
 - **Categoría:** Travel
-- **Descripción:** Pide viajes, rastrea conductores, paga con tarjeta
-- **Privacy Policy URL:** tu dominio `/privacy` (web pasajero)
-- **Screenshots:** iPhone 6.7" y 6.5" (mínimo 3)
+- **Privacy Policy URL:** `http://TU_IP:5174/privacy` o dominio futuro
+- **Screenshots:** iPhone 6.7" y 6.5" (mín. 3)
 
-## 6. Google Play
-
-- Data safety: ubicación, identificadores, pagos
-- Privacy policy URL igual que iOS
-- Internal testing track primero, luego production
-
-## 7. Twilio Voice (llamadas enmascaradas)
-
-En producción configura en el API:
+## 7. Twilio Voice
 
 ```
-API_PUBLIC_URL=https://ride-api.tudominio.com
+API_PUBLIC_URL=https://ride-api.vescreenflow.com
 TWILIO_ACCOUNT_SID=...
 TWILIO_AUTH_TOKEN=...
 TWILIO_PHONE_NUMBER=+1...
 ```
 
-Webhook Twilio apunta a: `POST https://ride-api.tudominio.com/webhooks/twilio/voice/connect`
+## Checklist
 
-## Checklist pre-submit
-
-- [ ] API en producción con HTTPS
-- [ ] `EXPO_PUBLIC_API_URL` apunta al API público
-- [ ] Google Maps key con restricciones iOS/Android bundle ID
-- [ ] Stripe en modo live (si aplica)
-- [ ] Probar login + pedir ride + pago en build TestFlight/Internal
+- [ ] `curl https://ride-api.vescreenflow.com/health`
+- [ ] PM2 ride-api corriendo en Mac mini
+- [ ] EAS secrets configurados
+- [ ] TestFlight build instalado y login OK
+- [ ] Pedir ride end-to-end desde iPhone

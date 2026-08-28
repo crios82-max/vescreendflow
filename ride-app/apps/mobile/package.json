@@ -11,7 +11,8 @@
     "build:preview": "eas build --profile preview --platform all",
     "build:production": "eas build --profile production --platform all",
     "submit:ios": "eas submit --platform ios --profile production",
-    "submit:android": "eas submit --platform android --profile production"
+    "submit:android": "eas submit --platform android --profile production",
+    "testflight": "eas build --profile testflight --platform ios && eas submit --platform ios --profile testflight --latest"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.23.1",
