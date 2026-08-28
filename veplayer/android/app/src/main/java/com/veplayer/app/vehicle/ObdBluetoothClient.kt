@@ -338,6 +338,9 @@ class ObdBluetoothClient(private val context: Context) {
                 "01A9", // ABS disable switch
                 "01C5", // fuel pressure A/B
                 "01C7", // distance since reflash
+                "01C3", // fuel level input A/B
+                "01C4", // EPCS diagnostic time/count
+                "01C8", // NOx/PCD warning lamp
                 "018B", // DPF aftertreatment
                 "018D", // throttle G
                 "018E", // engine friction torque

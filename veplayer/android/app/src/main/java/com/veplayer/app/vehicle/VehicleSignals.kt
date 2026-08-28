@@ -316,6 +316,11 @@ data class VehicleSignals(
         val fuelPressAKpa: Float? = null,
         val fuelPressBKpa: Float? = null,
         val reflashDistKm: Float? = null,
+        val fuelLevelInputAPct: Float? = null,
+        val fuelLevelInputBPct: Float? = null,
+        val epcsDiagTimeSec: Float? = null,
+        val epcsDiagCount: Float? = null,
+        val noxPcdLampOn: Int? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -516,6 +521,11 @@ data class VehicleSignals(
             "fuel_press_a_kpa" to fuelPressAKpa?.toDouble(),
             "fuel_press_b_kpa" to fuelPressBKpa?.toDouble(),
             "reflash_dist_km" to reflashDistKm?.toDouble(),
+            "fuel_level_input_a_pct" to fuelLevelInputAPct?.toDouble(),
+            "fuel_level_input_b_pct" to fuelLevelInputBPct?.toDouble(),
+            "epcs_diag_time_sec" to epcsDiagTimeSec?.toDouble(),
+            "epcs_diag_count" to epcsDiagCount?.toDouble(),
+            "nox_pcd_lamp_on" to noxPcdLampOn,
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),

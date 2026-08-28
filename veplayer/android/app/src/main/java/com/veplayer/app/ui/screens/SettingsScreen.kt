@@ -5087,6 +5087,85 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 38 OBD (C3/C4/C8):", color = Mist)
+            val fuelLvlASt by com.veplayer.app.vehicle.FuelLevelInputAMonitor.state.collectAsState()
+            val fuelLvlBSt by com.veplayer.app.vehicle.FuelLevelInputBMonitor.state.collectAsState()
+            val epcsTimeSt by com.veplayer.app.vehicle.EpcsDiagTimeMonitor.state.collectAsState()
+            val epcsCountSt by com.veplayer.app.vehicle.EpcsDiagCountMonitor.state.collectAsState()
+            val noxPcdLampSt by com.veplayer.app.vehicle.NoxPcdLampMonitor.state.collectAsState()
+            var f38FuelA by remember {
+                mutableStateOf(if (prefs.fuelLvlASimPct > 0f) prefs.fuelLvlASimPct.toInt().toString() else "0")
+            }
+            var f38FuelB by remember {
+                mutableStateOf(if (prefs.fuelLvlBSimPct > 0f) prefs.fuelLvlBSimPct.toInt().toString() else "0")
+            }
+            var f38EpcsT by remember {
+                mutableStateOf(if (prefs.epcsTimeSimSec > 0f) prefs.epcsTimeSimSec.toInt().toString() else "0")
+            }
+            var f38EpcsN by remember {
+                mutableStateOf(if (prefs.epcsCountSim > 0f) prefs.epcsCountSim.toInt().toString() else "0")
+            }
+            var f38Lamp by remember { mutableStateOf(if (prefs.noxPcdLampSim) "1" else "0") }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f38FuelA,
+                    onValueChange = { f38FuelA = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("FuelA") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f38FuelB,
+                    onValueChange = { f38FuelB = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("FuelB") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f38EpcsT,
+                    onValueChange = { f38EpcsT = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("EPCS") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f38EpcsN,
+                    onValueChange = { f38EpcsN = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("EPCSn") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f38Lamp,
+                    onValueChange = { f38Lamp = it.filter { c -> c.isDigit() }.take(1) },
+                    label = { Text("NCD/PCD") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.fuelLvlASimPct = f38FuelA.toFloatOrNull() ?: 0f
+                    prefs.fuelLvlBSimPct = f38FuelB.toFloatOrNull() ?: 0f
+                    prefs.epcsTimeSimSec = f38EpcsT.toFloatOrNull() ?: 0f
+                    prefs.epcsCountSim = f38EpcsN.toFloatOrNull() ?: 0f
+                    prefs.noxPcdLampSim = f38Lamp == "1"
+                    status = "Fase 38 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 38") }
+            Text(
+                listOfNotNull(
+                    fuelLvlASt.label.takeIf { it.isNotBlank() },
+                    fuelLvlBSt.label.takeIf { it.isNotBlank() },
+                    epcsTimeSt.label.takeIf { it.isNotBlank() },
+                    epcsCountSt.label.takeIf { it.isNotBlank() },
+                    noxPcdLampSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 38 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

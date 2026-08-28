@@ -1546,6 +1546,61 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.ReflashDistance.toJsonMap(
                                             com.veplayer.app.vehicle.ReflashDistanceMonitor.state.value,
                                         ),
+                                    "fuel_level_a_warn_pct" to prefs.fuelLvlAWarnPct.toDouble(),
+                                    "fuel_level_a_alert_pct" to prefs.fuelLvlAAlertPct.toDouble(),
+                                    "fuel_level_a_speed_min_kmh" to prefs.fuelLvlASpeedMinKmh.toDouble(),
+                                    "fuel_level_input_a_pct" to
+                                        (if (prefs.fuelLvlASimPct > 0f) prefs.fuelLvlASimPct
+                                        else com.veplayer.app.vehicle.FuelLevelInputAMonitor.state.value.levelPct
+                                            ?: snap.fuelLevelInputAPct
+                                        )?.toDouble(),
+                                    "fuel_level_a" to
+                                        com.veplayer.app.vehicle.FuelLevelInputA.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelLevelInputAMonitor.state.value,
+                                        ),
+                                    "fuel_level_b_warn_pct" to prefs.fuelLvlBWarnPct.toDouble(),
+                                    "fuel_level_b_alert_pct" to prefs.fuelLvlBAlertPct.toDouble(),
+                                    "fuel_level_b_speed_min_kmh" to prefs.fuelLvlBSpeedMinKmh.toDouble(),
+                                    "fuel_level_input_b_pct" to
+                                        (if (prefs.fuelLvlBSimPct > 0f) prefs.fuelLvlBSimPct
+                                        else com.veplayer.app.vehicle.FuelLevelInputBMonitor.state.value.levelPct
+                                            ?: snap.fuelLevelInputBPct
+                                        )?.toDouble(),
+                                    "fuel_level_b" to
+                                        com.veplayer.app.vehicle.FuelLevelInputB.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelLevelInputBMonitor.state.value,
+                                        ),
+                                    "epcs_time_warn_sec" to prefs.epcsTimeWarnSec.toDouble(),
+                                    "epcs_time_alert_sec" to prefs.epcsTimeAlertSec.toDouble(),
+                                    "epcs_time_speed_min_kmh" to prefs.epcsTimeSpeedMinKmh.toDouble(),
+                                    "epcs_diag_time_sec" to
+                                        (if (prefs.epcsTimeSimSec > 0f) prefs.epcsTimeSimSec
+                                        else com.veplayer.app.vehicle.EpcsDiagTimeMonitor.state.value.timeSec
+                                            ?: snap.epcsDiagTimeSec
+                                        )?.toDouble(),
+                                    "epcs_time" to
+                                        com.veplayer.app.vehicle.EpcsDiagTime.toJsonMap(
+                                            com.veplayer.app.vehicle.EpcsDiagTimeMonitor.state.value,
+                                        ),
+                                    "epcs_count_warn" to prefs.epcsCountWarn.toDouble(),
+                                    "epcs_count_alert" to prefs.epcsCountAlert.toDouble(),
+                                    "epcs_count_speed_min_kmh" to prefs.epcsCountSpeedMinKmh.toDouble(),
+                                    "epcs_diag_count" to
+                                        (if (prefs.epcsCountSim > 0f) prefs.epcsCountSim
+                                        else com.veplayer.app.vehicle.EpcsDiagCountMonitor.state.value.count
+                                            ?: snap.epcsDiagCount
+                                        )?.toDouble(),
+                                    "epcs_count" to
+                                        com.veplayer.app.vehicle.EpcsDiagCount.toJsonMap(
+                                            com.veplayer.app.vehicle.EpcsDiagCountMonitor.state.value,
+                                        ),
+                                    "nox_pcd_lamp_speed_min_kmh" to prefs.noxPcdLampSpeedMinKmh.toDouble(),
+                                    "nox_pcd_lamp_on" to
+                                        (if (prefs.noxPcdLampSim) 1 else snap.noxPcdLampOn ?: 0),
+                                    "nox_pcd_lamp" to
+                                        com.veplayer.app.vehicle.NoxPcdLamp.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxPcdLampMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -3233,6 +3288,61 @@ class SenseBridgeService : Service() {
                                     "reflash_dist" to
                                         com.veplayer.app.vehicle.ReflashDistance.toJsonMap(
                                             com.veplayer.app.vehicle.ReflashDistanceMonitor.state.value,
+                                        ),
+                                    "fuel_level_a_warn_pct" to prefs.fuelLvlAWarnPct.toDouble(),
+                                    "fuel_level_a_alert_pct" to prefs.fuelLvlAAlertPct.toDouble(),
+                                    "fuel_level_a_speed_min_kmh" to prefs.fuelLvlASpeedMinKmh.toDouble(),
+                                    "fuel_level_input_a_pct" to
+                                        (if (prefs.fuelLvlASimPct > 0f) prefs.fuelLvlASimPct
+                                        else com.veplayer.app.vehicle.FuelLevelInputAMonitor.state.value.levelPct
+                                            ?: snap.fuelLevelInputAPct
+                                        )?.toDouble(),
+                                    "fuel_level_a" to
+                                        com.veplayer.app.vehicle.FuelLevelInputA.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelLevelInputAMonitor.state.value,
+                                        ),
+                                    "fuel_level_b_warn_pct" to prefs.fuelLvlBWarnPct.toDouble(),
+                                    "fuel_level_b_alert_pct" to prefs.fuelLvlBAlertPct.toDouble(),
+                                    "fuel_level_b_speed_min_kmh" to prefs.fuelLvlBSpeedMinKmh.toDouble(),
+                                    "fuel_level_input_b_pct" to
+                                        (if (prefs.fuelLvlBSimPct > 0f) prefs.fuelLvlBSimPct
+                                        else com.veplayer.app.vehicle.FuelLevelInputBMonitor.state.value.levelPct
+                                            ?: snap.fuelLevelInputBPct
+                                        )?.toDouble(),
+                                    "fuel_level_b" to
+                                        com.veplayer.app.vehicle.FuelLevelInputB.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelLevelInputBMonitor.state.value,
+                                        ),
+                                    "epcs_time_warn_sec" to prefs.epcsTimeWarnSec.toDouble(),
+                                    "epcs_time_alert_sec" to prefs.epcsTimeAlertSec.toDouble(),
+                                    "epcs_time_speed_min_kmh" to prefs.epcsTimeSpeedMinKmh.toDouble(),
+                                    "epcs_diag_time_sec" to
+                                        (if (prefs.epcsTimeSimSec > 0f) prefs.epcsTimeSimSec
+                                        else com.veplayer.app.vehicle.EpcsDiagTimeMonitor.state.value.timeSec
+                                            ?: snap.epcsDiagTimeSec
+                                        )?.toDouble(),
+                                    "epcs_time" to
+                                        com.veplayer.app.vehicle.EpcsDiagTime.toJsonMap(
+                                            com.veplayer.app.vehicle.EpcsDiagTimeMonitor.state.value,
+                                        ),
+                                    "epcs_count_warn" to prefs.epcsCountWarn.toDouble(),
+                                    "epcs_count_alert" to prefs.epcsCountAlert.toDouble(),
+                                    "epcs_count_speed_min_kmh" to prefs.epcsCountSpeedMinKmh.toDouble(),
+                                    "epcs_diag_count" to
+                                        (if (prefs.epcsCountSim > 0f) prefs.epcsCountSim
+                                        else com.veplayer.app.vehicle.EpcsDiagCountMonitor.state.value.count
+                                            ?: snap.epcsDiagCount
+                                        )?.toDouble(),
+                                    "epcs_count" to
+                                        com.veplayer.app.vehicle.EpcsDiagCount.toJsonMap(
+                                            com.veplayer.app.vehicle.EpcsDiagCountMonitor.state.value,
+                                        ),
+                                    "nox_pcd_lamp_speed_min_kmh" to prefs.noxPcdLampSpeedMinKmh.toDouble(),
+                                    "nox_pcd_lamp_on" to
+                                        (if (prefs.noxPcdLampSim) 1 else snap.noxPcdLampOn ?: 0),
+                                    "nox_pcd_lamp" to
+                                        com.veplayer.app.vehicle.NoxPcdLamp.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxPcdLampMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

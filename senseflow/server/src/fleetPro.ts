@@ -5664,6 +5664,221 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Fuel level input A (OBD PID 01C3 byte A) — low level
+    const fuelLvlAObj = signals.fuel_level_a as Record<string, unknown> | undefined
+    const fuelLvlAPct =
+      typeof fuelLvlAObj?.level_pct === 'number'
+        ? (fuelLvlAObj.level_pct as number)
+        : typeof signals.fuel_level_input_a_pct === 'number'
+          ? (signals.fuel_level_input_a_pct as number)
+          : null
+    const fuelLvlASpeed =
+      typeof fuelLvlAObj?.speed_kmh === 'number'
+        ? (fuelLvlAObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof fuelLvlAPct === 'number') {
+      const warnPct =
+        typeof signals.fuel_level_a_warn_pct === 'number' ? (signals.fuel_level_a_warn_pct as number) : 15
+      const alertPct =
+        typeof signals.fuel_level_a_alert_pct === 'number' ? (signals.fuel_level_a_alert_pct as number) : 8
+      const minSpd =
+        typeof signals.fuel_level_a_speed_min_kmh === 'number'
+          ? (signals.fuel_level_a_speed_min_kmh as number)
+          : 20
+      const spdOk = typeof fuelLvlASpeed === 'number' && fuelLvlASpeed >= minSpd
+      if (spdOk && fuelLvlAPct <= alertPct && !recentlyAlerted(deviceId, 'fuel_level_a_alert', 120)) {
+        insertAlert(
+          deviceId,
+          'fuel_level_a_alert',
+          'critical',
+          `Nivel combustible A crítico · ${Math.round(fuelLvlAPct)}%`,
+          {
+            fuel_level_input_a_pct: fuelLvlAPct,
+            fuel_level_a: fuelLvlAObj ?? null,
+          },
+        )
+        raised.push('fuel_level_a_alert')
+      } else if (
+        spdOk &&
+        fuelLvlAPct <= warnPct &&
+        fuelLvlAPct > alertPct &&
+        !recentlyAlerted(deviceId, 'fuel_level_a_warn', 120)
+      ) {
+        insertAlert(deviceId, 'fuel_level_a_warn', 'warn', `Nivel combustible A bajo · ${Math.round(fuelLvlAPct)}%`, {
+          fuel_level_input_a_pct: fuelLvlAPct,
+          fuel_level_a: fuelLvlAObj ?? null,
+        })
+        raised.push('fuel_level_a_warn')
+      }
+    }
+
+    // Fuel level input B (OBD PID 01C3 byte B) — low level
+    const fuelLvlBObj = signals.fuel_level_b as Record<string, unknown> | undefined
+    const fuelLvlBPct =
+      typeof fuelLvlBObj?.level_pct === 'number'
+        ? (fuelLvlBObj.level_pct as number)
+        : typeof signals.fuel_level_input_b_pct === 'number'
+          ? (signals.fuel_level_input_b_pct as number)
+          : null
+    const fuelLvlBSpeed =
+      typeof fuelLvlBObj?.speed_kmh === 'number'
+        ? (fuelLvlBObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof fuelLvlBPct === 'number') {
+      const warnPct =
+        typeof signals.fuel_level_b_warn_pct === 'number' ? (signals.fuel_level_b_warn_pct as number) : 15
+      const alertPct =
+        typeof signals.fuel_level_b_alert_pct === 'number' ? (signals.fuel_level_b_alert_pct as number) : 8
+      const minSpd =
+        typeof signals.fuel_level_b_speed_min_kmh === 'number'
+          ? (signals.fuel_level_b_speed_min_kmh as number)
+          : 20
+      const spdOk = typeof fuelLvlBSpeed === 'number' && fuelLvlBSpeed >= minSpd
+      if (spdOk && fuelLvlBPct <= alertPct && !recentlyAlerted(deviceId, 'fuel_level_b_alert', 120)) {
+        insertAlert(
+          deviceId,
+          'fuel_level_b_alert',
+          'critical',
+          `Nivel combustible B crítico · ${Math.round(fuelLvlBPct)}%`,
+          {
+            fuel_level_input_b_pct: fuelLvlBPct,
+            fuel_level_b: fuelLvlBObj ?? null,
+          },
+        )
+        raised.push('fuel_level_b_alert')
+      } else if (
+        spdOk &&
+        fuelLvlBPct <= warnPct &&
+        fuelLvlBPct > alertPct &&
+        !recentlyAlerted(deviceId, 'fuel_level_b_warn', 120)
+      ) {
+        insertAlert(deviceId, 'fuel_level_b_warn', 'warn', `Nivel combustible B bajo · ${Math.round(fuelLvlBPct)}%`, {
+          fuel_level_input_b_pct: fuelLvlBPct,
+          fuel_level_b: fuelLvlBObj ?? null,
+        })
+        raised.push('fuel_level_b_warn')
+      }
+    }
+
+    // EPCS diagnostic time (OBD PID 01C4 byte A)
+    const epcsTimeObj = signals.epcs_time as Record<string, unknown> | undefined
+    const epcsTimeSec =
+      typeof epcsTimeObj?.time_sec === 'number'
+        ? (epcsTimeObj.time_sec as number)
+        : typeof signals.epcs_diag_time_sec === 'number'
+          ? (signals.epcs_diag_time_sec as number)
+          : null
+    const epcsTimeSpeed =
+      typeof epcsTimeObj?.speed_kmh === 'number'
+        ? (epcsTimeObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof epcsTimeSec === 'number') {
+      const warnSec = typeof signals.epcs_time_warn_sec === 'number' ? (signals.epcs_time_warn_sec as number) : 120
+      const alertSec = typeof signals.epcs_time_alert_sec === 'number' ? (signals.epcs_time_alert_sec as number) : 180
+      const minSpd =
+        typeof signals.epcs_time_speed_min_kmh === 'number' ? (signals.epcs_time_speed_min_kmh as number) : 20
+      const spdOk = typeof epcsTimeSpeed === 'number' && epcsTimeSpeed >= minSpd
+      if (spdOk && epcsTimeSec >= alertSec && !recentlyAlerted(deviceId, 'epcs_time_alert', 120)) {
+        insertAlert(deviceId, 'epcs_time_alert', 'critical', `Tiempo EPCS crítico · ${Math.round(epcsTimeSec)} s`, {
+          epcs_diag_time_sec: epcsTimeSec,
+          epcs_time: epcsTimeObj ?? null,
+        })
+        raised.push('epcs_time_alert')
+      } else if (
+        spdOk &&
+        epcsTimeSec >= warnSec &&
+        epcsTimeSec < alertSec &&
+        !recentlyAlerted(deviceId, 'epcs_time_warn', 120)
+      ) {
+        insertAlert(deviceId, 'epcs_time_warn', 'warn', `Tiempo EPCS alto · ${Math.round(epcsTimeSec)} s`, {
+          epcs_diag_time_sec: epcsTimeSec,
+          epcs_time: epcsTimeObj ?? null,
+        })
+        raised.push('epcs_time_warn')
+      }
+    }
+
+    // EPCS diagnostic count (OBD PID 01C4 byte B)
+    const epcsCountObj = signals.epcs_count as Record<string, unknown> | undefined
+    const epcsCountVal =
+      typeof epcsCountObj?.count === 'number'
+        ? (epcsCountObj.count as number)
+        : typeof signals.epcs_diag_count === 'number'
+          ? (signals.epcs_diag_count as number)
+          : null
+    const epcsCountSpeed =
+      typeof epcsCountObj?.speed_kmh === 'number'
+        ? (epcsCountObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof epcsCountVal === 'number') {
+      const warnCount = typeof signals.epcs_count_warn === 'number' ? (signals.epcs_count_warn as number) : 50
+      const alertCount = typeof signals.epcs_count_alert === 'number' ? (signals.epcs_count_alert as number) : 80
+      const minSpd =
+        typeof signals.epcs_count_speed_min_kmh === 'number' ? (signals.epcs_count_speed_min_kmh as number) : 20
+      const spdOk = typeof epcsCountSpeed === 'number' && epcsCountSpeed >= minSpd
+      if (spdOk && epcsCountVal >= alertCount && !recentlyAlerted(deviceId, 'epcs_count_alert', 120)) {
+        insertAlert(deviceId, 'epcs_count_alert', 'critical', `Conteo EPCS crítico · ${Math.round(epcsCountVal)}`, {
+          epcs_diag_count: epcsCountVal,
+          epcs_count: epcsCountObj ?? null,
+        })
+        raised.push('epcs_count_alert')
+      } else if (
+        spdOk &&
+        epcsCountVal >= warnCount &&
+        epcsCountVal < alertCount &&
+        !recentlyAlerted(deviceId, 'epcs_count_warn', 120)
+      ) {
+        insertAlert(deviceId, 'epcs_count_warn', 'warn', `Conteo EPCS alto · ${Math.round(epcsCountVal)}`, {
+          epcs_diag_count: epcsCountVal,
+          epcs_count: epcsCountObj ?? null,
+        })
+        raised.push('epcs_count_warn')
+      }
+    }
+
+    // NOx/PCD diagnostic lamp (OBD PID 01C8)
+    const noxPcdObj = signals.nox_pcd_lamp as Record<string, unknown> | undefined
+    const noxPcdLampOn =
+      typeof noxPcdObj?.lamp_on === 'boolean'
+        ? (noxPcdObj.lamp_on as boolean)
+        : typeof signals.nox_pcd_lamp_on === 'number'
+          ? (signals.nox_pcd_lamp_on as number) !== 0
+          : false
+    const noxPcdSpeed =
+      typeof noxPcdObj?.speed_kmh === 'number'
+        ? (noxPcdObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (noxPcdLampOn) {
+      const minSpd =
+        typeof signals.nox_pcd_lamp_speed_min_kmh === 'number'
+          ? (signals.nox_pcd_lamp_speed_min_kmh as number)
+          : 20
+      const spdOk = typeof noxPcdSpeed === 'number' && noxPcdSpeed >= minSpd
+      if (spdOk && !recentlyAlerted(deviceId, 'nox_pcd_lamp_alert', 120)) {
+        insertAlert(
+          deviceId,
+          'nox_pcd_lamp_alert',
+          'critical',
+          'Lámpara diagnóstico NOx o partículas encendida',
+          {
+            nox_pcd_lamp_on: true,
+            nox_pcd_lamp: noxPcdObj ?? null,
+          },
+        )
+        raised.push('nox_pcd_lamp_alert')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
