@@ -24,6 +24,7 @@
     "stack:stop": "./scripts/stop-stack.sh",
     "health": "curl -sf http://localhost:4001/health && echo ' API ok' && curl -sf -o /dev/null http://localhost:5174 && echo ' Passenger ok' && curl -sf -o /dev/null http://localhost:5175 && echo ' Driver ok' && curl -sf -o /dev/null http://localhost:5176 && echo ' Admin ok'",
     "check:prod": "./scripts/check-prod.sh",
+    "setup:prod": "./scripts/setup-prod-env.sh",
     "test": "npm run test -w @ride-app/shared && npm run test -w @ride-app/api",
     "test:e2e": "npm run test:e2e -w @ride-app/api"
   },
