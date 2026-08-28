@@ -282,6 +282,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "015D", // fuel injection timing
                 "015B", // hybrid batt life
                 "0163", // engine ref torque
+                "0179", // catalyst B1S6 temp
+                "017A", // catalyst B2S6 temp
+                "0147", // throttle B
+                "0148", // throttle C
+                "0154", // time MIL on
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim

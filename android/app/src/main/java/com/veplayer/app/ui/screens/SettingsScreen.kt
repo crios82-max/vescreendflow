@@ -3806,6 +3806,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 22 OBD (0179/7A/47/48/54):", color = Mist)
+            val catB1s6St by com.veplayer.app.vehicle.CatalystB1S6Monitor.state.collectAsState()
+            val catB2s6St by com.veplayer.app.vehicle.CatalystB2S6Monitor.state.collectAsState()
+            val thrBSt by com.veplayer.app.vehicle.ThrottleBMonitor.state.collectAsState()
+            val thrCSt by com.veplayer.app.vehicle.ThrottleCMonitor.state.collectAsState()
+            val milTimeSt by com.veplayer.app.vehicle.MilTimeOnMonitor.state.collectAsState()
+            var f22B1s6 by remember {
+                mutableStateOf(if (prefs.catB1s6SimC > 0f) prefs.catB1s6SimC.toInt().toString() else "0")
+            }
+            var f22B2s6 by remember {
+                mutableStateOf(if (prefs.catB2s6SimC > 0f) prefs.catB2s6SimC.toInt().toString() else "0")
+            }
+            var f22ThrB by remember {
+                mutableStateOf(if (prefs.thrBSimPct > 0f) prefs.thrBSimPct.toInt().toString() else "0")
+            }
+            var f22ThrC by remember {
+                mutableStateOf(if (prefs.thrCSimPct > 0f) prefs.thrCSimPct.toInt().toString() else "0")
+            }
+            var f22MilT by remember {
+                mutableStateOf(if (prefs.milTimeSimMin > 0) prefs.milTimeSimMin.toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f22B1s6,
+                    onValueChange = { f22B1s6 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S6 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f22B2s6,
+                    onValueChange = { f22B2s6 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S6 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f22ThrB,
+                    onValueChange = { f22ThrB = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("ThrB %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f22ThrC,
+                    onValueChange = { f22ThrC = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("ThrC %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f22MilT,
+                    onValueChange = { f22MilT = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("MILt min") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s6SimC = f22B1s6.toFloatOrNull() ?: 0f
+                    prefs.catB2s6SimC = f22B2s6.toFloatOrNull() ?: 0f
+                    prefs.thrBSimPct = f22ThrB.toFloatOrNull() ?: 0f
+                    prefs.thrCSimPct = f22ThrC.toFloatOrNull() ?: 0f
+                    prefs.milTimeSimMin = f22MilT.toIntOrNull() ?: 0
+                    status = "Fase 22 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 22") }
+            Text(
+                listOfNotNull(
+                    catB1s6St.label.takeIf { it.isNotBlank() },
+                    catB2s6St.label.takeIf { it.isNotBlank() },
+                    thrBSt.label.takeIf { it.isNotBlank() },
+                    thrCSt.label.takeIf { it.isNotBlank() },
+                    milTimeSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 22 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

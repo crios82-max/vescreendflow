@@ -133,6 +133,16 @@ export function parseMode01(raw) {
       return { hybridBattLifePct: (data[0] * 100) / 255 }
     case 0x63:
       return data.length < 2 ? {} : { engineRefTorqueNm: data[0] * 256 + data[1] }
+    case 0x79:
+      return data.length < 2 ? {} : { catalystB1s6TempC: (data[0] * 256 + data[1]) / 10 - 40 }
+    case 0x7a:
+      return data.length < 2 ? {} : { catalystB2s6TempC: (data[0] * 256 + data[1]) / 10 - 40 }
+    case 0x47:
+      return { throttleBPct: (data[0] * 100) / 255 }
+    case 0x48:
+      return { throttleCPct: (data[0] * 100) / 255 }
+    case 0x54:
+      return data.length < 2 ? {} : { milTimeMin: data[0] * 256 + data[1] }
     case 0x1f:
       return data.length < 2 ? {} : { runtimeSec: data[0] * 256 + data[1] }
     case 0x21:
@@ -151,7 +161,7 @@ export const POLL_PID_HEX = [
   '010D', '010C', '0110', '010A', '0133', '010E', '014A', '0143', '0145', '0149', '014B', '014D',
   '0144', '014E', '0152', '0153', '0159', '014C', '015A', '0161', '0162', '0170', '0171', '0172',
   '0173', '0174', '0175', '0176', '0155', '0156', '0157', '0158', '0177', '0178', '015D', '015B',
-  '0163', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
+  '0163', '0179', '017A', '0147', '0148', '0154', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
   '011F', '0121', '0131', '0134', '0142',
 ]
 
@@ -210,6 +220,11 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 5D 14 00', expect: { fuelInjectTimingDeg: 40 } },
   { raw: '41 5B 26', expect: { hybridBattLifePct: (0x26 * 100) / 255 } },
   { raw: '41 63 02 26', expect: { engineRefTorqueNm: 550 } },
+  { raw: '41 79 24 54', expect: { catalystB1s6TempC: 890 } },
+  { raw: '41 7A 24 54', expect: { catalystB2s6TempC: 890 } },
+  { raw: '41 47 E6', expect: { throttleBPct: (0xe6 * 100) / 255 } },
+  { raw: '41 48 E6', expect: { throttleCPct: (0xe6 * 100) / 255 } },
+  { raw: '41 54 00 78', expect: { milTimeMin: 120 } },
   { raw: '41 1F 01 2C', expect: { runtimeSec: 300 } },
   { raw: '41 21 00 64', expect: { milDistanceKm: 100 } },
   { raw: '41 31 00 C8', expect: { distSinceClearKm: 200 } },
@@ -272,6 +287,13 @@ export function runFaseFormulaChecks(fase, assert) {
       assert((0x14 * 256) / 128 === 40, 'pid 015D')
       assert((0x26 * 100) / 255 < 15, 'pid 015B')
       assert(0x02 * 256 + 0x26 === 550, 'pid 0163')
+      break
+    case 22:
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0179')
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 017A')
+      assert((0xe6 * 100) / 255 > 90, 'pid 0147')
+      assert((0xe6 * 100) / 255 > 90, 'pid 0148')
+      assert(0x00 * 256 + 0x78 === 120, 'pid 0154')
       break
     default:
       throw new Error(`unknown fase ${fase}`)

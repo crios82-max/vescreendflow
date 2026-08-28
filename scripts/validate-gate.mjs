@@ -47,7 +47,7 @@ async function main() {
       console.error(e)
       process.exit(1)
     }
-    for (const n of [16, 17, 18, 19, 20, 21]) {
+    for (const n of [16, 17, 18, 19, 20, 21, 22]) {
       run(`fase${n}-smoke`, `fase${n}-smoke.mjs`)
     }
   }
