@@ -1429,6 +1429,66 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.NoxConcS4.toJsonMap(
                                             com.veplayer.app.vehicle.NoxConcS4Monitor.state.value,
                                         ),
+                                    "nox_corr_s3_warn" to prefs.noxCorrS3Warn.toDouble(),
+                                    "nox_corr_s3_alert" to prefs.noxCorrS3Alert.toDouble(),
+                                    "nox_corr_s3_speed_min_kmh" to prefs.noxCorrS3SpeedMinKmh.toDouble(),
+                                    "nox_corrected_s3_ppm" to
+                                        (if (prefs.noxCorrS3Sim > 0f) prefs.noxCorrS3Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedS3Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedS3Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_s3" to
+                                        com.veplayer.app.vehicle.NoxCorrectedS3.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedS3Monitor.state.value,
+                                        ),
+                                    "nox_corr_s4_warn" to prefs.noxCorrS4Warn.toDouble(),
+                                    "nox_corr_s4_alert" to prefs.noxCorrS4Alert.toDouble(),
+                                    "nox_corr_s4_speed_min_kmh" to prefs.noxCorrS4SpeedMinKmh.toDouble(),
+                                    "nox_corrected_s4_ppm" to
+                                        (if (prefs.noxCorrS4Sim > 0f) prefs.noxCorrS4Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedS4Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedS4Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_s4" to
+                                        com.veplayer.app.vehicle.NoxCorrectedS4.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedS4Monitor.state.value,
+                                        ),
+                                    "cyl_fuel_warn_mg" to prefs.cylFuelWarnMg.toDouble(),
+                                    "cyl_fuel_alert_mg" to prefs.cylFuelAlertMg.toDouble(),
+                                    "cyl_fuel_speed_min_kmh" to prefs.cylFuelSpeedMinKmh.toDouble(),
+                                    "cylinder_fuel_rate_mg" to
+                                        (if (prefs.cylFuelSimMg > 0f) prefs.cylFuelSimMg
+                                        else com.veplayer.app.vehicle.CylinderFuelRateMonitor.state.value.mgPerStroke
+                                            ?: snap.cylinderFuelRateMg
+                                        )?.toDouble(),
+                                    "cyl_fuel" to
+                                        com.veplayer.app.vehicle.CylinderFuelRate.toJsonMap(
+                                            com.veplayer.app.vehicle.CylinderFuelRateMonitor.state.value,
+                                        ),
+                                    "evap_sys_vapor_warn_pa" to prefs.evapSysVaporWarnPa.toDouble(),
+                                    "evap_sys_vapor_alert_pa" to prefs.evapSysVaporAlertPa.toDouble(),
+                                    "evap_sys_vapor_speed_min_kmh" to prefs.evapSysVaporSpeedMinKmh.toDouble(),
+                                    "evap_sys_vapor_pa" to
+                                        (if (prefs.evapSysVaporSimPa != 0f) prefs.evapSysVaporSimPa
+                                        else com.veplayer.app.vehicle.EvapSysVaporMonitor.state.value.pressurePa
+                                            ?: snap.evapSysVaporPa
+                                        )?.toDouble(),
+                                    "evap_sys_vapor" to
+                                        com.veplayer.app.vehicle.EvapSysVapor.toJsonMap(
+                                            com.veplayer.app.vehicle.EvapSysVaporMonitor.state.value,
+                                        ),
+                                    "trans_gear_warn_ratio" to prefs.transGearWarnRatio.toDouble(),
+                                    "trans_gear_alert_ratio" to prefs.transGearAlertRatio.toDouble(),
+                                    "trans_gear_speed_min_kmh" to prefs.transGearSpeedMinKmh.toDouble(),
+                                    "trans_gear_ratio" to
+                                        (if (prefs.transGearSimRatio > 0f) prefs.transGearSimRatio
+                                        else com.veplayer.app.vehicle.TransGearRatioMonitor.state.value.gearRatio
+                                            ?: snap.transGearRatio
+                                        )?.toDouble(),
+                                    "trans_gear" to
+                                        com.veplayer.app.vehicle.TransGearRatio.toJsonMap(
+                                            com.veplayer.app.vehicle.TransGearRatioMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -2999,6 +3059,66 @@ class SenseBridgeService : Service() {
                                     "nox_conc_s4" to
                                         com.veplayer.app.vehicle.NoxConcS4.toJsonMap(
                                             com.veplayer.app.vehicle.NoxConcS4Monitor.state.value,
+                                        ),
+                                    "nox_corr_s3_warn" to prefs.noxCorrS3Warn.toDouble(),
+                                    "nox_corr_s3_alert" to prefs.noxCorrS3Alert.toDouble(),
+                                    "nox_corr_s3_speed_min_kmh" to prefs.noxCorrS3SpeedMinKmh.toDouble(),
+                                    "nox_corrected_s3_ppm" to
+                                        (if (prefs.noxCorrS3Sim > 0f) prefs.noxCorrS3Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedS3Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedS3Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_s3" to
+                                        com.veplayer.app.vehicle.NoxCorrectedS3.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedS3Monitor.state.value,
+                                        ),
+                                    "nox_corr_s4_warn" to prefs.noxCorrS4Warn.toDouble(),
+                                    "nox_corr_s4_alert" to prefs.noxCorrS4Alert.toDouble(),
+                                    "nox_corr_s4_speed_min_kmh" to prefs.noxCorrS4SpeedMinKmh.toDouble(),
+                                    "nox_corrected_s4_ppm" to
+                                        (if (prefs.noxCorrS4Sim > 0f) prefs.noxCorrS4Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedS4Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedS4Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_s4" to
+                                        com.veplayer.app.vehicle.NoxCorrectedS4.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedS4Monitor.state.value,
+                                        ),
+                                    "cyl_fuel_warn_mg" to prefs.cylFuelWarnMg.toDouble(),
+                                    "cyl_fuel_alert_mg" to prefs.cylFuelAlertMg.toDouble(),
+                                    "cyl_fuel_speed_min_kmh" to prefs.cylFuelSpeedMinKmh.toDouble(),
+                                    "cylinder_fuel_rate_mg" to
+                                        (if (prefs.cylFuelSimMg > 0f) prefs.cylFuelSimMg
+                                        else com.veplayer.app.vehicle.CylinderFuelRateMonitor.state.value.mgPerStroke
+                                            ?: snap.cylinderFuelRateMg
+                                        )?.toDouble(),
+                                    "cyl_fuel" to
+                                        com.veplayer.app.vehicle.CylinderFuelRate.toJsonMap(
+                                            com.veplayer.app.vehicle.CylinderFuelRateMonitor.state.value,
+                                        ),
+                                    "evap_sys_vapor_warn_pa" to prefs.evapSysVaporWarnPa.toDouble(),
+                                    "evap_sys_vapor_alert_pa" to prefs.evapSysVaporAlertPa.toDouble(),
+                                    "evap_sys_vapor_speed_min_kmh" to prefs.evapSysVaporSpeedMinKmh.toDouble(),
+                                    "evap_sys_vapor_pa" to
+                                        (if (prefs.evapSysVaporSimPa != 0f) prefs.evapSysVaporSimPa
+                                        else com.veplayer.app.vehicle.EvapSysVaporMonitor.state.value.pressurePa
+                                            ?: snap.evapSysVaporPa
+                                        )?.toDouble(),
+                                    "evap_sys_vapor" to
+                                        com.veplayer.app.vehicle.EvapSysVapor.toJsonMap(
+                                            com.veplayer.app.vehicle.EvapSysVaporMonitor.state.value,
+                                        ),
+                                    "trans_gear_warn_ratio" to prefs.transGearWarnRatio.toDouble(),
+                                    "trans_gear_alert_ratio" to prefs.transGearAlertRatio.toDouble(),
+                                    "trans_gear_speed_min_kmh" to prefs.transGearSpeedMinKmh.toDouble(),
+                                    "trans_gear_ratio" to
+                                        (if (prefs.transGearSimRatio > 0f) prefs.transGearSimRatio
+                                        else com.veplayer.app.vehicle.TransGearRatioMonitor.state.value.gearRatio
+                                            ?: snap.transGearRatio
+                                        )?.toDouble(),
+                                    "trans_gear" to
+                                        com.veplayer.app.vehicle.TransGearRatio.toJsonMap(
+                                            com.veplayer.app.vehicle.TransGearRatioMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

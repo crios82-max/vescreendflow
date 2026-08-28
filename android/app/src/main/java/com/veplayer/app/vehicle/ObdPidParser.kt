@@ -230,6 +230,16 @@ object ObdPidParser {
         val noxConcS3Ppm: Float? = null,
         /** NOx concentration sensor 4 ppm (OBD PID 01A7 bytes C/D). */
         val noxConcS4Ppm: Float? = null,
+        /** NOx corrected sensor 3 ppm (OBD PID 01A8 bytes A/B). */
+        val noxCorrectedS3Ppm: Float? = null,
+        /** NOx corrected sensor 4 ppm (OBD PID 01A8 bytes C/D). */
+        val noxCorrectedS4Ppm: Float? = null,
+        /** Cylinder fuel rate mg/stroke (OBD PID 01A2). */
+        val cylinderFuelRateMg: Float? = null,
+        /** Evap system vapor pressure Pa (OBD PID 01A3 bytes B/C). */
+        val evapSysVaporPa: Float? = null,
+        /** Transmission actual gear ratio (OBD PID 01A4 bytes C/D). */
+        val transGearRatio: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -609,6 +619,29 @@ object ObdPidParser {
                     noxConcS4Ppm = ((data[2] * 256) + data[3]).toFloat(),
                 )
             }
+            0xA8 -> {
+                if (data.size < 4) PidValues()
+                else PidValues(
+                    noxCorrectedS3Ppm = ((data[0] * 256) + data[1]).toFloat(),
+                    noxCorrectedS4Ppm = ((data[2] * 256) + data[3]).toFloat(),
+                )
+            }
+            0xA2 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(cylinderFuelRateMg = ((data[0] * 256) + data[1]) / 32f)
+            }
+            0xA3 -> {
+                if (data.size < 3) PidValues()
+                else {
+                    val raw = (data[1] shl 8) or data[2]
+                    val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                    PidValues(evapSysVaporPa = signed.toFloat())
+                }
+            }
+            0xA4 -> {
+                if (data.size < 4 || (data[0] and 0x02) == 0) PidValues()
+                else PidValues(transGearRatio = ((data[2] * 256) + data[3]) / 1000f)
+            }
             0x9B -> {
                 if (data.size < 4) PidValues()
                 else PidValues(defFluidPct = data[3] * 100f / 255f)
@@ -767,6 +800,11 @@ object ObdPidParser {
             noxCorrectedB2s2Ppm = add.noxCorrectedB2s2Ppm ?: base.noxCorrectedB2s2Ppm,
             noxConcS3Ppm = add.noxConcS3Ppm ?: base.noxConcS3Ppm,
             noxConcS4Ppm = add.noxConcS4Ppm ?: base.noxConcS4Ppm,
+            noxCorrectedS3Ppm = add.noxCorrectedS3Ppm ?: base.noxCorrectedS3Ppm,
+            noxCorrectedS4Ppm = add.noxCorrectedS4Ppm ?: base.noxCorrectedS4Ppm,
+            cylinderFuelRateMg = add.cylinderFuelRateMg ?: base.cylinderFuelRateMg,
+            evapSysVaporPa = add.evapSysVaporPa ?: base.evapSysVaporPa,
+            transGearRatio = add.transGearRatio ?: base.transGearRatio,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

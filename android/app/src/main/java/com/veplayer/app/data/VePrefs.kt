@@ -3219,6 +3219,121 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("nox_conc_s4_sim_speed", 40f)
         set(value) = sp.edit().putFloat("nox_conc_s4_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** NOx corrected S3 ppm (OBD 01A8). */
+    var noxCorrS3Enabled: Boolean
+        get() = sp.getBoolean("nox_corr_s3", true)
+        set(value) = sp.edit().putBoolean("nox_corr_s3", value).apply()
+    var noxCorrS3Tts: Boolean
+        get() = sp.getBoolean("nox_corr_s3_tts", true)
+        set(value) = sp.edit().putBoolean("nox_corr_s3_tts", value).apply()
+    var noxCorrS3Warn: Float
+        get() = sp.getFloat("nox_corr_s3_warn", 600f)
+        set(value) = sp.edit().putFloat("nox_corr_s3_warn", value.coerceIn(100f, 2000f)).apply()
+    var noxCorrS3Alert: Float
+        get() = sp.getFloat("nox_corr_s3_alert", 800f)
+        set(value) = sp.edit().putFloat("nox_corr_s3_alert", value.coerceAtLeast(150f)).apply()
+    var noxCorrS3SpeedMinKmh: Float
+        get() = sp.getFloat("nox_corr_s3_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_corr_s3_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxCorrS3Sim: Float
+        get() = sp.getFloat("nox_corr_s3_sim", 0f)
+        set(value) = sp.edit().putFloat("nox_corr_s3_sim", value.coerceIn(0f, 5000f)).apply()
+    var noxCorrS3SimSpeedKmh: Float
+        get() = sp.getFloat("nox_corr_s3_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_corr_s3_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** NOx corrected S4 ppm (OBD 01A8). */
+    var noxCorrS4Enabled: Boolean
+        get() = sp.getBoolean("nox_corr_s4", true)
+        set(value) = sp.edit().putBoolean("nox_corr_s4", value).apply()
+    var noxCorrS4Tts: Boolean
+        get() = sp.getBoolean("nox_corr_s4_tts", true)
+        set(value) = sp.edit().putBoolean("nox_corr_s4_tts", value).apply()
+    var noxCorrS4Warn: Float
+        get() = sp.getFloat("nox_corr_s4_warn", 600f)
+        set(value) = sp.edit().putFloat("nox_corr_s4_warn", value.coerceIn(100f, 2000f)).apply()
+    var noxCorrS4Alert: Float
+        get() = sp.getFloat("nox_corr_s4_alert", 800f)
+        set(value) = sp.edit().putFloat("nox_corr_s4_alert", value.coerceAtLeast(150f)).apply()
+    var noxCorrS4SpeedMinKmh: Float
+        get() = sp.getFloat("nox_corr_s4_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_corr_s4_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxCorrS4Sim: Float
+        get() = sp.getFloat("nox_corr_s4_sim", 0f)
+        set(value) = sp.edit().putFloat("nox_corr_s4_sim", value.coerceIn(0f, 5000f)).apply()
+    var noxCorrS4SimSpeedKmh: Float
+        get() = sp.getFloat("nox_corr_s4_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_corr_s4_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Cylinder fuel rate mg/stroke (OBD 01A2). */
+    var cylFuelEnabled: Boolean
+        get() = sp.getBoolean("cyl_fuel", true)
+        set(value) = sp.edit().putBoolean("cyl_fuel", value).apply()
+    var cylFuelTts: Boolean
+        get() = sp.getBoolean("cyl_fuel_tts", true)
+        set(value) = sp.edit().putBoolean("cyl_fuel_tts", value).apply()
+    var cylFuelWarnMg: Float
+        get() = sp.getFloat("cyl_fuel_warn_mg", 40f)
+        set(value) = sp.edit().putFloat("cyl_fuel_warn_mg", value.coerceIn(10f, 150f)).apply()
+    var cylFuelAlertMg: Float
+        get() = sp.getFloat("cyl_fuel_alert_mg", 55f)
+        set(value) = sp.edit().putFloat("cyl_fuel_alert_mg", value.coerceAtLeast(15f)).apply()
+    var cylFuelSpeedMinKmh: Float
+        get() = sp.getFloat("cyl_fuel_speed_min", 20f)
+        set(value) = sp.edit().putFloat("cyl_fuel_speed_min", value.coerceIn(0f, 60f)).apply()
+    var cylFuelSimMg: Float
+        get() = sp.getFloat("cyl_fuel_sim_mg", 0f)
+        set(value) = sp.edit().putFloat("cyl_fuel_sim_mg", value.coerceIn(0f, 2048f)).apply()
+    var cylFuelSimSpeedKmh: Float
+        get() = sp.getFloat("cyl_fuel_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("cyl_fuel_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Evap system vapor pressure Pa (OBD 01A3). */
+    var evapSysVaporEnabled: Boolean
+        get() = sp.getBoolean("evap_sys_vapor", true)
+        set(value) = sp.edit().putBoolean("evap_sys_vapor", value).apply()
+    var evapSysVaporTts: Boolean
+        get() = sp.getBoolean("evap_sys_vapor_tts", true)
+        set(value) = sp.edit().putBoolean("evap_sys_vapor_tts", value).apply()
+    var evapSysVaporWarnPa: Float
+        get() = sp.getFloat("evap_sys_vapor_warn_pa", 5000f)
+        set(value) = sp.edit().putFloat("evap_sys_vapor_warn_pa", value.coerceIn(500f, 20000f)).apply()
+    var evapSysVaporAlertPa: Float
+        get() = sp.getFloat("evap_sys_vapor_alert_pa", 8000f)
+        set(value) = sp.edit().putFloat("evap_sys_vapor_alert_pa", value.coerceAtLeast(1000f)).apply()
+    var evapSysVaporSpeedMinKmh: Float
+        get() = sp.getFloat("evap_sys_vapor_speed_min", 20f)
+        set(value) = sp.edit().putFloat("evap_sys_vapor_speed_min", value.coerceIn(0f, 60f)).apply()
+    var evapSysVaporSimPa: Float
+        get() = sp.getFloat("evap_sys_vapor_sim_pa", 0f)
+        set(value) = sp.edit().putFloat("evap_sys_vapor_sim_pa", value.coerceIn(-32000f, 32000f)).apply()
+    var evapSysVaporSimSpeedKmh: Float
+        get() = sp.getFloat("evap_sys_vapor_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("evap_sys_vapor_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Transmission gear ratio (OBD 01A4). */
+    var transGearEnabled: Boolean
+        get() = sp.getBoolean("trans_gear", true)
+        set(value) = sp.edit().putBoolean("trans_gear", value).apply()
+    var transGearTts: Boolean
+        get() = sp.getBoolean("trans_gear_tts", true)
+        set(value) = sp.edit().putBoolean("trans_gear_tts", value).apply()
+    var transGearWarnRatio: Float
+        get() = sp.getFloat("trans_gear_warn_ratio", 2.5f)
+        set(value) = sp.edit().putFloat("trans_gear_warn_ratio", value.coerceIn(0.5f, 10f)).apply()
+    var transGearAlertRatio: Float
+        get() = sp.getFloat("trans_gear_alert_ratio", 3.5f)
+        set(value) = sp.edit().putFloat("trans_gear_alert_ratio", value.coerceAtLeast(0.8f)).apply()
+    var transGearSpeedMinKmh: Float
+        get() = sp.getFloat("trans_gear_speed_min", 20f)
+        set(value) = sp.edit().putFloat("trans_gear_speed_min", value.coerceIn(0f, 60f)).apply()
+    var transGearSimRatio: Float
+        get() = sp.getFloat("trans_gear_sim_ratio", 0f)
+        set(value) = sp.edit().putFloat("trans_gear_sim_ratio", value.coerceIn(0f, 65.5f)).apply()
+    var transGearSimSpeedKmh: Float
+        get() = sp.getFloat("trans_gear_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("trans_gear_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

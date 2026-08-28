@@ -265,6 +265,20 @@ export function parseMode01(raw) {
       return data.length < 4
         ? {}
         : { noxConcS3Ppm: data[0] * 256 + data[1], noxConcS4Ppm: data[2] * 256 + data[3] }
+    case 0xa8:
+      return data.length < 4
+        ? {}
+        : { noxCorrectedS3Ppm: data[0] * 256 + data[1], noxCorrectedS4Ppm: data[2] * 256 + data[3] }
+    case 0xa2:
+      return data.length < 2 ? {} : { cylinderFuelRateMg: (data[0] * 256 + data[1]) / 32 }
+    case 0xa3:
+      if (data.length < 3) return {}
+      const evapRaw = (data[1] << 8) | data[2]
+      const evapSigned = evapRaw & 0x8000 ? evapRaw - 0x10000 : evapRaw
+      return { evapSysVaporPa: evapSigned }
+    case 0xa4:
+      if (data.length < 4 || (data[0] & 0x02) === 0) return {}
+      return { transGearRatio: (data[2] * 256 + data[3]) / 1000 }
     case 0x9b:
       return data.length < 4 ? {} : { defFluidPct: (data[3] * 100) / 255 }
     case 0x8b:
@@ -291,7 +305,7 @@ export const POLL_PID_HEX = [
   '010D', '010C', '0110', '010A', '0133', '010E', '014A', '0143', '0145', '0149', '014B', '014D',
   '0144', '014E', '0152', '0153', '0159', '014C', '015A', '0161', '0162', '0170', '0171', '0172',
   '0173', '0174', '0175', '0176', '0155', '0156', '0157', '0158', '0177', '0178', '015D', '015B',
-  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0198', '0199', '019C', '0194', '019B', '01A1', '01A5', '01A7', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
+  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0198', '0199', '019C', '0194', '019B', '01A1', '01A5', '01A7', '01A8', '01A2', '01A3', '01A4', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
   '011F', '0121', '0131', '0134', '0142',
 ]
 
@@ -414,6 +428,11 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 A1 00 00 00 00 00 00 00 03 84', expect: { noxCorrectedB2s2Ppm: 900 } },
   { raw: '41 A7 03 84 00 00', expect: { noxConcS3Ppm: 900, noxConcS4Ppm: 0 } },
   { raw: '41 A7 00 00 03 84', expect: { noxConcS3Ppm: 0, noxConcS4Ppm: 900 } },
+  { raw: '41 A8 03 84 00 00', expect: { noxCorrectedS3Ppm: 900, noxCorrectedS4Ppm: 0 } },
+  { raw: '41 A8 00 00 03 84', expect: { noxCorrectedS3Ppm: 0, noxCorrectedS4Ppm: 900 } },
+  { raw: '41 A2 07 00', expect: { cylinderFuelRateMg: 0x0700 / 32 } },
+  { raw: '41 A3 00 23 28', expect: { evapSysVaporPa: 9000 } },
+  { raw: '41 A4 02 00 0E 10', expect: { transGearRatio: 3.6 } },
   { raw: '41 8B 00 00 D9', expect: { dpfTriggerPct: (0xd9 * 100) / 255 } },
   { raw: '41 8D E6', expect: { throttleGPct: (0xe6 * 100) / 255 } },
   { raw: '41 8E B9', expect: { engineFrictionPct: 60 } },
@@ -576,6 +595,13 @@ export function runFaseFormulaChecks(fase, assert) {
       assert((0x03 * 256 + 0x84) === 900, 'pid 01A1 NOx corr B2S2')
       assert((0x03 * 256 + 0x84) === 900, 'pid 01A7 NOx conc S3')
       assert((0x03 * 256 + 0x84) === 900, 'pid 01A7 NOx conc S4')
+      break
+    case 36:
+      assert((0x03 * 256 + 0x84) === 900, 'pid 01A8 NOx corr S3')
+      assert((0x03 * 256 + 0x84) === 900, 'pid 01A8 NOx corr S4')
+      assert((0x07 * 256 + 0x00) / 32 === 56, 'pid 01A2 cyl fuel')
+      assert((0x23 * 256 + 0x28) === 9000, 'pid 01A3 evap sys vapor')
+      assert((0x0e * 256 + 0x10) / 1000 === 3.6, 'pid 01A4 trans gear')
       break
     default:
       throw new Error(`unknown fase ${fase}`)
