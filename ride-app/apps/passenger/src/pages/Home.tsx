@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Ride } from '@ride-app/shared';
+import type { Ride, RideEstimate, VehicleType } from '@ride-app/shared';
 import { RIDE_STATUS_LABELS } from '@ride-app/shared';
 import {
   api,
@@ -8,6 +8,8 @@ import {
   MapView,
   PlaceAutocomplete,
   useAuth,
+  VehicleTypePicker,
+  vehicleTypeLabel,
   type PlaceResult,
 } from '@ride-app/web-shared';
 
@@ -17,7 +19,8 @@ export default function Home() {
   const { user, logout } = useAuth();
   const [pickup, setPickup] = useState<Point | null>(null);
   const [dropoff, setDropoff] = useState<Point | null>(null);
-  const [estimate, setEstimate] = useState<{ distanceKm: number; durationMin: number; estimatedPrice: number } | null>(null);
+  const [estimate, setEstimate] = useState<RideEstimate | null>(null);
+  const [vehicleType, setVehicleType] = useState<VehicleType>('standard');
   const [ride, setRide] = useState<Ride | null>(null);
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
   const [error, setError] = useState('');
@@ -56,7 +59,10 @@ export default function Home() {
       dropoffAddress: dropoff.address,
       dropoffLat: dropoff.lat,
       dropoffLng: dropoff.lng,
-    }).then(setEstimate).catch(() => setEstimate(null));
+    }).then((data) => {
+      setEstimate(data);
+      setVehicleType(data.options[0]?.vehicleType ?? 'standard');
+    }).catch(() => setEstimate(null));
   }, [pickup, dropoff, ride]);
 
   const onPickupSelect = (place: PlaceResult) => {
@@ -81,6 +87,7 @@ export default function Home() {
         dropoffAddress: dropoff.address,
         dropoffLat: dropoff.lat,
         dropoffLng: dropoff.lng,
+        vehicleType,
       });
       setRide(created);
     } catch (err) {
@@ -117,7 +124,9 @@ export default function Home() {
     setDriverPos(null);
   };
 
-  const readyToBook = pickup && dropoff && !ride;
+  const selectedOption = estimate?.options.find((o) => o.vehicleType === vehicleType);
+
+  const readyToBook = pickup && dropoff && !ride && selectedOption;
 
   return (
     <GoogleMapsProvider>
@@ -160,19 +169,24 @@ export default function Home() {
                 <>
                   <div className="meta-row"><span>Distancia</span><span>{estimate.distanceKm} km</span></div>
                   <div className="meta-row"><span>Tiempo est.</span><span>{estimate.durationMin} min</span></div>
-                  <div className="meta-row"><span>Precio est.</span><span>${estimate.estimatedPrice}</span></div>
+                  <VehicleTypePicker
+                    options={estimate.options}
+                    selected={vehicleType}
+                    onSelect={setVehicleType}
+                  />
                 </>
               )}
               {error && <p className="error-text">{error}</p>}
               {readyToBook && (
                 <button className="btn-primary" onClick={requestRide} disabled={loading}>
-                  {loading ? 'Solicitando...' : 'Pedir Ride'}
+                  {loading ? 'Solicitando...' : `Pedir ${vehicleTypeLabel(vehicleType)} · $${selectedOption?.estimatedPrice}`}
                 </button>
               )}
             </>
           ) : (
             <>
               <div className="status-pill">{RIDE_STATUS_LABELS[ride.status]}</div>
+              <div className="meta-row"><span>Vehículo</span><span>{vehicleTypeLabel(ride.vehicleType)}</span></div>
               <div className="meta-row"><span>Precio</span><span>${ride.finalPrice ?? ride.estimatedPrice}</span></div>
               <div className="meta-row"><span>Pago</span><span>{ride.paymentStatus === 'paid' ? 'Pagado (mock)' : 'Pendiente'}</span></div>
               {ride.status === 'requested' && (

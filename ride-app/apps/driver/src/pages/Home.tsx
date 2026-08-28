@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Ride } from '@ride-app/shared';
-import { RIDE_STATUS_LABELS } from '@ride-app/shared';
+import type { Ride, VehicleType } from '@ride-app/shared';
+import { RIDE_STATUS_LABELS, vehicleTypeLabel } from '@ride-app/shared';
 import { api, getSocket, GoogleMapsProvider, MapView, useAuth } from '@ride-app/web-shared';
 
 interface PendingRide {
@@ -11,6 +11,7 @@ interface PendingRide {
   dropoffAddress: string;
   estimatedPrice: number;
   distanceKm: number;
+  vehicleType: string;
 }
 
 export default function Home() {
@@ -122,7 +123,7 @@ export default function Home() {
             <div className="ride-list">
               {pending.map((p) => (
                 <div className="ride-card" key={p.id}>
-                  <strong>${p.estimatedPrice} — {p.distanceKm} km</strong>
+                  <strong>${p.estimatedPrice} — {p.distanceKm} km · {vehicleTypeLabel(p.vehicleType as VehicleType)}</strong>
                   <div className="meta-row"><span>Origen</span><span>{p.pickupAddress}</span></div>
                   <div className="meta-row"><span>Destino</span><span>{p.dropoffAddress}</span></div>
                   <button className="btn-primary" onClick={() => acceptRide(p.id)}>Aceptar</button>
@@ -133,6 +134,7 @@ export default function Home() {
         ) : (
           <>
             <div className="status-pill">{RIDE_STATUS_LABELS[ride.status]}</div>
+            <div className="meta-row"><span>Tipo</span><span>{vehicleTypeLabel(ride.vehicleType)}</span></div>
             <div className="meta-row"><span>Ganancia</span><span>${ride.estimatedPrice}</span></div>
             {ride.status === 'accepted' && (
               <button className="btn-primary" onClick={() => updateStatus('arriving')}>Voy en camino</button>

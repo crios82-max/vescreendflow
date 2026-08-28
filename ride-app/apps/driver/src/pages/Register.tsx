@@ -1,5 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import type { VehicleType } from '@ride-app/shared';
+import { VEHICLE_OPTIONS, VEHICLE_TYPES } from '@ride-app/shared';
 import { useAuth } from '@ride-app/web-shared';
 
 export default function Register() {
@@ -7,6 +9,7 @@ export default function Register() {
   const [form, setForm] = useState({
     name: '', email: '', password: '', phone: '',
     vehicleMake: '', vehicleModel: '', vehiclePlate: '',
+    vehicleType: 'standard' as VehicleType,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -36,6 +39,20 @@ export default function Register() {
         <label>Marca<input value={form.vehicleMake} onChange={(e) => setForm({ ...form, vehicleMake: e.target.value })} /></label>
         <label>Modelo<input value={form.vehicleModel} onChange={(e) => setForm({ ...form, vehicleModel: e.target.value })} /></label>
         <label>Placa<input value={form.vehiclePlate} onChange={(e) => setForm({ ...form, vehiclePlate: e.target.value })} /></label>
+        <label>
+          Tipo de vehículo
+          <select
+            value={form.vehicleType}
+            onChange={(e) => setForm({ ...form, vehicleType: e.target.value as VehicleType })}
+            style={{ padding: '12px 14px', borderRadius: 10, background: '#0a0a0a', color: '#fff', border: '1px solid #333' }}
+          >
+            {VEHICLE_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {VEHICLE_OPTIONS[type].icon} {VEHICLE_OPTIONS[type].label}
+              </option>
+            ))}
+          </select>
+        </label>
         <label>Contraseña<input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required /></label>
         {error && <p className="error-text">{error}</p>}
         <button className="btn-primary" disabled={loading}>{loading ? 'Creando...' : 'Registrarme'}</button>

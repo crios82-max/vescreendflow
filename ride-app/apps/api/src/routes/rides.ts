@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { estimateFare, haversineKm } from '@ride-app/shared';
+import { buildRideEstimate, estimateFare, haversineKm, VEHICLE_OPTIONS, type VehicleType } from '@ride-app/shared';
 import { pool } from '../db.js';
 import { authMiddleware, requireRole } from '../middleware/auth.js';
 import { mapRide } from '../mappers.js';
@@ -16,7 +16,7 @@ function pricing() {
   };
 }
 
-const createRideSchema = z.object({
+const locationSchema = z.object({
   pickupAddress: z.string().min(3),
   pickupLat: z.number(),
   pickupLng: z.number(),
@@ -25,20 +25,44 @@ const createRideSchema = z.object({
   dropoffLng: z.number(),
 });
 
+const createRideSchema = locationSchema.extend({
+  vehicleType: z.enum(['standard', 'comfort', 'xl', 'vans']),
+});
+
+function tripMetrics(pickupLat: number, pickupLng: number, dropoffLat: number, dropoffLng: number) {
+  const distanceKm = haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
+  const durationMin = Math.max(5, Math.round((distanceKm / 30) * 60));
+  return { distanceKm: Math.round(distanceKm * 100) / 100, durationMin };
+}
+
+function priceForType(
+  distanceKm: number,
+  durationMin: number,
+  vehicleType: VehicleType,
+  p: ReturnType<typeof pricing>,
+) {
+  return estimateFare(
+    distanceKm,
+    durationMin,
+    p.baseFare,
+    p.pricePerKm,
+    p.pricePerMin,
+    VEHICLE_OPTIONS[vehicleType].multiplier,
+  );
+}
+
 export function createRidesRouter(io: SocketServer) {
   router.use(authMiddleware);
 
   router.post('/estimate', (req, res) => {
-    const parsed = createRideSchema.safeParse(req.body);
+    const parsed = locationSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: parsed.error.flatten() });
     }
     const { pickupLat, pickupLng, dropoffLat, dropoffLng } = parsed.data;
-    const distanceKm = haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
-    const durationMin = Math.max(5, Math.round((distanceKm / 30) * 60));
+    const { distanceKm, durationMin } = tripMetrics(pickupLat, pickupLng, dropoffLat, dropoffLng);
     const p = pricing();
-    const estimatedPrice = estimateFare(distanceKm, durationMin, p.baseFare, p.pricePerKm, p.pricePerMin);
-    res.json({ distanceKm: Math.round(distanceKm * 100) / 100, durationMin, estimatedPrice });
+    res.json(buildRideEstimate(distanceKm, durationMin, p.baseFare, p.pricePerKm, p.pricePerMin));
   });
 
   router.post('/', requireRole('passenger'), async (req, res) => {
@@ -48,17 +72,21 @@ export function createRidesRouter(io: SocketServer) {
     }
 
     const data = parsed.data;
-    const distanceKm = haversineKm(data.pickupLat, data.pickupLng, data.dropoffLat, data.dropoffLng);
-    const durationMin = Math.max(5, Math.round((distanceKm / 30) * 60));
+    const { distanceKm, durationMin } = tripMetrics(
+      data.pickupLat,
+      data.pickupLng,
+      data.dropoffLat,
+      data.dropoffLng,
+    );
     const p = pricing();
-    const estimatedPrice = estimateFare(distanceKm, durationMin, p.baseFare, p.pricePerKm, p.pricePerMin);
+    const estimatedPrice = priceForType(distanceKm, durationMin, data.vehicleType, p);
 
     const result = await pool.query(
       `INSERT INTO rides (
         passenger_id, pickup_address, pickup_lat, pickup_lng,
         dropoff_address, dropoff_lat, dropoff_lng,
-        estimated_price, distance_km, duration_min
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        vehicle_type, estimated_price, distance_km, duration_min
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
       RETURNING *`,
       [
         req.auth!.userId,
@@ -68,8 +96,9 @@ export function createRidesRouter(io: SocketServer) {
         data.dropoffAddress,
         data.dropoffLat,
         data.dropoffLng,
+        data.vehicleType,
         estimatedPrice,
-        Math.round(distanceKm * 100) / 100,
+        distanceKm,
         durationMin,
       ],
     );
@@ -100,7 +129,7 @@ export function createRidesRouter(io: SocketServer) {
       return res.status(404).json({ error: 'Viaje no encontrado' });
     }
     const ride = mapRide(result.rows[0]);
-    const { userId, role } = req.auth!;
+    const { userId } = req.auth!;
     if (ride.passengerId !== userId && ride.driverId !== userId) {
       return res.status(403).json({ error: 'Acceso denegado' });
     }
@@ -108,24 +137,30 @@ export function createRidesRouter(io: SocketServer) {
   });
 
   router.post('/:id/accept', requireRole('driver'), async (req, res) => {
+    const driverProfile = await pool.query(
+      'SELECT vehicle_type FROM driver_profiles WHERE user_id = $1',
+      [req.auth!.userId],
+    );
+    if (driverProfile.rows.length === 0) {
+      return res.status(404).json({ error: 'Perfil de conductor no encontrado' });
+    }
+    const driverVehicleType = driverProfile.rows[0].vehicle_type;
+
     const result = await pool.query(
       `UPDATE rides
        SET driver_id = $1, status = 'accepted', accepted_at = NOW()
        WHERE id = $2 AND status = 'requested' AND driver_id IS NULL
+         AND vehicle_type = $3
        RETURNING *`,
-      [req.auth!.userId, req.params.id],
+      [req.auth!.userId, req.params.id, driverVehicleType],
     );
     if (result.rows.length === 0) {
-      return res.status(409).json({ error: 'Viaje no disponible' });
+      return res.status(409).json({ error: 'Viaje no disponible para tu tipo de vehículo' });
     }
     const ride = mapRide(result.rows[0]);
     io.to(`ride:${ride.id}`).emit('ride:updated', ride);
     io.to('drivers:online').emit('ride:taken', { rideId: ride.id });
     res.json(ride);
-  });
-
-  const statusSchema = z.object({
-    status: z.enum(['arriving', 'in_progress', 'completed', 'cancelled']),
   });
 
   router.post('/:id/pay', requireRole('passenger'), async (req, res) => {
@@ -183,6 +218,10 @@ export function createRidesRouter(io: SocketServer) {
     }
   });
 
+  const statusSchema = z.object({
+    status: z.enum(['arriving', 'in_progress', 'completed', 'cancelled']),
+  });
+
   router.patch('/:id/status', async (req, res) => {
     const parsed = statusSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -195,7 +234,7 @@ export function createRidesRouter(io: SocketServer) {
     }
 
     const current = mapRide(rideResult.rows[0]);
-    const { userId, role } = req.auth!;
+    const { userId } = req.auth!;
     const isPassenger = current.passengerId === userId;
     const isDriver = current.driverId === userId;
 

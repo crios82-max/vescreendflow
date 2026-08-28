@@ -252,3 +252,50 @@ input {
 .pac-icon {
   display: none;
 }
+
+.vehicle-picker {
+  display: grid;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.vehicle-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid #2a2a2a;
+  background: #0d0d0d;
+  color: #fff;
+  text-align: left;
+  width: 100%;
+}
+
+.vehicle-card--active {
+  border-color: #fff;
+  background: #1a1a1a;
+}
+
+.vehicle-card__icon {
+  font-size: 1.5rem;
+}
+
+.vehicle-card__body {
+  display: grid;
+  gap: 2px;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.vehicle-card__body strong {
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.vehicle-card__price {
+  font-weight: 700;
+  font-size: 1rem;
+}

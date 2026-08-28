@@ -16,12 +16,76 @@ export interface User {
   role: UserRole;
 }
 
+export type VehicleType = 'standard' | 'comfort' | 'xl' | 'vans';
+
+export const VEHICLE_TYPES: VehicleType[] = ['standard', 'comfort', 'xl', 'vans'];
+
+export interface VehicleOption {
+  type: VehicleType;
+  label: string;
+  description: string;
+  seats: number;
+  multiplier: number;
+  icon: string;
+}
+
+export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
+  standard: {
+    type: 'standard',
+    label: 'Standard',
+    description: 'Viajes económicos',
+    seats: 4,
+    multiplier: 1,
+    icon: '🚗',
+  },
+  comfort: {
+    type: 'comfort',
+    label: 'Confort',
+    description: 'Autos más amplios',
+    seats: 4,
+    multiplier: 1.35,
+    icon: '✨',
+  },
+  xl: {
+    type: 'xl',
+    label: 'XL',
+    description: 'Hasta 6 pasajeros',
+    seats: 6,
+    multiplier: 1.55,
+    icon: '🚙',
+  },
+  vans: {
+    type: 'vans',
+    label: 'Vans',
+    description: 'Grupos y equipaje',
+    seats: 8,
+    multiplier: 1.85,
+    icon: '🚐',
+  },
+};
+
+export interface RideEstimateOption {
+  vehicleType: VehicleType;
+  label: string;
+  description: string;
+  seats: number;
+  icon: string;
+  estimatedPrice: number;
+}
+
+export interface RideEstimate {
+  distanceKm: number;
+  durationMin: number;
+  options: RideEstimateOption[];
+}
+
 export interface DriverProfile {
   userId: string;
   isOnline: boolean;
   vehicleMake: string | null;
   vehicleModel: string | null;
   vehiclePlate: string | null;
+  vehicleType: VehicleType;
   rating: number;
   lat: number | null;
   lng: number | null;
@@ -50,6 +114,7 @@ export interface Ride {
   dropoffAddress: string;
   dropoffLat: number;
   dropoffLng: number;
+  vehicleType: VehicleType;
   estimatedPrice: number;
   finalPrice: number | null;
   paymentStatus: PaymentStatus;
@@ -83,6 +148,10 @@ export const RIDE_STATUS_LABELS: Record<RideStatus, string> = {
   cancelled: 'Cancelado',
 };
 
+export function vehicleTypeLabel(type: VehicleType): string {
+  return VEHICLE_OPTIONS[type].label;
+}
+
 export function haversineKm(
   lat1: number,
   lng1: number,
@@ -106,6 +175,40 @@ export function estimateFare(
   baseFare = 2.5,
   pricePerKm = 1.2,
   pricePerMin = 0.25,
+  multiplier = 1,
 ): number {
-  return Math.round((baseFare + distanceKm * pricePerKm + durationMin * pricePerMin) * 100) / 100;
+  const base = baseFare + distanceKm * pricePerKm + durationMin * pricePerMin;
+  return Math.round(base * multiplier * 100) / 100;
+}
+
+export function buildRideEstimate(
+  distanceKm: number,
+  durationMin: number,
+  baseFare = 2.5,
+  pricePerKm = 1.2,
+  pricePerMin = 0.25,
+): RideEstimate {
+  const roundedDistance = Math.round(distanceKm * 100) / 100;
+  return {
+    distanceKm: roundedDistance,
+    durationMin,
+    options: VEHICLE_TYPES.map((type) => {
+      const option = VEHICLE_OPTIONS[type];
+      return {
+        vehicleType: type,
+        label: option.label,
+        description: option.description,
+        seats: option.seats,
+        icon: option.icon,
+        estimatedPrice: estimateFare(
+          roundedDistance,
+          durationMin,
+          baseFare,
+          pricePerKm,
+          pricePerMin,
+          option.multiplier,
+        ),
+      };
+    }),
+  };
 }
