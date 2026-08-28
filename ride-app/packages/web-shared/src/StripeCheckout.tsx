@@ -23,7 +23,7 @@ function CheckoutForm({ onSuccess }: { onSuccess: (paymentIntentId: string) => v
         else if (paymentIntent) onSuccess(paymentIntent.id);
       }}
     >
-      <PaymentElement />
+      <PaymentElement options={{ wallets: { applePay: 'auto', googlePay: 'auto' } }} />
       {error && <p className="error-text">{error}</p>}
       <button className="btn-primary" type="submit" disabled={!stripe || loading}>
         {loading ? 'Procesando...' : 'Pagar'}

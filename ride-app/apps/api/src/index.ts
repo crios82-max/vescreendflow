@@ -20,9 +20,10 @@ import shareRoutes from './routes/share.js';
 import onboardingRoutes from './routes/onboarding.js';
 import connectRoutes from './routes/connect.js';
 import verifyRoutes from './routes/verify.js';
-import splitRoutes from './routes/split.js';
+import { createSplitRouter } from './routes/split.js';
 import contactRoutes from './routes/contact.js';
 import webhookRoutes from './routes/webhooks.js';
+import paymentsRoutes from './routes/payments.js';
 import { pool } from './db.js';
 import { activateScheduledRides } from './services/matching.js';
 
@@ -70,7 +71,8 @@ app.use('/share', shareRoutes);
 app.use('/onboarding', onboardingRoutes);
 app.use('/connect', connectRoutes);
 app.use('/verify', verifyRoutes);
-app.use('/split', splitRoutes);
+app.use('/split', createSplitRouter(io));
+app.use('/payments', paymentsRoutes);
 app.use('/contact', contactRoutes);
 
 // Activate scheduled rides every minute

@@ -1,0 +1,35 @@
+name: Ride App CI
+
+on:
+  push:
+    paths:
+      - 'ride-app/**'
+      - '.github/workflows/ride-app-ci.yml'
+  pull_request:
+    paths:
+      - 'ride-app/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ride-app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: ride-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm run test

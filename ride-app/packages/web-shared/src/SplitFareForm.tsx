@@ -8,6 +8,7 @@ interface Props {
 export function SplitFareForm({ rideId }: Props) {
   const [emails, setEmails] = useState('');
   const [result, setResult] = useState<string>('');
+  const [invites, setInvites] = useState<Array<{ email: string; payUrl: string }>>([]);
 
   return (
     <div className="rating-form">
@@ -24,12 +25,19 @@ export function SplitFareForm({ rideId }: Props) {
         onClick={async () => {
           const list = emails.split(',').map((e) => e.trim()).filter(Boolean);
           const r = await api.splitFare(rideId, list);
-          setResult(`Tu parte: $${r.yourShare} (${list.length} invitados)`);
+          setResult(`Tu parte: $${r.yourShare} — espera que paguen los invitados`);
+          setInvites(r.invites ?? []);
         }}
       >
-        Dividir
+        Dividir y enviar invitaciones
       </button>
       {result && <p className="muted-text">{result}</p>}
+      {invites.map((i) => (
+        <div key={i.email} className="meta-row">
+          <span>{i.email}</span>
+          <button type="button" className="link-btn" onClick={() => navigator.clipboard.writeText(i.payUrl)}>Copiar link</button>
+        </div>
+      ))}
     </div>
   );
 }

@@ -89,7 +89,7 @@ docker compose up -d
 ./scripts/migrate.sh
 ```
 
-Incluye migración `006_missing_features.sql` (password reset tokens).
+Incluye migraciones `006_missing_features.sql` y `007_phase2.sql` (split invites, Stripe customers).
 
 ### Producción (Stripe Connect, SMTP, OTP)
 

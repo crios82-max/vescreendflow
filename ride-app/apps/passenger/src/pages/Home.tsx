@@ -18,8 +18,10 @@ import {
   SavedPlacesBar,
   ChatPanel,
   PhoneVerifyBanner,
+  usePhoneVerified,
   SplitFareForm,
   StripeCheckout,
+  SavedCards,
   type PlaceResult,
 } from '@ride-app/web-shared';
 
@@ -50,6 +52,7 @@ export default function Home() {
   const [rideForName, setRideForName] = useState('');
   const [rideForPhone, setRideForPhone] = useState('');
   const [stripeSecret, setStripeSecret] = useState<string | null>(null);
+  const { verified: phoneVerified } = usePhoneVerified();
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) => {
@@ -262,8 +265,8 @@ export default function Home() {
                   )}
                   {error && <p className="error-text">{error}</p>}
                   {readyToBook && (
-                    <button className="btn-primary" onClick={requestRide} disabled={loading}>
-                      {loading ? 'Solicitando...' : `Pedir ${vehicleTypeLabel(vehicleType)} · $${selectedOption?.estimatedPrice}`}
+                    <button className="btn-primary" onClick={requestRide} disabled={loading || phoneVerified === false}>
+                      {phoneVerified === false ? 'Verifica tu teléfono' : loading ? 'Solicitando...' : `Pedir ${vehicleTypeLabel(vehicleType)} · $${selectedOption?.estimatedPrice}`}
                     </button>
                   )}
                 </>

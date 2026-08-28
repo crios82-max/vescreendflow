@@ -22,7 +22,8 @@
     "pm2:logs": "pm2 logs ride-api ride-passenger ride-driver ride-admin",
     "stack:start": "./scripts/start-stack.sh",
     "stack:stop": "./scripts/stop-stack.sh",
-    "health": "curl -sf http://localhost:4001/health && echo ' API ok' && curl -sf -o /dev/null http://localhost:5174 && echo ' Passenger ok' && curl -sf -o /dev/null http://localhost:5175 && echo ' Driver ok' && curl -sf -o /dev/null http://localhost:5176 && echo ' Admin ok'"
+    "health": "curl -sf http://localhost:4001/health && echo ' API ok' && curl -sf -o /dev/null http://localhost:5174 && echo ' Passenger ok' && curl -sf -o /dev/null http://localhost:5175 && echo ' Driver ok' && curl -sf -o /dev/null http://localhost:5176 && echo ' Admin ok'",
+    "test": "npm run test -w @ride-app/shared && npm run test -w @ride-app/api"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

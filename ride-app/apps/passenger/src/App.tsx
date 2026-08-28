@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import Share from './pages/Share';
+import SplitPay from './pages/SplitPay';
 import ResetPassword from './pages/ResetPassword';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
@@ -25,6 +26,7 @@ export default function App() {
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/share/:token" element={<Share />} />
+      <Route path="/split-pay/:token" element={<SplitPay />} />
       <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
     </Routes>
   );

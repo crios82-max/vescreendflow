@@ -46,6 +46,7 @@ export async function createPaymentIntent(
   rideId: string,
   tipAmount = 0,
   driverConnectAccountId: string | null = null,
+  customerId: string | null = null,
 ) {
   const stripe = getStripe();
   if (!stripe) return null;
@@ -61,6 +62,7 @@ export async function createPaymentIntent(
   const intent = await stripe.paymentIntents.create({
     ...params,
     automatic_payment_methods: { enabled: true },
+    ...(customerId ? { customer: customerId } : {}),
   } as Stripe.PaymentIntentCreateParams);
 
   return { clientSecret: intent.client_secret, paymentIntentId: intent.id, amount: total };

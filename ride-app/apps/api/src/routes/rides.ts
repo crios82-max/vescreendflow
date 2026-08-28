@@ -15,6 +15,8 @@ import { validatePromo, redeemPromo } from '../services/promo.js';
 import { computeRideEta } from '../services/eta.js';
 import { debitWallet } from '../services/wallet.js';
 import { sendReceiptEmail } from '../services/receipts.js';
+import { finalizeSplitRideIfComplete } from '../services/splitFare.js';
+import { getOrCreateStripeCustomer } from '../services/stripeCustomer.js';
 import type { Server as SocketServer } from 'socket.io';
 
 const router = Router();
@@ -132,6 +134,13 @@ export function createRidesRouter(io: SocketServer) {
   router.post('/', requireRole('passenger'), async (req, res) => {
     const parsed = createRideSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+    if (process.env.REQUIRE_PHONE_VERIFY !== 'false') {
+      const phoneCheck = await pool.query('SELECT phone_verified FROM users WHERE id = $1', [req.auth!.userId]);
+      if (!phoneCheck.rows[0]?.phone_verified) {
+        return res.status(403).json({ error: 'Verifica tu teléfono antes de pedir un viaje' });
+      }
+    }
 
     const data = parsed.data;
     const metrics = await tripMetrics(
@@ -301,11 +310,18 @@ export function createRidesRouter(io: SocketServer) {
     if (ride.status !== 'completed') return res.status(400).json({ error: 'Viaje no completado' });
 
     const tipAmount = Number((req.body as { tipAmount?: number }).tipAmount ?? 0);
-    const amount = ride.finalPrice ?? ride.estimatedPrice;
+    const row = rideResult.rows[0];
+    const splitMode = Boolean(row.split_mode);
+    let amount = ride.finalPrice ?? ride.estimatedPrice;
+    if (splitMode && row.split_share_amount) {
+      amount = Number(row.split_share_amount);
+    }
+    const user = await pool.query('SELECT email FROM users WHERE id = $1', [req.auth!.userId]);
+    const customerId = await getOrCreateStripeCustomer(req.auth!.userId, user.rows[0].email);
     const connectId = await driverConnectAccountId(ride.driverId);
-    const intent = await createPaymentIntent(amount, ride.id, tipAmount, connectId);
-    if (!intent) return res.json({ mock: true, amount: amount + tipAmount });
-    res.json(intent);
+    const intent = await createPaymentIntent(amount, ride.id, tipAmount, connectId, customerId);
+    if (!intent) return res.json({ mock: true, amount: amount + tipAmount, splitMode });
+    res.json({ ...intent, splitMode });
   });
 
   router.post('/:id/pay', requireRole('passenger'), async (req, res) => {
@@ -325,12 +341,17 @@ export function createRidesRouter(io: SocketServer) {
     if (ride.status !== 'completed') return res.status(400).json({ error: 'Viaje debe estar completado' });
     if (ride.paymentStatus === 'paid') return res.status(400).json({ error: 'Ya pagado' });
 
+    const row = rideResult.rows[0];
+    const splitMode = Boolean(row.split_mode);
     const tipAmount = parsed.data.tipAmount ?? 0;
-    const amount = ride.finalPrice ?? ride.estimatedPrice;
+    let amount = ride.finalPrice ?? ride.estimatedPrice;
+    if (splitMode && row.split_share_amount) {
+      amount = Number(row.split_share_amount);
+    }
     let paymentInfo: { method: string; cardLast4: string; stripePaymentIntentId: string | null; total: number };
 
     if (parsed.data.useWallet) {
-      const ok = await debitWallet(req.auth!.userId, amount + tipAmount, 'Pago de viaje', ride.id);
+      const ok = await debitWallet(req.auth!.userId, amount + tipAmount, splitMode ? 'Tu parte (split)' : 'Pago de viaje', ride.id);
       if (!ok) return res.status(400).json({ error: 'Saldo insuficiente en wallet' });
       paymentInfo = { method: 'wallet', cardLast4: '0000', stripePaymentIntentId: null, total: amount + tipAmount };
     } else if (parsed.data.paymentIntentId) {
@@ -346,6 +367,28 @@ export function createRidesRouter(io: SocketServer) {
       };
     } else {
       paymentInfo = await processRidePayment(amount, ride.id, tipAmount, await driverConnectAccountId(ride.driverId));
+    }
+
+    if (splitMode) {
+      await pool.query('UPDATE rides SET organizer_split_paid = TRUE WHERE id = $1', [ride.id]);
+      await pool.query(
+        `INSERT INTO payments (ride_id, amount, method, card_last4, stripe_payment_intent_id, tip_amount, status)
+         VALUES ($1, $2, $3, $4, $5, $6, 'paid')`,
+        [ride.id, paymentInfo.total, paymentInfo.method, paymentInfo.cardLast4, paymentInfo.stripePaymentIntentId, tipAmount],
+      );
+      const finalized = await finalizeSplitRideIfComplete(ride.id, io);
+      const refreshed = await pool.query('SELECT * FROM rides WHERE id = $1', [ride.id]);
+      const updated = mapRide(refreshed.rows[0]);
+      io.to(`ride:${ride.id}`).emit('ride:updated', updated);
+      if (finalized) {
+        const user = await pool.query('SELECT email FROM users WHERE id = $1', [ride.passengerId]);
+        await sendReceiptEmail(updated, user.rows[0].email as string);
+      }
+      return res.json({
+        payment: { rideId: ride.id, amount: paymentInfo.total, method: paymentInfo.method, status: finalized ? 'paid' : 'partial' },
+        ride: updated,
+        splitPending: !finalized,
+      });
     }
 
     const client = await pool.connect();

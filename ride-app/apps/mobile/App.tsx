@@ -58,7 +58,7 @@ export default function App() {
   const [etaPickup, setEtaPickup] = useState<number | null>(null);
   const [rideForName, setRideForName] = useState('');
   const [stop, setStop] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
-  const [phoneVerified, setPhoneVerified] = useState(true);
+  const [phoneVerified, setPhoneVerified] = useState(false);
   const [phoneInput, setPhoneInput] = useState('');
   const [otpInput, setOtpInput] = useState('');
   const [promoCode, setPromoCode] = useState('');
@@ -446,9 +446,9 @@ export default function App() {
                   </Pressable>
                 ) : null}
                 {error ? <Text style={styles.error}>{error}</Text> : null}
-                <Pressable style={[styles.btn, (!dropoff || loading) && styles.btnDisabled]} onPress={requestRide} disabled={!dropoff || loading}>
+                <Pressable style={[styles.btn, (!dropoff || loading || !phoneVerified) && styles.btnDisabled]} onPress={requestRide} disabled={!dropoff || loading || !phoneVerified}>
                   <Text style={styles.btnText}>
-                    {loading ? 'Solicitando…' : `Pedir ${selectedOption?.label ?? 'Ride'} · $${selectedOption?.estimatedPrice ?? ''}`}
+                    {!phoneVerified ? 'Verifica tu teléfono' : loading ? 'Solicitando…' : `Pedir ${selectedOption?.label ?? 'Ride'} · $${selectedOption?.estimatedPrice ?? ''}`}
                   </Text>
                 </Pressable>
               </>

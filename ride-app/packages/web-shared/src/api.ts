@@ -190,10 +190,22 @@ class ApiClient {
   }
 
   splitFare(rideId: string, emails: string[]) {
-    return this.request<{ perPerson: number; yourShare: number; participants: number }>(
+    return this.request<{ perPerson: number; yourShare: number; participants: number; invites?: Array<{ email: string; payUrl: string }> }>(
       `/split/ride/${rideId}`,
       { method: 'POST', body: JSON.stringify({ emails }) },
     );
+  }
+
+  getPaymentMethods() {
+    return this.request<{ methods: Array<{ id: string; brand: string; last4: string }> }>('/payments/methods');
+  }
+
+  createSetupIntent() {
+    return this.request<{ clientSecret?: string; mock?: boolean }>('/payments/setup-intent', { method: 'POST' });
+  }
+
+  deletePaymentMethod(id: string) {
+    return this.request(`/payments/methods/${id}`, { method: 'DELETE' });
   }
 
   getShareTrip(token: string) {
