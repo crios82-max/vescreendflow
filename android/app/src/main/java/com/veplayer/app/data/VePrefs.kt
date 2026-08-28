@@ -2989,6 +2989,121 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("o2_conc_b1s3_sim_speed", 40f)
         set(value) = sp.edit().putFloat("o2_conc_b1s3_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** O2 concentration B1S4 % (OBD 019C). */
+    var o2ConcB1s4Enabled: Boolean
+        get() = sp.getBoolean("o2_conc_b1s4", true)
+        set(value) = sp.edit().putBoolean("o2_conc_b1s4", value).apply()
+    var o2ConcB1s4Tts: Boolean
+        get() = sp.getBoolean("o2_conc_b1s4_tts", true)
+        set(value) = sp.edit().putBoolean("o2_conc_b1s4_tts", value).apply()
+    var o2ConcB1s4Warn: Float
+        get() = sp.getFloat("o2_conc_b1s4_warn", 12f)
+        set(value) = sp.edit().putFloat("o2_conc_b1s4_warn", value.coerceIn(5f, 50f)).apply()
+    var o2ConcB1s4Alert: Float
+        get() = sp.getFloat("o2_conc_b1s4_alert", 18f)
+        set(value) = sp.edit().putFloat("o2_conc_b1s4_alert", value.coerceAtLeast(8f)).apply()
+    var o2ConcB1s4SpeedMinKmh: Float
+        get() = sp.getFloat("o2_conc_b1s4_speed_min", 20f)
+        set(value) = sp.edit().putFloat("o2_conc_b1s4_speed_min", value.coerceIn(0f, 60f)).apply()
+    var o2ConcB1s4Sim: Float
+        get() = sp.getFloat("o2_conc_b1s4_sim", 0f)
+        set(value) = sp.edit().putFloat("o2_conc_b1s4_sim", value.coerceIn(0f, 100f)).apply()
+    var o2ConcB1s4SimSpeedKmh: Float
+        get() = sp.getFloat("o2_conc_b1s4_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("o2_conc_b1s4_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** O2 concentration B2S3 % (OBD 019C). */
+    var o2ConcB2s3Enabled: Boolean
+        get() = sp.getBoolean("o2_conc_b2s3", true)
+        set(value) = sp.edit().putBoolean("o2_conc_b2s3", value).apply()
+    var o2ConcB2s3Tts: Boolean
+        get() = sp.getBoolean("o2_conc_b2s3_tts", true)
+        set(value) = sp.edit().putBoolean("o2_conc_b2s3_tts", value).apply()
+    var o2ConcB2s3Warn: Float
+        get() = sp.getFloat("o2_conc_b2s3_warn", 12f)
+        set(value) = sp.edit().putFloat("o2_conc_b2s3_warn", value.coerceIn(5f, 50f)).apply()
+    var o2ConcB2s3Alert: Float
+        get() = sp.getFloat("o2_conc_b2s3_alert", 18f)
+        set(value) = sp.edit().putFloat("o2_conc_b2s3_alert", value.coerceAtLeast(8f)).apply()
+    var o2ConcB2s3SpeedMinKmh: Float
+        get() = sp.getFloat("o2_conc_b2s3_speed_min", 20f)
+        set(value) = sp.edit().putFloat("o2_conc_b2s3_speed_min", value.coerceIn(0f, 60f)).apply()
+    var o2ConcB2s3Sim: Float
+        get() = sp.getFloat("o2_conc_b2s3_sim", 0f)
+        set(value) = sp.edit().putFloat("o2_conc_b2s3_sim", value.coerceIn(0f, 100f)).apply()
+    var o2ConcB2s3SimSpeedKmh: Float
+        get() = sp.getFloat("o2_conc_b2s3_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("o2_conc_b2s3_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** O2 concentration B2S4 % (OBD 019C). */
+    var o2ConcB2s4Enabled: Boolean
+        get() = sp.getBoolean("o2_conc_b2s4", true)
+        set(value) = sp.edit().putBoolean("o2_conc_b2s4", value).apply()
+    var o2ConcB2s4Tts: Boolean
+        get() = sp.getBoolean("o2_conc_b2s4_tts", true)
+        set(value) = sp.edit().putBoolean("o2_conc_b2s4_tts", value).apply()
+    var o2ConcB2s4Warn: Float
+        get() = sp.getFloat("o2_conc_b2s4_warn", 12f)
+        set(value) = sp.edit().putFloat("o2_conc_b2s4_warn", value.coerceIn(5f, 50f)).apply()
+    var o2ConcB2s4Alert: Float
+        get() = sp.getFloat("o2_conc_b2s4_alert", 18f)
+        set(value) = sp.edit().putFloat("o2_conc_b2s4_alert", value.coerceAtLeast(8f)).apply()
+    var o2ConcB2s4SpeedMinKmh: Float
+        get() = sp.getFloat("o2_conc_b2s4_speed_min", 20f)
+        set(value) = sp.edit().putFloat("o2_conc_b2s4_speed_min", value.coerceIn(0f, 60f)).apply()
+    var o2ConcB2s4Sim: Float
+        get() = sp.getFloat("o2_conc_b2s4_sim", 0f)
+        set(value) = sp.edit().putFloat("o2_conc_b2s4_sim", value.coerceIn(0f, 100f)).apply()
+    var o2ConcB2s4SimSpeedKmh: Float
+        get() = sp.getFloat("o2_conc_b2s4_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("o2_conc_b2s4_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Commanded DEF dosing % (OBD 01A5). */
+    var defDoseEnabled: Boolean
+        get() = sp.getBoolean("def_dose", true)
+        set(value) = sp.edit().putBoolean("def_dose", value).apply()
+    var defDoseTts: Boolean
+        get() = sp.getBoolean("def_dose_tts", true)
+        set(value) = sp.edit().putBoolean("def_dose_tts", value).apply()
+    var defDoseWarnPct: Float
+        get() = sp.getFloat("def_dose_warn_pct", 60f)
+        set(value) = sp.edit().putFloat("def_dose_warn_pct", value.coerceIn(20f, 100f)).apply()
+    var defDoseAlertPct: Float
+        get() = sp.getFloat("def_dose_alert_pct", 90f)
+        set(value) = sp.edit().putFloat("def_dose_alert_pct", value.coerceAtLeast(65f).coerceAtMost(127.5f)).apply()
+    var defDoseSpeedMinKmh: Float
+        get() = sp.getFloat("def_dose_speed_min", 20f)
+        set(value) = sp.edit().putFloat("def_dose_speed_min", value.coerceIn(0f, 60f)).apply()
+    var defDoseSimPct: Float
+        get() = sp.getFloat("def_dose_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("def_dose_sim_pct", value.coerceIn(0f, 127.5f)).apply()
+    var defDoseSimSpeedKmh: Float
+        get() = sp.getFloat("def_dose_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("def_dose_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** NOx corrected B1S1 ppm (OBD 01A1). */
+    var noxCorrB1s1Enabled: Boolean
+        get() = sp.getBoolean("nox_corr_b1s1", true)
+        set(value) = sp.edit().putBoolean("nox_corr_b1s1", value).apply()
+    var noxCorrB1s1Tts: Boolean
+        get() = sp.getBoolean("nox_corr_b1s1_tts", true)
+        set(value) = sp.edit().putBoolean("nox_corr_b1s1_tts", value).apply()
+    var noxCorrB1s1Warn: Float
+        get() = sp.getFloat("nox_corr_b1s1_warn", 600f)
+        set(value) = sp.edit().putFloat("nox_corr_b1s1_warn", value.coerceIn(100f, 2000f)).apply()
+    var noxCorrB1s1Alert: Float
+        get() = sp.getFloat("nox_corr_b1s1_alert", 800f)
+        set(value) = sp.edit().putFloat("nox_corr_b1s1_alert", value.coerceAtLeast(150f)).apply()
+    var noxCorrB1s1SpeedMinKmh: Float
+        get() = sp.getFloat("nox_corr_b1s1_speed_min", 20f)
+        set(value) = sp.edit().putFloat("nox_corr_b1s1_speed_min", value.coerceIn(0f, 60f)).apply()
+    var noxCorrB1s1Sim: Float
+        get() = sp.getFloat("nox_corr_b1s1_sim", 0f)
+        set(value) = sp.edit().putFloat("nox_corr_b1s1_sim", value.coerceIn(0f, 5000f)).apply()
+    var noxCorrB1s1SimSpeedKmh: Float
+        get() = sp.getFloat("nox_corr_b1s1_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("nox_corr_b1s1_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
