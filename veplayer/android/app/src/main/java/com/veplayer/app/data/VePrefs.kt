@@ -2418,6 +2418,86 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("fuel_ctrl_sim_kpa", 0f)
         set(value) = sp.edit().putFloat("fuel_ctrl_sim_kpa", value.coerceIn(0f, 20000f)).apply()
 
+    /** Catalyst temp B1S12 °C (OBD 0185). */
+    var catB1s12Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s12", true)
+        set(value) = sp.edit().putBoolean("cat_b1s12", value).apply()
+    var catB1s12Tts: Boolean
+        get() = sp.getBoolean("cat_b1s12_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s12_tts", value).apply()
+    var catB1s12WarnC: Float
+        get() = sp.getFloat("cat_b1s12_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s12_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s12AlertC: Float
+        get() = sp.getFloat("cat_b1s12_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s12_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s12SimC: Float
+        get() = sp.getFloat("cat_b1s12_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s12_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B2S12 °C (OBD 0186). */
+    var catB2s12Enabled: Boolean
+        get() = sp.getBoolean("cat_b2s12", true)
+        set(value) = sp.edit().putBoolean("cat_b2s12", value).apply()
+    var catB2s12Tts: Boolean
+        get() = sp.getBoolean("cat_b2s12_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2s12_tts", value).apply()
+    var catB2s12WarnC: Float
+        get() = sp.getFloat("cat_b2s12_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2s12_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2s12AlertC: Float
+        get() = sp.getFloat("cat_b2s12_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2s12_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2s12SimC: Float
+        get() = sp.getFloat("cat_b2s12_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2s12_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** STFT bank 2 (OBD 0108). */
+    var stftB2Enabled: Boolean
+        get() = sp.getBoolean("stft_b2", true)
+        set(value) = sp.edit().putBoolean("stft_b2", value).apply()
+    var stftB2Tts: Boolean
+        get() = sp.getBoolean("stft_b2_tts", true)
+        set(value) = sp.edit().putBoolean("stft_b2_tts", value).apply()
+    var stftB2WarnPct: Float
+        get() = sp.getFloat("stft_b2_warn_pct", 12f)
+        set(value) = sp.edit().putFloat("stft_b2_warn_pct", value.coerceIn(5f, 40f)).apply()
+    var stftB2AlertPct: Float
+        get() = sp.getFloat("stft_b2_alert_pct", 20f)
+        set(value) = sp.edit().putFloat("stft_b2_alert_pct", value.coerceIn(8f, 50f)).apply()
+    var stftB2SpeedMinKmh: Float
+        get() = sp.getFloat("stft_b2_speed_min", 20f)
+        set(value) = sp.edit().putFloat("stft_b2_speed_min", value.coerceIn(0f, 60f)).apply()
+    var stftB2SimPct: Float
+        get() = sp.getFloat("stft_b2_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("stft_b2_sim_pct", value.coerceIn(-50f, 50f)).apply()
+    var stftB2SimSpeedKmh: Float
+        get() = sp.getFloat("stft_b2_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("stft_b2_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** LTFT bank 2 (OBD 0109). */
+    var ltftB2Enabled: Boolean
+        get() = sp.getBoolean("ltft_b2", true)
+        set(value) = sp.edit().putBoolean("ltft_b2", value).apply()
+    var ltftB2Tts: Boolean
+        get() = sp.getBoolean("ltft_b2_tts", true)
+        set(value) = sp.edit().putBoolean("ltft_b2_tts", value).apply()
+    var ltftB2WarnPct: Float
+        get() = sp.getFloat("ltft_b2_warn_pct", 12f)
+        set(value) = sp.edit().putFloat("ltft_b2_warn_pct", value.coerceIn(5f, 40f)).apply()
+    var ltftB2AlertPct: Float
+        get() = sp.getFloat("ltft_b2_alert_pct", 20f)
+        set(value) = sp.edit().putFloat("ltft_b2_alert_pct", value.coerceIn(8f, 50f)).apply()
+    var ltftB2SpeedMinKmh: Float
+        get() = sp.getFloat("ltft_b2_speed_min", 20f)
+        set(value) = sp.edit().putFloat("ltft_b2_speed_min", value.coerceIn(0f, 60f)).apply()
+    var ltftB2SimPct: Float
+        get() = sp.getFloat("ltft_b2_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("ltft_b2_sim_pct", value.coerceIn(-50f, 50f)).apply()
+    var ltftB2SimSpeedKmh: Float
+        get() = sp.getFloat("ltft_b2_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("ltft_b2_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

@@ -229,6 +229,14 @@ data class VehicleSignals(
         val injectCtrlKpa: Float? = null,
         /** Fuel pressure control kPa (OBD PID 016D). */
         val fuelCtrlKpa: Float? = null,
+        /** Catalyst temp bank 1 sensor 12 °C (OBD PID 0185). */
+        val catalystB1s12TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 12 °C (OBD PID 0186). */
+        val catalystB2s12TempC: Float? = null,
+        /** STFT bank 2 % (OBD PID 0108), signed. */
+        val fuelTrimStftB2Pct: Float? = null,
+        /** LTFT bank 2 % (OBD PID 0109), signed. */
+        val fuelTrimLtftB2Pct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -378,6 +386,10 @@ data class VehicleSignals(
             "actual_egr_pct" to actualEgrPct?.toDouble(),
             "inject_ctrl_kpa" to injectCtrlKpa?.toDouble(),
             "fuel_ctrl_kpa" to fuelCtrlKpa?.toDouble(),
+            "catalyst_b1s12_temp_c" to catalystB1s12TempC?.toDouble(),
+            "catalyst_b2s12_temp_c" to catalystB2s12TempC?.toDouble(),
+            "fuel_trim_stft_b2_pct" to fuelTrimStftB2Pct?.toDouble(),
+            "fuel_trim_ltft_b2_pct" to fuelTrimLtftB2Pct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

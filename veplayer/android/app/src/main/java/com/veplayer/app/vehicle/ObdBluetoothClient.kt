@@ -312,6 +312,10 @@ class ObdBluetoothClient(private val context: Context) {
                 "0169", // actual EGR
                 "016E", // injection pressure control
                 "016D", // fuel pressure control
+                "0185", // catalyst B1S12 temp
+                "0186", // catalyst B2S12 temp
+                "0108", // STFT bank 2
+                "0109", // LTFT bank 2
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim
