@@ -262,6 +262,89 @@ class ObdBluetoothClient(private val context: Context) {
                 "0152", // ethanol
                 "0153", // evap vapor
                 "0159", // fuel rail abs
+                "014C", // commanded EGR
+                "015A", // relative accel pedal
+                "0161", // driver torque
+                "0162", // actual torque
+                "0170", // catalyst B2 temp
+                "0171", // catalyst B1S2 temp
+                "0172", // catalyst B2S2 temp
+                "0173", // catalyst B1S3 temp
+                "0174", // catalyst B2S3 temp
+                "0175", // catalyst B1S4 temp
+                "0176", // catalyst B2S4 temp
+                "0155", // STFT sec O2 B1
+                "0156", // LTFT sec O2 B1
+                "0157", // STFT sec O2 B2
+                "0158", // LTFT sec O2 B2
+                "0177", // catalyst B1S5 temp
+                "0178", // catalyst B2S5 temp
+                "015D", // fuel injection timing
+                "015B", // hybrid batt life
+                "0163", // engine ref torque
+                "0179", // catalyst B1S6 temp
+                "017A", // catalyst B2S6 temp
+                "0147", // throttle B
+                "0148", // throttle C
+                "0154", // time MIL on
+                "017B", // catalyst B1S7 temp
+                "017C", // catalyst B2S7 temp
+                "0151", // fuel type
+                "014F", // max equiv ratio
+                "0150", // max MAF
+                "017D", // catalyst B1S8 temp
+                "017E", // catalyst B2S8 temp
+                "0164", // max avail torque
+                "0166", // MAF sensor IAT
+                "0165", // aux input status
+                "017F", // catalyst B1S9 temp
+                "0180", // catalyst B2S9 temp
+                "0167", // coolant ECT2
+                "0168", // IAT sensor 2
+                "016F", // turbo inlet pressure
+                "0181", // catalyst B1S10 temp
+                "0182", // catalyst B2S10 temp
+                "016B", // EGR temperature
+                "016A", // diesel intake air flow
+                "016C", // throttle actuator
+                "0183", // catalyst B1S11 temp
+                "0184", // catalyst B2S11 temp
+                "0169", // actual EGR
+                "016E", // injection pressure control
+                "016D", // fuel pressure control
+                "0185", // catalyst B1S12 temp
+                "0186", // catalyst B2S12 temp
+                "0108", // STFT bank 2
+                "0109", // LTFT bank 2
+                "0187", // catalyst B1S13 temp
+                "0188", // catalyst B2S13 temp
+                "0189", // catalyst B1S14 temp
+                "018A", // catalyst B2S14 temp
+                "018C", // O2 lambda B1S1
+                "018F", // PM sensor B1/B2
+                "0198", // EGT B1S5
+                "0199", // EGT B2S5
+                "019C", // O2 lambda B1S3/B2S3
+                "0194", // NOx reagent quality
+                "019B", // DEF fluid level
+                "01A1", // NOx corrected B1S1
+                "01A5", // DEF dosing command
+                "01A7", // NOx concentration S3/S4
+                "01A8", // NOx corrected S3/S4
+                "01A2", // cylinder fuel rate
+                "01A3", // evap system vapor pressure
+                "01A4", // transmission actual gear
+                "01A6", // odometer
+                "01A9", // ABS disable switch
+                "01C5", // fuel pressure A/B
+                "01C7", // distance since reflash
+                "01C3", // fuel level input A/B
+                "01C4", // EPCS diagnostic time/count
+                "01C8", // NOx/PCD warning lamp
+                "01C6", // particulate control inducement/counters
+                "018B", // DPF aftertreatment
+                "018D", // throttle G
+                "018E", // engine friction torque
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim

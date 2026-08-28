@@ -82,6 +82,115 @@ import com.veplayer.app.vehicle.EvapPurgeMonitor
 import com.veplayer.app.vehicle.EthanolPctMonitor
 import com.veplayer.app.vehicle.EvapVaporMonitor
 import com.veplayer.app.vehicle.FuelRailAbsMonitor
+import com.veplayer.app.vehicle.CommandedEgrMonitor
+import com.veplayer.app.vehicle.RelAccelPedalMonitor
+import com.veplayer.app.vehicle.DriverTorqueMonitor
+import com.veplayer.app.vehicle.ActualTorqueMonitor
+import com.veplayer.app.vehicle.CatalystB2Monitor
+import com.veplayer.app.vehicle.CatalystB1S2Monitor
+import com.veplayer.app.vehicle.CatalystB2S2Monitor
+import com.veplayer.app.vehicle.CatalystB1S3Monitor
+import com.veplayer.app.vehicle.CatalystB2S3Monitor
+import com.veplayer.app.vehicle.CatalystB1S4Monitor
+import com.veplayer.app.vehicle.CatalystB2S4Monitor
+import com.veplayer.app.vehicle.FuelTrimStft2B1Monitor
+import com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor
+import com.veplayer.app.vehicle.FuelTrimStft2B2Monitor
+import com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor
+import com.veplayer.app.vehicle.CatalystB1S5Monitor
+import com.veplayer.app.vehicle.CatalystB2S5Monitor
+import com.veplayer.app.vehicle.FuelInjectTimingMonitor
+import com.veplayer.app.vehicle.HybridBattLifeMonitor
+import com.veplayer.app.vehicle.EngineRefTorqueMonitor
+import com.veplayer.app.vehicle.CatalystB1S6Monitor
+import com.veplayer.app.vehicle.CatalystB2S6Monitor
+import com.veplayer.app.vehicle.ThrottleBMonitor
+import com.veplayer.app.vehicle.ThrottleCMonitor
+import com.veplayer.app.vehicle.MilTimeOnMonitor
+import com.veplayer.app.vehicle.CatalystB1S7Monitor
+import com.veplayer.app.vehicle.CatalystB2S7Monitor
+import com.veplayer.app.vehicle.FuelTypeMonitor
+import com.veplayer.app.vehicle.MaxEquivRatioMonitor
+import com.veplayer.app.vehicle.MaxMafGpsMonitor
+import com.veplayer.app.vehicle.CatalystB1S8Monitor
+import com.veplayer.app.vehicle.CatalystB2S8Monitor
+import com.veplayer.app.vehicle.MaxAvailTorqueMonitor
+import com.veplayer.app.vehicle.MafSensorIatMonitor
+import com.veplayer.app.vehicle.AuxInputStatusMonitor
+import com.veplayer.app.vehicle.CatalystB1S9Monitor
+import com.veplayer.app.vehicle.CatalystB2S9Monitor
+import com.veplayer.app.vehicle.CoolantEct2Monitor
+import com.veplayer.app.vehicle.IatSensor2Monitor
+import com.veplayer.app.vehicle.TurboInletPressureMonitor
+import com.veplayer.app.vehicle.CatalystB1S10Monitor
+import com.veplayer.app.vehicle.CatalystB2S10Monitor
+import com.veplayer.app.vehicle.EgrTemperatureMonitor
+import com.veplayer.app.vehicle.DieselIntakeAirflowMonitor
+import com.veplayer.app.vehicle.ThrottleActuatorMonitor
+import com.veplayer.app.vehicle.CatalystB1S11Monitor
+import com.veplayer.app.vehicle.CatalystB2S11Monitor
+import com.veplayer.app.vehicle.ActualEgrMonitor
+import com.veplayer.app.vehicle.InjectPressureControlMonitor
+import com.veplayer.app.vehicle.FuelPressureControlMonitor
+import com.veplayer.app.vehicle.CatalystB1S12Monitor
+import com.veplayer.app.vehicle.CatalystB2S12Monitor
+import com.veplayer.app.vehicle.FuelTrimStftB2Monitor
+import com.veplayer.app.vehicle.FuelTrimLtftB2Monitor
+import com.veplayer.app.vehicle.CatalystB1S13Monitor
+import com.veplayer.app.vehicle.CatalystB2S13Monitor
+import com.veplayer.app.vehicle.CatalystB1S14Monitor
+import com.veplayer.app.vehicle.CatalystB2S14Monitor
+import com.veplayer.app.vehicle.O2LambdaB1Monitor
+import com.veplayer.app.vehicle.PmSensorB1Monitor
+import com.veplayer.app.vehicle.PmSensorB2Monitor
+import com.veplayer.app.vehicle.EgtB1S5Monitor
+import com.veplayer.app.vehicle.EgtB2S5Monitor
+import com.veplayer.app.vehicle.O2LambdaB1S3Monitor
+import com.veplayer.app.vehicle.O2LambdaB2S3Monitor
+import com.veplayer.app.vehicle.NoxReagentQualityMonitor
+import com.veplayer.app.vehicle.EgtB1S6Monitor
+import com.veplayer.app.vehicle.EgtB2S6Monitor
+import com.veplayer.app.vehicle.O2LambdaB1S4Monitor
+import com.veplayer.app.vehicle.O2LambdaB2S4Monitor
+import com.veplayer.app.vehicle.DefFluidMonitor
+import com.veplayer.app.vehicle.EgtB1S7Monitor
+import com.veplayer.app.vehicle.EgtB2S7Monitor
+import com.veplayer.app.vehicle.EgtB1S8Monitor
+import com.veplayer.app.vehicle.EgtB2S8Monitor
+import com.veplayer.app.vehicle.O2ConcB1S3Monitor
+import com.veplayer.app.vehicle.O2ConcB1S4Monitor
+import com.veplayer.app.vehicle.O2ConcB2S3Monitor
+import com.veplayer.app.vehicle.O2ConcB2S4Monitor
+import com.veplayer.app.vehicle.DefDosingCmdMonitor
+import com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor
+import com.veplayer.app.vehicle.NoxCorrectedB1S2Monitor
+import com.veplayer.app.vehicle.NoxCorrectedB2S1Monitor
+import com.veplayer.app.vehicle.NoxCorrectedB2S2Monitor
+import com.veplayer.app.vehicle.NoxConcS3Monitor
+import com.veplayer.app.vehicle.NoxConcS4Monitor
+import com.veplayer.app.vehicle.NoxCorrectedS3Monitor
+import com.veplayer.app.vehicle.NoxCorrectedS4Monitor
+import com.veplayer.app.vehicle.CylinderFuelRateMonitor
+import com.veplayer.app.vehicle.EvapSysVaporMonitor
+import com.veplayer.app.vehicle.TransGearRatioMonitor
+import com.veplayer.app.vehicle.ObdOdometerMonitor
+import com.veplayer.app.vehicle.AbsDisableMonitor
+import com.veplayer.app.vehicle.FuelPressAMonitor
+import com.veplayer.app.vehicle.FuelPressBMonitor
+import com.veplayer.app.vehicle.ReflashDistanceMonitor
+import com.veplayer.app.vehicle.FuelLevelInputAMonitor
+import com.veplayer.app.vehicle.FuelLevelInputBMonitor
+import com.veplayer.app.vehicle.EpcsDiagTimeMonitor
+import com.veplayer.app.vehicle.EpcsDiagCountMonitor
+import com.veplayer.app.vehicle.NoxPcdLampMonitor
+import com.veplayer.app.vehicle.ParticulateInduceWarnMonitor
+import com.veplayer.app.vehicle.ParticulateInduceAlertMonitor
+import com.veplayer.app.vehicle.DpfRemovalCounterMonitor
+import com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor
+import com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor
+import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
+import com.veplayer.app.vehicle.ThrottleGMonitor
+import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -160,6 +269,115 @@ fun DriveVizPanel(
     val ethanol by EthanolPctMonitor.state.collectAsState()
     val evapVap by EvapVaporMonitor.state.collectAsState()
     val railAbs by FuelRailAbsMonitor.state.collectAsState()
+    val egrCmd by CommandedEgrMonitor.state.collectAsState()
+    val relAped by RelAccelPedalMonitor.state.collectAsState()
+    val drvTorque by DriverTorqueMonitor.state.collectAsState()
+    val actTorque by ActualTorqueMonitor.state.collectAsState()
+    val catB2 by CatalystB2Monitor.state.collectAsState()
+    val catB1s2 by CatalystB1S2Monitor.state.collectAsState()
+    val catB2s2 by CatalystB2S2Monitor.state.collectAsState()
+    val catB1s3 by CatalystB1S3Monitor.state.collectAsState()
+    val catB2s3 by CatalystB2S3Monitor.state.collectAsState()
+    val catB1s4 by CatalystB1S4Monitor.state.collectAsState()
+    val catB2s4 by CatalystB2S4Monitor.state.collectAsState()
+    val stft2B1 by FuelTrimStft2B1Monitor.state.collectAsState()
+    val ltft2B1 by FuelTrimLtft2B1Monitor.state.collectAsState()
+    val stft2B2 by FuelTrimStft2B2Monitor.state.collectAsState()
+    val ltft2B2 by FuelTrimLtft2B2Monitor.state.collectAsState()
+    val catB1s5 by CatalystB1S5Monitor.state.collectAsState()
+    val catB2s5 by CatalystB2S5Monitor.state.collectAsState()
+    val inject by FuelInjectTimingMonitor.state.collectAsState()
+    val hybridBatt by HybridBattLifeMonitor.state.collectAsState()
+    val refTorque by EngineRefTorqueMonitor.state.collectAsState()
+    val catB1s6 by CatalystB1S6Monitor.state.collectAsState()
+    val catB2s6 by CatalystB2S6Monitor.state.collectAsState()
+    val thrB by ThrottleBMonitor.state.collectAsState()
+    val thrC by ThrottleCMonitor.state.collectAsState()
+    val milTime by MilTimeOnMonitor.state.collectAsState()
+    val catB1s7 by CatalystB1S7Monitor.state.collectAsState()
+    val catB2s7 by CatalystB2S7Monitor.state.collectAsState()
+    val fuelType by FuelTypeMonitor.state.collectAsState()
+    val maxEquiv by MaxEquivRatioMonitor.state.collectAsState()
+    val maxMaf by MaxMafGpsMonitor.state.collectAsState()
+    val catB1s8 by CatalystB1S8Monitor.state.collectAsState()
+    val catB2s8 by CatalystB2S8Monitor.state.collectAsState()
+    val maxAvailTorque by MaxAvailTorqueMonitor.state.collectAsState()
+    val mafIat by MafSensorIatMonitor.state.collectAsState()
+    val auxInput by AuxInputStatusMonitor.state.collectAsState()
+    val catB1s9 by CatalystB1S9Monitor.state.collectAsState()
+    val catB2s9 by CatalystB2S9Monitor.state.collectAsState()
+    val ect2 by CoolantEct2Monitor.state.collectAsState()
+    val iat2 by IatSensor2Monitor.state.collectAsState()
+    val turboInlet by TurboInletPressureMonitor.state.collectAsState()
+    val catB1s10 by CatalystB1S10Monitor.state.collectAsState()
+    val catB2s10 by CatalystB2S10Monitor.state.collectAsState()
+    val egrTemp by EgrTemperatureMonitor.state.collectAsState()
+    val dieselIaf by DieselIntakeAirflowMonitor.state.collectAsState()
+    val thrAct by ThrottleActuatorMonitor.state.collectAsState()
+    val catB1s11 by CatalystB1S11Monitor.state.collectAsState()
+    val catB2s11 by CatalystB2S11Monitor.state.collectAsState()
+    val egrActual by ActualEgrMonitor.state.collectAsState()
+    val injectCtrl by InjectPressureControlMonitor.state.collectAsState()
+    val fuelCtrl by FuelPressureControlMonitor.state.collectAsState()
+    val catB1s12 by CatalystB1S12Monitor.state.collectAsState()
+    val catB2s12 by CatalystB2S12Monitor.state.collectAsState()
+    val stftB2 by FuelTrimStftB2Monitor.state.collectAsState()
+    val ltftB2 by FuelTrimLtftB2Monitor.state.collectAsState()
+    val catB1s13 by CatalystB1S13Monitor.state.collectAsState()
+    val catB2s13 by CatalystB2S13Monitor.state.collectAsState()
+    val dpfTrig by DpfAftertreatmentMonitor.state.collectAsState()
+    val thrG by ThrottleGMonitor.state.collectAsState()
+    val engFriction by EngineFrictionTorqueMonitor.state.collectAsState()
+    val catB1s14 by CatalystB1S14Monitor.state.collectAsState()
+    val catB2s14 by CatalystB2S14Monitor.state.collectAsState()
+    val o2Lambda by O2LambdaB1Monitor.state.collectAsState()
+    val pmB1 by PmSensorB1Monitor.state.collectAsState()
+    val pmB2 by PmSensorB2Monitor.state.collectAsState()
+    val egtB1s5 by EgtB1S5Monitor.state.collectAsState()
+    val egtB2s5 by EgtB2S5Monitor.state.collectAsState()
+    val o2LambdaB1s3 by O2LambdaB1S3Monitor.state.collectAsState()
+    val o2LambdaB2s3 by O2LambdaB2S3Monitor.state.collectAsState()
+    val noxReq by NoxReagentQualityMonitor.state.collectAsState()
+    val egtB1s6 by EgtB1S6Monitor.state.collectAsState()
+    val egtB2s6 by EgtB2S6Monitor.state.collectAsState()
+    val o2LambdaB1s4 by O2LambdaB1S4Monitor.state.collectAsState()
+    val o2LambdaB2s4 by O2LambdaB2S4Monitor.state.collectAsState()
+    val defFluid by DefFluidMonitor.state.collectAsState()
+    val egtB1s7 by EgtB1S7Monitor.state.collectAsState()
+    val egtB2s7 by EgtB2S7Monitor.state.collectAsState()
+    val egtB1s8 by EgtB1S8Monitor.state.collectAsState()
+    val egtB2s8 by EgtB2S8Monitor.state.collectAsState()
+    val o2ConcB1s3 by O2ConcB1S3Monitor.state.collectAsState()
+    val o2ConcB1s4 by O2ConcB1S4Monitor.state.collectAsState()
+    val o2ConcB2s3 by O2ConcB2S3Monitor.state.collectAsState()
+    val o2ConcB2s4 by O2ConcB2S4Monitor.state.collectAsState()
+    val defDose by DefDosingCmdMonitor.state.collectAsState()
+    val noxCorrB1s1 by NoxCorrectedB1S1Monitor.state.collectAsState()
+    val noxCorrB1s2 by NoxCorrectedB1S2Monitor.state.collectAsState()
+    val noxCorrB2s1 by NoxCorrectedB2S1Monitor.state.collectAsState()
+    val noxCorrB2s2 by NoxCorrectedB2S2Monitor.state.collectAsState()
+    val noxConcS3 by NoxConcS3Monitor.state.collectAsState()
+    val noxConcS4 by NoxConcS4Monitor.state.collectAsState()
+    val noxCorrS3 by NoxCorrectedS3Monitor.state.collectAsState()
+    val noxCorrS4 by NoxCorrectedS4Monitor.state.collectAsState()
+    val cylFuel by CylinderFuelRateMonitor.state.collectAsState()
+    val evapSysVapor by EvapSysVaporMonitor.state.collectAsState()
+    val transGear by TransGearRatioMonitor.state.collectAsState()
+    val obdOdo by ObdOdometerMonitor.state.collectAsState()
+    val absDisable by AbsDisableMonitor.state.collectAsState()
+    val fuelPressA by FuelPressAMonitor.state.collectAsState()
+    val fuelPressB by FuelPressBMonitor.state.collectAsState()
+    val reflashDist by ReflashDistanceMonitor.state.collectAsState()
+    val fuelLvlA by FuelLevelInputAMonitor.state.collectAsState()
+    val fuelLvlB by FuelLevelInputBMonitor.state.collectAsState()
+    val epcsTime by EpcsDiagTimeMonitor.state.collectAsState()
+    val epcsCount by EpcsDiagCountMonitor.state.collectAsState()
+    val noxPcdLamp by NoxPcdLampMonitor.state.collectAsState()
+    val particulateInduceWarn by ParticulateInduceWarnMonitor.state.collectAsState()
+    val particulateInduceAlert by ParticulateInduceAlertMonitor.state.collectAsState()
+    val dpfRemoval by DpfRemovalCounterMonitor.state.collectAsState()
+    val reagentFail by ReagentInjectionFailCounterMonitor.state.collectAsState()
+    val particulateMalf by ParticulateMonitorMalfunctionCounterMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -224,6 +442,115 @@ fun DriveVizPanel(
             EthanolPctMonitor.tick(prefs, snap)
             EvapVaporMonitor.tick(prefs, snap)
             FuelRailAbsMonitor.tick(prefs, snap)
+            CommandedEgrMonitor.tick(prefs, snap)
+            RelAccelPedalMonitor.tick(prefs, snap)
+            DriverTorqueMonitor.tick(prefs, snap)
+            ActualTorqueMonitor.tick(prefs, snap)
+            CatalystB2Monitor.tick(prefs, snap)
+            CatalystB1S2Monitor.tick(prefs, snap)
+            CatalystB2S2Monitor.tick(prefs, snap)
+            CatalystB1S3Monitor.tick(prefs, snap)
+            CatalystB2S3Monitor.tick(prefs, snap)
+            CatalystB1S4Monitor.tick(prefs, snap)
+            CatalystB2S4Monitor.tick(prefs, snap)
+            FuelTrimStft2B1Monitor.tick(prefs, snap)
+            FuelTrimLtft2B1Monitor.tick(prefs, snap)
+            FuelTrimStft2B2Monitor.tick(prefs, snap)
+            FuelTrimLtft2B2Monitor.tick(prefs, snap)
+            CatalystB1S5Monitor.tick(prefs, snap)
+            CatalystB2S5Monitor.tick(prefs, snap)
+            FuelInjectTimingMonitor.tick(prefs, snap)
+            HybridBattLifeMonitor.tick(prefs, snap)
+            EngineRefTorqueMonitor.tick(prefs, snap)
+            CatalystB1S6Monitor.tick(prefs, snap)
+            CatalystB2S6Monitor.tick(prefs, snap)
+            ThrottleBMonitor.tick(prefs, snap)
+            ThrottleCMonitor.tick(prefs, snap)
+            MilTimeOnMonitor.tick(prefs, snap)
+            CatalystB1S7Monitor.tick(prefs, snap)
+            CatalystB2S7Monitor.tick(prefs, snap)
+            FuelTypeMonitor.tick(prefs, snap)
+            MaxEquivRatioMonitor.tick(prefs, snap)
+            MaxMafGpsMonitor.tick(prefs, snap)
+            CatalystB1S8Monitor.tick(prefs, snap)
+            CatalystB2S8Monitor.tick(prefs, snap)
+            MaxAvailTorqueMonitor.tick(prefs, snap)
+            MafSensorIatMonitor.tick(prefs, snap)
+            AuxInputStatusMonitor.tick(prefs, snap)
+            CatalystB1S9Monitor.tick(prefs, snap)
+            CatalystB2S9Monitor.tick(prefs, snap)
+            CoolantEct2Monitor.tick(prefs, snap)
+            IatSensor2Monitor.tick(prefs, snap)
+            TurboInletPressureMonitor.tick(prefs, snap)
+            CatalystB1S10Monitor.tick(prefs, snap)
+            CatalystB2S10Monitor.tick(prefs, snap)
+            EgrTemperatureMonitor.tick(prefs, snap)
+            DieselIntakeAirflowMonitor.tick(prefs, snap)
+            ThrottleActuatorMonitor.tick(prefs, snap)
+            CatalystB1S11Monitor.tick(prefs, snap)
+            CatalystB2S11Monitor.tick(prefs, snap)
+            ActualEgrMonitor.tick(prefs, snap)
+            InjectPressureControlMonitor.tick(prefs, snap)
+            FuelPressureControlMonitor.tick(prefs, snap)
+            CatalystB1S12Monitor.tick(prefs, snap)
+            CatalystB2S12Monitor.tick(prefs, snap)
+            FuelTrimStftB2Monitor.tick(prefs, snap)
+            FuelTrimLtftB2Monitor.tick(prefs, snap)
+            CatalystB1S13Monitor.tick(prefs, snap)
+            CatalystB2S13Monitor.tick(prefs, snap)
+            DpfAftertreatmentMonitor.tick(prefs, snap)
+            ThrottleGMonitor.tick(prefs, snap)
+            EngineFrictionTorqueMonitor.tick(prefs, snap)
+            CatalystB1S14Monitor.tick(prefs, snap)
+            CatalystB2S14Monitor.tick(prefs, snap)
+            O2LambdaB1Monitor.tick(prefs, snap)
+            PmSensorB1Monitor.tick(prefs, snap)
+            PmSensorB2Monitor.tick(prefs, snap)
+            EgtB1S5Monitor.tick(prefs, snap)
+            EgtB2S5Monitor.tick(prefs, snap)
+            O2LambdaB1S3Monitor.tick(prefs, snap)
+            O2LambdaB2S3Monitor.tick(prefs, snap)
+            NoxReagentQualityMonitor.tick(prefs, snap)
+            EgtB1S6Monitor.tick(prefs, snap)
+            EgtB2S6Monitor.tick(prefs, snap)
+            O2LambdaB1S4Monitor.tick(prefs, snap)
+            O2LambdaB2S4Monitor.tick(prefs, snap)
+            DefFluidMonitor.tick(prefs, snap)
+            EgtB1S7Monitor.tick(prefs, snap)
+            EgtB2S7Monitor.tick(prefs, snap)
+            EgtB1S8Monitor.tick(prefs, snap)
+            EgtB2S8Monitor.tick(prefs, snap)
+            O2ConcB1S3Monitor.tick(prefs, snap)
+            O2ConcB1S4Monitor.tick(prefs, snap)
+            O2ConcB2S3Monitor.tick(prefs, snap)
+            O2ConcB2S4Monitor.tick(prefs, snap)
+            DefDosingCmdMonitor.tick(prefs, snap)
+            NoxCorrectedB1S1Monitor.tick(prefs, snap)
+            NoxCorrectedB1S2Monitor.tick(prefs, snap)
+            NoxCorrectedB2S1Monitor.tick(prefs, snap)
+            NoxCorrectedB2S2Monitor.tick(prefs, snap)
+            NoxConcS3Monitor.tick(prefs, snap)
+            NoxConcS4Monitor.tick(prefs, snap)
+            NoxCorrectedS3Monitor.tick(prefs, snap)
+            NoxCorrectedS4Monitor.tick(prefs, snap)
+            CylinderFuelRateMonitor.tick(prefs, snap)
+            EvapSysVaporMonitor.tick(prefs, snap)
+            TransGearRatioMonitor.tick(prefs, snap)
+            ObdOdometerMonitor.tick(prefs, snap)
+            AbsDisableMonitor.tick(prefs, snap)
+            FuelPressAMonitor.tick(prefs, snap)
+            FuelPressBMonitor.tick(prefs, snap)
+            ReflashDistanceMonitor.tick(prefs, snap)
+            FuelLevelInputAMonitor.tick(prefs, snap)
+            FuelLevelInputBMonitor.tick(prefs, snap)
+            EpcsDiagTimeMonitor.tick(prefs, snap)
+            EpcsDiagCountMonitor.tick(prefs, snap)
+            NoxPcdLampMonitor.tick(prefs, snap)
+            ParticulateInduceWarnMonitor.tick(prefs, snap)
+            ParticulateInduceAlertMonitor.tick(prefs, snap)
+            DpfRemovalCounterMonitor.tick(prefs, snap)
+            ReagentInjectionFailCounterMonitor.tick(prefs, snap)
+            ParticulateMonitorMalfunctionCounterMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -741,6 +1068,333 @@ fun DriveVizPanel(
                 }
                 if (railAbs.showWarn || (prefs.railAbsEnabled && railAbs.band == "ok" && railAbs.label.isNotBlank())) {
                     Text(railAbs.label, color = Color(com.veplayer.app.vehicle.FuelRailAbs.accentArgb(railAbs.band)), fontSize = 11.sp)
+                }
+                if (egrCmd.showWarn || (prefs.egrCmdEnabled && egrCmd.band == "ok" && egrCmd.label.isNotBlank())) {
+                    Text(egrCmd.label, color = Color(com.veplayer.app.vehicle.CommandedEgr.accentArgb(egrCmd.band)), fontSize = 11.sp)
+                }
+                if (relAped.showWarn || (prefs.relApedEnabled && relAped.band == "ok" && relAped.label.isNotBlank())) {
+                    Text(relAped.label, color = Color(com.veplayer.app.vehicle.RelAccelPedal.accentArgb(relAped.band)), fontSize = 11.sp)
+                }
+                if (drvTorque.showWarn || (prefs.drvTorqueEnabled && drvTorque.band == "ok" && drvTorque.label.isNotBlank())) {
+                    Text(drvTorque.label, color = Color(com.veplayer.app.vehicle.DriverTorque.accentArgb(drvTorque.band)), fontSize = 11.sp)
+                }
+                if (actTorque.showWarn || (prefs.actTorqueEnabled && actTorque.band == "ok" && actTorque.label.isNotBlank())) {
+                    Text(actTorque.label, color = Color(com.veplayer.app.vehicle.ActualTorque.accentArgb(actTorque.band)), fontSize = 11.sp)
+                }
+                if (catB2.showWarn || (prefs.catB2Enabled && catB2.band == "ok" && catB2.label.isNotBlank())) {
+                    Text(catB2.label, color = Color(com.veplayer.app.vehicle.CatalystB2.accentArgb(catB2.band)), fontSize = 11.sp)
+                }
+                if (catB1s2.showWarn || (prefs.catB1s2Enabled && catB1s2.band == "ok" && catB1s2.label.isNotBlank())) {
+                    Text(catB1s2.label, color = Color(com.veplayer.app.vehicle.CatalystB1S2.accentArgb(catB1s2.band)), fontSize = 11.sp)
+                }
+                if (catB2s2.showWarn || (prefs.catB2s2Enabled && catB2s2.band == "ok" && catB2s2.label.isNotBlank())) {
+                    Text(catB2s2.label, color = Color(com.veplayer.app.vehicle.CatalystB2S2.accentArgb(catB2s2.band)), fontSize = 11.sp)
+                }
+                if (catB1s3.showWarn || (prefs.catB1s3Enabled && catB1s3.band == "ok" && catB1s3.label.isNotBlank())) {
+                    Text(catB1s3.label, color = Color(com.veplayer.app.vehicle.CatalystB1S3.accentArgb(catB1s3.band)), fontSize = 11.sp)
+                }
+                if (catB2s3.showWarn || (prefs.catB2s3Enabled && catB2s3.band == "ok" && catB2s3.label.isNotBlank())) {
+                    Text(catB2s3.label, color = Color(com.veplayer.app.vehicle.CatalystB2S3.accentArgb(catB2s3.band)), fontSize = 11.sp)
+                }
+                if (catB1s4.showWarn || (prefs.catB1s4Enabled && catB1s4.band == "ok" && catB1s4.label.isNotBlank())) {
+                    Text(catB1s4.label, color = Color(com.veplayer.app.vehicle.CatalystB1S4.accentArgb(catB1s4.band)), fontSize = 11.sp)
+                }
+                if (catB2s4.showWarn || (prefs.catB2s4Enabled && catB2s4.band == "ok" && catB2s4.label.isNotBlank())) {
+                    Text(catB2s4.label, color = Color(com.veplayer.app.vehicle.CatalystB2S4.accentArgb(catB2s4.band)), fontSize = 11.sp)
+                }
+                if (stft2B1.showWarn || (prefs.stft2B1Enabled && stft2B1.band == "ok" && stft2B1.label.isNotBlank())) {
+                    Text(stft2B1.label, color = Color(com.veplayer.app.vehicle.FuelTrimStft2B1.accentArgb(stft2B1.band)), fontSize = 11.sp)
+                }
+                if (ltft2B1.showWarn || (prefs.ltft2B1Enabled && ltft2B1.band == "ok" && ltft2B1.label.isNotBlank())) {
+                    Text(ltft2B1.label, color = Color(com.veplayer.app.vehicle.FuelTrimLtft2B1.accentArgb(ltft2B1.band)), fontSize = 11.sp)
+                }
+                if (stft2B2.showWarn || (prefs.stft2B2Enabled && stft2B2.band == "ok" && stft2B2.label.isNotBlank())) {
+                    Text(stft2B2.label, color = Color(com.veplayer.app.vehicle.FuelTrimStft2B2.accentArgb(stft2B2.band)), fontSize = 11.sp)
+                }
+                if (ltft2B2.showWarn || (prefs.ltft2B2Enabled && ltft2B2.band == "ok" && ltft2B2.label.isNotBlank())) {
+                    Text(ltft2B2.label, color = Color(com.veplayer.app.vehicle.FuelTrimLtft2B2.accentArgb(ltft2B2.band)), fontSize = 11.sp)
+                }
+                if (catB1s5.showWarn || (prefs.catB1s5Enabled && catB1s5.band == "ok" && catB1s5.label.isNotBlank())) {
+                    Text(catB1s5.label, color = Color(com.veplayer.app.vehicle.CatalystB1S5.accentArgb(catB1s5.band)), fontSize = 11.sp)
+                }
+                if (catB2s5.showWarn || (prefs.catB2s5Enabled && catB2s5.band == "ok" && catB2s5.label.isNotBlank())) {
+                    Text(catB2s5.label, color = Color(com.veplayer.app.vehicle.CatalystB2S5.accentArgb(catB2s5.band)), fontSize = 11.sp)
+                }
+                if (inject.showWarn || (prefs.injectEnabled && inject.band == "ok" && inject.label.isNotBlank())) {
+                    Text(inject.label, color = Color(com.veplayer.app.vehicle.FuelInjectTiming.accentArgb(inject.band)), fontSize = 11.sp)
+                }
+                if (hybridBatt.showWarn || (prefs.hybridEnabled && hybridBatt.band == "ok" && hybridBatt.label.isNotBlank())) {
+                    Text(hybridBatt.label, color = Color(com.veplayer.app.vehicle.HybridBattLife.accentArgb(hybridBatt.band)), fontSize = 11.sp)
+                }
+                if (refTorque.showWarn || (prefs.refTorqueEnabled && refTorque.band == "ok" && refTorque.label.isNotBlank())) {
+                    Text(refTorque.label, color = Color(com.veplayer.app.vehicle.EngineRefTorque.accentArgb(refTorque.band)), fontSize = 11.sp)
+                }
+                if (catB1s6.showWarn || (prefs.catB1s6Enabled && catB1s6.band == "ok" && catB1s6.label.isNotBlank())) {
+                    Text(catB1s6.label, color = Color(com.veplayer.app.vehicle.CatalystB1S6.accentArgb(catB1s6.band)), fontSize = 11.sp)
+                }
+                if (catB2s6.showWarn || (prefs.catB2s6Enabled && catB2s6.band == "ok" && catB2s6.label.isNotBlank())) {
+                    Text(catB2s6.label, color = Color(com.veplayer.app.vehicle.CatalystB2S6.accentArgb(catB2s6.band)), fontSize = 11.sp)
+                }
+                if (thrB.showWarn || (prefs.thrBEnabled && thrB.band == "ok" && thrB.label.isNotBlank())) {
+                    Text(thrB.label, color = Color(com.veplayer.app.vehicle.ThrottleB.accentArgb(thrB.band)), fontSize = 11.sp)
+                }
+                if (thrC.showWarn || (prefs.thrCEnabled && thrC.band == "ok" && thrC.label.isNotBlank())) {
+                    Text(thrC.label, color = Color(com.veplayer.app.vehicle.ThrottleC.accentArgb(thrC.band)), fontSize = 11.sp)
+                }
+                if (milTime.showWarn || (prefs.milTimeEnabled && milTime.milOn && milTime.label.isNotBlank())) {
+                    Text(milTime.label, color = Color(com.veplayer.app.vehicle.MilTimeOn.accentArgb(milTime.band)), fontSize = 11.sp)
+                }
+                if (catB1s7.showWarn || (prefs.catB1s7Enabled && catB1s7.band == "ok" && catB1s7.label.isNotBlank())) {
+                    Text(catB1s7.label, color = Color(com.veplayer.app.vehicle.CatalystB1S7.accentArgb(catB1s7.band)), fontSize = 11.sp)
+                }
+                if (catB2s7.showWarn || (prefs.catB2s7Enabled && catB2s7.band == "ok" && catB2s7.label.isNotBlank())) {
+                    Text(catB2s7.label, color = Color(com.veplayer.app.vehicle.CatalystB2S7.accentArgb(catB2s7.band)), fontSize = 11.sp)
+                }
+                if (fuelType.showWarn || (prefs.fuelTypeEnabled && fuelType.label.isNotBlank())) {
+                    Text(fuelType.label, color = Color(com.veplayer.app.vehicle.FuelType.accentArgb(fuelType.band)), fontSize = 11.sp)
+                }
+                if (maxEquiv.showWarn || (prefs.maxEquivEnabled && maxEquiv.band == "ok" && maxEquiv.label.isNotBlank())) {
+                    Text(maxEquiv.label, color = Color(com.veplayer.app.vehicle.MaxEquivRatio.accentArgb(maxEquiv.band)), fontSize = 11.sp)
+                }
+                if (maxMaf.showWarn || (prefs.maxMafEnabled && maxMaf.band == "ok" && maxMaf.label.isNotBlank())) {
+                    Text(maxMaf.label, color = Color(com.veplayer.app.vehicle.MaxMafGps.accentArgb(maxMaf.band)), fontSize = 11.sp)
+                }
+                if (catB1s8.showWarn || (prefs.catB1s8Enabled && catB1s8.band == "ok" && catB1s8.label.isNotBlank())) {
+                    Text(catB1s8.label, color = Color(com.veplayer.app.vehicle.CatalystB1S8.accentArgb(catB1s8.band)), fontSize = 11.sp)
+                }
+                if (catB2s8.showWarn || (prefs.catB2s8Enabled && catB2s8.band == "ok" && catB2s8.label.isNotBlank())) {
+                    Text(catB2s8.label, color = Color(com.veplayer.app.vehicle.CatalystB2S8.accentArgb(catB2s8.band)), fontSize = 11.sp)
+                }
+                if (maxAvailTorque.showWarn || (prefs.maxAvailTorqueEnabled && maxAvailTorque.band == "ok" && maxAvailTorque.label.isNotBlank())) {
+                    Text(maxAvailTorque.label, color = Color(com.veplayer.app.vehicle.MaxAvailTorque.accentArgb(maxAvailTorque.band)), fontSize = 11.sp)
+                }
+                if (mafIat.showWarn || (prefs.mafIatEnabled && mafIat.band == "ok" && mafIat.label.isNotBlank())) {
+                    Text(mafIat.label, color = Color(com.veplayer.app.vehicle.MafSensorIat.accentArgb(mafIat.band)), fontSize = 11.sp)
+                }
+                if (auxInput.showWarn || (prefs.auxInputEnabled && auxInput.label.isNotBlank())) {
+                    Text(auxInput.label, color = Color(com.veplayer.app.vehicle.AuxInputStatus.accentArgb(auxInput.band)), fontSize = 11.sp)
+                }
+                if (catB1s9.showWarn || (prefs.catB1s9Enabled && catB1s9.band == "ok" && catB1s9.label.isNotBlank())) {
+                    Text(catB1s9.label, color = Color(com.veplayer.app.vehicle.CatalystB1S9.accentArgb(catB1s9.band)), fontSize = 11.sp)
+                }
+                if (catB2s9.showWarn || (prefs.catB2s9Enabled && catB2s9.band == "ok" && catB2s9.label.isNotBlank())) {
+                    Text(catB2s9.label, color = Color(com.veplayer.app.vehicle.CatalystB2S9.accentArgb(catB2s9.band)), fontSize = 11.sp)
+                }
+                if (ect2.showWarn || (prefs.ect2Enabled && ect2.band == "ok" && ect2.label.isNotBlank())) {
+                    Text(ect2.label, color = Color(com.veplayer.app.vehicle.CoolantEct2.accentArgb(ect2.band)), fontSize = 11.sp)
+                }
+                if (iat2.showWarn || (prefs.iat2Enabled && iat2.band == "ok" && iat2.label.isNotBlank())) {
+                    Text(iat2.label, color = Color(com.veplayer.app.vehicle.IatSensor2.accentArgb(iat2.band)), fontSize = 11.sp)
+                }
+                if (turboInlet.showWarn || (prefs.turboInletEnabled && turboInlet.band == "ok" && turboInlet.label.isNotBlank())) {
+                    Text(turboInlet.label, color = Color(com.veplayer.app.vehicle.TurboInletPressure.accentArgb(turboInlet.band)), fontSize = 11.sp)
+                }
+                if (catB1s10.showWarn || (prefs.catB1s10Enabled && catB1s10.band == "ok" && catB1s10.label.isNotBlank())) {
+                    Text(catB1s10.label, color = Color(com.veplayer.app.vehicle.CatalystB1S10.accentArgb(catB1s10.band)), fontSize = 11.sp)
+                }
+                if (catB2s10.showWarn || (prefs.catB2s10Enabled && catB2s10.band == "ok" && catB2s10.label.isNotBlank())) {
+                    Text(catB2s10.label, color = Color(com.veplayer.app.vehicle.CatalystB2S10.accentArgb(catB2s10.band)), fontSize = 11.sp)
+                }
+                if (egrTemp.showWarn || (prefs.egrTempEnabled && egrTemp.band == "ok" && egrTemp.label.isNotBlank())) {
+                    Text(egrTemp.label, color = Color(com.veplayer.app.vehicle.EgrTemperature.accentArgb(egrTemp.band)), fontSize = 11.sp)
+                }
+                if (dieselIaf.showWarn || (prefs.dieselIafEnabled && dieselIaf.band == "ok" && dieselIaf.label.isNotBlank())) {
+                    Text(dieselIaf.label, color = Color(com.veplayer.app.vehicle.DieselIntakeAirflow.accentArgb(dieselIaf.band)), fontSize = 11.sp)
+                }
+                if (thrAct.showWarn || (prefs.thrActEnabled && thrAct.band == "ok" && thrAct.label.isNotBlank())) {
+                    Text(thrAct.label, color = Color(com.veplayer.app.vehicle.ThrottleActuator.accentArgb(thrAct.band)), fontSize = 11.sp)
+                }
+                if (catB1s11.showWarn || (prefs.catB1s11Enabled && catB1s11.band == "ok" && catB1s11.label.isNotBlank())) {
+                    Text(catB1s11.label, color = Color(com.veplayer.app.vehicle.CatalystB1S11.accentArgb(catB1s11.band)), fontSize = 11.sp)
+                }
+                if (catB2s11.showWarn || (prefs.catB2s11Enabled && catB2s11.band == "ok" && catB2s11.label.isNotBlank())) {
+                    Text(catB2s11.label, color = Color(com.veplayer.app.vehicle.CatalystB2S11.accentArgb(catB2s11.band)), fontSize = 11.sp)
+                }
+                if (egrActual.showWarn || (prefs.egrActualEnabled && egrActual.band == "ok" && egrActual.label.isNotBlank())) {
+                    Text(egrActual.label, color = Color(com.veplayer.app.vehicle.ActualEgr.accentArgb(egrActual.band)), fontSize = 11.sp)
+                }
+                if (injectCtrl.showWarn || (prefs.injectCtrlEnabled && injectCtrl.band == "ok" && injectCtrl.label.isNotBlank())) {
+                    Text(injectCtrl.label, color = Color(com.veplayer.app.vehicle.InjectPressureControl.accentArgb(injectCtrl.band)), fontSize = 11.sp)
+                }
+                if (fuelCtrl.showWarn || (prefs.fuelCtrlEnabled && fuelCtrl.band == "ok" && fuelCtrl.label.isNotBlank())) {
+                    Text(fuelCtrl.label, color = Color(com.veplayer.app.vehicle.FuelPressureControl.accentArgb(fuelCtrl.band)), fontSize = 11.sp)
+                }
+                if (catB1s12.showWarn || (prefs.catB1s12Enabled && catB1s12.band == "ok" && catB1s12.label.isNotBlank())) {
+                    Text(catB1s12.label, color = Color(com.veplayer.app.vehicle.CatalystB1S12.accentArgb(catB1s12.band)), fontSize = 11.sp)
+                }
+                if (catB2s12.showWarn || (prefs.catB2s12Enabled && catB2s12.band == "ok" && catB2s12.label.isNotBlank())) {
+                    Text(catB2s12.label, color = Color(com.veplayer.app.vehicle.CatalystB2S12.accentArgb(catB2s12.band)), fontSize = 11.sp)
+                }
+                if (stftB2.showWarn || (prefs.stftB2Enabled && stftB2.band == "ok" && stftB2.label.isNotBlank())) {
+                    Text(stftB2.label, color = Color(com.veplayer.app.vehicle.FuelTrimStftB2.accentArgb(stftB2.band)), fontSize = 11.sp)
+                }
+                if (ltftB2.showWarn || (prefs.ltftB2Enabled && ltftB2.band == "ok" && ltftB2.label.isNotBlank())) {
+                    Text(ltftB2.label, color = Color(com.veplayer.app.vehicle.FuelTrimLtftB2.accentArgb(ltftB2.band)), fontSize = 11.sp)
+                }
+                if (catB1s13.showWarn || (prefs.catB1s13Enabled && catB1s13.band == "ok" && catB1s13.label.isNotBlank())) {
+                    Text(catB1s13.label, color = Color(com.veplayer.app.vehicle.CatalystB1S13.accentArgb(catB1s13.band)), fontSize = 11.sp)
+                }
+                if (catB2s13.showWarn || (prefs.catB2s13Enabled && catB2s13.band == "ok" && catB2s13.label.isNotBlank())) {
+                    Text(catB2s13.label, color = Color(com.veplayer.app.vehicle.CatalystB2S13.accentArgb(catB2s13.band)), fontSize = 11.sp)
+                }
+                if (dpfTrig.showWarn || (prefs.dpfTrigEnabled && dpfTrig.band == "ok" && dpfTrig.label.isNotBlank())) {
+                    Text(dpfTrig.label, color = Color(com.veplayer.app.vehicle.DpfAftertreatment.accentArgb(dpfTrig.band)), fontSize = 11.sp)
+                }
+                if (thrG.showWarn || (prefs.thrGEnabled && thrG.band == "ok" && thrG.label.isNotBlank())) {
+                    Text(thrG.label, color = Color(com.veplayer.app.vehicle.ThrottleG.accentArgb(thrG.band)), fontSize = 11.sp)
+                }
+                if (engFriction.showWarn || (prefs.engFrictionEnabled && engFriction.band == "ok" && engFriction.label.isNotBlank())) {
+                    Text(engFriction.label, color = Color(com.veplayer.app.vehicle.EngineFrictionTorque.accentArgb(engFriction.band)), fontSize = 11.sp)
+                }
+                if (catB1s14.showWarn || (prefs.catB1s14Enabled && catB1s14.band == "ok" && catB1s14.label.isNotBlank())) {
+                    Text(catB1s14.label, color = Color(com.veplayer.app.vehicle.CatalystB1S14.accentArgb(catB1s14.band)), fontSize = 11.sp)
+                }
+                if (catB2s14.showWarn || (prefs.catB2s14Enabled && catB2s14.band == "ok" && catB2s14.label.isNotBlank())) {
+                    Text(catB2s14.label, color = Color(com.veplayer.app.vehicle.CatalystB2S14.accentArgb(catB2s14.band)), fontSize = 11.sp)
+                }
+                if (o2Lambda.showWarn || (prefs.o2LambdaEnabled && o2Lambda.band == "ok" && o2Lambda.label.isNotBlank())) {
+                    Text(o2Lambda.label, color = Color(com.veplayer.app.vehicle.O2LambdaB1.accentArgb(o2Lambda.band)), fontSize = 11.sp)
+                }
+                if (pmB1.showWarn || (prefs.pmB1Enabled && pmB1.band == "ok" && pmB1.label.isNotBlank())) {
+                    Text(pmB1.label, color = Color(com.veplayer.app.vehicle.PmSensorB1.accentArgb(pmB1.band)), fontSize = 11.sp)
+                }
+                if (pmB2.showWarn || (prefs.pmB2Enabled && pmB2.band == "ok" && pmB2.label.isNotBlank())) {
+                    Text(pmB2.label, color = Color(com.veplayer.app.vehicle.PmSensorB2.accentArgb(pmB2.band)), fontSize = 11.sp)
+                }
+                if (egtB1s5.showWarn || (prefs.egtB1s5Enabled && egtB1s5.band == "ok" && egtB1s5.label.isNotBlank())) {
+                    Text(egtB1s5.label, color = Color(com.veplayer.app.vehicle.EgtB1S5.accentArgb(egtB1s5.band)), fontSize = 11.sp)
+                }
+                if (egtB2s5.showWarn || (prefs.egtB2s5Enabled && egtB2s5.band == "ok" && egtB2s5.label.isNotBlank())) {
+                    Text(egtB2s5.label, color = Color(com.veplayer.app.vehicle.EgtB2S5.accentArgb(egtB2s5.band)), fontSize = 11.sp)
+                }
+                if (o2LambdaB1s3.showWarn || (prefs.o2LambdaB1s3Enabled && o2LambdaB1s3.band == "ok" && o2LambdaB1s3.label.isNotBlank())) {
+                    Text(o2LambdaB1s3.label, color = Color(com.veplayer.app.vehicle.O2LambdaB1S3.accentArgb(o2LambdaB1s3.band)), fontSize = 11.sp)
+                }
+                if (o2LambdaB2s3.showWarn || (prefs.o2LambdaB2s3Enabled && o2LambdaB2s3.band == "ok" && o2LambdaB2s3.label.isNotBlank())) {
+                    Text(o2LambdaB2s3.label, color = Color(com.veplayer.app.vehicle.O2LambdaB2S3.accentArgb(o2LambdaB2s3.band)), fontSize = 11.sp)
+                }
+                if (noxReq.showWarn || (prefs.noxReqEnabled && noxReq.band == "ok" && noxReq.label.isNotBlank())) {
+                    Text(noxReq.label, color = Color(com.veplayer.app.vehicle.NoxReagentQuality.accentArgb(noxReq.band)), fontSize = 11.sp)
+                }
+                if (egtB1s6.showWarn || (prefs.egtB1s6Enabled && egtB1s6.band == "ok" && egtB1s6.label.isNotBlank())) {
+                    Text(egtB1s6.label, color = Color(com.veplayer.app.vehicle.EgtB1S6.accentArgb(egtB1s6.band)), fontSize = 11.sp)
+                }
+                if (egtB2s6.showWarn || (prefs.egtB2s6Enabled && egtB2s6.band == "ok" && egtB2s6.label.isNotBlank())) {
+                    Text(egtB2s6.label, color = Color(com.veplayer.app.vehicle.EgtB2S6.accentArgb(egtB2s6.band)), fontSize = 11.sp)
+                }
+                if (o2LambdaB1s4.showWarn || (prefs.o2LambdaB1s4Enabled && o2LambdaB1s4.band == "ok" && o2LambdaB1s4.label.isNotBlank())) {
+                    Text(o2LambdaB1s4.label, color = Color(com.veplayer.app.vehicle.O2LambdaB1S4.accentArgb(o2LambdaB1s4.band)), fontSize = 11.sp)
+                }
+                if (o2LambdaB2s4.showWarn || (prefs.o2LambdaB2s4Enabled && o2LambdaB2s4.band == "ok" && o2LambdaB2s4.label.isNotBlank())) {
+                    Text(o2LambdaB2s4.label, color = Color(com.veplayer.app.vehicle.O2LambdaB2S4.accentArgb(o2LambdaB2s4.band)), fontSize = 11.sp)
+                }
+                if (defFluid.showWarn || (prefs.defFluidEnabled && defFluid.band == "ok" && defFluid.label.isNotBlank())) {
+                    Text(defFluid.label, color = Color(com.veplayer.app.vehicle.DefFluid.accentArgb(defFluid.band)), fontSize = 11.sp)
+                }
+                if (egtB1s7.showWarn || (prefs.egtB1s7Enabled && egtB1s7.band == "ok" && egtB1s7.label.isNotBlank())) {
+                    Text(egtB1s7.label, color = Color(com.veplayer.app.vehicle.EgtB1S7.accentArgb(egtB1s7.band)), fontSize = 11.sp)
+                }
+                if (egtB2s7.showWarn || (prefs.egtB2s7Enabled && egtB2s7.band == "ok" && egtB2s7.label.isNotBlank())) {
+                    Text(egtB2s7.label, color = Color(com.veplayer.app.vehicle.EgtB2S7.accentArgb(egtB2s7.band)), fontSize = 11.sp)
+                }
+                if (egtB1s8.showWarn || (prefs.egtB1s8Enabled && egtB1s8.band == "ok" && egtB1s8.label.isNotBlank())) {
+                    Text(egtB1s8.label, color = Color(com.veplayer.app.vehicle.EgtB1S8.accentArgb(egtB1s8.band)), fontSize = 11.sp)
+                }
+                if (egtB2s8.showWarn || (prefs.egtB2s8Enabled && egtB2s8.band == "ok" && egtB2s8.label.isNotBlank())) {
+                    Text(egtB2s8.label, color = Color(com.veplayer.app.vehicle.EgtB2S8.accentArgb(egtB2s8.band)), fontSize = 11.sp)
+                }
+                if (o2ConcB1s3.showWarn || (prefs.o2ConcB1s3Enabled && o2ConcB1s3.band == "ok" && o2ConcB1s3.label.isNotBlank())) {
+                    Text(o2ConcB1s3.label, color = Color(com.veplayer.app.vehicle.O2ConcB1S3.accentArgb(o2ConcB1s3.band)), fontSize = 11.sp)
+                }
+                if (o2ConcB1s4.showWarn || (prefs.o2ConcB1s4Enabled && o2ConcB1s4.band == "ok" && o2ConcB1s4.label.isNotBlank())) {
+                    Text(o2ConcB1s4.label, color = Color(com.veplayer.app.vehicle.O2ConcB1S4.accentArgb(o2ConcB1s4.band)), fontSize = 11.sp)
+                }
+                if (o2ConcB2s3.showWarn || (prefs.o2ConcB2s3Enabled && o2ConcB2s3.band == "ok" && o2ConcB2s3.label.isNotBlank())) {
+                    Text(o2ConcB2s3.label, color = Color(com.veplayer.app.vehicle.O2ConcB2S3.accentArgb(o2ConcB2s3.band)), fontSize = 11.sp)
+                }
+                if (o2ConcB2s4.showWarn || (prefs.o2ConcB2s4Enabled && o2ConcB2s4.band == "ok" && o2ConcB2s4.label.isNotBlank())) {
+                    Text(o2ConcB2s4.label, color = Color(com.veplayer.app.vehicle.O2ConcB2S4.accentArgb(o2ConcB2s4.band)), fontSize = 11.sp)
+                }
+                if (defDose.showWarn || (prefs.defDoseEnabled && defDose.band == "ok" && defDose.label.isNotBlank())) {
+                    Text(defDose.label, color = Color(com.veplayer.app.vehicle.DefDosingCmd.accentArgb(defDose.band)), fontSize = 11.sp)
+                }
+                if (noxCorrB1s1.showWarn || (prefs.noxCorrB1s1Enabled && noxCorrB1s1.band == "ok" && noxCorrB1s1.label.isNotBlank())) {
+                    Text(noxCorrB1s1.label, color = Color(com.veplayer.app.vehicle.NoxCorrectedB1S1.accentArgb(noxCorrB1s1.band)), fontSize = 11.sp)
+                }
+                if (noxCorrB1s2.showWarn || (prefs.noxCorrB1s2Enabled && noxCorrB1s2.band == "ok" && noxCorrB1s2.label.isNotBlank())) {
+                    Text(noxCorrB1s2.label, color = Color(com.veplayer.app.vehicle.NoxCorrectedB1S2.accentArgb(noxCorrB1s2.band)), fontSize = 11.sp)
+                }
+                if (noxCorrB2s1.showWarn || (prefs.noxCorrB2s1Enabled && noxCorrB2s1.band == "ok" && noxCorrB2s1.label.isNotBlank())) {
+                    Text(noxCorrB2s1.label, color = Color(com.veplayer.app.vehicle.NoxCorrectedB2S1.accentArgb(noxCorrB2s1.band)), fontSize = 11.sp)
+                }
+                if (noxCorrB2s2.showWarn || (prefs.noxCorrB2s2Enabled && noxCorrB2s2.band == "ok" && noxCorrB2s2.label.isNotBlank())) {
+                    Text(noxCorrB2s2.label, color = Color(com.veplayer.app.vehicle.NoxCorrectedB2S2.accentArgb(noxCorrB2s2.band)), fontSize = 11.sp)
+                }
+                if (noxConcS3.showWarn || (prefs.noxConcS3Enabled && noxConcS3.band == "ok" && noxConcS3.label.isNotBlank())) {
+                    Text(noxConcS3.label, color = Color(com.veplayer.app.vehicle.NoxConcS3.accentArgb(noxConcS3.band)), fontSize = 11.sp)
+                }
+                if (noxConcS4.showWarn || (prefs.noxConcS4Enabled && noxConcS4.band == "ok" && noxConcS4.label.isNotBlank())) {
+                    Text(noxConcS4.label, color = Color(com.veplayer.app.vehicle.NoxConcS4.accentArgb(noxConcS4.band)), fontSize = 11.sp)
+                }
+                if (noxCorrS3.showWarn || (prefs.noxCorrS3Enabled && noxCorrS3.band == "ok" && noxCorrS3.label.isNotBlank())) {
+                    Text(noxCorrS3.label, color = Color(com.veplayer.app.vehicle.NoxCorrectedS3.accentArgb(noxCorrS3.band)), fontSize = 11.sp)
+                }
+                if (noxCorrS4.showWarn || (prefs.noxCorrS4Enabled && noxCorrS4.band == "ok" && noxCorrS4.label.isNotBlank())) {
+                    Text(noxCorrS4.label, color = Color(com.veplayer.app.vehicle.NoxCorrectedS4.accentArgb(noxCorrS4.band)), fontSize = 11.sp)
+                }
+                if (cylFuel.showWarn || (prefs.cylFuelEnabled && cylFuel.band == "ok" && cylFuel.label.isNotBlank())) {
+                    Text(cylFuel.label, color = Color(com.veplayer.app.vehicle.CylinderFuelRate.accentArgb(cylFuel.band)), fontSize = 11.sp)
+                }
+                if (evapSysVapor.showWarn || (prefs.evapSysVaporEnabled && evapSysVapor.band == "ok" && evapSysVapor.label.isNotBlank())) {
+                    Text(evapSysVapor.label, color = Color(com.veplayer.app.vehicle.EvapSysVapor.accentArgb(evapSysVapor.band)), fontSize = 11.sp)
+                }
+                if (transGear.showWarn || (prefs.transGearEnabled && transGear.band == "ok" && transGear.label.isNotBlank())) {
+                    Text(transGear.label, color = Color(com.veplayer.app.vehicle.TransGearRatio.accentArgb(transGear.band)), fontSize = 11.sp)
+                }
+                if (obdOdo.showWarn || (prefs.obdOdoEnabled && obdOdo.band == "ok" && obdOdo.label.isNotBlank())) {
+                    Text(obdOdo.label, color = Color(com.veplayer.app.vehicle.ObdOdometer.accentArgb(obdOdo.band)), fontSize = 11.sp)
+                }
+                if (absDisable.showWarn || (prefs.absDisableEnabled && absDisable.band == "ok" && absDisable.label.isNotBlank())) {
+                    Text(absDisable.label, color = Color(com.veplayer.app.vehicle.AbsDisable.accentArgb(absDisable.band)), fontSize = 11.sp)
+                }
+                if (fuelPressA.showWarn || (prefs.fuelPressAEnabled && fuelPressA.band == "ok" && fuelPressA.label.isNotBlank())) {
+                    Text(fuelPressA.label, color = Color(com.veplayer.app.vehicle.FuelPressA.accentArgb(fuelPressA.band)), fontSize = 11.sp)
+                }
+                if (fuelPressB.showWarn || (prefs.fuelPressBEnabled && fuelPressB.band == "ok" && fuelPressB.label.isNotBlank())) {
+                    Text(fuelPressB.label, color = Color(com.veplayer.app.vehicle.FuelPressB.accentArgb(fuelPressB.band)), fontSize = 11.sp)
+                }
+                if (reflashDist.showWarn || (prefs.reflashDistEnabled && reflashDist.band == "ok" && reflashDist.label.isNotBlank())) {
+                    Text(reflashDist.label, color = Color(com.veplayer.app.vehicle.ReflashDistance.accentArgb(reflashDist.band)), fontSize = 11.sp)
+                }
+                if (fuelLvlA.showWarn || (prefs.fuelLvlAEnabled && fuelLvlA.band == "ok" && fuelLvlA.label.isNotBlank())) {
+                    Text(fuelLvlA.label, color = Color(com.veplayer.app.vehicle.FuelLevelInputA.accentArgb(fuelLvlA.band)), fontSize = 11.sp)
+                }
+                if (fuelLvlB.showWarn || (prefs.fuelLvlBEnabled && fuelLvlB.band == "ok" && fuelLvlB.label.isNotBlank())) {
+                    Text(fuelLvlB.label, color = Color(com.veplayer.app.vehicle.FuelLevelInputB.accentArgb(fuelLvlB.band)), fontSize = 11.sp)
+                }
+                if (epcsTime.showWarn || (prefs.epcsTimeEnabled && epcsTime.band == "ok" && epcsTime.label.isNotBlank())) {
+                    Text(epcsTime.label, color = Color(com.veplayer.app.vehicle.EpcsDiagTime.accentArgb(epcsTime.band)), fontSize = 11.sp)
+                }
+                if (epcsCount.showWarn || (prefs.epcsCountEnabled && epcsCount.band == "ok" && epcsCount.label.isNotBlank())) {
+                    Text(epcsCount.label, color = Color(com.veplayer.app.vehicle.EpcsDiagCount.accentArgb(epcsCount.band)), fontSize = 11.sp)
+                }
+                if (noxPcdLamp.showWarn || (prefs.noxPcdLampEnabled && noxPcdLamp.band == "ok" && noxPcdLamp.label.isNotBlank())) {
+                    Text(noxPcdLamp.label, color = Color(com.veplayer.app.vehicle.NoxPcdLamp.accentArgb(noxPcdLamp.band)), fontSize = 11.sp)
+                }
+                if (particulateInduceWarn.showWarn || (prefs.particulateInduceWarnEnabled && particulateInduceWarn.band == "ok" && particulateInduceWarn.label.isNotBlank())) {
+                    Text(particulateInduceWarn.label, color = Color(com.veplayer.app.vehicle.ParticulateInduceWarn.accentArgb(particulateInduceWarn.band)), fontSize = 11.sp)
+                }
+                if (particulateInduceAlert.showWarn || (prefs.particulateInduceAlertEnabled && particulateInduceAlert.band == "ok" && particulateInduceAlert.label.isNotBlank())) {
+                    Text(particulateInduceAlert.label, color = Color(com.veplayer.app.vehicle.ParticulateInduceAlert.accentArgb(particulateInduceAlert.band)), fontSize = 11.sp)
+                }
+                if (dpfRemoval.showWarn || (prefs.dpfRemovalEnabled && dpfRemoval.band == "ok" && dpfRemoval.label.isNotBlank())) {
+                    Text(dpfRemoval.label, color = Color(com.veplayer.app.vehicle.DpfRemovalCounter.accentArgb(dpfRemoval.band)), fontSize = 11.sp)
+                }
+                if (reagentFail.showWarn || (prefs.reagentFailEnabled && reagentFail.band == "ok" && reagentFail.label.isNotBlank())) {
+                    Text(reagentFail.label, color = Color(com.veplayer.app.vehicle.ReagentInjectionFailCounter.accentArgb(reagentFail.band)), fontSize = 11.sp)
+                }
+                if (particulateMalf.showWarn || (prefs.particulateMalfEnabled && particulateMalf.band == "ok" && particulateMalf.label.isNotBlank())) {
+                    Text(particulateMalf.label, color = Color(com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounter.accentArgb(particulateMalf.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

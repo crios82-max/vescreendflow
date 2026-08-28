@@ -3482,6 +3482,1758 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 18 OBD (014C/5A/61/62/70):", color = Mist)
+            val egrCmdSt by com.veplayer.app.vehicle.CommandedEgrMonitor.state.collectAsState()
+            val relApedSt by com.veplayer.app.vehicle.RelAccelPedalMonitor.state.collectAsState()
+            val drvTorqueSt by com.veplayer.app.vehicle.DriverTorqueMonitor.state.collectAsState()
+            val actTorqueSt by com.veplayer.app.vehicle.ActualTorqueMonitor.state.collectAsState()
+            val catB2St by com.veplayer.app.vehicle.CatalystB2Monitor.state.collectAsState()
+            var f18EgrCmd by remember {
+                mutableStateOf(if (prefs.egrCmdSimPct > 0f) prefs.egrCmdSimPct.toInt().toString() else "0")
+            }
+            var f18RelAp by remember {
+                mutableStateOf(if (prefs.relApedSimPct > 0f) prefs.relApedSimPct.toInt().toString() else "0")
+            }
+            var f18DrvT by remember {
+                mutableStateOf(if (prefs.drvTorqueSimPct != 0f) prefs.drvTorqueSimPct.toInt().toString() else "0")
+            }
+            var f18ActT by remember {
+                mutableStateOf(if (prefs.actTorqueSimPct != 0f) prefs.actTorqueSimPct.toInt().toString() else "0")
+            }
+            var f18CatB2 by remember {
+                mutableStateOf(if (prefs.catB2SimC > 0f) prefs.catB2SimC.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f18EgrCmd,
+                    onValueChange = { f18EgrCmd = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("EGRcmd %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f18RelAp,
+                    onValueChange = { f18RelAp = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("RelAP %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f18DrvT,
+                    onValueChange = { f18DrvT = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("DrvT %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f18ActT,
+                    onValueChange = { f18ActT = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("ActT %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f18CatB2,
+                    onValueChange = { f18CatB2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("CatB2 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.egrCmdSimPct = f18EgrCmd.toFloatOrNull() ?: 0f
+                    prefs.relApedSimPct = f18RelAp.toFloatOrNull() ?: 0f
+                    prefs.drvTorqueSimPct = f18DrvT.toFloatOrNull() ?: 0f
+                    prefs.actTorqueSimPct = f18ActT.toFloatOrNull() ?: 0f
+                    prefs.catB2SimC = f18CatB2.toFloatOrNull() ?: 0f
+                    status = "Fase 18 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 18") }
+            Text(
+                listOfNotNull(
+                    egrCmdSt.label.takeIf { it.isNotBlank() },
+                    relApedSt.label.takeIf { it.isNotBlank() },
+                    drvTorqueSt.label.takeIf { it.isNotBlank() },
+                    actTorqueSt.label.takeIf { it.isNotBlank() },
+                    catB2St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 18 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 19 OBD (0171/72/73/74/75):", color = Mist)
+            val catB1s2St by com.veplayer.app.vehicle.CatalystB1S2Monitor.state.collectAsState()
+            val catB2s2St by com.veplayer.app.vehicle.CatalystB2S2Monitor.state.collectAsState()
+            val catB1s3St by com.veplayer.app.vehicle.CatalystB1S3Monitor.state.collectAsState()
+            val catB2s3St by com.veplayer.app.vehicle.CatalystB2S3Monitor.state.collectAsState()
+            val catB1s4St by com.veplayer.app.vehicle.CatalystB1S4Monitor.state.collectAsState()
+            var f19B1s2 by remember {
+                mutableStateOf(if (prefs.catB1s2SimC > 0f) prefs.catB1s2SimC.toInt().toString() else "0")
+            }
+            var f19B2s2 by remember {
+                mutableStateOf(if (prefs.catB2s2SimC > 0f) prefs.catB2s2SimC.toInt().toString() else "0")
+            }
+            var f19B1s3 by remember {
+                mutableStateOf(if (prefs.catB1s3SimC > 0f) prefs.catB1s3SimC.toInt().toString() else "0")
+            }
+            var f19B2s3 by remember {
+                mutableStateOf(if (prefs.catB2s3SimC > 0f) prefs.catB2s3SimC.toInt().toString() else "0")
+            }
+            var f19B1s4 by remember {
+                mutableStateOf(if (prefs.catB1s4SimC > 0f) prefs.catB1s4SimC.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f19B1s2,
+                    onValueChange = { f19B1s2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S2 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f19B2s2,
+                    onValueChange = { f19B2s2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S2 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f19B1s3,
+                    onValueChange = { f19B1s3 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S3 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f19B2s3,
+                    onValueChange = { f19B2s3 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S3 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f19B1s4,
+                    onValueChange = { f19B1s4 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S4 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s2SimC = f19B1s2.toFloatOrNull() ?: 0f
+                    prefs.catB2s2SimC = f19B2s2.toFloatOrNull() ?: 0f
+                    prefs.catB1s3SimC = f19B1s3.toFloatOrNull() ?: 0f
+                    prefs.catB2s3SimC = f19B2s3.toFloatOrNull() ?: 0f
+                    prefs.catB1s4SimC = f19B1s4.toFloatOrNull() ?: 0f
+                    status = "Fase 19 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 19") }
+            Text(
+                listOfNotNull(
+                    catB1s2St.label.takeIf { it.isNotBlank() },
+                    catB2s2St.label.takeIf { it.isNotBlank() },
+                    catB1s3St.label.takeIf { it.isNotBlank() },
+                    catB2s3St.label.takeIf { it.isNotBlank() },
+                    catB1s4St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 19 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 20 OBD (0176/55/56/57/58):", color = Mist)
+            val catB2s4St by com.veplayer.app.vehicle.CatalystB2S4Monitor.state.collectAsState()
+            val stft2B1St by com.veplayer.app.vehicle.FuelTrimStft2B1Monitor.state.collectAsState()
+            val ltft2B1St by com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor.state.collectAsState()
+            val stft2B2St by com.veplayer.app.vehicle.FuelTrimStft2B2Monitor.state.collectAsState()
+            val ltft2B2St by com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor.state.collectAsState()
+            var f20B2s4 by remember {
+                mutableStateOf(if (prefs.catB2s4SimC > 0f) prefs.catB2s4SimC.toInt().toString() else "0")
+            }
+            var f20St2B1 by remember {
+                mutableStateOf(if (prefs.stft2B1SimPct != 0f) prefs.stft2B1SimPct.toInt().toString() else "0")
+            }
+            var f20Lt2B1 by remember {
+                mutableStateOf(if (prefs.ltft2B1SimPct != 0f) prefs.ltft2B1SimPct.toInt().toString() else "0")
+            }
+            var f20St2B2 by remember {
+                mutableStateOf(if (prefs.stft2B2SimPct != 0f) prefs.stft2B2SimPct.toInt().toString() else "0")
+            }
+            var f20Lt2B2 by remember {
+                mutableStateOf(if (prefs.ltft2B2SimPct != 0f) prefs.ltft2B2SimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f20B2s4,
+                    onValueChange = { f20B2s4 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S4 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f20St2B1,
+                    onValueChange = { f20St2B1 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("ST2B1 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f20Lt2B1,
+                    onValueChange = { f20Lt2B1 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("LT2B1 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f20St2B2,
+                    onValueChange = { f20St2B2 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("ST2B2 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f20Lt2B2,
+                    onValueChange = { f20Lt2B2 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("LT2B2 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB2s4SimC = f20B2s4.toFloatOrNull() ?: 0f
+                    prefs.stft2B1SimPct = f20St2B1.toFloatOrNull() ?: 0f
+                    prefs.ltft2B1SimPct = f20Lt2B1.toFloatOrNull() ?: 0f
+                    prefs.stft2B2SimPct = f20St2B2.toFloatOrNull() ?: 0f
+                    prefs.ltft2B2SimPct = f20Lt2B2.toFloatOrNull() ?: 0f
+                    status = "Fase 20 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 20") }
+            Text(
+                listOfNotNull(
+                    catB2s4St.label.takeIf { it.isNotBlank() },
+                    stft2B1St.label.takeIf { it.isNotBlank() },
+                    ltft2B1St.label.takeIf { it.isNotBlank() },
+                    stft2B2St.label.takeIf { it.isNotBlank() },
+                    ltft2B2St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 20 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 21 OBD (0177/78/5D/5B/63):", color = Mist)
+            val catB1s5St by com.veplayer.app.vehicle.CatalystB1S5Monitor.state.collectAsState()
+            val catB2s5St by com.veplayer.app.vehicle.CatalystB2S5Monitor.state.collectAsState()
+            val injectSt by com.veplayer.app.vehicle.FuelInjectTimingMonitor.state.collectAsState()
+            val hybridSt by com.veplayer.app.vehicle.HybridBattLifeMonitor.state.collectAsState()
+            val refTorqueSt by com.veplayer.app.vehicle.EngineRefTorqueMonitor.state.collectAsState()
+            var f21B1s5 by remember {
+                mutableStateOf(if (prefs.catB1s5SimC > 0f) prefs.catB1s5SimC.toInt().toString() else "0")
+            }
+            var f21B2s5 by remember {
+                mutableStateOf(if (prefs.catB2s5SimC > 0f) prefs.catB2s5SimC.toInt().toString() else "0")
+            }
+            var f21Inject by remember {
+                mutableStateOf(if (prefs.injectSimDeg != 0f) prefs.injectSimDeg.toInt().toString() else "0")
+            }
+            var f21Hybrid by remember {
+                mutableStateOf(if (prefs.hybridSimPct > 0f) prefs.hybridSimPct.toInt().toString() else "0")
+            }
+            var f21RefT by remember {
+                mutableStateOf(if (prefs.refTorqueSimNm > 0f) prefs.refTorqueSimNm.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f21B1s5,
+                    onValueChange = { f21B1s5 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S5 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f21B2s5,
+                    onValueChange = { f21B2s5 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S5 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f21Inject,
+                    onValueChange = { f21Inject = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("Inject °") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f21Hybrid,
+                    onValueChange = { f21Hybrid = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("HyBatt %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f21RefT,
+                    onValueChange = { f21RefT = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("RefT Nm") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s5SimC = f21B1s5.toFloatOrNull() ?: 0f
+                    prefs.catB2s5SimC = f21B2s5.toFloatOrNull() ?: 0f
+                    prefs.injectSimDeg = f21Inject.toFloatOrNull() ?: 0f
+                    prefs.hybridSimPct = f21Hybrid.toFloatOrNull() ?: 0f
+                    prefs.refTorqueSimNm = f21RefT.toFloatOrNull() ?: 0f
+                    status = "Fase 21 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 21") }
+            Text(
+                listOfNotNull(
+                    catB1s5St.label.takeIf { it.isNotBlank() },
+                    catB2s5St.label.takeIf { it.isNotBlank() },
+                    injectSt.label.takeIf { it.isNotBlank() },
+                    hybridSt.label.takeIf { it.isNotBlank() },
+                    refTorqueSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 21 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 22 OBD (0179/7A/47/48/54):", color = Mist)
+            val catB1s6St by com.veplayer.app.vehicle.CatalystB1S6Monitor.state.collectAsState()
+            val catB2s6St by com.veplayer.app.vehicle.CatalystB2S6Monitor.state.collectAsState()
+            val thrBSt by com.veplayer.app.vehicle.ThrottleBMonitor.state.collectAsState()
+            val thrCSt by com.veplayer.app.vehicle.ThrottleCMonitor.state.collectAsState()
+            val milTimeSt by com.veplayer.app.vehicle.MilTimeOnMonitor.state.collectAsState()
+            var f22B1s6 by remember {
+                mutableStateOf(if (prefs.catB1s6SimC > 0f) prefs.catB1s6SimC.toInt().toString() else "0")
+            }
+            var f22B2s6 by remember {
+                mutableStateOf(if (prefs.catB2s6SimC > 0f) prefs.catB2s6SimC.toInt().toString() else "0")
+            }
+            var f22ThrB by remember {
+                mutableStateOf(if (prefs.thrBSimPct > 0f) prefs.thrBSimPct.toInt().toString() else "0")
+            }
+            var f22ThrC by remember {
+                mutableStateOf(if (prefs.thrCSimPct > 0f) prefs.thrCSimPct.toInt().toString() else "0")
+            }
+            var f22MilT by remember {
+                mutableStateOf(if (prefs.milTimeSimMin > 0) prefs.milTimeSimMin.toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f22B1s6,
+                    onValueChange = { f22B1s6 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S6 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f22B2s6,
+                    onValueChange = { f22B2s6 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S6 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f22ThrB,
+                    onValueChange = { f22ThrB = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("ThrB %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f22ThrC,
+                    onValueChange = { f22ThrC = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("ThrC %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f22MilT,
+                    onValueChange = { f22MilT = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("MILt min") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s6SimC = f22B1s6.toFloatOrNull() ?: 0f
+                    prefs.catB2s6SimC = f22B2s6.toFloatOrNull() ?: 0f
+                    prefs.thrBSimPct = f22ThrB.toFloatOrNull() ?: 0f
+                    prefs.thrCSimPct = f22ThrC.toFloatOrNull() ?: 0f
+                    prefs.milTimeSimMin = f22MilT.toIntOrNull() ?: 0
+                    status = "Fase 22 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 22") }
+            Text(
+                listOfNotNull(
+                    catB1s6St.label.takeIf { it.isNotBlank() },
+                    catB2s6St.label.takeIf { it.isNotBlank() },
+                    thrBSt.label.takeIf { it.isNotBlank() },
+                    thrCSt.label.takeIf { it.isNotBlank() },
+                    milTimeSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 22 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 23 OBD (017B/7C/51/4F/50):", color = Mist)
+            val catB1s7St by com.veplayer.app.vehicle.CatalystB1S7Monitor.state.collectAsState()
+            val catB2s7St by com.veplayer.app.vehicle.CatalystB2S7Monitor.state.collectAsState()
+            val fuelTypeSt by com.veplayer.app.vehicle.FuelTypeMonitor.state.collectAsState()
+            val maxEquivSt by com.veplayer.app.vehicle.MaxEquivRatioMonitor.state.collectAsState()
+            val maxMafSt by com.veplayer.app.vehicle.MaxMafGpsMonitor.state.collectAsState()
+            var f23B1s7 by remember {
+                mutableStateOf(if (prefs.catB1s7SimC > 0f) prefs.catB1s7SimC.toInt().toString() else "0")
+            }
+            var f23B2s7 by remember {
+                mutableStateOf(if (prefs.catB2s7SimC > 0f) prefs.catB2s7SimC.toInt().toString() else "0")
+            }
+            var f23Fuel by remember {
+                mutableStateOf(if (prefs.fuelTypeSimCode > 0) prefs.fuelTypeSimCode.toString() else "0")
+            }
+            var f23MaxL by remember {
+                mutableStateOf(if (prefs.maxEquivSimRatio != 0f) prefs.maxEquivSimRatio.toString() else "0")
+            }
+            var f23MaxMaf by remember {
+                mutableStateOf(if (prefs.maxMafSimGps > 0f) prefs.maxMafSimGps.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f23B1s7,
+                    onValueChange = { f23B1s7 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S7 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f23B2s7,
+                    onValueChange = { f23B2s7 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S7 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f23Fuel,
+                    onValueChange = { f23Fuel = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("Fuel code") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f23MaxL,
+                    onValueChange = { f23MaxL = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("Maxλ") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f23MaxMaf,
+                    onValueChange = { f23MaxMaf = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("MaxMAF") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s7SimC = f23B1s7.toFloatOrNull() ?: 0f
+                    prefs.catB2s7SimC = f23B2s7.toFloatOrNull() ?: 0f
+                    prefs.fuelTypeSimCode = f23Fuel.toIntOrNull() ?: 0
+                    prefs.maxEquivSimRatio = f23MaxL.toFloatOrNull() ?: 0f
+                    prefs.maxMafSimGps = f23MaxMaf.toFloatOrNull() ?: 0f
+                    status = "Fase 23 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 23") }
+            Text(
+                listOfNotNull(
+                    catB1s7St.label.takeIf { it.isNotBlank() },
+                    catB2s7St.label.takeIf { it.isNotBlank() },
+                    fuelTypeSt.label.takeIf { it.isNotBlank() },
+                    maxEquivSt.label.takeIf { it.isNotBlank() },
+                    maxMafSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 23 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 24 OBD (017D/7E/64/66/65):", color = Mist)
+            val catB1s8St by com.veplayer.app.vehicle.CatalystB1S8Monitor.state.collectAsState()
+            val catB2s8St by com.veplayer.app.vehicle.CatalystB2S8Monitor.state.collectAsState()
+            val maxAvailTorqueSt by com.veplayer.app.vehicle.MaxAvailTorqueMonitor.state.collectAsState()
+            val mafIatSt by com.veplayer.app.vehicle.MafSensorIatMonitor.state.collectAsState()
+            val auxInputSt by com.veplayer.app.vehicle.AuxInputStatusMonitor.state.collectAsState()
+            var f24B1s8 by remember {
+                mutableStateOf(if (prefs.catB1s8SimC > 0f) prefs.catB1s8SimC.toInt().toString() else "0")
+            }
+            var f24B2s8 by remember {
+                mutableStateOf(if (prefs.catB2s8SimC > 0f) prefs.catB2s8SimC.toInt().toString() else "0")
+            }
+            var f24MaxTq by remember {
+                mutableStateOf(if (prefs.maxAvailTorqueSimPct != 0f) prefs.maxAvailTorqueSimPct.toInt().toString() else "0")
+            }
+            var f24MafIat by remember {
+                mutableStateOf(if (prefs.mafIatSimC > 0f) prefs.mafIatSimC.toInt().toString() else "0")
+            }
+            var f24Aux by remember {
+                mutableStateOf(if (prefs.auxInputSimCode > 0) prefs.auxInputSimCode.toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f24B1s8,
+                    onValueChange = { f24B1s8 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S8 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f24B2s8,
+                    onValueChange = { f24B2s8 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S8 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f24MaxTq,
+                    onValueChange = { f24MaxTq = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("MaxTq %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f24MafIat,
+                    onValueChange = { f24MafIat = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("MafIAT °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f24Aux,
+                    onValueChange = { f24Aux = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("Aux code") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s8SimC = f24B1s8.toFloatOrNull() ?: 0f
+                    prefs.catB2s8SimC = f24B2s8.toFloatOrNull() ?: 0f
+                    prefs.maxAvailTorqueSimPct = f24MaxTq.toFloatOrNull() ?: 0f
+                    prefs.mafIatSimC = f24MafIat.toFloatOrNull() ?: 0f
+                    prefs.auxInputSimCode = f24Aux.toIntOrNull() ?: 0
+                    status = "Fase 24 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 24") }
+            Text(
+                listOfNotNull(
+                    catB1s8St.label.takeIf { it.isNotBlank() },
+                    catB2s8St.label.takeIf { it.isNotBlank() },
+                    maxAvailTorqueSt.label.takeIf { it.isNotBlank() },
+                    mafIatSt.label.takeIf { it.isNotBlank() },
+                    auxInputSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 24 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 25 OBD (017F/80/67/68/6F):", color = Mist)
+            val catB1s9St by com.veplayer.app.vehicle.CatalystB1S9Monitor.state.collectAsState()
+            val catB2s9St by com.veplayer.app.vehicle.CatalystB2S9Monitor.state.collectAsState()
+            val ect2St by com.veplayer.app.vehicle.CoolantEct2Monitor.state.collectAsState()
+            val iat2St by com.veplayer.app.vehicle.IatSensor2Monitor.state.collectAsState()
+            val turboInletSt by com.veplayer.app.vehicle.TurboInletPressureMonitor.state.collectAsState()
+            var f25B1s9 by remember {
+                mutableStateOf(if (prefs.catB1s9SimC > 0f) prefs.catB1s9SimC.toInt().toString() else "0")
+            }
+            var f25B2s9 by remember {
+                mutableStateOf(if (prefs.catB2s9SimC > 0f) prefs.catB2s9SimC.toInt().toString() else "0")
+            }
+            var f25Ect2 by remember {
+                mutableStateOf(if (prefs.ect2SimC > 0f) prefs.ect2SimC.toInt().toString() else "0")
+            }
+            var f25Iat2 by remember {
+                mutableStateOf(if (prefs.iat2SimC > 0f) prefs.iat2SimC.toInt().toString() else "0")
+            }
+            var f25Turbo by remember {
+                mutableStateOf(if (prefs.turboInletSimKpa > 0f) prefs.turboInletSimKpa.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f25B1s9,
+                    onValueChange = { f25B1s9 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S9 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f25B2s9,
+                    onValueChange = { f25B2s9 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S9 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f25Ect2,
+                    onValueChange = { f25Ect2 = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("ECT2 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f25Iat2,
+                    onValueChange = { f25Iat2 = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("IAT2 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f25Turbo,
+                    onValueChange = { f25Turbo = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("TurboIn") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s9SimC = f25B1s9.toFloatOrNull() ?: 0f
+                    prefs.catB2s9SimC = f25B2s9.toFloatOrNull() ?: 0f
+                    prefs.ect2SimC = f25Ect2.toFloatOrNull() ?: 0f
+                    prefs.iat2SimC = f25Iat2.toFloatOrNull() ?: 0f
+                    prefs.turboInletSimKpa = f25Turbo.toFloatOrNull() ?: 0f
+                    status = "Fase 25 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 25") }
+            Text(
+                listOfNotNull(
+                    catB1s9St.label.takeIf { it.isNotBlank() },
+                    catB2s9St.label.takeIf { it.isNotBlank() },
+                    ect2St.label.takeIf { it.isNotBlank() },
+                    iat2St.label.takeIf { it.isNotBlank() },
+                    turboInletSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 25 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 26 OBD (181/82/6B/6A/6C):", color = Mist)
+            val catB1s10St by com.veplayer.app.vehicle.CatalystB1S10Monitor.state.collectAsState()
+            val catB2s10St by com.veplayer.app.vehicle.CatalystB2S10Monitor.state.collectAsState()
+            val egrTempSt by com.veplayer.app.vehicle.EgrTemperatureMonitor.state.collectAsState()
+            val dieselIafSt by com.veplayer.app.vehicle.DieselIntakeAirflowMonitor.state.collectAsState()
+            val thrActSt by com.veplayer.app.vehicle.ThrottleActuatorMonitor.state.collectAsState()
+            var f26B1s10 by remember {
+                mutableStateOf(if (prefs.catB1s10SimC > 0f) prefs.catB1s10SimC.toInt().toString() else "0")
+            }
+            var f26B2s10 by remember {
+                mutableStateOf(if (prefs.catB2s10SimC > 0f) prefs.catB2s10SimC.toInt().toString() else "0")
+            }
+            var f26EgrT by remember {
+                mutableStateOf(if (prefs.egrTempSimC > 0f) prefs.egrTempSimC.toInt().toString() else "0")
+            }
+            var f26Dsl by remember {
+                mutableStateOf(if (prefs.dieselIafSimPct > 0f) prefs.dieselIafSimPct.toInt().toString() else "0")
+            }
+            var f26ThrAct by remember {
+                mutableStateOf(if (prefs.thrActSimPct > 0f) prefs.thrActSimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f26B1s10,
+                    onValueChange = { f26B1s10 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S10 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f26B2s10,
+                    onValueChange = { f26B2s10 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S10 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f26EgrT,
+                    onValueChange = { f26EgrT = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EgrT °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f26Dsl,
+                    onValueChange = { f26Dsl = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("DslIAF %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f26ThrAct,
+                    onValueChange = { f26ThrAct = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("ThrAct %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s10SimC = f26B1s10.toFloatOrNull() ?: 0f
+                    prefs.catB2s10SimC = f26B2s10.toFloatOrNull() ?: 0f
+                    prefs.egrTempSimC = f26EgrT.toFloatOrNull() ?: 0f
+                    prefs.dieselIafSimPct = f26Dsl.toFloatOrNull() ?: 0f
+                    prefs.thrActSimPct = f26ThrAct.toFloatOrNull() ?: 0f
+                    status = "Fase 26 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 26") }
+            Text(
+                listOfNotNull(
+                    catB1s10St.label.takeIf { it.isNotBlank() },
+                    catB2s10St.label.takeIf { it.isNotBlank() },
+                    egrTempSt.label.takeIf { it.isNotBlank() },
+                    dieselIafSt.label.takeIf { it.isNotBlank() },
+                    thrActSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 26 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 27 OBD (183/84/69/6E/6D):", color = Mist)
+            val catB1s11St by com.veplayer.app.vehicle.CatalystB1S11Monitor.state.collectAsState()
+            val catB2s11St by com.veplayer.app.vehicle.CatalystB2S11Monitor.state.collectAsState()
+            val egrActualSt by com.veplayer.app.vehicle.ActualEgrMonitor.state.collectAsState()
+            val injectCtrlSt by com.veplayer.app.vehicle.InjectPressureControlMonitor.state.collectAsState()
+            val fuelCtrlSt by com.veplayer.app.vehicle.FuelPressureControlMonitor.state.collectAsState()
+            var f27B1s11 by remember {
+                mutableStateOf(if (prefs.catB1s11SimC > 0f) prefs.catB1s11SimC.toInt().toString() else "0")
+            }
+            var f27B2s11 by remember {
+                mutableStateOf(if (prefs.catB2s11SimC > 0f) prefs.catB2s11SimC.toInt().toString() else "0")
+            }
+            var f27EgrAct by remember {
+                mutableStateOf(if (prefs.egrActualSimPct > 0f) prefs.egrActualSimPct.toInt().toString() else "0")
+            }
+            var f27Inject by remember {
+                mutableStateOf(if (prefs.injectCtrlSimKpa > 0f) prefs.injectCtrlSimKpa.toInt().toString() else "0")
+            }
+            var f27FuelCtrl by remember {
+                mutableStateOf(if (prefs.fuelCtrlSimKpa > 0f) prefs.fuelCtrlSimKpa.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f27B1s11,
+                    onValueChange = { f27B1s11 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S11 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f27B2s11,
+                    onValueChange = { f27B2s11 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S11 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f27EgrAct,
+                    onValueChange = { f27EgrAct = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("EgrAct %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f27Inject,
+                    onValueChange = { f27Inject = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("Inject kPa") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f27FuelCtrl,
+                    onValueChange = { f27FuelCtrl = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("FuelCtrl kPa") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s11SimC = f27B1s11.toFloatOrNull() ?: 0f
+                    prefs.catB2s11SimC = f27B2s11.toFloatOrNull() ?: 0f
+                    prefs.egrActualSimPct = f27EgrAct.toFloatOrNull() ?: 0f
+                    prefs.injectCtrlSimKpa = f27Inject.toFloatOrNull() ?: 0f
+                    prefs.fuelCtrlSimKpa = f27FuelCtrl.toFloatOrNull() ?: 0f
+                    status = "Fase 27 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 27") }
+            Text(
+                listOfNotNull(
+                    catB1s11St.label.takeIf { it.isNotBlank() },
+                    catB2s11St.label.takeIf { it.isNotBlank() },
+                    egrActualSt.label.takeIf { it.isNotBlank() },
+                    injectCtrlSt.label.takeIf { it.isNotBlank() },
+                    fuelCtrlSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 27 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 28 OBD (185/86/08/09):", color = Mist)
+            val catB1s12St by com.veplayer.app.vehicle.CatalystB1S12Monitor.state.collectAsState()
+            val catB2s12St by com.veplayer.app.vehicle.CatalystB2S12Monitor.state.collectAsState()
+            val stftB2St by com.veplayer.app.vehicle.FuelTrimStftB2Monitor.state.collectAsState()
+            val ltftB2St by com.veplayer.app.vehicle.FuelTrimLtftB2Monitor.state.collectAsState()
+            var f28B1s12 by remember {
+                mutableStateOf(if (prefs.catB1s12SimC > 0f) prefs.catB1s12SimC.toInt().toString() else "0")
+            }
+            var f28B2s12 by remember {
+                mutableStateOf(if (prefs.catB2s12SimC > 0f) prefs.catB2s12SimC.toInt().toString() else "0")
+            }
+            var f28StB2 by remember {
+                mutableStateOf(if (prefs.stftB2SimPct != 0f) prefs.stftB2SimPct.toInt().toString() else "0")
+            }
+            var f28LtB2 by remember {
+                mutableStateOf(if (prefs.ltftB2SimPct != 0f) prefs.ltftB2SimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f28B1s12,
+                    onValueChange = { f28B1s12 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S12 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f28B2s12,
+                    onValueChange = { f28B2s12 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S12 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f28StB2,
+                    onValueChange = { f28StB2 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("STB2 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f28LtB2,
+                    onValueChange = { f28LtB2 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("LTB2 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s12SimC = f28B1s12.toFloatOrNull() ?: 0f
+                    prefs.catB2s12SimC = f28B2s12.toFloatOrNull() ?: 0f
+                    prefs.stftB2SimPct = f28StB2.toFloatOrNull() ?: 0f
+                    prefs.ltftB2SimPct = f28LtB2.toFloatOrNull() ?: 0f
+                    status = "Fase 28 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 28") }
+            Text(
+                listOfNotNull(
+                    catB1s12St.label.takeIf { it.isNotBlank() },
+                    catB2s12St.label.takeIf { it.isNotBlank() },
+                    stftB2St.label.takeIf { it.isNotBlank() },
+                    ltftB2St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 28 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 29 OBD (187/88/8B/8D/8E):", color = Mist)
+            val catB1s13St by com.veplayer.app.vehicle.CatalystB1S13Monitor.state.collectAsState()
+            val catB2s13St by com.veplayer.app.vehicle.CatalystB2S13Monitor.state.collectAsState()
+            val dpfTrigSt by com.veplayer.app.vehicle.DpfAftertreatmentMonitor.state.collectAsState()
+            val thrGSt by com.veplayer.app.vehicle.ThrottleGMonitor.state.collectAsState()
+            val engFrictionSt by com.veplayer.app.vehicle.EngineFrictionTorqueMonitor.state.collectAsState()
+            var f29B1s13 by remember {
+                mutableStateOf(if (prefs.catB1s13SimC > 0f) prefs.catB1s13SimC.toInt().toString() else "0")
+            }
+            var f29B2s13 by remember {
+                mutableStateOf(if (prefs.catB2s13SimC > 0f) prefs.catB2s13SimC.toInt().toString() else "0")
+            }
+            var f29Dpf by remember {
+                mutableStateOf(if (prefs.dpfTrigSimPct > 0f) prefs.dpfTrigSimPct.toInt().toString() else "0")
+            }
+            var f29ThrG by remember {
+                mutableStateOf(if (prefs.thrGSimPct > 0f) prefs.thrGSimPct.toInt().toString() else "0")
+            }
+            var f29Frict by remember {
+                mutableStateOf(if (prefs.engFrictionSimPct != 0f) prefs.engFrictionSimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f29B1s13,
+                    onValueChange = { f29B1s13 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S13 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f29B2s13,
+                    onValueChange = { f29B2s13 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S13 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f29Dpf,
+                    onValueChange = { f29Dpf = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("DpfTrig %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f29ThrG,
+                    onValueChange = { f29ThrG = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("ThrG %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f29Frict,
+                    onValueChange = { f29Frict = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("Frict %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s13SimC = f29B1s13.toFloatOrNull() ?: 0f
+                    prefs.catB2s13SimC = f29B2s13.toFloatOrNull() ?: 0f
+                    prefs.dpfTrigSimPct = f29Dpf.toFloatOrNull() ?: 0f
+                    prefs.thrGSimPct = f29ThrG.toFloatOrNull() ?: 0f
+                    prefs.engFrictionSimPct = f29Frict.toFloatOrNull() ?: 0f
+                    status = "Fase 29 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 29") }
+            Text(
+                listOfNotNull(
+                    catB1s13St.label.takeIf { it.isNotBlank() },
+                    catB2s13St.label.takeIf { it.isNotBlank() },
+                    dpfTrigSt.label.takeIf { it.isNotBlank() },
+                    thrGSt.label.takeIf { it.isNotBlank() },
+                    engFrictionSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 29 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 30 OBD (189/8A/8C/8F):", color = Mist)
+            val catB1s14St by com.veplayer.app.vehicle.CatalystB1S14Monitor.state.collectAsState()
+            val catB2s14St by com.veplayer.app.vehicle.CatalystB2S14Monitor.state.collectAsState()
+            val o2LambdaSt by com.veplayer.app.vehicle.O2LambdaB1Monitor.state.collectAsState()
+            val pmB1St by com.veplayer.app.vehicle.PmSensorB1Monitor.state.collectAsState()
+            val pmB2St by com.veplayer.app.vehicle.PmSensorB2Monitor.state.collectAsState()
+            var f30B1s14 by remember {
+                mutableStateOf(if (prefs.catB1s14SimC > 0f) prefs.catB1s14SimC.toInt().toString() else "0")
+            }
+            var f30B2s14 by remember {
+                mutableStateOf(if (prefs.catB2s14SimC > 0f) prefs.catB2s14SimC.toInt().toString() else "0")
+            }
+            var f30O2 by remember {
+                mutableStateOf(if (prefs.o2LambdaSim > 0f) prefs.o2LambdaSim.toString() else "0")
+            }
+            var f30PmB1 by remember {
+                mutableStateOf(if (prefs.pmB1SimPct > 0f) prefs.pmB1SimPct.toInt().toString() else "0")
+            }
+            var f30PmB2 by remember {
+                mutableStateOf(if (prefs.pmB2SimPct > 0f) prefs.pmB2SimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f30B1s14,
+                    onValueChange = { f30B1s14 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S14 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f30B2s14,
+                    onValueChange = { f30B2s14 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S14 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f30O2,
+                    onValueChange = { f30O2 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2λ") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f30PmB1,
+                    onValueChange = { f30PmB1 = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("PMB1 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f30PmB2,
+                    onValueChange = { f30PmB2 = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("PMB2 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s14SimC = f30B1s14.toFloatOrNull() ?: 0f
+                    prefs.catB2s14SimC = f30B2s14.toFloatOrNull() ?: 0f
+                    prefs.o2LambdaSim = f30O2.toFloatOrNull() ?: 0f
+                    prefs.pmB1SimPct = f30PmB1.toFloatOrNull() ?: 0f
+                    prefs.pmB2SimPct = f30PmB2.toFloatOrNull() ?: 0f
+                    status = "Fase 30 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 30") }
+            Text(
+                listOfNotNull(
+                    catB1s14St.label.takeIf { it.isNotBlank() },
+                    catB2s14St.label.takeIf { it.isNotBlank() },
+                    o2LambdaSt.label.takeIf { it.isNotBlank() },
+                    pmB1St.label.takeIf { it.isNotBlank() },
+                    pmB2St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 30 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 31 OBD (198/99/9C/94):", color = Mist)
+            val egtB1s5St by com.veplayer.app.vehicle.EgtB1S5Monitor.state.collectAsState()
+            val egtB2s5St by com.veplayer.app.vehicle.EgtB2S5Monitor.state.collectAsState()
+            val o2LmbB1s3St by com.veplayer.app.vehicle.O2LambdaB1S3Monitor.state.collectAsState()
+            val o2LmbB2s3St by com.veplayer.app.vehicle.O2LambdaB2S3Monitor.state.collectAsState()
+            val noxReqSt by com.veplayer.app.vehicle.NoxReagentQualityMonitor.state.collectAsState()
+            var f31EgtB1 by remember {
+                mutableStateOf(if (prefs.egtB1s5SimC > 0f) prefs.egtB1s5SimC.toInt().toString() else "0")
+            }
+            var f31EgtB2 by remember {
+                mutableStateOf(if (prefs.egtB2s5SimC > 0f) prefs.egtB2s5SimC.toInt().toString() else "0")
+            }
+            var f31O2B1s3 by remember {
+                mutableStateOf(if (prefs.o2LambdaB1s3Sim > 0f) prefs.o2LambdaB1s3Sim.toString() else "0")
+            }
+            var f31O2B2s3 by remember {
+                mutableStateOf(if (prefs.o2LambdaB2s3Sim > 0f) prefs.o2LambdaB2s3Sim.toString() else "0")
+            }
+            var f31Nox by remember {
+                mutableStateOf(if (prefs.noxReqSimH > 0f) prefs.noxReqSimH.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f31EgtB1,
+                    onValueChange = { f31EgtB1 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB1S5") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f31EgtB2,
+                    onValueChange = { f31EgtB2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB2S5") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f31O2B1s3,
+                    onValueChange = { f31O2B1s3 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2λ3") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f31O2B2s3,
+                    onValueChange = { f31O2B2s3 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2λ23") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f31Nox,
+                    onValueChange = { f31Nox = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("NOxReq h") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.egtB1s5SimC = f31EgtB1.toFloatOrNull() ?: 0f
+                    prefs.egtB2s5SimC = f31EgtB2.toFloatOrNull() ?: 0f
+                    prefs.o2LambdaB1s3Sim = f31O2B1s3.toFloatOrNull() ?: 0f
+                    prefs.o2LambdaB2s3Sim = f31O2B2s3.toFloatOrNull() ?: 0f
+                    prefs.noxReqSimH = f31Nox.toFloatOrNull() ?: 0f
+                    status = "Fase 31 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 31") }
+            Text(
+                listOfNotNull(
+                    egtB1s5St.label.takeIf { it.isNotBlank() },
+                    egtB2s5St.label.takeIf { it.isNotBlank() },
+                    o2LmbB1s3St.label.takeIf { it.isNotBlank() },
+                    o2LmbB2s3St.label.takeIf { it.isNotBlank() },
+                    noxReqSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 31 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 32 OBD (198/99/9C/9B):", color = Mist)
+            val egtB1s6St by com.veplayer.app.vehicle.EgtB1S6Monitor.state.collectAsState()
+            val egtB2s6St by com.veplayer.app.vehicle.EgtB2S6Monitor.state.collectAsState()
+            val o2LmbB1s4St by com.veplayer.app.vehicle.O2LambdaB1S4Monitor.state.collectAsState()
+            val o2LmbB2s4St by com.veplayer.app.vehicle.O2LambdaB2S4Monitor.state.collectAsState()
+            val defFluidSt by com.veplayer.app.vehicle.DefFluidMonitor.state.collectAsState()
+            var f32EgtB1 by remember {
+                mutableStateOf(if (prefs.egtB1s6SimC > 0f) prefs.egtB1s6SimC.toInt().toString() else "0")
+            }
+            var f32EgtB2 by remember {
+                mutableStateOf(if (prefs.egtB2s6SimC > 0f) prefs.egtB2s6SimC.toInt().toString() else "0")
+            }
+            var f32O2B1s4 by remember {
+                mutableStateOf(if (prefs.o2LambdaB1s4Sim > 0f) prefs.o2LambdaB1s4Sim.toString() else "0")
+            }
+            var f32O2B2s4 by remember {
+                mutableStateOf(if (prefs.o2LambdaB2s4Sim > 0f) prefs.o2LambdaB2s4Sim.toString() else "0")
+            }
+            var f32Def by remember {
+                mutableStateOf(if (prefs.defFluidSimPct > 0f) prefs.defFluidSimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f32EgtB1,
+                    onValueChange = { f32EgtB1 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB1S6") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f32EgtB2,
+                    onValueChange = { f32EgtB2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB2S6") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f32O2B1s4,
+                    onValueChange = { f32O2B1s4 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2λ4") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f32O2B2s4,
+                    onValueChange = { f32O2B2s4 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2λ24") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f32Def,
+                    onValueChange = { f32Def = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("DEF %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.egtB1s6SimC = f32EgtB1.toFloatOrNull() ?: 0f
+                    prefs.egtB2s6SimC = f32EgtB2.toFloatOrNull() ?: 0f
+                    prefs.o2LambdaB1s4Sim = f32O2B1s4.toFloatOrNull() ?: 0f
+                    prefs.o2LambdaB2s4Sim = f32O2B2s4.toFloatOrNull() ?: 0f
+                    prefs.defFluidSimPct = f32Def.toFloatOrNull() ?: 0f
+                    status = "Fase 32 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 32") }
+            Text(
+                listOfNotNull(
+                    egtB1s6St.label.takeIf { it.isNotBlank() },
+                    egtB2s6St.label.takeIf { it.isNotBlank() },
+                    o2LmbB1s4St.label.takeIf { it.isNotBlank() },
+                    o2LmbB2s4St.label.takeIf { it.isNotBlank() },
+                    defFluidSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 32 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 33 OBD (198/99/9C):", color = Mist)
+            val egtB1s7St by com.veplayer.app.vehicle.EgtB1S7Monitor.state.collectAsState()
+            val egtB2s7St by com.veplayer.app.vehicle.EgtB2S7Monitor.state.collectAsState()
+            val egtB1s8St by com.veplayer.app.vehicle.EgtB1S8Monitor.state.collectAsState()
+            val egtB2s8St by com.veplayer.app.vehicle.EgtB2S8Monitor.state.collectAsState()
+            val o2ConcB1s3St by com.veplayer.app.vehicle.O2ConcB1S3Monitor.state.collectAsState()
+            var f33EgtB1 by remember {
+                mutableStateOf(if (prefs.egtB1s7SimC > 0f) prefs.egtB1s7SimC.toInt().toString() else "0")
+            }
+            var f33EgtB2 by remember {
+                mutableStateOf(if (prefs.egtB2s7SimC > 0f) prefs.egtB2s7SimC.toInt().toString() else "0")
+            }
+            var f33EgtB1s8 by remember {
+                mutableStateOf(if (prefs.egtB1s8SimC > 0f) prefs.egtB1s8SimC.toInt().toString() else "0")
+            }
+            var f33EgtB2s8 by remember {
+                mutableStateOf(if (prefs.egtB2s8SimC > 0f) prefs.egtB2s8SimC.toInt().toString() else "0")
+            }
+            var f33O2Conc by remember {
+                mutableStateOf(if (prefs.o2ConcB1s3Sim > 0f) prefs.o2ConcB1s3Sim.toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f33EgtB1,
+                    onValueChange = { f33EgtB1 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB1S7") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f33EgtB2,
+                    onValueChange = { f33EgtB2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB2S7") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f33EgtB1s8,
+                    onValueChange = { f33EgtB1s8 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB1S8") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f33EgtB2s8,
+                    onValueChange = { f33EgtB2s8 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGTB2S8") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f33O2Conc,
+                    onValueChange = { f33O2Conc = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2C3 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.egtB1s7SimC = f33EgtB1.toFloatOrNull() ?: 0f
+                    prefs.egtB2s7SimC = f33EgtB2.toFloatOrNull() ?: 0f
+                    prefs.egtB1s8SimC = f33EgtB1s8.toFloatOrNull() ?: 0f
+                    prefs.egtB2s8SimC = f33EgtB2s8.toFloatOrNull() ?: 0f
+                    prefs.o2ConcB1s3Sim = f33O2Conc.toFloatOrNull() ?: 0f
+                    status = "Fase 33 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 33") }
+            Text(
+                listOfNotNull(
+                    egtB1s7St.label.takeIf { it.isNotBlank() },
+                    egtB2s7St.label.takeIf { it.isNotBlank() },
+                    egtB1s8St.label.takeIf { it.isNotBlank() },
+                    egtB2s8St.label.takeIf { it.isNotBlank() },
+                    o2ConcB1s3St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 33 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 34 OBD (9C/A5/A1):", color = Mist)
+            val o2ConcB1s4St by com.veplayer.app.vehicle.O2ConcB1S4Monitor.state.collectAsState()
+            val o2ConcB2s3St by com.veplayer.app.vehicle.O2ConcB2S3Monitor.state.collectAsState()
+            val o2ConcB2s4St by com.veplayer.app.vehicle.O2ConcB2S4Monitor.state.collectAsState()
+            val defDoseSt by com.veplayer.app.vehicle.DefDosingCmdMonitor.state.collectAsState()
+            val noxCorrB1s1St by com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor.state.collectAsState()
+            var f34O2C4 by remember {
+                mutableStateOf(if (prefs.o2ConcB1s4Sim > 0f) prefs.o2ConcB1s4Sim.toString() else "0")
+            }
+            var f34O2C23 by remember {
+                mutableStateOf(if (prefs.o2ConcB2s3Sim > 0f) prefs.o2ConcB2s3Sim.toString() else "0")
+            }
+            var f34O2C24 by remember {
+                mutableStateOf(if (prefs.o2ConcB2s4Sim > 0f) prefs.o2ConcB2s4Sim.toString() else "0")
+            }
+            var f34DefDose by remember {
+                mutableStateOf(if (prefs.defDoseSimPct > 0f) prefs.defDoseSimPct.toInt().toString() else "0")
+            }
+            var f34NoxCorr by remember {
+                mutableStateOf(if (prefs.noxCorrB1s1Sim > 0f) prefs.noxCorrB1s1Sim.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f34O2C4,
+                    onValueChange = { f34O2C4 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2C4 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f34O2C23,
+                    onValueChange = { f34O2C23 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2C23 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f34O2C24,
+                    onValueChange = { f34O2C24 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2C24 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f34DefDose,
+                    onValueChange = { f34DefDose = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("DEFDose %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f34NoxCorr,
+                    onValueChange = { f34NoxCorr = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("NOxC1 ppm") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.o2ConcB1s4Sim = f34O2C4.toFloatOrNull() ?: 0f
+                    prefs.o2ConcB2s3Sim = f34O2C23.toFloatOrNull() ?: 0f
+                    prefs.o2ConcB2s4Sim = f34O2C24.toFloatOrNull() ?: 0f
+                    prefs.defDoseSimPct = f34DefDose.toFloatOrNull() ?: 0f
+                    prefs.noxCorrB1s1Sim = f34NoxCorr.toFloatOrNull() ?: 0f
+                    status = "Fase 34 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 34") }
+            Text(
+                listOfNotNull(
+                    o2ConcB1s4St.label.takeIf { it.isNotBlank() },
+                    o2ConcB2s3St.label.takeIf { it.isNotBlank() },
+                    o2ConcB2s4St.label.takeIf { it.isNotBlank() },
+                    defDoseSt.label.takeIf { it.isNotBlank() },
+                    noxCorrB1s1St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 34 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 35 OBD (A1/A7):", color = Mist)
+            val noxCorrB1s2St by com.veplayer.app.vehicle.NoxCorrectedB1S2Monitor.state.collectAsState()
+            val noxCorrB2s1St by com.veplayer.app.vehicle.NoxCorrectedB2S1Monitor.state.collectAsState()
+            val noxCorrB2s2St by com.veplayer.app.vehicle.NoxCorrectedB2S2Monitor.state.collectAsState()
+            val noxConcS3St by com.veplayer.app.vehicle.NoxConcS3Monitor.state.collectAsState()
+            val noxConcS4St by com.veplayer.app.vehicle.NoxConcS4Monitor.state.collectAsState()
+            var f35NoxC2 by remember {
+                mutableStateOf(if (prefs.noxCorrB1s2Sim > 0f) prefs.noxCorrB1s2Sim.toInt().toString() else "0")
+            }
+            var f35NoxC21 by remember {
+                mutableStateOf(if (prefs.noxCorrB2s1Sim > 0f) prefs.noxCorrB2s1Sim.toInt().toString() else "0")
+            }
+            var f35NoxC22 by remember {
+                mutableStateOf(if (prefs.noxCorrB2s2Sim > 0f) prefs.noxCorrB2s2Sim.toInt().toString() else "0")
+            }
+            var f35Nox3 by remember {
+                mutableStateOf(if (prefs.noxConcS3Sim > 0f) prefs.noxConcS3Sim.toInt().toString() else "0")
+            }
+            var f35Nox4 by remember {
+                mutableStateOf(if (prefs.noxConcS4Sim > 0f) prefs.noxConcS4Sim.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f35NoxC2,
+                    onValueChange = { f35NoxC2 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("NOxC2") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f35NoxC21,
+                    onValueChange = { f35NoxC21 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("NOxC21") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f35NoxC22,
+                    onValueChange = { f35NoxC22 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("NOxC22") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f35Nox3,
+                    onValueChange = { f35Nox3 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("NOx3") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f35Nox4,
+                    onValueChange = { f35Nox4 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("NOx4") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.noxCorrB1s2Sim = f35NoxC2.toFloatOrNull() ?: 0f
+                    prefs.noxCorrB2s1Sim = f35NoxC21.toFloatOrNull() ?: 0f
+                    prefs.noxCorrB2s2Sim = f35NoxC22.toFloatOrNull() ?: 0f
+                    prefs.noxConcS3Sim = f35Nox3.toFloatOrNull() ?: 0f
+                    prefs.noxConcS4Sim = f35Nox4.toFloatOrNull() ?: 0f
+                    status = "Fase 35 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 35") }
+            Text(
+                listOfNotNull(
+                    noxCorrB1s2St.label.takeIf { it.isNotBlank() },
+                    noxCorrB2s1St.label.takeIf { it.isNotBlank() },
+                    noxCorrB2s2St.label.takeIf { it.isNotBlank() },
+                    noxConcS3St.label.takeIf { it.isNotBlank() },
+                    noxConcS4St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 35 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 36 OBD (A8/A2/A3/A4):", color = Mist)
+            val noxCorrS3St by com.veplayer.app.vehicle.NoxCorrectedS3Monitor.state.collectAsState()
+            val noxCorrS4St by com.veplayer.app.vehicle.NoxCorrectedS4Monitor.state.collectAsState()
+            val cylFuelSt by com.veplayer.app.vehicle.CylinderFuelRateMonitor.state.collectAsState()
+            val evapSysVaporSt by com.veplayer.app.vehicle.EvapSysVaporMonitor.state.collectAsState()
+            val transGearSt by com.veplayer.app.vehicle.TransGearRatioMonitor.state.collectAsState()
+            var f36NoxC3 by remember {
+                mutableStateOf(if (prefs.noxCorrS3Sim > 0f) prefs.noxCorrS3Sim.toInt().toString() else "0")
+            }
+            var f36NoxC4 by remember {
+                mutableStateOf(if (prefs.noxCorrS4Sim > 0f) prefs.noxCorrS4Sim.toInt().toString() else "0")
+            }
+            var f36CylFuel by remember {
+                mutableStateOf(if (prefs.cylFuelSimMg > 0f) prefs.cylFuelSimMg.toInt().toString() else "0")
+            }
+            var f36EvapVp by remember {
+                mutableStateOf(if (prefs.evapSysVaporSimPa != 0f) prefs.evapSysVaporSimPa.toInt().toString() else "0")
+            }
+            var f36Gear by remember {
+                mutableStateOf(if (prefs.transGearSimRatio > 0f) prefs.transGearSimRatio.toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f36NoxC3,
+                    onValueChange = { f36NoxC3 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("NOxC3") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f36NoxC4,
+                    onValueChange = { f36NoxC4 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("NOxC4") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f36CylFuel,
+                    onValueChange = { f36CylFuel = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("CylFuel") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f36EvapVp,
+                    onValueChange = { f36EvapVp = it.filter { c -> c.isDigit() || c == '-' }.take(6) },
+                    label = { Text("EvapVP") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f36Gear,
+                    onValueChange = { f36Gear = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("Gear") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.noxCorrS3Sim = f36NoxC3.toFloatOrNull() ?: 0f
+                    prefs.noxCorrS4Sim = f36NoxC4.toFloatOrNull() ?: 0f
+                    prefs.cylFuelSimMg = f36CylFuel.toFloatOrNull() ?: 0f
+                    prefs.evapSysVaporSimPa = f36EvapVp.toFloatOrNull() ?: 0f
+                    prefs.transGearSimRatio = f36Gear.toFloatOrNull() ?: 0f
+                    status = "Fase 36 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 36") }
+            Text(
+                listOfNotNull(
+                    noxCorrS3St.label.takeIf { it.isNotBlank() },
+                    noxCorrS4St.label.takeIf { it.isNotBlank() },
+                    cylFuelSt.label.takeIf { it.isNotBlank() },
+                    evapSysVaporSt.label.takeIf { it.isNotBlank() },
+                    transGearSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 36 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 37 OBD (A6/A9/C5/C7):", color = Mist)
+            val obdOdoSt by com.veplayer.app.vehicle.ObdOdometerMonitor.state.collectAsState()
+            val absDisableSt by com.veplayer.app.vehicle.AbsDisableMonitor.state.collectAsState()
+            val fuelPressASt by com.veplayer.app.vehicle.FuelPressAMonitor.state.collectAsState()
+            val fuelPressBSt by com.veplayer.app.vehicle.FuelPressBMonitor.state.collectAsState()
+            val reflashDistSt by com.veplayer.app.vehicle.ReflashDistanceMonitor.state.collectAsState()
+            var f37Odo by remember {
+                mutableStateOf(if (prefs.obdOdoSimKm > 0f) prefs.obdOdoSimKm.toInt().toString() else "0")
+            }
+            var f37Abs by remember { mutableStateOf(if (prefs.absDisableSim) "1" else "0") }
+            var f37Fpa by remember {
+                mutableStateOf(if (prefs.fuelPressASimKpa > 0f) prefs.fuelPressASimKpa.toInt().toString() else "0")
+            }
+            var f37Fpb by remember {
+                mutableStateOf(if (prefs.fuelPressBSimKpa > 0f) prefs.fuelPressBSimKpa.toInt().toString() else "0")
+            }
+            var f37Reflash by remember {
+                mutableStateOf(if (prefs.reflashDistSimKm > 0f) prefs.reflashDistSimKm.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f37Odo,
+                    onValueChange = { f37Odo = it.filter { c -> c.isDigit() }.take(6) },
+                    label = { Text("Odo") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f37Abs,
+                    onValueChange = { f37Abs = it.filter { c -> c.isDigit() }.take(1) },
+                    label = { Text("ABSoff") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f37Fpa,
+                    onValueChange = { f37Fpa = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("FPa") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f37Fpb,
+                    onValueChange = { f37Fpb = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("FPb") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f37Reflash,
+                    onValueChange = { f37Reflash = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("Reflash") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.obdOdoSimKm = f37Odo.toFloatOrNull() ?: 0f
+                    prefs.absDisableSim = f37Abs == "1"
+                    prefs.fuelPressASimKpa = f37Fpa.toFloatOrNull() ?: 0f
+                    prefs.fuelPressBSimKpa = f37Fpb.toFloatOrNull() ?: 0f
+                    prefs.reflashDistSimKm = f37Reflash.toFloatOrNull() ?: 0f
+                    status = "Fase 37 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 37") }
+            Text(
+                listOfNotNull(
+                    obdOdoSt.label.takeIf { it.isNotBlank() },
+                    absDisableSt.label.takeIf { it.isNotBlank() },
+                    fuelPressASt.label.takeIf { it.isNotBlank() },
+                    fuelPressBSt.label.takeIf { it.isNotBlank() },
+                    reflashDistSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 37 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 38 OBD (C3/C4/C8):", color = Mist)
+            val fuelLvlASt by com.veplayer.app.vehicle.FuelLevelInputAMonitor.state.collectAsState()
+            val fuelLvlBSt by com.veplayer.app.vehicle.FuelLevelInputBMonitor.state.collectAsState()
+            val epcsTimeSt by com.veplayer.app.vehicle.EpcsDiagTimeMonitor.state.collectAsState()
+            val epcsCountSt by com.veplayer.app.vehicle.EpcsDiagCountMonitor.state.collectAsState()
+            val noxPcdLampSt by com.veplayer.app.vehicle.NoxPcdLampMonitor.state.collectAsState()
+            var f38FuelA by remember {
+                mutableStateOf(if (prefs.fuelLvlASimPct > 0f) prefs.fuelLvlASimPct.toInt().toString() else "0")
+            }
+            var f38FuelB by remember {
+                mutableStateOf(if (prefs.fuelLvlBSimPct > 0f) prefs.fuelLvlBSimPct.toInt().toString() else "0")
+            }
+            var f38EpcsT by remember {
+                mutableStateOf(if (prefs.epcsTimeSimSec > 0f) prefs.epcsTimeSimSec.toInt().toString() else "0")
+            }
+            var f38EpcsN by remember {
+                mutableStateOf(if (prefs.epcsCountSim > 0f) prefs.epcsCountSim.toInt().toString() else "0")
+            }
+            var f38Lamp by remember { mutableStateOf(if (prefs.noxPcdLampSim) "1" else "0") }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f38FuelA,
+                    onValueChange = { f38FuelA = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("FuelA") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f38FuelB,
+                    onValueChange = { f38FuelB = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("FuelB") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f38EpcsT,
+                    onValueChange = { f38EpcsT = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("EPCS") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f38EpcsN,
+                    onValueChange = { f38EpcsN = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("EPCSn") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f38Lamp,
+                    onValueChange = { f38Lamp = it.filter { c -> c.isDigit() }.take(1) },
+                    label = { Text("NCD/PCD") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.fuelLvlASimPct = f38FuelA.toFloatOrNull() ?: 0f
+                    prefs.fuelLvlBSimPct = f38FuelB.toFloatOrNull() ?: 0f
+                    prefs.epcsTimeSimSec = f38EpcsT.toFloatOrNull() ?: 0f
+                    prefs.epcsCountSim = f38EpcsN.toFloatOrNull() ?: 0f
+                    prefs.noxPcdLampSim = f38Lamp == "1"
+                    status = "Fase 38 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 38") }
+            Text(
+                listOfNotNull(
+                    fuelLvlASt.label.takeIf { it.isNotBlank() },
+                    fuelLvlBSt.label.takeIf { it.isNotBlank() },
+                    epcsTimeSt.label.takeIf { it.isNotBlank() },
+                    epcsCountSt.label.takeIf { it.isNotBlank() },
+                    noxPcdLampSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 38 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+            Text("Fase 39 OBD (C6):", color = Mist)
+            val induceWarnSt by com.veplayer.app.vehicle.ParticulateInduceWarnMonitor.state.collectAsState()
+            val induceAlertSt by com.veplayer.app.vehicle.ParticulateInduceAlertMonitor.state.collectAsState()
+            val dpfRemovalSt by com.veplayer.app.vehicle.DpfRemovalCounterMonitor.state.collectAsState()
+            val reagentFailSt by com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor.state.collectAsState()
+            val particulateMalfSt by com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.collectAsState()
+            var f39Induce by remember {
+                mutableStateOf(if (prefs.particulateInduceSimStatus > 0f) prefs.particulateInduceSimStatus.toInt().toString() else "0")
+            }
+            var f39DpfRem by remember {
+                mutableStateOf(if (prefs.dpfRemovalSimCount > 0f) prefs.dpfRemovalSimCount.toInt().toString() else "0")
+            }
+            var f39Reag by remember {
+                mutableStateOf(if (prefs.reagentFailSimCount > 0f) prefs.reagentFailSimCount.toInt().toString() else "0")
+            }
+            var f39Malf by remember {
+                mutableStateOf(if (prefs.particulateMalfSimCount > 0f) prefs.particulateMalfSimCount.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f39Induce,
+                    onValueChange = { f39Induce = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("Induce") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f39DpfRem,
+                    onValueChange = { f39DpfRem = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("DpfRem") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f39Reag,
+                    onValueChange = { f39Reag = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("ReagFail") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedTextField(
+                value = f39Malf,
+                onValueChange = { f39Malf = it.filter { c -> c.isDigit() }.take(5) },
+                label = { Text("PCMmal") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.particulateInduceSimStatus = f39Induce.toFloatOrNull() ?: 0f
+                    prefs.dpfRemovalSimCount = f39DpfRem.toFloatOrNull() ?: 0f
+                    prefs.reagentFailSimCount = f39Reag.toFloatOrNull() ?: 0f
+                    prefs.particulateMalfSimCount = f39Malf.toFloatOrNull() ?: 0f
+                    status = "Fase 39 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 39") }
+            Text(
+                listOfNotNull(
+                    induceWarnSt.label.takeIf { it.isNotBlank() },
+                    induceAlertSt.label.takeIf { it.isNotBlank() },
+                    dpfRemovalSt.label.takeIf { it.isNotBlank() },
+                    reagentFailSt.label.takeIf { it.isNotBlank() },
+                    particulateMalfSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 39 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

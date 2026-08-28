@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 /** Fase 17 smoke — lambda, evap purge, ethanol, vapor, rail abs. */
+import { runFaseFormulaChecks } from './obd-pid-registry.mjs'
+
 const BASE = process.env.SENSEFLOW_URL || 'http://127.0.0.1:4100'
 
 function assert(c, m) {
@@ -23,10 +25,7 @@ async function j(path, init = {}) {
 
 async function main() {
   console.log('fase17-smoke →', BASE)
-  assert((0x80 * 256 + 0x00) / 32768 === 1, 'pid 0144')
-  assert((0x80 * 100) / 255 > 50, 'pid 014E')
-  assert(((0xf000 - 0x10000) / 4) === -1024, 'pid 0153 signed')
-  assert(((0x03 * 256 + 0xe8) * 10) === 10000, 'pid 0159')
+  runFaseFormulaChecks(17, assert)
 
   const deviceId = `fase17-${Date.now().toString(36)}`
   await j('/api/fleet/register', {

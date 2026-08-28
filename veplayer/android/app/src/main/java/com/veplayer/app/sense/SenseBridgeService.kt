@@ -401,6 +401,1259 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.FuelRailAbs.toJsonMap(
                                             com.veplayer.app.vehicle.FuelRailAbsMonitor.state.value,
                                         ),
+                                    "egr_cmd_warn_pct" to prefs.egrCmdWarnPct.toDouble(),
+                                    "egr_cmd_alert_pct" to prefs.egrCmdAlertPct.toDouble(),
+                                    "egr_cmd_speed_min_kmh" to prefs.egrCmdSpeedMinKmh.toDouble(),
+                                    "egr_cmd_pct" to
+                                        (if (prefs.egrCmdSimPct > 0f) prefs.egrCmdSimPct
+                                        else com.veplayer.app.vehicle.CommandedEgrMonitor.state.value.egrPct
+                                            ?: snap.egrCmdPct
+                                        )?.toDouble(),
+                                    "egr_cmd" to
+                                        com.veplayer.app.vehicle.CommandedEgr.toJsonMap(
+                                            com.veplayer.app.vehicle.CommandedEgrMonitor.state.value,
+                                        ),
+                                    "rel_aped_warn_pct" to prefs.relApedWarnPct.toDouble(),
+                                    "rel_aped_alert_pct" to prefs.relApedAlertPct.toDouble(),
+                                    "rel_aped_speed_min_kmh" to prefs.relApedSpeedMinKmh.toDouble(),
+                                    "rel_accel_pedal_pct" to
+                                        (if (prefs.relApedSimPct > 0f) prefs.relApedSimPct
+                                        else com.veplayer.app.vehicle.RelAccelPedalMonitor.state.value.pedalPct
+                                            ?: snap.relAccelPedalPct
+                                        )?.toDouble(),
+                                    "rel_aped" to
+                                        com.veplayer.app.vehicle.RelAccelPedal.toJsonMap(
+                                            com.veplayer.app.vehicle.RelAccelPedalMonitor.state.value,
+                                        ),
+                                    "drv_torque_warn_pct" to prefs.drvTorqueWarnPct.toDouble(),
+                                    "drv_torque_alert_pct" to prefs.drvTorqueAlertPct.toDouble(),
+                                    "drv_torque_speed_min_kmh" to prefs.drvTorqueSpeedMinKmh.toDouble(),
+                                    "driver_torque_pct" to
+                                        (if (prefs.drvTorqueSimPct != 0f) prefs.drvTorqueSimPct
+                                        else com.veplayer.app.vehicle.DriverTorqueMonitor.state.value.torquePct
+                                            ?: snap.driverTorquePct
+                                        )?.toDouble(),
+                                    "drv_torque" to
+                                        com.veplayer.app.vehicle.DriverTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.DriverTorqueMonitor.state.value,
+                                        ),
+                                    "act_torque_warn_pct" to prefs.actTorqueWarnPct.toDouble(),
+                                    "act_torque_alert_pct" to prefs.actTorqueAlertPct.toDouble(),
+                                    "act_torque_speed_min_kmh" to prefs.actTorqueSpeedMinKmh.toDouble(),
+                                    "actual_torque_pct" to
+                                        (if (prefs.actTorqueSimPct != 0f) prefs.actTorqueSimPct
+                                        else com.veplayer.app.vehicle.ActualTorqueMonitor.state.value.torquePct
+                                            ?: snap.actualTorquePct
+                                        )?.toDouble(),
+                                    "act_torque" to
+                                        com.veplayer.app.vehicle.ActualTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.ActualTorqueMonitor.state.value,
+                                        ),
+                                    "cat_b2_warn_c" to prefs.catB2WarnC.toDouble(),
+                                    "cat_b2_alert_c" to prefs.catB2AlertC.toDouble(),
+                                    "catalyst_b2_temp_c" to
+                                        (if (prefs.catB2SimC > 0f) prefs.catB2SimC
+                                        else com.veplayer.app.vehicle.CatalystB2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2" to
+                                        com.veplayer.app.vehicle.CatalystB2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2Monitor.state.value,
+                                        ),
+                                    "cat_b1s2_warn_c" to prefs.catB1s2WarnC.toDouble(),
+                                    "cat_b1s2_alert_c" to prefs.catB1s2AlertC.toDouble(),
+                                    "catalyst_b1s2_temp_c" to
+                                        (if (prefs.catB1s2SimC > 0f) prefs.catB1s2SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s2" to
+                                        com.veplayer.app.vehicle.CatalystB1S2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S2Monitor.state.value,
+                                        ),
+                                    "cat_b2s2_warn_c" to prefs.catB2s2WarnC.toDouble(),
+                                    "cat_b2s2_alert_c" to prefs.catB2s2AlertC.toDouble(),
+                                    "catalyst_b2s2_temp_c" to
+                                        (if (prefs.catB2s2SimC > 0f) prefs.catB2s2SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s2" to
+                                        com.veplayer.app.vehicle.CatalystB2S2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S2Monitor.state.value,
+                                        ),
+                                    "cat_b1s3_warn_c" to prefs.catB1s3WarnC.toDouble(),
+                                    "cat_b1s3_alert_c" to prefs.catB1s3AlertC.toDouble(),
+                                    "catalyst_b1s3_temp_c" to
+                                        (if (prefs.catB1s3SimC > 0f) prefs.catB1s3SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S3Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s3TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s3" to
+                                        com.veplayer.app.vehicle.CatalystB1S3.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S3Monitor.state.value,
+                                        ),
+                                    "cat_b2s3_warn_c" to prefs.catB2s3WarnC.toDouble(),
+                                    "cat_b2s3_alert_c" to prefs.catB2s3AlertC.toDouble(),
+                                    "catalyst_b2s3_temp_c" to
+                                        (if (prefs.catB2s3SimC > 0f) prefs.catB2s3SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S3Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s3TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s3" to
+                                        com.veplayer.app.vehicle.CatalystB2S3.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S3Monitor.state.value,
+                                        ),
+                                    "cat_b1s4_warn_c" to prefs.catB1s4WarnC.toDouble(),
+                                    "cat_b1s4_alert_c" to prefs.catB1s4AlertC.toDouble(),
+                                    "catalyst_b1s4_temp_c" to
+                                        (if (prefs.catB1s4SimC > 0f) prefs.catB1s4SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S4Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s4TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s4" to
+                                        com.veplayer.app.vehicle.CatalystB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S4Monitor.state.value,
+                                        ),
+                                    "cat_b2s4_warn_c" to prefs.catB2s4WarnC.toDouble(),
+                                    "cat_b2s4_alert_c" to prefs.catB2s4AlertC.toDouble(),
+                                    "catalyst_b2s4_temp_c" to
+                                        (if (prefs.catB2s4SimC > 0f) prefs.catB2s4SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S4Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s4TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s4" to
+                                        com.veplayer.app.vehicle.CatalystB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S4Monitor.state.value,
+                                        ),
+                                    "stft2_b1_warn_pct" to prefs.stft2B1WarnPct.toDouble(),
+                                    "stft2_b1_alert_pct" to prefs.stft2B1AlertPct.toDouble(),
+                                    "stft2_b1_speed_min_kmh" to prefs.stft2B1SpeedMinKmh.toDouble(),
+                                    "fuel_trim_stft2_b1_pct" to
+                                        (if (prefs.stft2B1SimPct != 0f) prefs.stft2B1SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimStft2B1Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimStft2B1Pct
+                                        )?.toDouble(),
+                                    "stft2_b1" to
+                                        com.veplayer.app.vehicle.FuelTrimStft2B1.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimStft2B1Monitor.state.value,
+                                        ),
+                                    "ltft2_b1_warn_pct" to prefs.ltft2B1WarnPct.toDouble(),
+                                    "ltft2_b1_alert_pct" to prefs.ltft2B1AlertPct.toDouble(),
+                                    "ltft2_b1_speed_min_kmh" to prefs.ltft2B1SpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft2_b1_pct" to
+                                        (if (prefs.ltft2B1SimPct != 0f) prefs.ltft2B1SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtft2B1Pct
+                                        )?.toDouble(),
+                                    "ltft2_b1" to
+                                        com.veplayer.app.vehicle.FuelTrimLtft2B1.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor.state.value,
+                                        ),
+                                    "stft2_b2_warn_pct" to prefs.stft2B2WarnPct.toDouble(),
+                                    "stft2_b2_alert_pct" to prefs.stft2B2AlertPct.toDouble(),
+                                    "stft2_b2_speed_min_kmh" to prefs.stft2B2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_stft2_b2_pct" to
+                                        (if (prefs.stft2B2SimPct != 0f) prefs.stft2B2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimStft2B2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimStft2B2Pct
+                                        )?.toDouble(),
+                                    "stft2_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimStft2B2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimStft2B2Monitor.state.value,
+                                        ),
+                                    "ltft2_b2_warn_pct" to prefs.ltft2B2WarnPct.toDouble(),
+                                    "ltft2_b2_alert_pct" to prefs.ltft2B2AlertPct.toDouble(),
+                                    "ltft2_b2_speed_min_kmh" to prefs.ltft2B2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft2_b2_pct" to
+                                        (if (prefs.ltft2B2SimPct != 0f) prefs.ltft2B2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtft2B2Pct
+                                        )?.toDouble(),
+                                    "ltft2_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimLtft2B2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor.state.value,
+                                        ),
+                                    "cat_b1s5_warn_c" to prefs.catB1s5WarnC.toDouble(),
+                                    "cat_b1s5_alert_c" to prefs.catB1s5AlertC.toDouble(),
+                                    "catalyst_b1s5_temp_c" to
+                                        (if (prefs.catB1s5SimC > 0f) prefs.catB1s5SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S5Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s5TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s5" to
+                                        com.veplayer.app.vehicle.CatalystB1S5.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S5Monitor.state.value,
+                                        ),
+                                    "cat_b2s5_warn_c" to prefs.catB2s5WarnC.toDouble(),
+                                    "cat_b2s5_alert_c" to prefs.catB2s5AlertC.toDouble(),
+                                    "catalyst_b2s5_temp_c" to
+                                        (if (prefs.catB2s5SimC > 0f) prefs.catB2s5SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S5Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s5TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s5" to
+                                        com.veplayer.app.vehicle.CatalystB2S5.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S5Monitor.state.value,
+                                        ),
+                                    "inject_warn_deg" to prefs.injectWarnDeg.toDouble(),
+                                    "inject_alert_deg" to prefs.injectAlertDeg.toDouble(),
+                                    "inject_speed_min_kmh" to prefs.injectSpeedMinKmh.toDouble(),
+                                    "fuel_inject_timing_deg" to
+                                        (if (prefs.injectSimDeg != 0f) prefs.injectSimDeg
+                                        else com.veplayer.app.vehicle.FuelInjectTimingMonitor.state.value.timingDeg
+                                            ?: snap.fuelInjectTimingDeg
+                                        )?.toDouble(),
+                                    "fuel_inject" to
+                                        com.veplayer.app.vehicle.FuelInjectTiming.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelInjectTimingMonitor.state.value,
+                                        ),
+                                    "hybrid_warn_pct" to prefs.hybridWarnPct.toDouble(),
+                                    "hybrid_alert_pct" to prefs.hybridAlertPct.toDouble(),
+                                    "hybrid_speed_min_kmh" to prefs.hybridSpeedMinKmh.toDouble(),
+                                    "hybrid_batt_life_pct" to
+                                        (if (prefs.hybridSimPct > 0f) prefs.hybridSimPct
+                                        else com.veplayer.app.vehicle.HybridBattLifeMonitor.state.value.lifePct
+                                            ?: snap.hybridBattLifePct
+                                        )?.toDouble(),
+                                    "hybrid_batt" to
+                                        com.veplayer.app.vehicle.HybridBattLife.toJsonMap(
+                                            com.veplayer.app.vehicle.HybridBattLifeMonitor.state.value,
+                                        ),
+                                    "ref_torque_warn_low_nm" to prefs.refTorqueWarnLowNm.toDouble(),
+                                    "ref_torque_alert_low_nm" to prefs.refTorqueAlertLowNm.toDouble(),
+                                    "ref_torque_warn_high_nm" to prefs.refTorqueWarnHighNm.toDouble(),
+                                    "ref_torque_alert_high_nm" to prefs.refTorqueAlertHighNm.toDouble(),
+                                    "engine_ref_torque_nm" to
+                                        (if (prefs.refTorqueSimNm > 0f) prefs.refTorqueSimNm
+                                        else com.veplayer.app.vehicle.EngineRefTorqueMonitor.state.value.torqueNm
+                                            ?: snap.engineRefTorqueNm
+                                        )?.toDouble(),
+                                    "ref_torque" to
+                                        com.veplayer.app.vehicle.EngineRefTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineRefTorqueMonitor.state.value,
+                                        ),
+                                    "cat_b1s6_warn_c" to prefs.catB1s6WarnC.toDouble(),
+                                    "cat_b1s6_alert_c" to prefs.catB1s6AlertC.toDouble(),
+                                    "catalyst_b1s6_temp_c" to
+                                        (if (prefs.catB1s6SimC > 0f) prefs.catB1s6SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S6Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s6TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s6" to
+                                        com.veplayer.app.vehicle.CatalystB1S6.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S6Monitor.state.value,
+                                        ),
+                                    "cat_b2s6_warn_c" to prefs.catB2s6WarnC.toDouble(),
+                                    "cat_b2s6_alert_c" to prefs.catB2s6AlertC.toDouble(),
+                                    "catalyst_b2s6_temp_c" to
+                                        (if (prefs.catB2s6SimC > 0f) prefs.catB2s6SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S6Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s6TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s6" to
+                                        com.veplayer.app.vehicle.CatalystB2S6.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S6Monitor.state.value,
+                                        ),
+                                    "thr_b_warn_pct" to prefs.thrBWarnPct.toDouble(),
+                                    "thr_b_alert_pct" to prefs.thrBAlertPct.toDouble(),
+                                    "thr_b_speed_min_kmh" to prefs.thrBSpeedMinKmh.toDouble(),
+                                    "throttle_b_pct" to
+                                        (if (prefs.thrBSimPct > 0f) prefs.thrBSimPct
+                                        else com.veplayer.app.vehicle.ThrottleBMonitor.state.value.throttlePct
+                                            ?: snap.throttleBPct
+                                        )?.toDouble(),
+                                    "throttle_b" to
+                                        com.veplayer.app.vehicle.ThrottleB.toJsonMap(
+                                            com.veplayer.app.vehicle.ThrottleBMonitor.state.value,
+                                        ),
+                                    "thr_c_warn_pct" to prefs.thrCWarnPct.toDouble(),
+                                    "thr_c_alert_pct" to prefs.thrCAlertPct.toDouble(),
+                                    "thr_c_speed_min_kmh" to prefs.thrCSpeedMinKmh.toDouble(),
+                                    "throttle_c_pct" to
+                                        (if (prefs.thrCSimPct > 0f) prefs.thrCSimPct
+                                        else com.veplayer.app.vehicle.ThrottleCMonitor.state.value.throttlePct
+                                            ?: snap.throttleCPct
+                                        )?.toDouble(),
+                                    "throttle_c" to
+                                        com.veplayer.app.vehicle.ThrottleC.toJsonMap(
+                                            com.veplayer.app.vehicle.ThrottleCMonitor.state.value,
+                                        ),
+                                    "mil_time_warn_min" to prefs.milTimeWarnMin,
+                                    "mil_time_alert_min" to prefs.milTimeAlertMin,
+                                    "mil_time_min" to
+                                        (if (prefs.milTimeSimMin > 0) prefs.milTimeSimMin
+                                        else com.veplayer.app.vehicle.MilTimeOnMonitor.state.value.minutes
+                                            ?: snap.milTimeMin
+                                        ),
+                                    "mil_time" to
+                                        com.veplayer.app.vehicle.MilTimeOn.toJsonMap(
+                                            com.veplayer.app.vehicle.MilTimeOnMonitor.state.value,
+                                        ),
+                                    "cat_b1s7_warn_c" to prefs.catB1s7WarnC.toDouble(),
+                                    "cat_b1s7_alert_c" to prefs.catB1s7AlertC.toDouble(),
+                                    "catalyst_b1s7_temp_c" to
+                                        (if (prefs.catB1s7SimC > 0f) prefs.catB1s7SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S7Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s7TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s7" to
+                                        com.veplayer.app.vehicle.CatalystB1S7.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S7Monitor.state.value,
+                                        ),
+                                    "cat_b2s7_warn_c" to prefs.catB2s7WarnC.toDouble(),
+                                    "cat_b2s7_alert_c" to prefs.catB2s7AlertC.toDouble(),
+                                    "catalyst_b2s7_temp_c" to
+                                        (if (prefs.catB2s7SimC > 0f) prefs.catB2s7SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S7Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s7TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s7" to
+                                        com.veplayer.app.vehicle.CatalystB2S7.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S7Monitor.state.value,
+                                        ),
+                                    "fuel_type_expected" to prefs.fuelTypeExpected,
+                                    "fuel_type_speed_min_kmh" to prefs.fuelTypeSpeedMinKmh.toDouble(),
+                                    "fuel_type_code" to
+                                        (if (prefs.fuelTypeSimCode > 0) prefs.fuelTypeSimCode
+                                        else com.veplayer.app.vehicle.FuelTypeMonitor.state.value.typeCode
+                                            ?: snap.fuelTypeCode
+                                        ),
+                                    "fuel_type" to
+                                        com.veplayer.app.vehicle.FuelType.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTypeMonitor.state.value,
+                                        ),
+                                    "max_equiv_warn_low" to prefs.maxEquivWarnLow.toDouble(),
+                                    "max_equiv_alert_low" to prefs.maxEquivAlertLow.toDouble(),
+                                    "max_equiv_warn_high" to prefs.maxEquivWarnHigh.toDouble(),
+                                    "max_equiv_alert_high" to prefs.maxEquivAlertHigh.toDouble(),
+                                    "max_equiv_ratio" to
+                                        (if (prefs.maxEquivSimRatio != 0f) prefs.maxEquivSimRatio
+                                        else com.veplayer.app.vehicle.MaxEquivRatioMonitor.state.value.ratio
+                                            ?: snap.maxEquivRatio
+                                        )?.toDouble(),
+                                    "max_equiv" to
+                                        com.veplayer.app.vehicle.MaxEquivRatio.toJsonMap(
+                                            com.veplayer.app.vehicle.MaxEquivRatioMonitor.state.value,
+                                        ),
+                                    "max_maf_warn_low_gps" to prefs.maxMafWarnLowGps.toDouble(),
+                                    "max_maf_alert_low_gps" to prefs.maxMafAlertLowGps.toDouble(),
+                                    "max_maf_gps" to
+                                        (if (prefs.maxMafSimGps > 0f) prefs.maxMafSimGps
+                                        else com.veplayer.app.vehicle.MaxMafGpsMonitor.state.value.mafGps
+                                            ?: snap.maxMafGps
+                                        )?.toDouble(),
+                                    "max_maf" to
+                                        com.veplayer.app.vehicle.MaxMafGps.toJsonMap(
+                                            com.veplayer.app.vehicle.MaxMafGpsMonitor.state.value,
+                                        ),
+                                    "cat_b1s8_warn_c" to prefs.catB1s8WarnC.toDouble(),
+                                    "cat_b1s8_alert_c" to prefs.catB1s8AlertC.toDouble(),
+                                    "catalyst_b1s8_temp_c" to
+                                        (if (prefs.catB1s8SimC > 0f) prefs.catB1s8SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S8Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s8TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s8" to
+                                        com.veplayer.app.vehicle.CatalystB1S8.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S8Monitor.state.value,
+                                        ),
+                                    "cat_b2s8_warn_c" to prefs.catB2s8WarnC.toDouble(),
+                                    "cat_b2s8_alert_c" to prefs.catB2s8AlertC.toDouble(),
+                                    "catalyst_b2s8_temp_c" to
+                                        (if (prefs.catB2s8SimC > 0f) prefs.catB2s8SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S8Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s8TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s8" to
+                                        com.veplayer.app.vehicle.CatalystB2S8.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S8Monitor.state.value,
+                                        ),
+                                    "max_avail_torque_warn_low" to prefs.maxAvailTorqueWarnLow.toDouble(),
+                                    "max_avail_torque_alert_low" to prefs.maxAvailTorqueAlertLow.toDouble(),
+                                    "max_avail_torque_speed_min_kmh" to prefs.maxAvailTorqueSpeedMinKmh.toDouble(),
+                                    "max_avail_torque_pct" to
+                                        (if (prefs.maxAvailTorqueSimPct != 0f) prefs.maxAvailTorqueSimPct
+                                        else com.veplayer.app.vehicle.MaxAvailTorqueMonitor.state.value.torquePct
+                                            ?: snap.maxAvailTorquePct
+                                        )?.toDouble(),
+                                    "max_avail_torque" to
+                                        com.veplayer.app.vehicle.MaxAvailTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.MaxAvailTorqueMonitor.state.value,
+                                        ),
+                                    "maf_iat_warn_c" to prefs.mafIatWarnC.toDouble(),
+                                    "maf_iat_alert_c" to prefs.mafIatAlertC.toDouble(),
+                                    "maf_iat_speed_min_kmh" to prefs.mafIatSpeedMinKmh.toDouble(),
+                                    "maf_sensor_iat_c" to
+                                        (if (prefs.mafIatSimC > 0f) prefs.mafIatSimC
+                                        else com.veplayer.app.vehicle.MafSensorIatMonitor.state.value.tempC
+                                            ?: snap.mafSensorIatC
+                                        )?.toDouble(),
+                                    "maf_iat" to
+                                        com.veplayer.app.vehicle.MafSensorIat.toJsonMap(
+                                            com.veplayer.app.vehicle.MafSensorIatMonitor.state.value,
+                                        ),
+                                    "aux_input_alert_mask" to prefs.auxInputAlertMask,
+                                    "aux_input_speed_min_kmh" to prefs.auxInputSpeedMinKmh.toDouble(),
+                                    "aux_input_status" to
+                                        (if (prefs.auxInputSimCode > 0) prefs.auxInputSimCode
+                                        else com.veplayer.app.vehicle.AuxInputStatusMonitor.state.value.statusCode
+                                            ?: snap.auxInputStatus
+                                        ),
+                                    "aux_input" to
+                                        com.veplayer.app.vehicle.AuxInputStatus.toJsonMap(
+                                            com.veplayer.app.vehicle.AuxInputStatusMonitor.state.value,
+                                        ),
+                                    "cat_b1s9_warn_c" to prefs.catB1s9WarnC.toDouble(),
+                                    "cat_b1s9_alert_c" to prefs.catB1s9AlertC.toDouble(),
+                                    "catalyst_b1s9_temp_c" to
+                                        (if (prefs.catB1s9SimC > 0f) prefs.catB1s9SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S9Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s9TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s9" to
+                                        com.veplayer.app.vehicle.CatalystB1S9.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S9Monitor.state.value,
+                                        ),
+                                    "cat_b2s9_warn_c" to prefs.catB2s9WarnC.toDouble(),
+                                    "cat_b2s9_alert_c" to prefs.catB2s9AlertC.toDouble(),
+                                    "catalyst_b2s9_temp_c" to
+                                        (if (prefs.catB2s9SimC > 0f) prefs.catB2s9SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S9Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s9TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s9" to
+                                        com.veplayer.app.vehicle.CatalystB2S9.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S9Monitor.state.value,
+                                        ),
+                                    "ect2_warn_c" to prefs.ect2WarnC.toDouble(),
+                                    "ect2_alert_c" to prefs.ect2AlertC.toDouble(),
+                                    "coolant_ect2_c" to
+                                        (if (prefs.ect2SimC > 0f) prefs.ect2SimC
+                                        else com.veplayer.app.vehicle.CoolantEct2Monitor.state.value.coolantC
+                                            ?: snap.coolantEct2C
+                                        )?.toDouble(),
+                                    "ect2" to
+                                        com.veplayer.app.vehicle.CoolantEct2.toJsonMap(
+                                            com.veplayer.app.vehicle.CoolantEct2Monitor.state.value,
+                                        ),
+                                    "iat2_warn_c" to prefs.iat2WarnC.toDouble(),
+                                    "iat2_alert_c" to prefs.iat2AlertC.toDouble(),
+                                    "iat2_speed_min_kmh" to prefs.iat2SpeedMinKmh.toDouble(),
+                                    "iat_sensor2_c" to
+                                        (if (prefs.iat2SimC > 0f) prefs.iat2SimC
+                                        else com.veplayer.app.vehicle.IatSensor2Monitor.state.value.tempC
+                                            ?: snap.iatSensor2C
+                                        )?.toDouble(),
+                                    "iat2" to
+                                        com.veplayer.app.vehicle.IatSensor2.toJsonMap(
+                                            com.veplayer.app.vehicle.IatSensor2Monitor.state.value,
+                                        ),
+                                    "turbo_inlet_warn_kpa" to prefs.turboInletWarnKpa.toDouble(),
+                                    "turbo_inlet_alert_kpa" to prefs.turboInletAlertKpa.toDouble(),
+                                    "turbo_inlet_speed_min_kmh" to prefs.turboInletSpeedMinKmh.toDouble(),
+                                    "turbo_inlet_kpa" to
+                                        (if (prefs.turboInletSimKpa > 0f) prefs.turboInletSimKpa
+                                        else com.veplayer.app.vehicle.TurboInletPressureMonitor.state.value.pressureKpa
+                                            ?: snap.turboInletKpa
+                                        )?.toDouble(),
+                                    "turbo_inlet" to
+                                        com.veplayer.app.vehicle.TurboInletPressure.toJsonMap(
+                                            com.veplayer.app.vehicle.TurboInletPressureMonitor.state.value,
+                                        ),
+                                    "cat_b1s10_warn_c" to prefs.catB1s10WarnC.toDouble(),
+                                    "cat_b1s10_alert_c" to prefs.catB1s10AlertC.toDouble(),
+                                    "catalyst_b1s10_temp_c" to
+                                        (if (prefs.catB1s10SimC > 0f) prefs.catB1s10SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S10Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s10TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s10" to
+                                        com.veplayer.app.vehicle.CatalystB1S10.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S10Monitor.state.value,
+                                        ),
+                                    "cat_b2s10_warn_c" to prefs.catB2s10WarnC.toDouble(),
+                                    "cat_b2s10_alert_c" to prefs.catB2s10AlertC.toDouble(),
+                                    "catalyst_b2s10_temp_c" to
+                                        (if (prefs.catB2s10SimC > 0f) prefs.catB2s10SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S10Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s10TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s10" to
+                                        com.veplayer.app.vehicle.CatalystB2S10.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S10Monitor.state.value,
+                                        ),
+                                    "egr_temp_warn_c" to prefs.egrTempWarnC.toDouble(),
+                                    "egr_temp_alert_c" to prefs.egrTempAlertC.toDouble(),
+                                    "egr_temp_speed_min_kmh" to prefs.egrTempSpeedMinKmh.toDouble(),
+                                    "egr_temp_c" to
+                                        (if (prefs.egrTempSimC > 0f) prefs.egrTempSimC
+                                        else com.veplayer.app.vehicle.EgrTemperatureMonitor.state.value.tempC
+                                            ?: snap.egrTempC
+                                        )?.toDouble(),
+                                    "egr_temp" to
+                                        com.veplayer.app.vehicle.EgrTemperature.toJsonMap(
+                                            com.veplayer.app.vehicle.EgrTemperatureMonitor.state.value,
+                                        ),
+                                    "diesel_iaf_warn_pct" to prefs.dieselIafWarnPct.toDouble(),
+                                    "diesel_iaf_alert_pct" to prefs.dieselIafAlertPct.toDouble(),
+                                    "diesel_iaf_speed_min_kmh" to prefs.dieselIafSpeedMinKmh.toDouble(),
+                                    "diesel_iaf_cmd_pct" to
+                                        (if (prefs.dieselIafSimPct > 0f) prefs.dieselIafSimPct
+                                        else com.veplayer.app.vehicle.DieselIntakeAirflowMonitor.state.value.flowPct
+                                            ?: snap.dieselIafCmdPct
+                                        )?.toDouble(),
+                                    "diesel_iaf" to
+                                        com.veplayer.app.vehicle.DieselIntakeAirflow.toJsonMap(
+                                            com.veplayer.app.vehicle.DieselIntakeAirflowMonitor.state.value,
+                                        ),
+                                    "thr_act_warn_pct" to prefs.thrActWarnPct.toDouble(),
+                                    "thr_act_alert_pct" to prefs.thrActAlertPct.toDouble(),
+                                    "thr_act_speed_min_kmh" to prefs.thrActSpeedMinKmh.toDouble(),
+                                    "thr_actuator_pct" to
+                                        (if (prefs.thrActSimPct > 0f) prefs.thrActSimPct
+                                        else com.veplayer.app.vehicle.ThrottleActuatorMonitor.state.value.actuatorPct
+                                            ?: snap.thrActuatorPct
+                                        )?.toDouble(),
+                                    "thr_act" to
+                                        com.veplayer.app.vehicle.ThrottleActuator.toJsonMap(
+                                            com.veplayer.app.vehicle.ThrottleActuatorMonitor.state.value,
+                                        ),
+                                    "cat_b1s11_warn_c" to prefs.catB1s11WarnC.toDouble(),
+                                    "cat_b1s11_alert_c" to prefs.catB1s11AlertC.toDouble(),
+                                    "catalyst_b1s11_temp_c" to
+                                        (if (prefs.catB1s11SimC > 0f) prefs.catB1s11SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S11Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s11TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s11" to
+                                        com.veplayer.app.vehicle.CatalystB1S11.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S11Monitor.state.value,
+                                        ),
+                                    "cat_b2s11_warn_c" to prefs.catB2s11WarnC.toDouble(),
+                                    "cat_b2s11_alert_c" to prefs.catB2s11AlertC.toDouble(),
+                                    "catalyst_b2s11_temp_c" to
+                                        (if (prefs.catB2s11SimC > 0f) prefs.catB2s11SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S11Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s11TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s11" to
+                                        com.veplayer.app.vehicle.CatalystB2S11.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S11Monitor.state.value,
+                                        ),
+                                    "egr_actual_warn_pct" to prefs.egrActualWarnPct.toDouble(),
+                                    "egr_actual_alert_pct" to prefs.egrActualAlertPct.toDouble(),
+                                    "egr_actual_speed_min_kmh" to prefs.egrActualSpeedMinKmh.toDouble(),
+                                    "actual_egr_pct" to
+                                        (if (prefs.egrActualSimPct > 0f) prefs.egrActualSimPct
+                                        else com.veplayer.app.vehicle.ActualEgrMonitor.state.value.egrPct
+                                            ?: snap.actualEgrPct
+                                        )?.toDouble(),
+                                    "egr_actual" to
+                                        com.veplayer.app.vehicle.ActualEgr.toJsonMap(
+                                            com.veplayer.app.vehicle.ActualEgrMonitor.state.value,
+                                        ),
+                                    "inject_ctrl_warn_kpa" to prefs.injectCtrlWarnKpa.toDouble(),
+                                    "inject_ctrl_alert_kpa" to prefs.injectCtrlAlertKpa.toDouble(),
+                                    "inject_ctrl_speed_min_kmh" to prefs.injectCtrlSpeedMinKmh.toDouble(),
+                                    "inject_ctrl_kpa" to
+                                        (if (prefs.injectCtrlSimKpa > 0f) prefs.injectCtrlSimKpa
+                                        else com.veplayer.app.vehicle.InjectPressureControlMonitor.state.value.pressureKpa
+                                            ?: snap.injectCtrlKpa
+                                        )?.toDouble(),
+                                    "inject_ctrl" to
+                                        com.veplayer.app.vehicle.InjectPressureControl.toJsonMap(
+                                            com.veplayer.app.vehicle.InjectPressureControlMonitor.state.value,
+                                        ),
+                                    "fuel_ctrl_warn_kpa" to prefs.fuelCtrlWarnKpa.toDouble(),
+                                    "fuel_ctrl_alert_kpa" to prefs.fuelCtrlAlertKpa.toDouble(),
+                                    "fuel_ctrl_speed_min_kmh" to prefs.fuelCtrlSpeedMinKmh.toDouble(),
+                                    "fuel_ctrl_kpa" to
+                                        (if (prefs.fuelCtrlSimKpa > 0f) prefs.fuelCtrlSimKpa
+                                        else com.veplayer.app.vehicle.FuelPressureControlMonitor.state.value.pressureKpa
+                                            ?: snap.fuelCtrlKpa
+                                        )?.toDouble(),
+                                    "fuel_ctrl" to
+                                        com.veplayer.app.vehicle.FuelPressureControl.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressureControlMonitor.state.value,
+                                        ),
+                                    "cat_b1s12_warn_c" to prefs.catB1s12WarnC.toDouble(),
+                                    "cat_b1s12_alert_c" to prefs.catB1s12AlertC.toDouble(),
+                                    "catalyst_b1s12_temp_c" to
+                                        (if (prefs.catB1s12SimC > 0f) prefs.catB1s12SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S12Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s12TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s12" to
+                                        com.veplayer.app.vehicle.CatalystB1S12.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S12Monitor.state.value,
+                                        ),
+                                    "cat_b2s12_warn_c" to prefs.catB2s12WarnC.toDouble(),
+                                    "cat_b2s12_alert_c" to prefs.catB2s12AlertC.toDouble(),
+                                    "catalyst_b2s12_temp_c" to
+                                        (if (prefs.catB2s12SimC > 0f) prefs.catB2s12SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S12Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s12TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s12" to
+                                        com.veplayer.app.vehicle.CatalystB2S12.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S12Monitor.state.value,
+                                        ),
+                                    "stft_b2_warn_pct" to prefs.stftB2WarnPct.toDouble(),
+                                    "stft_b2_alert_pct" to prefs.stftB2AlertPct.toDouble(),
+                                    "stft_b2_speed_min_kmh" to prefs.stftB2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_stft_b2_pct" to
+                                        (if (prefs.stftB2SimPct != 0f) prefs.stftB2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimStftB2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimStftB2Pct
+                                        )?.toDouble(),
+                                    "stft_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimStftB2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimStftB2Monitor.state.value,
+                                        ),
+                                    "ltft_b2_warn_pct" to prefs.ltftB2WarnPct.toDouble(),
+                                    "ltft_b2_alert_pct" to prefs.ltftB2AlertPct.toDouble(),
+                                    "ltft_b2_speed_min_kmh" to prefs.ltftB2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft_b2_pct" to
+                                        (if (prefs.ltftB2SimPct != 0f) prefs.ltftB2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtftB2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtftB2Pct
+                                        )?.toDouble(),
+                                    "ltft_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimLtftB2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtftB2Monitor.state.value,
+                                        ),
+                                    "cat_b1s13_warn_c" to prefs.catB1s13WarnC.toDouble(),
+                                    "cat_b1s13_alert_c" to prefs.catB1s13AlertC.toDouble(),
+                                    "catalyst_b1s13_temp_c" to
+                                        (if (prefs.catB1s13SimC > 0f) prefs.catB1s13SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S13Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s13TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s13" to
+                                        com.veplayer.app.vehicle.CatalystB1S13.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S13Monitor.state.value,
+                                        ),
+                                    "cat_b2s13_warn_c" to prefs.catB2s13WarnC.toDouble(),
+                                    "cat_b2s13_alert_c" to prefs.catB2s13AlertC.toDouble(),
+                                    "catalyst_b2s13_temp_c" to
+                                        (if (prefs.catB2s13SimC > 0f) prefs.catB2s13SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S13Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s13TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s13" to
+                                        com.veplayer.app.vehicle.CatalystB2S13.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S13Monitor.state.value,
+                                        ),
+                                    "dpf_trigger_warn_pct" to prefs.dpfTrigWarnPct.toDouble(),
+                                    "dpf_trigger_alert_pct" to prefs.dpfTrigAlertPct.toDouble(),
+                                    "dpf_trigger_speed_min_kmh" to prefs.dpfTrigSpeedMinKmh.toDouble(),
+                                    "dpf_trigger_pct" to
+                                        (if (prefs.dpfTrigSimPct > 0f) prefs.dpfTrigSimPct
+                                        else com.veplayer.app.vehicle.DpfAftertreatmentMonitor.state.value.triggerPct
+                                            ?: snap.dpfTriggerPct
+                                        )?.toDouble(),
+                                    "dpf_aftertreatment" to
+                                        com.veplayer.app.vehicle.DpfAftertreatment.toJsonMap(
+                                            com.veplayer.app.vehicle.DpfAftertreatmentMonitor.state.value,
+                                        ),
+                                    "thr_g_warn_pct" to prefs.thrGWarnPct.toDouble(),
+                                    "thr_g_alert_pct" to prefs.thrGAlertPct.toDouble(),
+                                    "thr_g_speed_min_kmh" to prefs.thrGSpeedMinKmh.toDouble(),
+                                    "throttle_g_pct" to
+                                        (if (prefs.thrGSimPct > 0f) prefs.thrGSimPct
+                                        else com.veplayer.app.vehicle.ThrottleGMonitor.state.value.throttlePct
+                                            ?: snap.throttleGPct
+                                        )?.toDouble(),
+                                    "throttle_g" to
+                                        com.veplayer.app.vehicle.ThrottleG.toJsonMap(
+                                            com.veplayer.app.vehicle.ThrottleGMonitor.state.value,
+                                        ),
+                                    "eng_friction_warn_pct" to prefs.engFrictionWarnPct.toDouble(),
+                                    "eng_friction_alert_pct" to prefs.engFrictionAlertPct.toDouble(),
+                                    "eng_friction_speed_min_kmh" to prefs.engFrictionSpeedMinKmh.toDouble(),
+                                    "engine_friction_pct" to
+                                        (if (prefs.engFrictionSimPct != 0f) prefs.engFrictionSimPct
+                                        else com.veplayer.app.vehicle.EngineFrictionTorqueMonitor.state.value.frictionPct
+                                            ?: snap.engineFrictionPct
+                                        )?.toDouble(),
+                                    "eng_friction" to
+                                        com.veplayer.app.vehicle.EngineFrictionTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineFrictionTorqueMonitor.state.value,
+                                        ),
+                                    "cat_b1s14_warn_c" to prefs.catB1s14WarnC.toDouble(),
+                                    "cat_b1s14_alert_c" to prefs.catB1s14AlertC.toDouble(),
+                                    "catalyst_b1s14_temp_c" to
+                                        (if (prefs.catB1s14SimC > 0f) prefs.catB1s14SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S14Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s14TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s14" to
+                                        com.veplayer.app.vehicle.CatalystB1S14.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S14Monitor.state.value,
+                                        ),
+                                    "cat_b2s14_warn_c" to prefs.catB2s14WarnC.toDouble(),
+                                    "cat_b2s14_alert_c" to prefs.catB2s14AlertC.toDouble(),
+                                    "catalyst_b2s14_temp_c" to
+                                        (if (prefs.catB2s14SimC > 0f) prefs.catB2s14SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S14Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s14TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s14" to
+                                        com.veplayer.app.vehicle.CatalystB2S14.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S14Monitor.state.value,
+                                        ),
+                                    "o2_lambda_warn" to prefs.o2LambdaWarn.toDouble(),
+                                    "o2_lambda_alert" to prefs.o2LambdaAlert.toDouble(),
+                                    "o2_lambda_speed_min_kmh" to prefs.o2LambdaSpeedMinKmh.toDouble(),
+                                    "o2_lambda_b1" to
+                                        (if (prefs.o2LambdaSim > 0f) prefs.o2LambdaSim
+                                        else com.veplayer.app.vehicle.O2LambdaB1Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB1
+                                        )?.toDouble(),
+                                    "o2_lambda" to
+                                        com.veplayer.app.vehicle.O2LambdaB1.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB1Monitor.state.value,
+                                        ),
+                                    "pm_b1_warn_pct" to prefs.pmB1WarnPct.toDouble(),
+                                    "pm_b1_alert_pct" to prefs.pmB1AlertPct.toDouble(),
+                                    "pm_b1_speed_min_kmh" to prefs.pmB1SpeedMinKmh.toDouble(),
+                                    "pm_sensor_b1_pct" to
+                                        (if (prefs.pmB1SimPct > 0f) prefs.pmB1SimPct
+                                        else com.veplayer.app.vehicle.PmSensorB1Monitor.state.value.pmPct
+                                            ?: snap.pmSensorB1Pct
+                                        )?.toDouble(),
+                                    "pm_b1" to
+                                        com.veplayer.app.vehicle.PmSensorB1.toJsonMap(
+                                            com.veplayer.app.vehicle.PmSensorB1Monitor.state.value,
+                                        ),
+                                    "pm_b2_warn_pct" to prefs.pmB2WarnPct.toDouble(),
+                                    "pm_b2_alert_pct" to prefs.pmB2AlertPct.toDouble(),
+                                    "pm_b2_speed_min_kmh" to prefs.pmB2SpeedMinKmh.toDouble(),
+                                    "pm_sensor_b2_pct" to
+                                        (if (prefs.pmB2SimPct > 0f) prefs.pmB2SimPct
+                                        else com.veplayer.app.vehicle.PmSensorB2Monitor.state.value.pmPct
+                                            ?: snap.pmSensorB2Pct
+                                        )?.toDouble(),
+                                    "pm_b2" to
+                                        com.veplayer.app.vehicle.PmSensorB2.toJsonMap(
+                                            com.veplayer.app.vehicle.PmSensorB2Monitor.state.value,
+                                        ),
+                                    "egt_b1s5_warn_c" to prefs.egtB1s5WarnC.toDouble(),
+                                    "egt_b1s5_alert_c" to prefs.egtB1s5AlertC.toDouble(),
+                                    "egt_b1s5_temp_c" to
+                                        (if (prefs.egtB1s5SimC > 0f) prefs.egtB1s5SimC
+                                        else com.veplayer.app.vehicle.EgtB1S5Monitor.state.value.egtTempC
+                                            ?: snap.egtB1s5TempC
+                                        )?.toDouble(),
+                                    "egt_b1s5" to
+                                        com.veplayer.app.vehicle.EgtB1S5.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB1S5Monitor.state.value,
+                                        ),
+                                    "egt_b2s5_warn_c" to prefs.egtB2s5WarnC.toDouble(),
+                                    "egt_b2s5_alert_c" to prefs.egtB2s5AlertC.toDouble(),
+                                    "egt_b2s5_temp_c" to
+                                        (if (prefs.egtB2s5SimC > 0f) prefs.egtB2s5SimC
+                                        else com.veplayer.app.vehicle.EgtB2S5Monitor.state.value.egtTempC
+                                            ?: snap.egtB2s5TempC
+                                        )?.toDouble(),
+                                    "egt_b2s5" to
+                                        com.veplayer.app.vehicle.EgtB2S5.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB2S5Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b1s3_warn" to prefs.o2LambdaB1s3Warn.toDouble(),
+                                    "o2_lmb_b1s3_alert" to prefs.o2LambdaB1s3Alert.toDouble(),
+                                    "o2_lmb_b1s3_speed_min_kmh" to prefs.o2LambdaB1s3SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b1s3" to
+                                        (if (prefs.o2LambdaB1s3Sim > 0f) prefs.o2LambdaB1s3Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB1S3Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB1s3
+                                        )?.toDouble(),
+                                    "o2_lmb_b1s3" to
+                                        com.veplayer.app.vehicle.O2LambdaB1S3.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB1S3Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b2s3_warn" to prefs.o2LambdaB2s3Warn.toDouble(),
+                                    "o2_lmb_b2s3_alert" to prefs.o2LambdaB2s3Alert.toDouble(),
+                                    "o2_lmb_b2s3_speed_min_kmh" to prefs.o2LambdaB2s3SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b2s3" to
+                                        (if (prefs.o2LambdaB2s3Sim > 0f) prefs.o2LambdaB2s3Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB2S3Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB2s3
+                                        )?.toDouble(),
+                                    "o2_lmb_b2s3" to
+                                        com.veplayer.app.vehicle.O2LambdaB2S3.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB2S3Monitor.state.value,
+                                        ),
+                                    "nox_req_warn_h" to prefs.noxReqWarnH.toDouble(),
+                                    "nox_req_alert_h" to prefs.noxReqAlertH.toDouble(),
+                                    "nox_reagent_qual_hours" to
+                                        (if (prefs.noxReqSimH > 0f) prefs.noxReqSimH
+                                        else com.veplayer.app.vehicle.NoxReagentQualityMonitor.state.value.qualHours
+                                            ?: snap.noxReagentQualHours
+                                        )?.toDouble(),
+                                    "nox_reagent" to
+                                        com.veplayer.app.vehicle.NoxReagentQuality.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxReagentQualityMonitor.state.value,
+                                        ),
+                                    "egt_b1s6_warn_c" to prefs.egtB1s6WarnC.toDouble(),
+                                    "egt_b1s6_alert_c" to prefs.egtB1s6AlertC.toDouble(),
+                                    "egt_b1s6_temp_c" to
+                                        (if (prefs.egtB1s6SimC > 0f) prefs.egtB1s6SimC
+                                        else com.veplayer.app.vehicle.EgtB1S6Monitor.state.value.egtTempC
+                                            ?: snap.egtB1s6TempC
+                                        )?.toDouble(),
+                                    "egt_b1s6" to
+                                        com.veplayer.app.vehicle.EgtB1S6.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB1S6Monitor.state.value,
+                                        ),
+                                    "egt_b2s6_warn_c" to prefs.egtB2s6WarnC.toDouble(),
+                                    "egt_b2s6_alert_c" to prefs.egtB2s6AlertC.toDouble(),
+                                    "egt_b2s6_temp_c" to
+                                        (if (prefs.egtB2s6SimC > 0f) prefs.egtB2s6SimC
+                                        else com.veplayer.app.vehicle.EgtB2S6Monitor.state.value.egtTempC
+                                            ?: snap.egtB2s6TempC
+                                        )?.toDouble(),
+                                    "egt_b2s6" to
+                                        com.veplayer.app.vehicle.EgtB2S6.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB2S6Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b1s4_warn" to prefs.o2LambdaB1s4Warn.toDouble(),
+                                    "o2_lmb_b1s4_alert" to prefs.o2LambdaB1s4Alert.toDouble(),
+                                    "o2_lmb_b1s4_speed_min_kmh" to prefs.o2LambdaB1s4SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b1s4" to
+                                        (if (prefs.o2LambdaB1s4Sim > 0f) prefs.o2LambdaB1s4Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB1S4Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB1s4
+                                        )?.toDouble(),
+                                    "o2_lmb_b1s4" to
+                                        com.veplayer.app.vehicle.O2LambdaB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB1S4Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b2s4_warn" to prefs.o2LambdaB2s4Warn.toDouble(),
+                                    "o2_lmb_b2s4_alert" to prefs.o2LambdaB2s4Alert.toDouble(),
+                                    "o2_lmb_b2s4_speed_min_kmh" to prefs.o2LambdaB2s4SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b2s4" to
+                                        (if (prefs.o2LambdaB2s4Sim > 0f) prefs.o2LambdaB2s4Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB2S4Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB2s4
+                                        )?.toDouble(),
+                                    "o2_lmb_b2s4" to
+                                        com.veplayer.app.vehicle.O2LambdaB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB2S4Monitor.state.value,
+                                        ),
+                                    "def_warn_pct" to prefs.defFluidWarnPct.toDouble(),
+                                    "def_alert_pct" to prefs.defFluidAlertPct.toDouble(),
+                                    "def_fluid_pct" to
+                                        (if (prefs.defFluidSimPct > 0f) prefs.defFluidSimPct
+                                        else com.veplayer.app.vehicle.DefFluidMonitor.state.value.defPct
+                                            ?: snap.defFluidPct
+                                        )?.toDouble(),
+                                    "def_fluid" to
+                                        com.veplayer.app.vehicle.DefFluid.toJsonMap(
+                                            com.veplayer.app.vehicle.DefFluidMonitor.state.value,
+                                        ),
+                                    "egt_b1s7_warn_c" to prefs.egtB1s7WarnC.toDouble(),
+                                    "egt_b1s7_alert_c" to prefs.egtB1s7AlertC.toDouble(),
+                                    "egt_b1s7_temp_c" to
+                                        (if (prefs.egtB1s7SimC > 0f) prefs.egtB1s7SimC
+                                        else com.veplayer.app.vehicle.EgtB1S7Monitor.state.value.egtTempC
+                                            ?: snap.egtB1s7TempC
+                                        )?.toDouble(),
+                                    "egt_b1s7" to
+                                        com.veplayer.app.vehicle.EgtB1S7.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB1S7Monitor.state.value,
+                                        ),
+                                    "egt_b2s7_warn_c" to prefs.egtB2s7WarnC.toDouble(),
+                                    "egt_b2s7_alert_c" to prefs.egtB2s7AlertC.toDouble(),
+                                    "egt_b2s7_temp_c" to
+                                        (if (prefs.egtB2s7SimC > 0f) prefs.egtB2s7SimC
+                                        else com.veplayer.app.vehicle.EgtB2S7Monitor.state.value.egtTempC
+                                            ?: snap.egtB2s7TempC
+                                        )?.toDouble(),
+                                    "egt_b2s7" to
+                                        com.veplayer.app.vehicle.EgtB2S7.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB2S7Monitor.state.value,
+                                        ),
+                                    "egt_b1s8_warn_c" to prefs.egtB1s8WarnC.toDouble(),
+                                    "egt_b1s8_alert_c" to prefs.egtB1s8AlertC.toDouble(),
+                                    "egt_b1s8_temp_c" to
+                                        (if (prefs.egtB1s8SimC > 0f) prefs.egtB1s8SimC
+                                        else com.veplayer.app.vehicle.EgtB1S8Monitor.state.value.egtTempC
+                                            ?: snap.egtB1s8TempC
+                                        )?.toDouble(),
+                                    "egt_b1s8" to
+                                        com.veplayer.app.vehicle.EgtB1S8.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB1S8Monitor.state.value,
+                                        ),
+                                    "egt_b2s8_warn_c" to prefs.egtB2s8WarnC.toDouble(),
+                                    "egt_b2s8_alert_c" to prefs.egtB2s8AlertC.toDouble(),
+                                    "egt_b2s8_temp_c" to
+                                        (if (prefs.egtB2s8SimC > 0f) prefs.egtB2s8SimC
+                                        else com.veplayer.app.vehicle.EgtB2S8Monitor.state.value.egtTempC
+                                            ?: snap.egtB2s8TempC
+                                        )?.toDouble(),
+                                    "egt_b2s8" to
+                                        com.veplayer.app.vehicle.EgtB2S8.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB2S8Monitor.state.value,
+                                        ),
+                                    "o2_conc_b1s3_warn" to prefs.o2ConcB1s3Warn.toDouble(),
+                                    "o2_conc_b1s3_alert" to prefs.o2ConcB1s3Alert.toDouble(),
+                                    "o2_conc_b1s3_speed_min_kmh" to prefs.o2ConcB1s3SpeedMinKmh.toDouble(),
+                                    "o2_conc_b1s3_pct" to
+                                        (if (prefs.o2ConcB1s3Sim > 0f) prefs.o2ConcB1s3Sim
+                                        else com.veplayer.app.vehicle.O2ConcB1S3Monitor.state.value.concPct
+                                            ?: snap.o2ConcB1s3Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b1s3" to
+                                        com.veplayer.app.vehicle.O2ConcB1S3.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB1S3Monitor.state.value,
+                                        ),
+                                    "o2_conc_b1s4_warn" to prefs.o2ConcB1s4Warn.toDouble(),
+                                    "o2_conc_b1s4_alert" to prefs.o2ConcB1s4Alert.toDouble(),
+                                    "o2_conc_b1s4_speed_min_kmh" to prefs.o2ConcB1s4SpeedMinKmh.toDouble(),
+                                    "o2_conc_b1s4_pct" to
+                                        (if (prefs.o2ConcB1s4Sim > 0f) prefs.o2ConcB1s4Sim
+                                        else com.veplayer.app.vehicle.O2ConcB1S4Monitor.state.value.concPct
+                                            ?: snap.o2ConcB1s4Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b1s4" to
+                                        com.veplayer.app.vehicle.O2ConcB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB1S4Monitor.state.value,
+                                        ),
+                                    "o2_conc_b2s3_warn" to prefs.o2ConcB2s3Warn.toDouble(),
+                                    "o2_conc_b2s3_alert" to prefs.o2ConcB2s3Alert.toDouble(),
+                                    "o2_conc_b2s3_speed_min_kmh" to prefs.o2ConcB2s3SpeedMinKmh.toDouble(),
+                                    "o2_conc_b2s3_pct" to
+                                        (if (prefs.o2ConcB2s3Sim > 0f) prefs.o2ConcB2s3Sim
+                                        else com.veplayer.app.vehicle.O2ConcB2S3Monitor.state.value.concPct
+                                            ?: snap.o2ConcB2s3Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b2s3" to
+                                        com.veplayer.app.vehicle.O2ConcB2S3.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB2S3Monitor.state.value,
+                                        ),
+                                    "o2_conc_b2s4_warn" to prefs.o2ConcB2s4Warn.toDouble(),
+                                    "o2_conc_b2s4_alert" to prefs.o2ConcB2s4Alert.toDouble(),
+                                    "o2_conc_b2s4_speed_min_kmh" to prefs.o2ConcB2s4SpeedMinKmh.toDouble(),
+                                    "o2_conc_b2s4_pct" to
+                                        (if (prefs.o2ConcB2s4Sim > 0f) prefs.o2ConcB2s4Sim
+                                        else com.veplayer.app.vehicle.O2ConcB2S4Monitor.state.value.concPct
+                                            ?: snap.o2ConcB2s4Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b2s4" to
+                                        com.veplayer.app.vehicle.O2ConcB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB2S4Monitor.state.value,
+                                        ),
+                                    "def_dose_warn_pct" to prefs.defDoseWarnPct.toDouble(),
+                                    "def_dose_alert_pct" to prefs.defDoseAlertPct.toDouble(),
+                                    "def_dose_speed_min_kmh" to prefs.defDoseSpeedMinKmh.toDouble(),
+                                    "def_dosing_cmd_pct" to
+                                        (if (prefs.defDoseSimPct > 0f) prefs.defDoseSimPct
+                                        else com.veplayer.app.vehicle.DefDosingCmdMonitor.state.value.dosePct
+                                            ?: snap.defDosingCmdPct
+                                        )?.toDouble(),
+                                    "def_dose" to
+                                        com.veplayer.app.vehicle.DefDosingCmd.toJsonMap(
+                                            com.veplayer.app.vehicle.DefDosingCmdMonitor.state.value,
+                                        ),
+                                    "nox_corr_b1s1_warn" to prefs.noxCorrB1s1Warn.toDouble(),
+                                    "nox_corr_b1s1_alert" to prefs.noxCorrB1s1Alert.toDouble(),
+                                    "nox_corr_b1s1_speed_min_kmh" to prefs.noxCorrB1s1SpeedMinKmh.toDouble(),
+                                    "nox_corrected_b1s1_ppm" to
+                                        (if (prefs.noxCorrB1s1Sim > 0f) prefs.noxCorrB1s1Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedB1s1Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_b1s1" to
+                                        com.veplayer.app.vehicle.NoxCorrectedB1S1.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor.state.value,
+                                        ),
+                                    "nox_corr_b1s2_warn" to prefs.noxCorrB1s2Warn.toDouble(),
+                                    "nox_corr_b1s2_alert" to prefs.noxCorrB1s2Alert.toDouble(),
+                                    "nox_corr_b1s2_speed_min_kmh" to prefs.noxCorrB1s2SpeedMinKmh.toDouble(),
+                                    "nox_corrected_b1s2_ppm" to
+                                        (if (prefs.noxCorrB1s2Sim > 0f) prefs.noxCorrB1s2Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedB1S2Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedB1s2Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_b1s2" to
+                                        com.veplayer.app.vehicle.NoxCorrectedB1S2.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedB1S2Monitor.state.value,
+                                        ),
+                                    "nox_corr_b2s1_warn" to prefs.noxCorrB2s1Warn.toDouble(),
+                                    "nox_corr_b2s1_alert" to prefs.noxCorrB2s1Alert.toDouble(),
+                                    "nox_corr_b2s1_speed_min_kmh" to prefs.noxCorrB2s1SpeedMinKmh.toDouble(),
+                                    "nox_corrected_b2s1_ppm" to
+                                        (if (prefs.noxCorrB2s1Sim > 0f) prefs.noxCorrB2s1Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedB2S1Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedB2s1Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_b2s1" to
+                                        com.veplayer.app.vehicle.NoxCorrectedB2S1.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedB2S1Monitor.state.value,
+                                        ),
+                                    "nox_corr_b2s2_warn" to prefs.noxCorrB2s2Warn.toDouble(),
+                                    "nox_corr_b2s2_alert" to prefs.noxCorrB2s2Alert.toDouble(),
+                                    "nox_corr_b2s2_speed_min_kmh" to prefs.noxCorrB2s2SpeedMinKmh.toDouble(),
+                                    "nox_corrected_b2s2_ppm" to
+                                        (if (prefs.noxCorrB2s2Sim > 0f) prefs.noxCorrB2s2Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedB2S2Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedB2s2Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_b2s2" to
+                                        com.veplayer.app.vehicle.NoxCorrectedB2S2.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedB2S2Monitor.state.value,
+                                        ),
+                                    "nox_conc_s3_warn" to prefs.noxConcS3Warn.toDouble(),
+                                    "nox_conc_s3_alert" to prefs.noxConcS3Alert.toDouble(),
+                                    "nox_conc_s3_speed_min_kmh" to prefs.noxConcS3SpeedMinKmh.toDouble(),
+                                    "nox_conc_s3_ppm" to
+                                        (if (prefs.noxConcS3Sim > 0f) prefs.noxConcS3Sim
+                                        else com.veplayer.app.vehicle.NoxConcS3Monitor.state.value.noxPpm
+                                            ?: snap.noxConcS3Ppm
+                                        )?.toDouble(),
+                                    "nox_conc_s3" to
+                                        com.veplayer.app.vehicle.NoxConcS3.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxConcS3Monitor.state.value,
+                                        ),
+                                    "nox_conc_s4_warn" to prefs.noxConcS4Warn.toDouble(),
+                                    "nox_conc_s4_alert" to prefs.noxConcS4Alert.toDouble(),
+                                    "nox_conc_s4_speed_min_kmh" to prefs.noxConcS4SpeedMinKmh.toDouble(),
+                                    "nox_conc_s4_ppm" to
+                                        (if (prefs.noxConcS4Sim > 0f) prefs.noxConcS4Sim
+                                        else com.veplayer.app.vehicle.NoxConcS4Monitor.state.value.noxPpm
+                                            ?: snap.noxConcS4Ppm
+                                        )?.toDouble(),
+                                    "nox_conc_s4" to
+                                        com.veplayer.app.vehicle.NoxConcS4.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxConcS4Monitor.state.value,
+                                        ),
+                                    "nox_corr_s3_warn" to prefs.noxCorrS3Warn.toDouble(),
+                                    "nox_corr_s3_alert" to prefs.noxCorrS3Alert.toDouble(),
+                                    "nox_corr_s3_speed_min_kmh" to prefs.noxCorrS3SpeedMinKmh.toDouble(),
+                                    "nox_corrected_s3_ppm" to
+                                        (if (prefs.noxCorrS3Sim > 0f) prefs.noxCorrS3Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedS3Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedS3Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_s3" to
+                                        com.veplayer.app.vehicle.NoxCorrectedS3.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedS3Monitor.state.value,
+                                        ),
+                                    "nox_corr_s4_warn" to prefs.noxCorrS4Warn.toDouble(),
+                                    "nox_corr_s4_alert" to prefs.noxCorrS4Alert.toDouble(),
+                                    "nox_corr_s4_speed_min_kmh" to prefs.noxCorrS4SpeedMinKmh.toDouble(),
+                                    "nox_corrected_s4_ppm" to
+                                        (if (prefs.noxCorrS4Sim > 0f) prefs.noxCorrS4Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedS4Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedS4Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_s4" to
+                                        com.veplayer.app.vehicle.NoxCorrectedS4.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedS4Monitor.state.value,
+                                        ),
+                                    "cyl_fuel_warn_mg" to prefs.cylFuelWarnMg.toDouble(),
+                                    "cyl_fuel_alert_mg" to prefs.cylFuelAlertMg.toDouble(),
+                                    "cyl_fuel_speed_min_kmh" to prefs.cylFuelSpeedMinKmh.toDouble(),
+                                    "cylinder_fuel_rate_mg" to
+                                        (if (prefs.cylFuelSimMg > 0f) prefs.cylFuelSimMg
+                                        else com.veplayer.app.vehicle.CylinderFuelRateMonitor.state.value.mgPerStroke
+                                            ?: snap.cylinderFuelRateMg
+                                        )?.toDouble(),
+                                    "cyl_fuel" to
+                                        com.veplayer.app.vehicle.CylinderFuelRate.toJsonMap(
+                                            com.veplayer.app.vehicle.CylinderFuelRateMonitor.state.value,
+                                        ),
+                                    "evap_sys_vapor_warn_pa" to prefs.evapSysVaporWarnPa.toDouble(),
+                                    "evap_sys_vapor_alert_pa" to prefs.evapSysVaporAlertPa.toDouble(),
+                                    "evap_sys_vapor_speed_min_kmh" to prefs.evapSysVaporSpeedMinKmh.toDouble(),
+                                    "evap_sys_vapor_pa" to
+                                        (if (prefs.evapSysVaporSimPa != 0f) prefs.evapSysVaporSimPa
+                                        else com.veplayer.app.vehicle.EvapSysVaporMonitor.state.value.pressurePa
+                                            ?: snap.evapSysVaporPa
+                                        )?.toDouble(),
+                                    "evap_sys_vapor" to
+                                        com.veplayer.app.vehicle.EvapSysVapor.toJsonMap(
+                                            com.veplayer.app.vehicle.EvapSysVaporMonitor.state.value,
+                                        ),
+                                    "trans_gear_warn_ratio" to prefs.transGearWarnRatio.toDouble(),
+                                    "trans_gear_alert_ratio" to prefs.transGearAlertRatio.toDouble(),
+                                    "trans_gear_speed_min_kmh" to prefs.transGearSpeedMinKmh.toDouble(),
+                                    "trans_gear_ratio" to
+                                        (if (prefs.transGearSimRatio > 0f) prefs.transGearSimRatio
+                                        else com.veplayer.app.vehicle.TransGearRatioMonitor.state.value.gearRatio
+                                            ?: snap.transGearRatio
+                                        )?.toDouble(),
+                                    "trans_gear" to
+                                        com.veplayer.app.vehicle.TransGearRatio.toJsonMap(
+                                            com.veplayer.app.vehicle.TransGearRatioMonitor.state.value,
+                                        ),
+                                    "obd_odometer_warn_km" to prefs.obdOdoWarnKm.toDouble(),
+                                    "obd_odometer_alert_km" to prefs.obdOdoAlertKm.toDouble(),
+                                    "obd_odometer_speed_min_kmh" to prefs.obdOdoSpeedMinKmh.toDouble(),
+                                    "obd_odometer_km" to
+                                        (if (prefs.obdOdoSimKm > 0f) prefs.obdOdoSimKm
+                                        else com.veplayer.app.vehicle.ObdOdometerMonitor.state.value.odometerKm
+                                            ?: snap.obdOdometerKm
+                                        )?.toDouble(),
+                                    "obd_odometer" to
+                                        com.veplayer.app.vehicle.ObdOdometer.toJsonMap(
+                                            com.veplayer.app.vehicle.ObdOdometerMonitor.state.value,
+                                        ),
+                                    "abs_disable_speed_min_kmh" to prefs.absDisableSpeedMinKmh.toDouble(),
+                                    "abs_disable_supported" to
+                                        (if (prefs.absDisableSim) 1 else snap.absDisableSupported ?: 0),
+                                    "abs_disabled" to
+                                        (if (prefs.absDisableSim) 1 else snap.absDisabled ?: 0),
+                                    "abs_disable" to
+                                        com.veplayer.app.vehicle.AbsDisable.toJsonMap(
+                                            com.veplayer.app.vehicle.AbsDisableMonitor.state.value,
+                                        ),
+                                    "fuel_press_a_warn_kpa" to prefs.fuelPressAWarnKpa.toDouble(),
+                                    "fuel_press_a_alert_kpa" to prefs.fuelPressAAlertKpa.toDouble(),
+                                    "fuel_press_a_speed_min_kmh" to prefs.fuelPressASpeedMinKmh.toDouble(),
+                                    "fuel_press_a_kpa" to
+                                        (if (prefs.fuelPressASimKpa > 0f) prefs.fuelPressASimKpa
+                                        else com.veplayer.app.vehicle.FuelPressAMonitor.state.value.pressureKpa
+                                            ?: snap.fuelPressAKpa
+                                        )?.toDouble(),
+                                    "fuel_press_a" to
+                                        com.veplayer.app.vehicle.FuelPressA.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressAMonitor.state.value,
+                                        ),
+                                    "fuel_press_b_warn_kpa" to prefs.fuelPressBWarnKpa.toDouble(),
+                                    "fuel_press_b_alert_kpa" to prefs.fuelPressBAlertKpa.toDouble(),
+                                    "fuel_press_b_speed_min_kmh" to prefs.fuelPressBSpeedMinKmh.toDouble(),
+                                    "fuel_press_b_kpa" to
+                                        (if (prefs.fuelPressBSimKpa > 0f) prefs.fuelPressBSimKpa
+                                        else com.veplayer.app.vehicle.FuelPressBMonitor.state.value.pressureKpa
+                                            ?: snap.fuelPressBKpa
+                                        )?.toDouble(),
+                                    "fuel_press_b" to
+                                        com.veplayer.app.vehicle.FuelPressB.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressBMonitor.state.value,
+                                        ),
+                                    "reflash_dist_warn_km" to prefs.reflashDistWarnKm.toDouble(),
+                                    "reflash_dist_alert_km" to prefs.reflashDistAlertKm.toDouble(),
+                                    "reflash_dist_speed_min_kmh" to prefs.reflashDistSpeedMinKmh.toDouble(),
+                                    "reflash_dist_km" to
+                                        (if (prefs.reflashDistSimKm > 0f) prefs.reflashDistSimKm
+                                        else com.veplayer.app.vehicle.ReflashDistanceMonitor.state.value.distanceKm
+                                            ?: snap.reflashDistKm
+                                        )?.toDouble(),
+                                    "reflash_dist" to
+                                        com.veplayer.app.vehicle.ReflashDistance.toJsonMap(
+                                            com.veplayer.app.vehicle.ReflashDistanceMonitor.state.value,
+                                        ),
+                                    "fuel_level_a_warn_pct" to prefs.fuelLvlAWarnPct.toDouble(),
+                                    "fuel_level_a_alert_pct" to prefs.fuelLvlAAlertPct.toDouble(),
+                                    "fuel_level_a_speed_min_kmh" to prefs.fuelLvlASpeedMinKmh.toDouble(),
+                                    "fuel_level_input_a_pct" to
+                                        (if (prefs.fuelLvlASimPct > 0f) prefs.fuelLvlASimPct
+                                        else com.veplayer.app.vehicle.FuelLevelInputAMonitor.state.value.levelPct
+                                            ?: snap.fuelLevelInputAPct
+                                        )?.toDouble(),
+                                    "fuel_level_a" to
+                                        com.veplayer.app.vehicle.FuelLevelInputA.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelLevelInputAMonitor.state.value,
+                                        ),
+                                    "fuel_level_b_warn_pct" to prefs.fuelLvlBWarnPct.toDouble(),
+                                    "fuel_level_b_alert_pct" to prefs.fuelLvlBAlertPct.toDouble(),
+                                    "fuel_level_b_speed_min_kmh" to prefs.fuelLvlBSpeedMinKmh.toDouble(),
+                                    "fuel_level_input_b_pct" to
+                                        (if (prefs.fuelLvlBSimPct > 0f) prefs.fuelLvlBSimPct
+                                        else com.veplayer.app.vehicle.FuelLevelInputBMonitor.state.value.levelPct
+                                            ?: snap.fuelLevelInputBPct
+                                        )?.toDouble(),
+                                    "fuel_level_b" to
+                                        com.veplayer.app.vehicle.FuelLevelInputB.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelLevelInputBMonitor.state.value,
+                                        ),
+                                    "epcs_time_warn_sec" to prefs.epcsTimeWarnSec.toDouble(),
+                                    "epcs_time_alert_sec" to prefs.epcsTimeAlertSec.toDouble(),
+                                    "epcs_time_speed_min_kmh" to prefs.epcsTimeSpeedMinKmh.toDouble(),
+                                    "epcs_diag_time_sec" to
+                                        (if (prefs.epcsTimeSimSec > 0f) prefs.epcsTimeSimSec
+                                        else com.veplayer.app.vehicle.EpcsDiagTimeMonitor.state.value.timeSec
+                                            ?: snap.epcsDiagTimeSec
+                                        )?.toDouble(),
+                                    "epcs_time" to
+                                        com.veplayer.app.vehicle.EpcsDiagTime.toJsonMap(
+                                            com.veplayer.app.vehicle.EpcsDiagTimeMonitor.state.value,
+                                        ),
+                                    "epcs_count_warn" to prefs.epcsCountWarn.toDouble(),
+                                    "epcs_count_alert" to prefs.epcsCountAlert.toDouble(),
+                                    "epcs_count_speed_min_kmh" to prefs.epcsCountSpeedMinKmh.toDouble(),
+                                    "epcs_diag_count" to
+                                        (if (prefs.epcsCountSim > 0f) prefs.epcsCountSim
+                                        else com.veplayer.app.vehicle.EpcsDiagCountMonitor.state.value.count
+                                            ?: snap.epcsDiagCount
+                                        )?.toDouble(),
+                                    "epcs_count" to
+                                        com.veplayer.app.vehicle.EpcsDiagCount.toJsonMap(
+                                            com.veplayer.app.vehicle.EpcsDiagCountMonitor.state.value,
+                                        ),
+                                    "nox_pcd_lamp_speed_min_kmh" to prefs.noxPcdLampSpeedMinKmh.toDouble(),
+                                    "nox_pcd_lamp_on" to
+                                        (if (prefs.noxPcdLampSim) 1 else snap.noxPcdLampOn ?: 0),
+                                    "nox_pcd_lamp" to
+                                        com.veplayer.app.vehicle.NoxPcdLamp.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxPcdLampMonitor.state.value,
+                                        ),
+                                    "particulate_induce_warn_status" to prefs.particulateInduceWarnStatus.toDouble(),
+                                    "particulate_induce_alert_status" to prefs.particulateInduceAlertStatus.toDouble(),
+                                    "particulate_induce_warn_speed_min_kmh" to prefs.particulateInduceWarnSpeedMinKmh.toDouble(),
+                                    "particulate_induce_alert_speed_min_kmh" to prefs.particulateInduceAlertSpeedMinKmh.toDouble(),
+                                    "particulate_induce_status" to
+                                        (if (prefs.particulateInduceSimStatus > 0f) prefs.particulateInduceSimStatus.toInt()
+                                        else com.veplayer.app.vehicle.ParticulateInduceAlertMonitor.state.value.status
+                                            ?: snap.particulateInduceStatus
+                                        ),
+                                    "particulate_induce_warn" to
+                                        com.veplayer.app.vehicle.ParticulateInduceWarn.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateInduceWarnMonitor.state.value,
+                                        ),
+                                    "particulate_induce_alert" to
+                                        com.veplayer.app.vehicle.ParticulateInduceAlert.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateInduceAlertMonitor.state.value,
+                                        ),
+                                    "dpf_removal_warn_count" to prefs.dpfRemovalWarnCount.toDouble(),
+                                    "dpf_removal_alert_count" to prefs.dpfRemovalAlertCount.toDouble(),
+                                    "dpf_removal_speed_min_kmh" to prefs.dpfRemovalSpeedMinKmh.toDouble(),
+                                    "dpf_removal_counter" to
+                                        (if (prefs.dpfRemovalSimCount > 0f) prefs.dpfRemovalSimCount
+                                        else com.veplayer.app.vehicle.DpfRemovalCounterMonitor.state.value.count
+                                            ?: snap.dpfRemovalCounter
+                                        )?.toDouble(),
+                                    "dpf_removal" to
+                                        com.veplayer.app.vehicle.DpfRemovalCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.DpfRemovalCounterMonitor.state.value,
+                                        ),
+                                    "reagent_fail_warn_count" to prefs.reagentFailWarnCount.toDouble(),
+                                    "reagent_fail_alert_count" to prefs.reagentFailAlertCount.toDouble(),
+                                    "reagent_fail_speed_min_kmh" to prefs.reagentFailSpeedMinKmh.toDouble(),
+                                    "reagent_injection_fail_counter" to
+                                        (if (prefs.reagentFailSimCount > 0f) prefs.reagentFailSimCount
+                                        else com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor.state.value.count
+                                            ?: snap.reagentInjectionFailCounter
+                                        )?.toDouble(),
+                                    "reagent_fail" to
+                                        com.veplayer.app.vehicle.ReagentInjectionFailCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor.state.value,
+                                        ),
+                                    "particulate_malf_warn_count" to prefs.particulateMalfWarnCount.toDouble(),
+                                    "particulate_malf_alert_count" to prefs.particulateMalfAlertCount.toDouble(),
+                                    "particulate_malf_speed_min_kmh" to prefs.particulateMalfSpeedMinKmh.toDouble(),
+                                    "particulate_monitor_malfunction_counter" to
+                                        (if (prefs.particulateMalfSimCount > 0f) prefs.particulateMalfSimCount
+                                        else com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.value.count
+                                            ?: snap.particulateMonitorMalfunctionCounter
+                                        )?.toDouble(),
+                                    "particulate_malf" to
+                                        com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -943,6 +2196,1259 @@ class SenseBridgeService : Service() {
                                     "fuel_rail_abs" to
                                         com.veplayer.app.vehicle.FuelRailAbs.toJsonMap(
                                             com.veplayer.app.vehicle.FuelRailAbsMonitor.state.value,
+                                        ),
+                                    "egr_cmd_warn_pct" to prefs.egrCmdWarnPct.toDouble(),
+                                    "egr_cmd_alert_pct" to prefs.egrCmdAlertPct.toDouble(),
+                                    "egr_cmd_speed_min_kmh" to prefs.egrCmdSpeedMinKmh.toDouble(),
+                                    "egr_cmd_pct" to
+                                        (if (prefs.egrCmdSimPct > 0f) prefs.egrCmdSimPct
+                                        else com.veplayer.app.vehicle.CommandedEgrMonitor.state.value.egrPct
+                                            ?: snap.egrCmdPct
+                                        )?.toDouble(),
+                                    "egr_cmd" to
+                                        com.veplayer.app.vehicle.CommandedEgr.toJsonMap(
+                                            com.veplayer.app.vehicle.CommandedEgrMonitor.state.value,
+                                        ),
+                                    "rel_aped_warn_pct" to prefs.relApedWarnPct.toDouble(),
+                                    "rel_aped_alert_pct" to prefs.relApedAlertPct.toDouble(),
+                                    "rel_aped_speed_min_kmh" to prefs.relApedSpeedMinKmh.toDouble(),
+                                    "rel_accel_pedal_pct" to
+                                        (if (prefs.relApedSimPct > 0f) prefs.relApedSimPct
+                                        else com.veplayer.app.vehicle.RelAccelPedalMonitor.state.value.pedalPct
+                                            ?: snap.relAccelPedalPct
+                                        )?.toDouble(),
+                                    "rel_aped" to
+                                        com.veplayer.app.vehicle.RelAccelPedal.toJsonMap(
+                                            com.veplayer.app.vehicle.RelAccelPedalMonitor.state.value,
+                                        ),
+                                    "drv_torque_warn_pct" to prefs.drvTorqueWarnPct.toDouble(),
+                                    "drv_torque_alert_pct" to prefs.drvTorqueAlertPct.toDouble(),
+                                    "drv_torque_speed_min_kmh" to prefs.drvTorqueSpeedMinKmh.toDouble(),
+                                    "driver_torque_pct" to
+                                        (if (prefs.drvTorqueSimPct != 0f) prefs.drvTorqueSimPct
+                                        else com.veplayer.app.vehicle.DriverTorqueMonitor.state.value.torquePct
+                                            ?: snap.driverTorquePct
+                                        )?.toDouble(),
+                                    "drv_torque" to
+                                        com.veplayer.app.vehicle.DriverTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.DriverTorqueMonitor.state.value,
+                                        ),
+                                    "act_torque_warn_pct" to prefs.actTorqueWarnPct.toDouble(),
+                                    "act_torque_alert_pct" to prefs.actTorqueAlertPct.toDouble(),
+                                    "act_torque_speed_min_kmh" to prefs.actTorqueSpeedMinKmh.toDouble(),
+                                    "actual_torque_pct" to
+                                        (if (prefs.actTorqueSimPct != 0f) prefs.actTorqueSimPct
+                                        else com.veplayer.app.vehicle.ActualTorqueMonitor.state.value.torquePct
+                                            ?: snap.actualTorquePct
+                                        )?.toDouble(),
+                                    "act_torque" to
+                                        com.veplayer.app.vehicle.ActualTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.ActualTorqueMonitor.state.value,
+                                        ),
+                                    "cat_b2_warn_c" to prefs.catB2WarnC.toDouble(),
+                                    "cat_b2_alert_c" to prefs.catB2AlertC.toDouble(),
+                                    "catalyst_b2_temp_c" to
+                                        (if (prefs.catB2SimC > 0f) prefs.catB2SimC
+                                        else com.veplayer.app.vehicle.CatalystB2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2" to
+                                        com.veplayer.app.vehicle.CatalystB2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2Monitor.state.value,
+                                        ),
+                                    "cat_b1s2_warn_c" to prefs.catB1s2WarnC.toDouble(),
+                                    "cat_b1s2_alert_c" to prefs.catB1s2AlertC.toDouble(),
+                                    "catalyst_b1s2_temp_c" to
+                                        (if (prefs.catB1s2SimC > 0f) prefs.catB1s2SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s2" to
+                                        com.veplayer.app.vehicle.CatalystB1S2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S2Monitor.state.value,
+                                        ),
+                                    "cat_b2s2_warn_c" to prefs.catB2s2WarnC.toDouble(),
+                                    "cat_b2s2_alert_c" to prefs.catB2s2AlertC.toDouble(),
+                                    "catalyst_b2s2_temp_c" to
+                                        (if (prefs.catB2s2SimC > 0f) prefs.catB2s2SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S2Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s2TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s2" to
+                                        com.veplayer.app.vehicle.CatalystB2S2.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S2Monitor.state.value,
+                                        ),
+                                    "cat_b1s3_warn_c" to prefs.catB1s3WarnC.toDouble(),
+                                    "cat_b1s3_alert_c" to prefs.catB1s3AlertC.toDouble(),
+                                    "catalyst_b1s3_temp_c" to
+                                        (if (prefs.catB1s3SimC > 0f) prefs.catB1s3SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S3Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s3TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s3" to
+                                        com.veplayer.app.vehicle.CatalystB1S3.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S3Monitor.state.value,
+                                        ),
+                                    "cat_b2s3_warn_c" to prefs.catB2s3WarnC.toDouble(),
+                                    "cat_b2s3_alert_c" to prefs.catB2s3AlertC.toDouble(),
+                                    "catalyst_b2s3_temp_c" to
+                                        (if (prefs.catB2s3SimC > 0f) prefs.catB2s3SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S3Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s3TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s3" to
+                                        com.veplayer.app.vehicle.CatalystB2S3.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S3Monitor.state.value,
+                                        ),
+                                    "cat_b1s4_warn_c" to prefs.catB1s4WarnC.toDouble(),
+                                    "cat_b1s4_alert_c" to prefs.catB1s4AlertC.toDouble(),
+                                    "catalyst_b1s4_temp_c" to
+                                        (if (prefs.catB1s4SimC > 0f) prefs.catB1s4SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S4Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s4TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s4" to
+                                        com.veplayer.app.vehicle.CatalystB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S4Monitor.state.value,
+                                        ),
+                                    "cat_b2s4_warn_c" to prefs.catB2s4WarnC.toDouble(),
+                                    "cat_b2s4_alert_c" to prefs.catB2s4AlertC.toDouble(),
+                                    "catalyst_b2s4_temp_c" to
+                                        (if (prefs.catB2s4SimC > 0f) prefs.catB2s4SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S4Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s4TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s4" to
+                                        com.veplayer.app.vehicle.CatalystB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S4Monitor.state.value,
+                                        ),
+                                    "stft2_b1_warn_pct" to prefs.stft2B1WarnPct.toDouble(),
+                                    "stft2_b1_alert_pct" to prefs.stft2B1AlertPct.toDouble(),
+                                    "stft2_b1_speed_min_kmh" to prefs.stft2B1SpeedMinKmh.toDouble(),
+                                    "fuel_trim_stft2_b1_pct" to
+                                        (if (prefs.stft2B1SimPct != 0f) prefs.stft2B1SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimStft2B1Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimStft2B1Pct
+                                        )?.toDouble(),
+                                    "stft2_b1" to
+                                        com.veplayer.app.vehicle.FuelTrimStft2B1.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimStft2B1Monitor.state.value,
+                                        ),
+                                    "ltft2_b1_warn_pct" to prefs.ltft2B1WarnPct.toDouble(),
+                                    "ltft2_b1_alert_pct" to prefs.ltft2B1AlertPct.toDouble(),
+                                    "ltft2_b1_speed_min_kmh" to prefs.ltft2B1SpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft2_b1_pct" to
+                                        (if (prefs.ltft2B1SimPct != 0f) prefs.ltft2B1SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtft2B1Pct
+                                        )?.toDouble(),
+                                    "ltft2_b1" to
+                                        com.veplayer.app.vehicle.FuelTrimLtft2B1.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtft2B1Monitor.state.value,
+                                        ),
+                                    "stft2_b2_warn_pct" to prefs.stft2B2WarnPct.toDouble(),
+                                    "stft2_b2_alert_pct" to prefs.stft2B2AlertPct.toDouble(),
+                                    "stft2_b2_speed_min_kmh" to prefs.stft2B2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_stft2_b2_pct" to
+                                        (if (prefs.stft2B2SimPct != 0f) prefs.stft2B2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimStft2B2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimStft2B2Pct
+                                        )?.toDouble(),
+                                    "stft2_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimStft2B2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimStft2B2Monitor.state.value,
+                                        ),
+                                    "ltft2_b2_warn_pct" to prefs.ltft2B2WarnPct.toDouble(),
+                                    "ltft2_b2_alert_pct" to prefs.ltft2B2AlertPct.toDouble(),
+                                    "ltft2_b2_speed_min_kmh" to prefs.ltft2B2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft2_b2_pct" to
+                                        (if (prefs.ltft2B2SimPct != 0f) prefs.ltft2B2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtft2B2Pct
+                                        )?.toDouble(),
+                                    "ltft2_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimLtft2B2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtft2B2Monitor.state.value,
+                                        ),
+                                    "cat_b1s5_warn_c" to prefs.catB1s5WarnC.toDouble(),
+                                    "cat_b1s5_alert_c" to prefs.catB1s5AlertC.toDouble(),
+                                    "catalyst_b1s5_temp_c" to
+                                        (if (prefs.catB1s5SimC > 0f) prefs.catB1s5SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S5Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s5TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s5" to
+                                        com.veplayer.app.vehicle.CatalystB1S5.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S5Monitor.state.value,
+                                        ),
+                                    "cat_b2s5_warn_c" to prefs.catB2s5WarnC.toDouble(),
+                                    "cat_b2s5_alert_c" to prefs.catB2s5AlertC.toDouble(),
+                                    "catalyst_b2s5_temp_c" to
+                                        (if (prefs.catB2s5SimC > 0f) prefs.catB2s5SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S5Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s5TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s5" to
+                                        com.veplayer.app.vehicle.CatalystB2S5.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S5Monitor.state.value,
+                                        ),
+                                    "inject_warn_deg" to prefs.injectWarnDeg.toDouble(),
+                                    "inject_alert_deg" to prefs.injectAlertDeg.toDouble(),
+                                    "inject_speed_min_kmh" to prefs.injectSpeedMinKmh.toDouble(),
+                                    "fuel_inject_timing_deg" to
+                                        (if (prefs.injectSimDeg != 0f) prefs.injectSimDeg
+                                        else com.veplayer.app.vehicle.FuelInjectTimingMonitor.state.value.timingDeg
+                                            ?: snap.fuelInjectTimingDeg
+                                        )?.toDouble(),
+                                    "fuel_inject" to
+                                        com.veplayer.app.vehicle.FuelInjectTiming.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelInjectTimingMonitor.state.value,
+                                        ),
+                                    "hybrid_warn_pct" to prefs.hybridWarnPct.toDouble(),
+                                    "hybrid_alert_pct" to prefs.hybridAlertPct.toDouble(),
+                                    "hybrid_speed_min_kmh" to prefs.hybridSpeedMinKmh.toDouble(),
+                                    "hybrid_batt_life_pct" to
+                                        (if (prefs.hybridSimPct > 0f) prefs.hybridSimPct
+                                        else com.veplayer.app.vehicle.HybridBattLifeMonitor.state.value.lifePct
+                                            ?: snap.hybridBattLifePct
+                                        )?.toDouble(),
+                                    "hybrid_batt" to
+                                        com.veplayer.app.vehicle.HybridBattLife.toJsonMap(
+                                            com.veplayer.app.vehicle.HybridBattLifeMonitor.state.value,
+                                        ),
+                                    "ref_torque_warn_low_nm" to prefs.refTorqueWarnLowNm.toDouble(),
+                                    "ref_torque_alert_low_nm" to prefs.refTorqueAlertLowNm.toDouble(),
+                                    "ref_torque_warn_high_nm" to prefs.refTorqueWarnHighNm.toDouble(),
+                                    "ref_torque_alert_high_nm" to prefs.refTorqueAlertHighNm.toDouble(),
+                                    "engine_ref_torque_nm" to
+                                        (if (prefs.refTorqueSimNm > 0f) prefs.refTorqueSimNm
+                                        else com.veplayer.app.vehicle.EngineRefTorqueMonitor.state.value.torqueNm
+                                            ?: snap.engineRefTorqueNm
+                                        )?.toDouble(),
+                                    "ref_torque" to
+                                        com.veplayer.app.vehicle.EngineRefTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineRefTorqueMonitor.state.value,
+                                        ),
+                                    "cat_b1s6_warn_c" to prefs.catB1s6WarnC.toDouble(),
+                                    "cat_b1s6_alert_c" to prefs.catB1s6AlertC.toDouble(),
+                                    "catalyst_b1s6_temp_c" to
+                                        (if (prefs.catB1s6SimC > 0f) prefs.catB1s6SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S6Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s6TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s6" to
+                                        com.veplayer.app.vehicle.CatalystB1S6.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S6Monitor.state.value,
+                                        ),
+                                    "cat_b2s6_warn_c" to prefs.catB2s6WarnC.toDouble(),
+                                    "cat_b2s6_alert_c" to prefs.catB2s6AlertC.toDouble(),
+                                    "catalyst_b2s6_temp_c" to
+                                        (if (prefs.catB2s6SimC > 0f) prefs.catB2s6SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S6Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s6TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s6" to
+                                        com.veplayer.app.vehicle.CatalystB2S6.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S6Monitor.state.value,
+                                        ),
+                                    "thr_b_warn_pct" to prefs.thrBWarnPct.toDouble(),
+                                    "thr_b_alert_pct" to prefs.thrBAlertPct.toDouble(),
+                                    "thr_b_speed_min_kmh" to prefs.thrBSpeedMinKmh.toDouble(),
+                                    "throttle_b_pct" to
+                                        (if (prefs.thrBSimPct > 0f) prefs.thrBSimPct
+                                        else com.veplayer.app.vehicle.ThrottleBMonitor.state.value.throttlePct
+                                            ?: snap.throttleBPct
+                                        )?.toDouble(),
+                                    "throttle_b" to
+                                        com.veplayer.app.vehicle.ThrottleB.toJsonMap(
+                                            com.veplayer.app.vehicle.ThrottleBMonitor.state.value,
+                                        ),
+                                    "thr_c_warn_pct" to prefs.thrCWarnPct.toDouble(),
+                                    "thr_c_alert_pct" to prefs.thrCAlertPct.toDouble(),
+                                    "thr_c_speed_min_kmh" to prefs.thrCSpeedMinKmh.toDouble(),
+                                    "throttle_c_pct" to
+                                        (if (prefs.thrCSimPct > 0f) prefs.thrCSimPct
+                                        else com.veplayer.app.vehicle.ThrottleCMonitor.state.value.throttlePct
+                                            ?: snap.throttleCPct
+                                        )?.toDouble(),
+                                    "throttle_c" to
+                                        com.veplayer.app.vehicle.ThrottleC.toJsonMap(
+                                            com.veplayer.app.vehicle.ThrottleCMonitor.state.value,
+                                        ),
+                                    "mil_time_warn_min" to prefs.milTimeWarnMin,
+                                    "mil_time_alert_min" to prefs.milTimeAlertMin,
+                                    "mil_time_min" to
+                                        (if (prefs.milTimeSimMin > 0) prefs.milTimeSimMin
+                                        else com.veplayer.app.vehicle.MilTimeOnMonitor.state.value.minutes
+                                            ?: snap.milTimeMin
+                                        ),
+                                    "mil_time" to
+                                        com.veplayer.app.vehicle.MilTimeOn.toJsonMap(
+                                            com.veplayer.app.vehicle.MilTimeOnMonitor.state.value,
+                                        ),
+                                    "cat_b1s7_warn_c" to prefs.catB1s7WarnC.toDouble(),
+                                    "cat_b1s7_alert_c" to prefs.catB1s7AlertC.toDouble(),
+                                    "catalyst_b1s7_temp_c" to
+                                        (if (prefs.catB1s7SimC > 0f) prefs.catB1s7SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S7Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s7TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s7" to
+                                        com.veplayer.app.vehicle.CatalystB1S7.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S7Monitor.state.value,
+                                        ),
+                                    "cat_b2s7_warn_c" to prefs.catB2s7WarnC.toDouble(),
+                                    "cat_b2s7_alert_c" to prefs.catB2s7AlertC.toDouble(),
+                                    "catalyst_b2s7_temp_c" to
+                                        (if (prefs.catB2s7SimC > 0f) prefs.catB2s7SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S7Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s7TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s7" to
+                                        com.veplayer.app.vehicle.CatalystB2S7.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S7Monitor.state.value,
+                                        ),
+                                    "fuel_type_expected" to prefs.fuelTypeExpected,
+                                    "fuel_type_speed_min_kmh" to prefs.fuelTypeSpeedMinKmh.toDouble(),
+                                    "fuel_type_code" to
+                                        (if (prefs.fuelTypeSimCode > 0) prefs.fuelTypeSimCode
+                                        else com.veplayer.app.vehicle.FuelTypeMonitor.state.value.typeCode
+                                            ?: snap.fuelTypeCode
+                                        ),
+                                    "fuel_type" to
+                                        com.veplayer.app.vehicle.FuelType.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTypeMonitor.state.value,
+                                        ),
+                                    "max_equiv_warn_low" to prefs.maxEquivWarnLow.toDouble(),
+                                    "max_equiv_alert_low" to prefs.maxEquivAlertLow.toDouble(),
+                                    "max_equiv_warn_high" to prefs.maxEquivWarnHigh.toDouble(),
+                                    "max_equiv_alert_high" to prefs.maxEquivAlertHigh.toDouble(),
+                                    "max_equiv_ratio" to
+                                        (if (prefs.maxEquivSimRatio != 0f) prefs.maxEquivSimRatio
+                                        else com.veplayer.app.vehicle.MaxEquivRatioMonitor.state.value.ratio
+                                            ?: snap.maxEquivRatio
+                                        )?.toDouble(),
+                                    "max_equiv" to
+                                        com.veplayer.app.vehicle.MaxEquivRatio.toJsonMap(
+                                            com.veplayer.app.vehicle.MaxEquivRatioMonitor.state.value,
+                                        ),
+                                    "max_maf_warn_low_gps" to prefs.maxMafWarnLowGps.toDouble(),
+                                    "max_maf_alert_low_gps" to prefs.maxMafAlertLowGps.toDouble(),
+                                    "max_maf_gps" to
+                                        (if (prefs.maxMafSimGps > 0f) prefs.maxMafSimGps
+                                        else com.veplayer.app.vehicle.MaxMafGpsMonitor.state.value.mafGps
+                                            ?: snap.maxMafGps
+                                        )?.toDouble(),
+                                    "max_maf" to
+                                        com.veplayer.app.vehicle.MaxMafGps.toJsonMap(
+                                            com.veplayer.app.vehicle.MaxMafGpsMonitor.state.value,
+                                        ),
+                                    "cat_b1s8_warn_c" to prefs.catB1s8WarnC.toDouble(),
+                                    "cat_b1s8_alert_c" to prefs.catB1s8AlertC.toDouble(),
+                                    "catalyst_b1s8_temp_c" to
+                                        (if (prefs.catB1s8SimC > 0f) prefs.catB1s8SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S8Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s8TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s8" to
+                                        com.veplayer.app.vehicle.CatalystB1S8.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S8Monitor.state.value,
+                                        ),
+                                    "cat_b2s8_warn_c" to prefs.catB2s8WarnC.toDouble(),
+                                    "cat_b2s8_alert_c" to prefs.catB2s8AlertC.toDouble(),
+                                    "catalyst_b2s8_temp_c" to
+                                        (if (prefs.catB2s8SimC > 0f) prefs.catB2s8SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S8Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s8TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s8" to
+                                        com.veplayer.app.vehicle.CatalystB2S8.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S8Monitor.state.value,
+                                        ),
+                                    "max_avail_torque_warn_low" to prefs.maxAvailTorqueWarnLow.toDouble(),
+                                    "max_avail_torque_alert_low" to prefs.maxAvailTorqueAlertLow.toDouble(),
+                                    "max_avail_torque_speed_min_kmh" to prefs.maxAvailTorqueSpeedMinKmh.toDouble(),
+                                    "max_avail_torque_pct" to
+                                        (if (prefs.maxAvailTorqueSimPct != 0f) prefs.maxAvailTorqueSimPct
+                                        else com.veplayer.app.vehicle.MaxAvailTorqueMonitor.state.value.torquePct
+                                            ?: snap.maxAvailTorquePct
+                                        )?.toDouble(),
+                                    "max_avail_torque" to
+                                        com.veplayer.app.vehicle.MaxAvailTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.MaxAvailTorqueMonitor.state.value,
+                                        ),
+                                    "maf_iat_warn_c" to prefs.mafIatWarnC.toDouble(),
+                                    "maf_iat_alert_c" to prefs.mafIatAlertC.toDouble(),
+                                    "maf_iat_speed_min_kmh" to prefs.mafIatSpeedMinKmh.toDouble(),
+                                    "maf_sensor_iat_c" to
+                                        (if (prefs.mafIatSimC > 0f) prefs.mafIatSimC
+                                        else com.veplayer.app.vehicle.MafSensorIatMonitor.state.value.tempC
+                                            ?: snap.mafSensorIatC
+                                        )?.toDouble(),
+                                    "maf_iat" to
+                                        com.veplayer.app.vehicle.MafSensorIat.toJsonMap(
+                                            com.veplayer.app.vehicle.MafSensorIatMonitor.state.value,
+                                        ),
+                                    "aux_input_alert_mask" to prefs.auxInputAlertMask,
+                                    "aux_input_speed_min_kmh" to prefs.auxInputSpeedMinKmh.toDouble(),
+                                    "aux_input_status" to
+                                        (if (prefs.auxInputSimCode > 0) prefs.auxInputSimCode
+                                        else com.veplayer.app.vehicle.AuxInputStatusMonitor.state.value.statusCode
+                                            ?: snap.auxInputStatus
+                                        ),
+                                    "aux_input" to
+                                        com.veplayer.app.vehicle.AuxInputStatus.toJsonMap(
+                                            com.veplayer.app.vehicle.AuxInputStatusMonitor.state.value,
+                                        ),
+                                    "cat_b1s9_warn_c" to prefs.catB1s9WarnC.toDouble(),
+                                    "cat_b1s9_alert_c" to prefs.catB1s9AlertC.toDouble(),
+                                    "catalyst_b1s9_temp_c" to
+                                        (if (prefs.catB1s9SimC > 0f) prefs.catB1s9SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S9Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s9TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s9" to
+                                        com.veplayer.app.vehicle.CatalystB1S9.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S9Monitor.state.value,
+                                        ),
+                                    "cat_b2s9_warn_c" to prefs.catB2s9WarnC.toDouble(),
+                                    "cat_b2s9_alert_c" to prefs.catB2s9AlertC.toDouble(),
+                                    "catalyst_b2s9_temp_c" to
+                                        (if (prefs.catB2s9SimC > 0f) prefs.catB2s9SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S9Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s9TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s9" to
+                                        com.veplayer.app.vehicle.CatalystB2S9.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S9Monitor.state.value,
+                                        ),
+                                    "ect2_warn_c" to prefs.ect2WarnC.toDouble(),
+                                    "ect2_alert_c" to prefs.ect2AlertC.toDouble(),
+                                    "coolant_ect2_c" to
+                                        (if (prefs.ect2SimC > 0f) prefs.ect2SimC
+                                        else com.veplayer.app.vehicle.CoolantEct2Monitor.state.value.coolantC
+                                            ?: snap.coolantEct2C
+                                        )?.toDouble(),
+                                    "ect2" to
+                                        com.veplayer.app.vehicle.CoolantEct2.toJsonMap(
+                                            com.veplayer.app.vehicle.CoolantEct2Monitor.state.value,
+                                        ),
+                                    "iat2_warn_c" to prefs.iat2WarnC.toDouble(),
+                                    "iat2_alert_c" to prefs.iat2AlertC.toDouble(),
+                                    "iat2_speed_min_kmh" to prefs.iat2SpeedMinKmh.toDouble(),
+                                    "iat_sensor2_c" to
+                                        (if (prefs.iat2SimC > 0f) prefs.iat2SimC
+                                        else com.veplayer.app.vehicle.IatSensor2Monitor.state.value.tempC
+                                            ?: snap.iatSensor2C
+                                        )?.toDouble(),
+                                    "iat2" to
+                                        com.veplayer.app.vehicle.IatSensor2.toJsonMap(
+                                            com.veplayer.app.vehicle.IatSensor2Monitor.state.value,
+                                        ),
+                                    "turbo_inlet_warn_kpa" to prefs.turboInletWarnKpa.toDouble(),
+                                    "turbo_inlet_alert_kpa" to prefs.turboInletAlertKpa.toDouble(),
+                                    "turbo_inlet_speed_min_kmh" to prefs.turboInletSpeedMinKmh.toDouble(),
+                                    "turbo_inlet_kpa" to
+                                        (if (prefs.turboInletSimKpa > 0f) prefs.turboInletSimKpa
+                                        else com.veplayer.app.vehicle.TurboInletPressureMonitor.state.value.pressureKpa
+                                            ?: snap.turboInletKpa
+                                        )?.toDouble(),
+                                    "turbo_inlet" to
+                                        com.veplayer.app.vehicle.TurboInletPressure.toJsonMap(
+                                            com.veplayer.app.vehicle.TurboInletPressureMonitor.state.value,
+                                        ),
+                                    "cat_b1s10_warn_c" to prefs.catB1s10WarnC.toDouble(),
+                                    "cat_b1s10_alert_c" to prefs.catB1s10AlertC.toDouble(),
+                                    "catalyst_b1s10_temp_c" to
+                                        (if (prefs.catB1s10SimC > 0f) prefs.catB1s10SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S10Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s10TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s10" to
+                                        com.veplayer.app.vehicle.CatalystB1S10.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S10Monitor.state.value,
+                                        ),
+                                    "cat_b2s10_warn_c" to prefs.catB2s10WarnC.toDouble(),
+                                    "cat_b2s10_alert_c" to prefs.catB2s10AlertC.toDouble(),
+                                    "catalyst_b2s10_temp_c" to
+                                        (if (prefs.catB2s10SimC > 0f) prefs.catB2s10SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S10Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s10TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s10" to
+                                        com.veplayer.app.vehicle.CatalystB2S10.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S10Monitor.state.value,
+                                        ),
+                                    "egr_temp_warn_c" to prefs.egrTempWarnC.toDouble(),
+                                    "egr_temp_alert_c" to prefs.egrTempAlertC.toDouble(),
+                                    "egr_temp_speed_min_kmh" to prefs.egrTempSpeedMinKmh.toDouble(),
+                                    "egr_temp_c" to
+                                        (if (prefs.egrTempSimC > 0f) prefs.egrTempSimC
+                                        else com.veplayer.app.vehicle.EgrTemperatureMonitor.state.value.tempC
+                                            ?: snap.egrTempC
+                                        )?.toDouble(),
+                                    "egr_temp" to
+                                        com.veplayer.app.vehicle.EgrTemperature.toJsonMap(
+                                            com.veplayer.app.vehicle.EgrTemperatureMonitor.state.value,
+                                        ),
+                                    "diesel_iaf_warn_pct" to prefs.dieselIafWarnPct.toDouble(),
+                                    "diesel_iaf_alert_pct" to prefs.dieselIafAlertPct.toDouble(),
+                                    "diesel_iaf_speed_min_kmh" to prefs.dieselIafSpeedMinKmh.toDouble(),
+                                    "diesel_iaf_cmd_pct" to
+                                        (if (prefs.dieselIafSimPct > 0f) prefs.dieselIafSimPct
+                                        else com.veplayer.app.vehicle.DieselIntakeAirflowMonitor.state.value.flowPct
+                                            ?: snap.dieselIafCmdPct
+                                        )?.toDouble(),
+                                    "diesel_iaf" to
+                                        com.veplayer.app.vehicle.DieselIntakeAirflow.toJsonMap(
+                                            com.veplayer.app.vehicle.DieselIntakeAirflowMonitor.state.value,
+                                        ),
+                                    "thr_act_warn_pct" to prefs.thrActWarnPct.toDouble(),
+                                    "thr_act_alert_pct" to prefs.thrActAlertPct.toDouble(),
+                                    "thr_act_speed_min_kmh" to prefs.thrActSpeedMinKmh.toDouble(),
+                                    "thr_actuator_pct" to
+                                        (if (prefs.thrActSimPct > 0f) prefs.thrActSimPct
+                                        else com.veplayer.app.vehicle.ThrottleActuatorMonitor.state.value.actuatorPct
+                                            ?: snap.thrActuatorPct
+                                        )?.toDouble(),
+                                    "thr_act" to
+                                        com.veplayer.app.vehicle.ThrottleActuator.toJsonMap(
+                                            com.veplayer.app.vehicle.ThrottleActuatorMonitor.state.value,
+                                        ),
+                                    "cat_b1s11_warn_c" to prefs.catB1s11WarnC.toDouble(),
+                                    "cat_b1s11_alert_c" to prefs.catB1s11AlertC.toDouble(),
+                                    "catalyst_b1s11_temp_c" to
+                                        (if (prefs.catB1s11SimC > 0f) prefs.catB1s11SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S11Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s11TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s11" to
+                                        com.veplayer.app.vehicle.CatalystB1S11.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S11Monitor.state.value,
+                                        ),
+                                    "cat_b2s11_warn_c" to prefs.catB2s11WarnC.toDouble(),
+                                    "cat_b2s11_alert_c" to prefs.catB2s11AlertC.toDouble(),
+                                    "catalyst_b2s11_temp_c" to
+                                        (if (prefs.catB2s11SimC > 0f) prefs.catB2s11SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S11Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s11TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s11" to
+                                        com.veplayer.app.vehicle.CatalystB2S11.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S11Monitor.state.value,
+                                        ),
+                                    "egr_actual_warn_pct" to prefs.egrActualWarnPct.toDouble(),
+                                    "egr_actual_alert_pct" to prefs.egrActualAlertPct.toDouble(),
+                                    "egr_actual_speed_min_kmh" to prefs.egrActualSpeedMinKmh.toDouble(),
+                                    "actual_egr_pct" to
+                                        (if (prefs.egrActualSimPct > 0f) prefs.egrActualSimPct
+                                        else com.veplayer.app.vehicle.ActualEgrMonitor.state.value.egrPct
+                                            ?: snap.actualEgrPct
+                                        )?.toDouble(),
+                                    "egr_actual" to
+                                        com.veplayer.app.vehicle.ActualEgr.toJsonMap(
+                                            com.veplayer.app.vehicle.ActualEgrMonitor.state.value,
+                                        ),
+                                    "inject_ctrl_warn_kpa" to prefs.injectCtrlWarnKpa.toDouble(),
+                                    "inject_ctrl_alert_kpa" to prefs.injectCtrlAlertKpa.toDouble(),
+                                    "inject_ctrl_speed_min_kmh" to prefs.injectCtrlSpeedMinKmh.toDouble(),
+                                    "inject_ctrl_kpa" to
+                                        (if (prefs.injectCtrlSimKpa > 0f) prefs.injectCtrlSimKpa
+                                        else com.veplayer.app.vehicle.InjectPressureControlMonitor.state.value.pressureKpa
+                                            ?: snap.injectCtrlKpa
+                                        )?.toDouble(),
+                                    "inject_ctrl" to
+                                        com.veplayer.app.vehicle.InjectPressureControl.toJsonMap(
+                                            com.veplayer.app.vehicle.InjectPressureControlMonitor.state.value,
+                                        ),
+                                    "fuel_ctrl_warn_kpa" to prefs.fuelCtrlWarnKpa.toDouble(),
+                                    "fuel_ctrl_alert_kpa" to prefs.fuelCtrlAlertKpa.toDouble(),
+                                    "fuel_ctrl_speed_min_kmh" to prefs.fuelCtrlSpeedMinKmh.toDouble(),
+                                    "fuel_ctrl_kpa" to
+                                        (if (prefs.fuelCtrlSimKpa > 0f) prefs.fuelCtrlSimKpa
+                                        else com.veplayer.app.vehicle.FuelPressureControlMonitor.state.value.pressureKpa
+                                            ?: snap.fuelCtrlKpa
+                                        )?.toDouble(),
+                                    "fuel_ctrl" to
+                                        com.veplayer.app.vehicle.FuelPressureControl.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressureControlMonitor.state.value,
+                                        ),
+                                    "cat_b1s12_warn_c" to prefs.catB1s12WarnC.toDouble(),
+                                    "cat_b1s12_alert_c" to prefs.catB1s12AlertC.toDouble(),
+                                    "catalyst_b1s12_temp_c" to
+                                        (if (prefs.catB1s12SimC > 0f) prefs.catB1s12SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S12Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s12TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s12" to
+                                        com.veplayer.app.vehicle.CatalystB1S12.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S12Monitor.state.value,
+                                        ),
+                                    "cat_b2s12_warn_c" to prefs.catB2s12WarnC.toDouble(),
+                                    "cat_b2s12_alert_c" to prefs.catB2s12AlertC.toDouble(),
+                                    "catalyst_b2s12_temp_c" to
+                                        (if (prefs.catB2s12SimC > 0f) prefs.catB2s12SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S12Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s12TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s12" to
+                                        com.veplayer.app.vehicle.CatalystB2S12.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S12Monitor.state.value,
+                                        ),
+                                    "stft_b2_warn_pct" to prefs.stftB2WarnPct.toDouble(),
+                                    "stft_b2_alert_pct" to prefs.stftB2AlertPct.toDouble(),
+                                    "stft_b2_speed_min_kmh" to prefs.stftB2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_stft_b2_pct" to
+                                        (if (prefs.stftB2SimPct != 0f) prefs.stftB2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimStftB2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimStftB2Pct
+                                        )?.toDouble(),
+                                    "stft_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimStftB2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimStftB2Monitor.state.value,
+                                        ),
+                                    "ltft_b2_warn_pct" to prefs.ltftB2WarnPct.toDouble(),
+                                    "ltft_b2_alert_pct" to prefs.ltftB2AlertPct.toDouble(),
+                                    "ltft_b2_speed_min_kmh" to prefs.ltftB2SpeedMinKmh.toDouble(),
+                                    "fuel_trim_ltft_b2_pct" to
+                                        (if (prefs.ltftB2SimPct != 0f) prefs.ltftB2SimPct
+                                        else com.veplayer.app.vehicle.FuelTrimLtftB2Monitor.state.value.trimPct
+                                            ?: snap.fuelTrimLtftB2Pct
+                                        )?.toDouble(),
+                                    "ltft_b2" to
+                                        com.veplayer.app.vehicle.FuelTrimLtftB2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelTrimLtftB2Monitor.state.value,
+                                        ),
+                                    "cat_b1s13_warn_c" to prefs.catB1s13WarnC.toDouble(),
+                                    "cat_b1s13_alert_c" to prefs.catB1s13AlertC.toDouble(),
+                                    "catalyst_b1s13_temp_c" to
+                                        (if (prefs.catB1s13SimC > 0f) prefs.catB1s13SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S13Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s13TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s13" to
+                                        com.veplayer.app.vehicle.CatalystB1S13.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S13Monitor.state.value,
+                                        ),
+                                    "cat_b2s13_warn_c" to prefs.catB2s13WarnC.toDouble(),
+                                    "cat_b2s13_alert_c" to prefs.catB2s13AlertC.toDouble(),
+                                    "catalyst_b2s13_temp_c" to
+                                        (if (prefs.catB2s13SimC > 0f) prefs.catB2s13SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S13Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s13TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s13" to
+                                        com.veplayer.app.vehicle.CatalystB2S13.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S13Monitor.state.value,
+                                        ),
+                                    "dpf_trigger_warn_pct" to prefs.dpfTrigWarnPct.toDouble(),
+                                    "dpf_trigger_alert_pct" to prefs.dpfTrigAlertPct.toDouble(),
+                                    "dpf_trigger_speed_min_kmh" to prefs.dpfTrigSpeedMinKmh.toDouble(),
+                                    "dpf_trigger_pct" to
+                                        (if (prefs.dpfTrigSimPct > 0f) prefs.dpfTrigSimPct
+                                        else com.veplayer.app.vehicle.DpfAftertreatmentMonitor.state.value.triggerPct
+                                            ?: snap.dpfTriggerPct
+                                        )?.toDouble(),
+                                    "dpf_aftertreatment" to
+                                        com.veplayer.app.vehicle.DpfAftertreatment.toJsonMap(
+                                            com.veplayer.app.vehicle.DpfAftertreatmentMonitor.state.value,
+                                        ),
+                                    "thr_g_warn_pct" to prefs.thrGWarnPct.toDouble(),
+                                    "thr_g_alert_pct" to prefs.thrGAlertPct.toDouble(),
+                                    "thr_g_speed_min_kmh" to prefs.thrGSpeedMinKmh.toDouble(),
+                                    "throttle_g_pct" to
+                                        (if (prefs.thrGSimPct > 0f) prefs.thrGSimPct
+                                        else com.veplayer.app.vehicle.ThrottleGMonitor.state.value.throttlePct
+                                            ?: snap.throttleGPct
+                                        )?.toDouble(),
+                                    "throttle_g" to
+                                        com.veplayer.app.vehicle.ThrottleG.toJsonMap(
+                                            com.veplayer.app.vehicle.ThrottleGMonitor.state.value,
+                                        ),
+                                    "eng_friction_warn_pct" to prefs.engFrictionWarnPct.toDouble(),
+                                    "eng_friction_alert_pct" to prefs.engFrictionAlertPct.toDouble(),
+                                    "eng_friction_speed_min_kmh" to prefs.engFrictionSpeedMinKmh.toDouble(),
+                                    "engine_friction_pct" to
+                                        (if (prefs.engFrictionSimPct != 0f) prefs.engFrictionSimPct
+                                        else com.veplayer.app.vehicle.EngineFrictionTorqueMonitor.state.value.frictionPct
+                                            ?: snap.engineFrictionPct
+                                        )?.toDouble(),
+                                    "eng_friction" to
+                                        com.veplayer.app.vehicle.EngineFrictionTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineFrictionTorqueMonitor.state.value,
+                                        ),
+                                    "cat_b1s14_warn_c" to prefs.catB1s14WarnC.toDouble(),
+                                    "cat_b1s14_alert_c" to prefs.catB1s14AlertC.toDouble(),
+                                    "catalyst_b1s14_temp_c" to
+                                        (if (prefs.catB1s14SimC > 0f) prefs.catB1s14SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S14Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s14TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s14" to
+                                        com.veplayer.app.vehicle.CatalystB1S14.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S14Monitor.state.value,
+                                        ),
+                                    "cat_b2s14_warn_c" to prefs.catB2s14WarnC.toDouble(),
+                                    "cat_b2s14_alert_c" to prefs.catB2s14AlertC.toDouble(),
+                                    "catalyst_b2s14_temp_c" to
+                                        (if (prefs.catB2s14SimC > 0f) prefs.catB2s14SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S14Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s14TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s14" to
+                                        com.veplayer.app.vehicle.CatalystB2S14.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S14Monitor.state.value,
+                                        ),
+                                    "o2_lambda_warn" to prefs.o2LambdaWarn.toDouble(),
+                                    "o2_lambda_alert" to prefs.o2LambdaAlert.toDouble(),
+                                    "o2_lambda_speed_min_kmh" to prefs.o2LambdaSpeedMinKmh.toDouble(),
+                                    "o2_lambda_b1" to
+                                        (if (prefs.o2LambdaSim > 0f) prefs.o2LambdaSim
+                                        else com.veplayer.app.vehicle.O2LambdaB1Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB1
+                                        )?.toDouble(),
+                                    "o2_lambda" to
+                                        com.veplayer.app.vehicle.O2LambdaB1.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB1Monitor.state.value,
+                                        ),
+                                    "pm_b1_warn_pct" to prefs.pmB1WarnPct.toDouble(),
+                                    "pm_b1_alert_pct" to prefs.pmB1AlertPct.toDouble(),
+                                    "pm_b1_speed_min_kmh" to prefs.pmB1SpeedMinKmh.toDouble(),
+                                    "pm_sensor_b1_pct" to
+                                        (if (prefs.pmB1SimPct > 0f) prefs.pmB1SimPct
+                                        else com.veplayer.app.vehicle.PmSensorB1Monitor.state.value.pmPct
+                                            ?: snap.pmSensorB1Pct
+                                        )?.toDouble(),
+                                    "pm_b1" to
+                                        com.veplayer.app.vehicle.PmSensorB1.toJsonMap(
+                                            com.veplayer.app.vehicle.PmSensorB1Monitor.state.value,
+                                        ),
+                                    "pm_b2_warn_pct" to prefs.pmB2WarnPct.toDouble(),
+                                    "pm_b2_alert_pct" to prefs.pmB2AlertPct.toDouble(),
+                                    "pm_b2_speed_min_kmh" to prefs.pmB2SpeedMinKmh.toDouble(),
+                                    "pm_sensor_b2_pct" to
+                                        (if (prefs.pmB2SimPct > 0f) prefs.pmB2SimPct
+                                        else com.veplayer.app.vehicle.PmSensorB2Monitor.state.value.pmPct
+                                            ?: snap.pmSensorB2Pct
+                                        )?.toDouble(),
+                                    "pm_b2" to
+                                        com.veplayer.app.vehicle.PmSensorB2.toJsonMap(
+                                            com.veplayer.app.vehicle.PmSensorB2Monitor.state.value,
+                                        ),
+                                    "egt_b1s5_warn_c" to prefs.egtB1s5WarnC.toDouble(),
+                                    "egt_b1s5_alert_c" to prefs.egtB1s5AlertC.toDouble(),
+                                    "egt_b1s5_temp_c" to
+                                        (if (prefs.egtB1s5SimC > 0f) prefs.egtB1s5SimC
+                                        else com.veplayer.app.vehicle.EgtB1S5Monitor.state.value.egtTempC
+                                            ?: snap.egtB1s5TempC
+                                        )?.toDouble(),
+                                    "egt_b1s5" to
+                                        com.veplayer.app.vehicle.EgtB1S5.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB1S5Monitor.state.value,
+                                        ),
+                                    "egt_b2s5_warn_c" to prefs.egtB2s5WarnC.toDouble(),
+                                    "egt_b2s5_alert_c" to prefs.egtB2s5AlertC.toDouble(),
+                                    "egt_b2s5_temp_c" to
+                                        (if (prefs.egtB2s5SimC > 0f) prefs.egtB2s5SimC
+                                        else com.veplayer.app.vehicle.EgtB2S5Monitor.state.value.egtTempC
+                                            ?: snap.egtB2s5TempC
+                                        )?.toDouble(),
+                                    "egt_b2s5" to
+                                        com.veplayer.app.vehicle.EgtB2S5.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB2S5Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b1s3_warn" to prefs.o2LambdaB1s3Warn.toDouble(),
+                                    "o2_lmb_b1s3_alert" to prefs.o2LambdaB1s3Alert.toDouble(),
+                                    "o2_lmb_b1s3_speed_min_kmh" to prefs.o2LambdaB1s3SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b1s3" to
+                                        (if (prefs.o2LambdaB1s3Sim > 0f) prefs.o2LambdaB1s3Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB1S3Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB1s3
+                                        )?.toDouble(),
+                                    "o2_lmb_b1s3" to
+                                        com.veplayer.app.vehicle.O2LambdaB1S3.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB1S3Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b2s3_warn" to prefs.o2LambdaB2s3Warn.toDouble(),
+                                    "o2_lmb_b2s3_alert" to prefs.o2LambdaB2s3Alert.toDouble(),
+                                    "o2_lmb_b2s3_speed_min_kmh" to prefs.o2LambdaB2s3SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b2s3" to
+                                        (if (prefs.o2LambdaB2s3Sim > 0f) prefs.o2LambdaB2s3Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB2S3Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB2s3
+                                        )?.toDouble(),
+                                    "o2_lmb_b2s3" to
+                                        com.veplayer.app.vehicle.O2LambdaB2S3.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB2S3Monitor.state.value,
+                                        ),
+                                    "nox_req_warn_h" to prefs.noxReqWarnH.toDouble(),
+                                    "nox_req_alert_h" to prefs.noxReqAlertH.toDouble(),
+                                    "nox_reagent_qual_hours" to
+                                        (if (prefs.noxReqSimH > 0f) prefs.noxReqSimH
+                                        else com.veplayer.app.vehicle.NoxReagentQualityMonitor.state.value.qualHours
+                                            ?: snap.noxReagentQualHours
+                                        )?.toDouble(),
+                                    "nox_reagent" to
+                                        com.veplayer.app.vehicle.NoxReagentQuality.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxReagentQualityMonitor.state.value,
+                                        ),
+                                    "egt_b1s6_warn_c" to prefs.egtB1s6WarnC.toDouble(),
+                                    "egt_b1s6_alert_c" to prefs.egtB1s6AlertC.toDouble(),
+                                    "egt_b1s6_temp_c" to
+                                        (if (prefs.egtB1s6SimC > 0f) prefs.egtB1s6SimC
+                                        else com.veplayer.app.vehicle.EgtB1S6Monitor.state.value.egtTempC
+                                            ?: snap.egtB1s6TempC
+                                        )?.toDouble(),
+                                    "egt_b1s6" to
+                                        com.veplayer.app.vehicle.EgtB1S6.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB1S6Monitor.state.value,
+                                        ),
+                                    "egt_b2s6_warn_c" to prefs.egtB2s6WarnC.toDouble(),
+                                    "egt_b2s6_alert_c" to prefs.egtB2s6AlertC.toDouble(),
+                                    "egt_b2s6_temp_c" to
+                                        (if (prefs.egtB2s6SimC > 0f) prefs.egtB2s6SimC
+                                        else com.veplayer.app.vehicle.EgtB2S6Monitor.state.value.egtTempC
+                                            ?: snap.egtB2s6TempC
+                                        )?.toDouble(),
+                                    "egt_b2s6" to
+                                        com.veplayer.app.vehicle.EgtB2S6.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB2S6Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b1s4_warn" to prefs.o2LambdaB1s4Warn.toDouble(),
+                                    "o2_lmb_b1s4_alert" to prefs.o2LambdaB1s4Alert.toDouble(),
+                                    "o2_lmb_b1s4_speed_min_kmh" to prefs.o2LambdaB1s4SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b1s4" to
+                                        (if (prefs.o2LambdaB1s4Sim > 0f) prefs.o2LambdaB1s4Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB1S4Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB1s4
+                                        )?.toDouble(),
+                                    "o2_lmb_b1s4" to
+                                        com.veplayer.app.vehicle.O2LambdaB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB1S4Monitor.state.value,
+                                        ),
+                                    "o2_lmb_b2s4_warn" to prefs.o2LambdaB2s4Warn.toDouble(),
+                                    "o2_lmb_b2s4_alert" to prefs.o2LambdaB2s4Alert.toDouble(),
+                                    "o2_lmb_b2s4_speed_min_kmh" to prefs.o2LambdaB2s4SpeedMinKmh.toDouble(),
+                                    "o2_lambda_b2s4" to
+                                        (if (prefs.o2LambdaB2s4Sim > 0f) prefs.o2LambdaB2s4Sim
+                                        else com.veplayer.app.vehicle.O2LambdaB2S4Monitor.state.value.lambda
+                                            ?: snap.o2LambdaB2s4
+                                        )?.toDouble(),
+                                    "o2_lmb_b2s4" to
+                                        com.veplayer.app.vehicle.O2LambdaB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2LambdaB2S4Monitor.state.value,
+                                        ),
+                                    "def_warn_pct" to prefs.defFluidWarnPct.toDouble(),
+                                    "def_alert_pct" to prefs.defFluidAlertPct.toDouble(),
+                                    "def_fluid_pct" to
+                                        (if (prefs.defFluidSimPct > 0f) prefs.defFluidSimPct
+                                        else com.veplayer.app.vehicle.DefFluidMonitor.state.value.defPct
+                                            ?: snap.defFluidPct
+                                        )?.toDouble(),
+                                    "def_fluid" to
+                                        com.veplayer.app.vehicle.DefFluid.toJsonMap(
+                                            com.veplayer.app.vehicle.DefFluidMonitor.state.value,
+                                        ),
+                                    "egt_b1s7_warn_c" to prefs.egtB1s7WarnC.toDouble(),
+                                    "egt_b1s7_alert_c" to prefs.egtB1s7AlertC.toDouble(),
+                                    "egt_b1s7_temp_c" to
+                                        (if (prefs.egtB1s7SimC > 0f) prefs.egtB1s7SimC
+                                        else com.veplayer.app.vehicle.EgtB1S7Monitor.state.value.egtTempC
+                                            ?: snap.egtB1s7TempC
+                                        )?.toDouble(),
+                                    "egt_b1s7" to
+                                        com.veplayer.app.vehicle.EgtB1S7.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB1S7Monitor.state.value,
+                                        ),
+                                    "egt_b2s7_warn_c" to prefs.egtB2s7WarnC.toDouble(),
+                                    "egt_b2s7_alert_c" to prefs.egtB2s7AlertC.toDouble(),
+                                    "egt_b2s7_temp_c" to
+                                        (if (prefs.egtB2s7SimC > 0f) prefs.egtB2s7SimC
+                                        else com.veplayer.app.vehicle.EgtB2S7Monitor.state.value.egtTempC
+                                            ?: snap.egtB2s7TempC
+                                        )?.toDouble(),
+                                    "egt_b2s7" to
+                                        com.veplayer.app.vehicle.EgtB2S7.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB2S7Monitor.state.value,
+                                        ),
+                                    "egt_b1s8_warn_c" to prefs.egtB1s8WarnC.toDouble(),
+                                    "egt_b1s8_alert_c" to prefs.egtB1s8AlertC.toDouble(),
+                                    "egt_b1s8_temp_c" to
+                                        (if (prefs.egtB1s8SimC > 0f) prefs.egtB1s8SimC
+                                        else com.veplayer.app.vehicle.EgtB1S8Monitor.state.value.egtTempC
+                                            ?: snap.egtB1s8TempC
+                                        )?.toDouble(),
+                                    "egt_b1s8" to
+                                        com.veplayer.app.vehicle.EgtB1S8.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB1S8Monitor.state.value,
+                                        ),
+                                    "egt_b2s8_warn_c" to prefs.egtB2s8WarnC.toDouble(),
+                                    "egt_b2s8_alert_c" to prefs.egtB2s8AlertC.toDouble(),
+                                    "egt_b2s8_temp_c" to
+                                        (if (prefs.egtB2s8SimC > 0f) prefs.egtB2s8SimC
+                                        else com.veplayer.app.vehicle.EgtB2S8Monitor.state.value.egtTempC
+                                            ?: snap.egtB2s8TempC
+                                        )?.toDouble(),
+                                    "egt_b2s8" to
+                                        com.veplayer.app.vehicle.EgtB2S8.toJsonMap(
+                                            com.veplayer.app.vehicle.EgtB2S8Monitor.state.value,
+                                        ),
+                                    "o2_conc_b1s3_warn" to prefs.o2ConcB1s3Warn.toDouble(),
+                                    "o2_conc_b1s3_alert" to prefs.o2ConcB1s3Alert.toDouble(),
+                                    "o2_conc_b1s3_speed_min_kmh" to prefs.o2ConcB1s3SpeedMinKmh.toDouble(),
+                                    "o2_conc_b1s3_pct" to
+                                        (if (prefs.o2ConcB1s3Sim > 0f) prefs.o2ConcB1s3Sim
+                                        else com.veplayer.app.vehicle.O2ConcB1S3Monitor.state.value.concPct
+                                            ?: snap.o2ConcB1s3Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b1s3" to
+                                        com.veplayer.app.vehicle.O2ConcB1S3.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB1S3Monitor.state.value,
+                                        ),
+                                    "o2_conc_b1s4_warn" to prefs.o2ConcB1s4Warn.toDouble(),
+                                    "o2_conc_b1s4_alert" to prefs.o2ConcB1s4Alert.toDouble(),
+                                    "o2_conc_b1s4_speed_min_kmh" to prefs.o2ConcB1s4SpeedMinKmh.toDouble(),
+                                    "o2_conc_b1s4_pct" to
+                                        (if (prefs.o2ConcB1s4Sim > 0f) prefs.o2ConcB1s4Sim
+                                        else com.veplayer.app.vehicle.O2ConcB1S4Monitor.state.value.concPct
+                                            ?: snap.o2ConcB1s4Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b1s4" to
+                                        com.veplayer.app.vehicle.O2ConcB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB1S4Monitor.state.value,
+                                        ),
+                                    "o2_conc_b2s3_warn" to prefs.o2ConcB2s3Warn.toDouble(),
+                                    "o2_conc_b2s3_alert" to prefs.o2ConcB2s3Alert.toDouble(),
+                                    "o2_conc_b2s3_speed_min_kmh" to prefs.o2ConcB2s3SpeedMinKmh.toDouble(),
+                                    "o2_conc_b2s3_pct" to
+                                        (if (prefs.o2ConcB2s3Sim > 0f) prefs.o2ConcB2s3Sim
+                                        else com.veplayer.app.vehicle.O2ConcB2S3Monitor.state.value.concPct
+                                            ?: snap.o2ConcB2s3Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b2s3" to
+                                        com.veplayer.app.vehicle.O2ConcB2S3.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB2S3Monitor.state.value,
+                                        ),
+                                    "o2_conc_b2s4_warn" to prefs.o2ConcB2s4Warn.toDouble(),
+                                    "o2_conc_b2s4_alert" to prefs.o2ConcB2s4Alert.toDouble(),
+                                    "o2_conc_b2s4_speed_min_kmh" to prefs.o2ConcB2s4SpeedMinKmh.toDouble(),
+                                    "o2_conc_b2s4_pct" to
+                                        (if (prefs.o2ConcB2s4Sim > 0f) prefs.o2ConcB2s4Sim
+                                        else com.veplayer.app.vehicle.O2ConcB2S4Monitor.state.value.concPct
+                                            ?: snap.o2ConcB2s4Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b2s4" to
+                                        com.veplayer.app.vehicle.O2ConcB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB2S4Monitor.state.value,
+                                        ),
+                                    "def_dose_warn_pct" to prefs.defDoseWarnPct.toDouble(),
+                                    "def_dose_alert_pct" to prefs.defDoseAlertPct.toDouble(),
+                                    "def_dose_speed_min_kmh" to prefs.defDoseSpeedMinKmh.toDouble(),
+                                    "def_dosing_cmd_pct" to
+                                        (if (prefs.defDoseSimPct > 0f) prefs.defDoseSimPct
+                                        else com.veplayer.app.vehicle.DefDosingCmdMonitor.state.value.dosePct
+                                            ?: snap.defDosingCmdPct
+                                        )?.toDouble(),
+                                    "def_dose" to
+                                        com.veplayer.app.vehicle.DefDosingCmd.toJsonMap(
+                                            com.veplayer.app.vehicle.DefDosingCmdMonitor.state.value,
+                                        ),
+                                    "nox_corr_b1s1_warn" to prefs.noxCorrB1s1Warn.toDouble(),
+                                    "nox_corr_b1s1_alert" to prefs.noxCorrB1s1Alert.toDouble(),
+                                    "nox_corr_b1s1_speed_min_kmh" to prefs.noxCorrB1s1SpeedMinKmh.toDouble(),
+                                    "nox_corrected_b1s1_ppm" to
+                                        (if (prefs.noxCorrB1s1Sim > 0f) prefs.noxCorrB1s1Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedB1s1Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_b1s1" to
+                                        com.veplayer.app.vehicle.NoxCorrectedB1S1.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor.state.value,
+                                        ),
+                                    "nox_corr_b1s2_warn" to prefs.noxCorrB1s2Warn.toDouble(),
+                                    "nox_corr_b1s2_alert" to prefs.noxCorrB1s2Alert.toDouble(),
+                                    "nox_corr_b1s2_speed_min_kmh" to prefs.noxCorrB1s2SpeedMinKmh.toDouble(),
+                                    "nox_corrected_b1s2_ppm" to
+                                        (if (prefs.noxCorrB1s2Sim > 0f) prefs.noxCorrB1s2Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedB1S2Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedB1s2Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_b1s2" to
+                                        com.veplayer.app.vehicle.NoxCorrectedB1S2.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedB1S2Monitor.state.value,
+                                        ),
+                                    "nox_corr_b2s1_warn" to prefs.noxCorrB2s1Warn.toDouble(),
+                                    "nox_corr_b2s1_alert" to prefs.noxCorrB2s1Alert.toDouble(),
+                                    "nox_corr_b2s1_speed_min_kmh" to prefs.noxCorrB2s1SpeedMinKmh.toDouble(),
+                                    "nox_corrected_b2s1_ppm" to
+                                        (if (prefs.noxCorrB2s1Sim > 0f) prefs.noxCorrB2s1Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedB2S1Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedB2s1Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_b2s1" to
+                                        com.veplayer.app.vehicle.NoxCorrectedB2S1.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedB2S1Monitor.state.value,
+                                        ),
+                                    "nox_corr_b2s2_warn" to prefs.noxCorrB2s2Warn.toDouble(),
+                                    "nox_corr_b2s2_alert" to prefs.noxCorrB2s2Alert.toDouble(),
+                                    "nox_corr_b2s2_speed_min_kmh" to prefs.noxCorrB2s2SpeedMinKmh.toDouble(),
+                                    "nox_corrected_b2s2_ppm" to
+                                        (if (prefs.noxCorrB2s2Sim > 0f) prefs.noxCorrB2s2Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedB2S2Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedB2s2Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_b2s2" to
+                                        com.veplayer.app.vehicle.NoxCorrectedB2S2.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedB2S2Monitor.state.value,
+                                        ),
+                                    "nox_conc_s3_warn" to prefs.noxConcS3Warn.toDouble(),
+                                    "nox_conc_s3_alert" to prefs.noxConcS3Alert.toDouble(),
+                                    "nox_conc_s3_speed_min_kmh" to prefs.noxConcS3SpeedMinKmh.toDouble(),
+                                    "nox_conc_s3_ppm" to
+                                        (if (prefs.noxConcS3Sim > 0f) prefs.noxConcS3Sim
+                                        else com.veplayer.app.vehicle.NoxConcS3Monitor.state.value.noxPpm
+                                            ?: snap.noxConcS3Ppm
+                                        )?.toDouble(),
+                                    "nox_conc_s3" to
+                                        com.veplayer.app.vehicle.NoxConcS3.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxConcS3Monitor.state.value,
+                                        ),
+                                    "nox_conc_s4_warn" to prefs.noxConcS4Warn.toDouble(),
+                                    "nox_conc_s4_alert" to prefs.noxConcS4Alert.toDouble(),
+                                    "nox_conc_s4_speed_min_kmh" to prefs.noxConcS4SpeedMinKmh.toDouble(),
+                                    "nox_conc_s4_ppm" to
+                                        (if (prefs.noxConcS4Sim > 0f) prefs.noxConcS4Sim
+                                        else com.veplayer.app.vehicle.NoxConcS4Monitor.state.value.noxPpm
+                                            ?: snap.noxConcS4Ppm
+                                        )?.toDouble(),
+                                    "nox_conc_s4" to
+                                        com.veplayer.app.vehicle.NoxConcS4.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxConcS4Monitor.state.value,
+                                        ),
+                                    "nox_corr_s3_warn" to prefs.noxCorrS3Warn.toDouble(),
+                                    "nox_corr_s3_alert" to prefs.noxCorrS3Alert.toDouble(),
+                                    "nox_corr_s3_speed_min_kmh" to prefs.noxCorrS3SpeedMinKmh.toDouble(),
+                                    "nox_corrected_s3_ppm" to
+                                        (if (prefs.noxCorrS3Sim > 0f) prefs.noxCorrS3Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedS3Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedS3Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_s3" to
+                                        com.veplayer.app.vehicle.NoxCorrectedS3.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedS3Monitor.state.value,
+                                        ),
+                                    "nox_corr_s4_warn" to prefs.noxCorrS4Warn.toDouble(),
+                                    "nox_corr_s4_alert" to prefs.noxCorrS4Alert.toDouble(),
+                                    "nox_corr_s4_speed_min_kmh" to prefs.noxCorrS4SpeedMinKmh.toDouble(),
+                                    "nox_corrected_s4_ppm" to
+                                        (if (prefs.noxCorrS4Sim > 0f) prefs.noxCorrS4Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedS4Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedS4Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_s4" to
+                                        com.veplayer.app.vehicle.NoxCorrectedS4.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedS4Monitor.state.value,
+                                        ),
+                                    "cyl_fuel_warn_mg" to prefs.cylFuelWarnMg.toDouble(),
+                                    "cyl_fuel_alert_mg" to prefs.cylFuelAlertMg.toDouble(),
+                                    "cyl_fuel_speed_min_kmh" to prefs.cylFuelSpeedMinKmh.toDouble(),
+                                    "cylinder_fuel_rate_mg" to
+                                        (if (prefs.cylFuelSimMg > 0f) prefs.cylFuelSimMg
+                                        else com.veplayer.app.vehicle.CylinderFuelRateMonitor.state.value.mgPerStroke
+                                            ?: snap.cylinderFuelRateMg
+                                        )?.toDouble(),
+                                    "cyl_fuel" to
+                                        com.veplayer.app.vehicle.CylinderFuelRate.toJsonMap(
+                                            com.veplayer.app.vehicle.CylinderFuelRateMonitor.state.value,
+                                        ),
+                                    "evap_sys_vapor_warn_pa" to prefs.evapSysVaporWarnPa.toDouble(),
+                                    "evap_sys_vapor_alert_pa" to prefs.evapSysVaporAlertPa.toDouble(),
+                                    "evap_sys_vapor_speed_min_kmh" to prefs.evapSysVaporSpeedMinKmh.toDouble(),
+                                    "evap_sys_vapor_pa" to
+                                        (if (prefs.evapSysVaporSimPa != 0f) prefs.evapSysVaporSimPa
+                                        else com.veplayer.app.vehicle.EvapSysVaporMonitor.state.value.pressurePa
+                                            ?: snap.evapSysVaporPa
+                                        )?.toDouble(),
+                                    "evap_sys_vapor" to
+                                        com.veplayer.app.vehicle.EvapSysVapor.toJsonMap(
+                                            com.veplayer.app.vehicle.EvapSysVaporMonitor.state.value,
+                                        ),
+                                    "trans_gear_warn_ratio" to prefs.transGearWarnRatio.toDouble(),
+                                    "trans_gear_alert_ratio" to prefs.transGearAlertRatio.toDouble(),
+                                    "trans_gear_speed_min_kmh" to prefs.transGearSpeedMinKmh.toDouble(),
+                                    "trans_gear_ratio" to
+                                        (if (prefs.transGearSimRatio > 0f) prefs.transGearSimRatio
+                                        else com.veplayer.app.vehicle.TransGearRatioMonitor.state.value.gearRatio
+                                            ?: snap.transGearRatio
+                                        )?.toDouble(),
+                                    "trans_gear" to
+                                        com.veplayer.app.vehicle.TransGearRatio.toJsonMap(
+                                            com.veplayer.app.vehicle.TransGearRatioMonitor.state.value,
+                                        ),
+                                    "obd_odometer_warn_km" to prefs.obdOdoWarnKm.toDouble(),
+                                    "obd_odometer_alert_km" to prefs.obdOdoAlertKm.toDouble(),
+                                    "obd_odometer_speed_min_kmh" to prefs.obdOdoSpeedMinKmh.toDouble(),
+                                    "obd_odometer_km" to
+                                        (if (prefs.obdOdoSimKm > 0f) prefs.obdOdoSimKm
+                                        else com.veplayer.app.vehicle.ObdOdometerMonitor.state.value.odometerKm
+                                            ?: snap.obdOdometerKm
+                                        )?.toDouble(),
+                                    "obd_odometer" to
+                                        com.veplayer.app.vehicle.ObdOdometer.toJsonMap(
+                                            com.veplayer.app.vehicle.ObdOdometerMonitor.state.value,
+                                        ),
+                                    "abs_disable_speed_min_kmh" to prefs.absDisableSpeedMinKmh.toDouble(),
+                                    "abs_disable_supported" to
+                                        (if (prefs.absDisableSim) 1 else snap.absDisableSupported ?: 0),
+                                    "abs_disabled" to
+                                        (if (prefs.absDisableSim) 1 else snap.absDisabled ?: 0),
+                                    "abs_disable" to
+                                        com.veplayer.app.vehicle.AbsDisable.toJsonMap(
+                                            com.veplayer.app.vehicle.AbsDisableMonitor.state.value,
+                                        ),
+                                    "fuel_press_a_warn_kpa" to prefs.fuelPressAWarnKpa.toDouble(),
+                                    "fuel_press_a_alert_kpa" to prefs.fuelPressAAlertKpa.toDouble(),
+                                    "fuel_press_a_speed_min_kmh" to prefs.fuelPressASpeedMinKmh.toDouble(),
+                                    "fuel_press_a_kpa" to
+                                        (if (prefs.fuelPressASimKpa > 0f) prefs.fuelPressASimKpa
+                                        else com.veplayer.app.vehicle.FuelPressAMonitor.state.value.pressureKpa
+                                            ?: snap.fuelPressAKpa
+                                        )?.toDouble(),
+                                    "fuel_press_a" to
+                                        com.veplayer.app.vehicle.FuelPressA.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressAMonitor.state.value,
+                                        ),
+                                    "fuel_press_b_warn_kpa" to prefs.fuelPressBWarnKpa.toDouble(),
+                                    "fuel_press_b_alert_kpa" to prefs.fuelPressBAlertKpa.toDouble(),
+                                    "fuel_press_b_speed_min_kmh" to prefs.fuelPressBSpeedMinKmh.toDouble(),
+                                    "fuel_press_b_kpa" to
+                                        (if (prefs.fuelPressBSimKpa > 0f) prefs.fuelPressBSimKpa
+                                        else com.veplayer.app.vehicle.FuelPressBMonitor.state.value.pressureKpa
+                                            ?: snap.fuelPressBKpa
+                                        )?.toDouble(),
+                                    "fuel_press_b" to
+                                        com.veplayer.app.vehicle.FuelPressB.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelPressBMonitor.state.value,
+                                        ),
+                                    "reflash_dist_warn_km" to prefs.reflashDistWarnKm.toDouble(),
+                                    "reflash_dist_alert_km" to prefs.reflashDistAlertKm.toDouble(),
+                                    "reflash_dist_speed_min_kmh" to prefs.reflashDistSpeedMinKmh.toDouble(),
+                                    "reflash_dist_km" to
+                                        (if (prefs.reflashDistSimKm > 0f) prefs.reflashDistSimKm
+                                        else com.veplayer.app.vehicle.ReflashDistanceMonitor.state.value.distanceKm
+                                            ?: snap.reflashDistKm
+                                        )?.toDouble(),
+                                    "reflash_dist" to
+                                        com.veplayer.app.vehicle.ReflashDistance.toJsonMap(
+                                            com.veplayer.app.vehicle.ReflashDistanceMonitor.state.value,
+                                        ),
+                                    "fuel_level_a_warn_pct" to prefs.fuelLvlAWarnPct.toDouble(),
+                                    "fuel_level_a_alert_pct" to prefs.fuelLvlAAlertPct.toDouble(),
+                                    "fuel_level_a_speed_min_kmh" to prefs.fuelLvlASpeedMinKmh.toDouble(),
+                                    "fuel_level_input_a_pct" to
+                                        (if (prefs.fuelLvlASimPct > 0f) prefs.fuelLvlASimPct
+                                        else com.veplayer.app.vehicle.FuelLevelInputAMonitor.state.value.levelPct
+                                            ?: snap.fuelLevelInputAPct
+                                        )?.toDouble(),
+                                    "fuel_level_a" to
+                                        com.veplayer.app.vehicle.FuelLevelInputA.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelLevelInputAMonitor.state.value,
+                                        ),
+                                    "fuel_level_b_warn_pct" to prefs.fuelLvlBWarnPct.toDouble(),
+                                    "fuel_level_b_alert_pct" to prefs.fuelLvlBAlertPct.toDouble(),
+                                    "fuel_level_b_speed_min_kmh" to prefs.fuelLvlBSpeedMinKmh.toDouble(),
+                                    "fuel_level_input_b_pct" to
+                                        (if (prefs.fuelLvlBSimPct > 0f) prefs.fuelLvlBSimPct
+                                        else com.veplayer.app.vehicle.FuelLevelInputBMonitor.state.value.levelPct
+                                            ?: snap.fuelLevelInputBPct
+                                        )?.toDouble(),
+                                    "fuel_level_b" to
+                                        com.veplayer.app.vehicle.FuelLevelInputB.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelLevelInputBMonitor.state.value,
+                                        ),
+                                    "epcs_time_warn_sec" to prefs.epcsTimeWarnSec.toDouble(),
+                                    "epcs_time_alert_sec" to prefs.epcsTimeAlertSec.toDouble(),
+                                    "epcs_time_speed_min_kmh" to prefs.epcsTimeSpeedMinKmh.toDouble(),
+                                    "epcs_diag_time_sec" to
+                                        (if (prefs.epcsTimeSimSec > 0f) prefs.epcsTimeSimSec
+                                        else com.veplayer.app.vehicle.EpcsDiagTimeMonitor.state.value.timeSec
+                                            ?: snap.epcsDiagTimeSec
+                                        )?.toDouble(),
+                                    "epcs_time" to
+                                        com.veplayer.app.vehicle.EpcsDiagTime.toJsonMap(
+                                            com.veplayer.app.vehicle.EpcsDiagTimeMonitor.state.value,
+                                        ),
+                                    "epcs_count_warn" to prefs.epcsCountWarn.toDouble(),
+                                    "epcs_count_alert" to prefs.epcsCountAlert.toDouble(),
+                                    "epcs_count_speed_min_kmh" to prefs.epcsCountSpeedMinKmh.toDouble(),
+                                    "epcs_diag_count" to
+                                        (if (prefs.epcsCountSim > 0f) prefs.epcsCountSim
+                                        else com.veplayer.app.vehicle.EpcsDiagCountMonitor.state.value.count
+                                            ?: snap.epcsDiagCount
+                                        )?.toDouble(),
+                                    "epcs_count" to
+                                        com.veplayer.app.vehicle.EpcsDiagCount.toJsonMap(
+                                            com.veplayer.app.vehicle.EpcsDiagCountMonitor.state.value,
+                                        ),
+                                    "nox_pcd_lamp_speed_min_kmh" to prefs.noxPcdLampSpeedMinKmh.toDouble(),
+                                    "nox_pcd_lamp_on" to
+                                        (if (prefs.noxPcdLampSim) 1 else snap.noxPcdLampOn ?: 0),
+                                    "nox_pcd_lamp" to
+                                        com.veplayer.app.vehicle.NoxPcdLamp.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxPcdLampMonitor.state.value,
+                                        ),
+                                    "particulate_induce_warn_status" to prefs.particulateInduceWarnStatus.toDouble(),
+                                    "particulate_induce_alert_status" to prefs.particulateInduceAlertStatus.toDouble(),
+                                    "particulate_induce_warn_speed_min_kmh" to prefs.particulateInduceWarnSpeedMinKmh.toDouble(),
+                                    "particulate_induce_alert_speed_min_kmh" to prefs.particulateInduceAlertSpeedMinKmh.toDouble(),
+                                    "particulate_induce_status" to
+                                        (if (prefs.particulateInduceSimStatus > 0f) prefs.particulateInduceSimStatus.toInt()
+                                        else com.veplayer.app.vehicle.ParticulateInduceAlertMonitor.state.value.status
+                                            ?: snap.particulateInduceStatus
+                                        ),
+                                    "particulate_induce_warn" to
+                                        com.veplayer.app.vehicle.ParticulateInduceWarn.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateInduceWarnMonitor.state.value,
+                                        ),
+                                    "particulate_induce_alert" to
+                                        com.veplayer.app.vehicle.ParticulateInduceAlert.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateInduceAlertMonitor.state.value,
+                                        ),
+                                    "dpf_removal_warn_count" to prefs.dpfRemovalWarnCount.toDouble(),
+                                    "dpf_removal_alert_count" to prefs.dpfRemovalAlertCount.toDouble(),
+                                    "dpf_removal_speed_min_kmh" to prefs.dpfRemovalSpeedMinKmh.toDouble(),
+                                    "dpf_removal_counter" to
+                                        (if (prefs.dpfRemovalSimCount > 0f) prefs.dpfRemovalSimCount
+                                        else com.veplayer.app.vehicle.DpfRemovalCounterMonitor.state.value.count
+                                            ?: snap.dpfRemovalCounter
+                                        )?.toDouble(),
+                                    "dpf_removal" to
+                                        com.veplayer.app.vehicle.DpfRemovalCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.DpfRemovalCounterMonitor.state.value,
+                                        ),
+                                    "reagent_fail_warn_count" to prefs.reagentFailWarnCount.toDouble(),
+                                    "reagent_fail_alert_count" to prefs.reagentFailAlertCount.toDouble(),
+                                    "reagent_fail_speed_min_kmh" to prefs.reagentFailSpeedMinKmh.toDouble(),
+                                    "reagent_injection_fail_counter" to
+                                        (if (prefs.reagentFailSimCount > 0f) prefs.reagentFailSimCount
+                                        else com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor.state.value.count
+                                            ?: snap.reagentInjectionFailCounter
+                                        )?.toDouble(),
+                                    "reagent_fail" to
+                                        com.veplayer.app.vehicle.ReagentInjectionFailCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor.state.value,
+                                        ),
+                                    "particulate_malf_warn_count" to prefs.particulateMalfWarnCount.toDouble(),
+                                    "particulate_malf_alert_count" to prefs.particulateMalfAlertCount.toDouble(),
+                                    "particulate_malf_speed_min_kmh" to prefs.particulateMalfSpeedMinKmh.toDouble(),
+                                    "particulate_monitor_malfunction_counter" to
+                                        (if (prefs.particulateMalfSimCount > 0f) prefs.particulateMalfSimCount
+                                        else com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.value.count
+                                            ?: snap.particulateMonitorMalfunctionCounter
+                                        )?.toDouble(),
+                                    "particulate_malf" to
+                                        com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

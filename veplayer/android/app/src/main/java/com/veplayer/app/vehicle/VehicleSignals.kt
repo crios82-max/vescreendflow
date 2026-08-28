@@ -129,6 +129,204 @@ data class VehicleSignals(
         val evapVaporPa: Float? = null,
         /** Fuel rail absolute pressure kPa (OBD PID 0159). */
         val fuelRailAbsKpa: Float? = null,
+        /** Commanded EGR % (OBD PID 014C). */
+        val egrCmdPct: Float? = null,
+        /** Relative accelerator pedal % (OBD PID 015A). */
+        val relAccelPedalPct: Float? = null,
+        /** Driver demand torque % (OBD PID 0161), signed. */
+        val driverTorquePct: Float? = null,
+        /** Actual engine torque % (OBD PID 0162), signed. */
+        val actualTorquePct: Float? = null,
+        /** Catalyst temperature bank 2 °C (OBD PID 0170). */
+        val catalystB2TempC: Float? = null,
+        /** Catalyst temp bank 1 sensor 2 °C (OBD PID 0171). */
+        val catalystB1s2TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 2 °C (OBD PID 0172). */
+        val catalystB2s2TempC: Float? = null,
+        /** Catalyst temp bank 1 sensor 3 °C (OBD PID 0173). */
+        val catalystB1s3TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 3 °C (OBD PID 0174). */
+        val catalystB2s3TempC: Float? = null,
+        /** Catalyst temp bank 1 sensor 4 °C (OBD PID 0175). */
+        val catalystB1s4TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 4 °C (OBD PID 0176). */
+        val catalystB2s4TempC: Float? = null,
+        /** STFT secondary O2 B1 % (OBD PID 0155), signed. */
+        val fuelTrimStft2B1Pct: Float? = null,
+        /** LTFT secondary O2 B1 % (OBD PID 0156), signed. */
+        val fuelTrimLtft2B1Pct: Float? = null,
+        /** STFT secondary O2 B2 % (OBD PID 0157), signed. */
+        val fuelTrimStft2B2Pct: Float? = null,
+        /** LTFT secondary O2 B2 % (OBD PID 0158), signed. */
+        val fuelTrimLtft2B2Pct: Float? = null,
+        /** Catalyst temp bank 1 sensor 5 °C (OBD PID 0177). */
+        val catalystB1s5TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 5 °C (OBD PID 0178). */
+        val catalystB2s5TempC: Float? = null,
+        /** Fuel injection timing ° (OBD PID 015D), signed. */
+        val fuelInjectTimingDeg: Float? = null,
+        /** Hybrid pack remaining life % (OBD PID 015B). */
+        val hybridBattLifePct: Float? = null,
+        /** Engine reference torque Nm (OBD PID 0163). */
+        val engineRefTorqueNm: Float? = null,
+        /** Catalyst temp bank 1 sensor 6 °C (OBD PID 0179). */
+        val catalystB1s6TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 6 °C (OBD PID 017A). */
+        val catalystB2s6TempC: Float? = null,
+        /** Absolute throttle B % (OBD PID 0147). */
+        val throttleBPct: Float? = null,
+        /** Absolute throttle C % (OBD PID 0148). */
+        val throttleCPct: Float? = null,
+        /** Time run with MIL on min (OBD PID 0154). */
+        val milTimeMin: Int? = null,
+        /** Catalyst temp bank 1 sensor 7 °C (OBD PID 017B). */
+        val catalystB1s7TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 7 °C (OBD PID 017C). */
+        val catalystB2s7TempC: Float? = null,
+        /** Fuel type code (OBD PID 0151). */
+        val fuelTypeCode: Int? = null,
+        /** Max equivalence ratio (OBD PID 014F). */
+        val maxEquivRatio: Float? = null,
+        /** Max MAF g/s (OBD PID 0150). */
+        val maxMafGps: Float? = null,
+        /** Catalyst temp bank 1 sensor 8 °C (OBD PID 017D). */
+        val catalystB1s8TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 8 °C (OBD PID 017E). */
+        val catalystB2s8TempC: Float? = null,
+        /** Max available engine torque % (OBD PID 0164). */
+        val maxAvailTorquePct: Float? = null,
+        /** MAF sensor intake air °C (OBD PID 0166). */
+        val mafSensorIatC: Float? = null,
+        /** Auxiliary input status (OBD PID 0165). */
+        val auxInputStatus: Int? = null,
+        /** Catalyst temp bank 1 sensor 9 °C (OBD PID 017F). */
+        val catalystB1s9TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 9 °C (OBD PID 0180). */
+        val catalystB2s9TempC: Float? = null,
+        /** Engine coolant sensor 2 °C (OBD PID 0167). */
+        val coolantEct2C: Float? = null,
+        /** Intake air sensor 2 °C (OBD PID 0168). */
+        val iatSensor2C: Float? = null,
+        /** Turbo inlet pressure kPa (OBD PID 016F). */
+        val turboInletKpa: Float? = null,
+        /** Catalyst temp bank 1 sensor 10 °C (OBD PID 0181). */
+        val catalystB1s10TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 10 °C (OBD PID 0182). */
+        val catalystB2s10TempC: Float? = null,
+        /** EGR temperature °C (OBD PID 016B). */
+        val egrTempC: Float? = null,
+        /** Diesel intake air flow commanded % (OBD PID 016A). */
+        val dieselIafCmdPct: Float? = null,
+        /** Commanded throttle actuator % (OBD PID 016C). */
+        val thrActuatorPct: Float? = null,
+        /** Catalyst temp bank 1 sensor 11 °C (OBD PID 0183). */
+        val catalystB1s11TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 11 °C (OBD PID 0184). */
+        val catalystB2s11TempC: Float? = null,
+        /** Actual EGR % (OBD PID 0169). */
+        val actualEgrPct: Float? = null,
+        /** Injection pressure control kPa (OBD PID 016E). */
+        val injectCtrlKpa: Float? = null,
+        /** Fuel pressure control kPa (OBD PID 016D). */
+        val fuelCtrlKpa: Float? = null,
+        /** Catalyst temp bank 1 sensor 12 °C (OBD PID 0185). */
+        val catalystB1s12TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 12 °C (OBD PID 0186). */
+        val catalystB2s12TempC: Float? = null,
+        /** STFT bank 2 % (OBD PID 0108), signed. */
+        val fuelTrimStftB2Pct: Float? = null,
+        /** LTFT bank 2 % (OBD PID 0109), signed. */
+        val fuelTrimLtftB2Pct: Float? = null,
+        /** Catalyst temp bank 1 sensor 13 °C (OBD PID 0187). */
+        val catalystB1s13TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 13 °C (OBD PID 0188). */
+        val catalystB2s13TempC: Float? = null,
+        /** DPF regen trigger % (OBD PID 018B). */
+        val dpfTriggerPct: Float? = null,
+        /** Absolute throttle G % (OBD PID 018D). */
+        val throttleGPct: Float? = null,
+        /** Engine friction torque % (OBD PID 018E), signed. */
+        val engineFrictionPct: Float? = null,
+        /** Catalyst temp bank 1 sensor 14 °C (OBD PID 0189). */
+        val catalystB1s14TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 14 °C (OBD PID 018A). */
+        val catalystB2s14TempC: Float? = null,
+        /** O2 wide-range lambda B1S1 (OBD PID 018C). */
+        val o2LambdaB1: Float? = null,
+        /** PM sensor normalized B1S1 % (OBD PID 018F). */
+        val pmSensorB1Pct: Float? = null,
+        /** PM sensor normalized B2S1 % (OBD PID 018F). */
+        val pmSensorB2Pct: Float? = null,
+        /** EGT bank 1 sensor 5 °C (OBD PID 0198). */
+        val egtB1s5TempC: Float? = null,
+        /** EGT bank 2 sensor 5 °C (OBD PID 0199). */
+        val egtB2s5TempC: Float? = null,
+        /** O2 lambda bank 1 sensor 3 (OBD PID 019C). */
+        val o2LambdaB1s3: Float? = null,
+        /** O2 lambda bank 2 sensor 3 (OBD PID 019C). */
+        val o2LambdaB2s3: Float? = null,
+        /** NOx reagent quality counter hours (OBD PID 0194). */
+        val noxReagentQualHours: Float? = null,
+        /** EGT bank 1 sensor 6 °C (OBD PID 0198). */
+        val egtB1s6TempC: Float? = null,
+        /** EGT bank 2 sensor 6 °C (OBD PID 0199). */
+        val egtB2s6TempC: Float? = null,
+        /** EGT bank 1 sensor 7 °C (OBD PID 0198). */
+        val egtB1s7TempC: Float? = null,
+        /** EGT bank 2 sensor 7 °C (OBD PID 0199). */
+        val egtB2s7TempC: Float? = null,
+        /** EGT bank 1 sensor 8 °C (OBD PID 0198). */
+        val egtB1s8TempC: Float? = null,
+        /** EGT bank 2 sensor 8 °C (OBD PID 0199). */
+        val egtB2s8TempC: Float? = null,
+        /** O2 lambda bank 1 sensor 4 (OBD PID 019C). */
+        val o2LambdaB1s4: Float? = null,
+        /** O2 lambda bank 2 sensor 4 (OBD PID 019C). */
+        val o2LambdaB2s4: Float? = null,
+        /** O2 concentration bank 1 sensor 3 % (OBD PID 019C). */
+        val o2ConcB1s3Pct: Float? = null,
+        /** O2 concentration bank 1 sensor 4 % (OBD PID 019C). */
+        val o2ConcB1s4Pct: Float? = null,
+        /** O2 concentration bank 2 sensor 3 % (OBD PID 019C). */
+        val o2ConcB2s3Pct: Float? = null,
+        /** O2 concentration bank 2 sensor 4 % (OBD PID 019C). */
+        val o2ConcB2s4Pct: Float? = null,
+        /** Commanded DEF dosing % (OBD PID 01A5). */
+        val defDosingCmdPct: Float? = null,
+        /** NOx corrected bank 1 sensor 1 ppm (OBD PID 01A1). */
+        val noxCorrectedB1s1Ppm: Float? = null,
+        /** NOx corrected bank 1 sensor 2 ppm (OBD PID 01A1). */
+        val noxCorrectedB1s2Ppm: Float? = null,
+        /** NOx corrected bank 2 sensor 1 ppm (OBD PID 01A1). */
+        val noxCorrectedB2s1Ppm: Float? = null,
+        /** NOx corrected bank 2 sensor 2 ppm (OBD PID 01A1). */
+        val noxCorrectedB2s2Ppm: Float? = null,
+        /** NOx concentration sensor 3 ppm (OBD PID 01A7). */
+        val noxConcS3Ppm: Float? = null,
+        /** NOx concentration sensor 4 ppm (OBD PID 01A7). */
+        val noxConcS4Ppm: Float? = null,
+        val noxCorrectedS3Ppm: Float? = null,
+        val noxCorrectedS4Ppm: Float? = null,
+        val cylinderFuelRateMg: Float? = null,
+        val evapSysVaporPa: Float? = null,
+        val transGearRatio: Float? = null,
+        val obdOdometerKm: Float? = null,
+        val absDisableSupported: Int? = null,
+        val absDisabled: Int? = null,
+        val fuelPressAKpa: Float? = null,
+        val fuelPressBKpa: Float? = null,
+        val reflashDistKm: Float? = null,
+        val fuelLevelInputAPct: Float? = null,
+        val fuelLevelInputBPct: Float? = null,
+        val epcsDiagTimeSec: Float? = null,
+        val epcsDiagCount: Float? = null,
+        val noxPcdLampOn: Int? = null,
+        val particulateInduceStatus: Int? = null,
+        val dpfRemovalCounter: Float? = null,
+        val reagentInjectionFailCounter: Float? = null,
+        val particulateMonitorMalfunctionCounter: Float? = null,
+        /** Diesel exhaust fluid % (OBD PID 019B). */
+        val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -228,6 +426,115 @@ data class VehicleSignals(
             "ethanol_pct" to ethanolPct?.toDouble(),
             "evap_vapor_pa" to evapVaporPa?.toDouble(),
             "fuel_rail_abs_kpa" to fuelRailAbsKpa?.toDouble(),
+            "egr_cmd_pct" to egrCmdPct?.toDouble(),
+            "rel_accel_pedal_pct" to relAccelPedalPct?.toDouble(),
+            "driver_torque_pct" to driverTorquePct?.toDouble(),
+            "actual_torque_pct" to actualTorquePct?.toDouble(),
+            "catalyst_b2_temp_c" to catalystB2TempC?.toDouble(),
+            "catalyst_b1s2_temp_c" to catalystB1s2TempC?.toDouble(),
+            "catalyst_b2s2_temp_c" to catalystB2s2TempC?.toDouble(),
+            "catalyst_b1s3_temp_c" to catalystB1s3TempC?.toDouble(),
+            "catalyst_b2s3_temp_c" to catalystB2s3TempC?.toDouble(),
+            "catalyst_b1s4_temp_c" to catalystB1s4TempC?.toDouble(),
+            "catalyst_b2s4_temp_c" to catalystB2s4TempC?.toDouble(),
+            "fuel_trim_stft2_b1_pct" to fuelTrimStft2B1Pct?.toDouble(),
+            "fuel_trim_ltft2_b1_pct" to fuelTrimLtft2B1Pct?.toDouble(),
+            "fuel_trim_stft2_b2_pct" to fuelTrimStft2B2Pct?.toDouble(),
+            "fuel_trim_ltft2_b2_pct" to fuelTrimLtft2B2Pct?.toDouble(),
+            "catalyst_b1s5_temp_c" to catalystB1s5TempC?.toDouble(),
+            "catalyst_b2s5_temp_c" to catalystB2s5TempC?.toDouble(),
+            "fuel_inject_timing_deg" to fuelInjectTimingDeg?.toDouble(),
+            "hybrid_batt_life_pct" to hybridBattLifePct?.toDouble(),
+            "engine_ref_torque_nm" to engineRefTorqueNm?.toDouble(),
+            "catalyst_b1s6_temp_c" to catalystB1s6TempC?.toDouble(),
+            "catalyst_b2s6_temp_c" to catalystB2s6TempC?.toDouble(),
+            "throttle_b_pct" to throttleBPct?.toDouble(),
+            "throttle_c_pct" to throttleCPct?.toDouble(),
+            "mil_time_min" to milTimeMin,
+            "catalyst_b1s7_temp_c" to catalystB1s7TempC?.toDouble(),
+            "catalyst_b2s7_temp_c" to catalystB2s7TempC?.toDouble(),
+            "fuel_type_code" to fuelTypeCode,
+            "max_equiv_ratio" to maxEquivRatio?.toDouble(),
+            "max_maf_gps" to maxMafGps?.toDouble(),
+            "catalyst_b1s8_temp_c" to catalystB1s8TempC?.toDouble(),
+            "catalyst_b2s8_temp_c" to catalystB2s8TempC?.toDouble(),
+            "max_avail_torque_pct" to maxAvailTorquePct?.toDouble(),
+            "maf_sensor_iat_c" to mafSensorIatC?.toDouble(),
+            "aux_input_status" to auxInputStatus,
+            "catalyst_b1s9_temp_c" to catalystB1s9TempC?.toDouble(),
+            "catalyst_b2s9_temp_c" to catalystB2s9TempC?.toDouble(),
+            "coolant_ect2_c" to coolantEct2C?.toDouble(),
+            "iat_sensor2_c" to iatSensor2C?.toDouble(),
+            "turbo_inlet_kpa" to turboInletKpa?.toDouble(),
+            "catalyst_b1s10_temp_c" to catalystB1s10TempC?.toDouble(),
+            "catalyst_b2s10_temp_c" to catalystB2s10TempC?.toDouble(),
+            "egr_temp_c" to egrTempC?.toDouble(),
+            "diesel_iaf_cmd_pct" to dieselIafCmdPct?.toDouble(),
+            "thr_actuator_pct" to thrActuatorPct?.toDouble(),
+            "catalyst_b1s11_temp_c" to catalystB1s11TempC?.toDouble(),
+            "catalyst_b2s11_temp_c" to catalystB2s11TempC?.toDouble(),
+            "actual_egr_pct" to actualEgrPct?.toDouble(),
+            "inject_ctrl_kpa" to injectCtrlKpa?.toDouble(),
+            "fuel_ctrl_kpa" to fuelCtrlKpa?.toDouble(),
+            "catalyst_b1s12_temp_c" to catalystB1s12TempC?.toDouble(),
+            "catalyst_b2s12_temp_c" to catalystB2s12TempC?.toDouble(),
+            "fuel_trim_stft_b2_pct" to fuelTrimStftB2Pct?.toDouble(),
+            "fuel_trim_ltft_b2_pct" to fuelTrimLtftB2Pct?.toDouble(),
+            "catalyst_b1s13_temp_c" to catalystB1s13TempC?.toDouble(),
+            "catalyst_b2s13_temp_c" to catalystB2s13TempC?.toDouble(),
+            "dpf_trigger_pct" to dpfTriggerPct?.toDouble(),
+            "throttle_g_pct" to throttleGPct?.toDouble(),
+            "engine_friction_pct" to engineFrictionPct?.toDouble(),
+            "catalyst_b1s14_temp_c" to catalystB1s14TempC?.toDouble(),
+            "catalyst_b2s14_temp_c" to catalystB2s14TempC?.toDouble(),
+            "o2_lambda_b1" to o2LambdaB1?.toDouble(),
+            "pm_sensor_b1_pct" to pmSensorB1Pct?.toDouble(),
+            "pm_sensor_b2_pct" to pmSensorB2Pct?.toDouble(),
+            "egt_b1s5_temp_c" to egtB1s5TempC?.toDouble(),
+            "egt_b2s5_temp_c" to egtB2s5TempC?.toDouble(),
+            "o2_lambda_b1s3" to o2LambdaB1s3?.toDouble(),
+            "o2_lambda_b2s3" to o2LambdaB2s3?.toDouble(),
+            "nox_reagent_qual_hours" to noxReagentQualHours?.toDouble(),
+            "egt_b1s6_temp_c" to egtB1s6TempC?.toDouble(),
+            "egt_b2s6_temp_c" to egtB2s6TempC?.toDouble(),
+            "egt_b1s7_temp_c" to egtB1s7TempC?.toDouble(),
+            "egt_b2s7_temp_c" to egtB2s7TempC?.toDouble(),
+            "egt_b1s8_temp_c" to egtB1s8TempC?.toDouble(),
+            "egt_b2s8_temp_c" to egtB2s8TempC?.toDouble(),
+            "o2_lambda_b1s4" to o2LambdaB1s4?.toDouble(),
+            "o2_lambda_b2s4" to o2LambdaB2s4?.toDouble(),
+            "o2_conc_b1s3_pct" to o2ConcB1s3Pct?.toDouble(),
+            "o2_conc_b1s4_pct" to o2ConcB1s4Pct?.toDouble(),
+            "o2_conc_b2s3_pct" to o2ConcB2s3Pct?.toDouble(),
+            "o2_conc_b2s4_pct" to o2ConcB2s4Pct?.toDouble(),
+            "def_dosing_cmd_pct" to defDosingCmdPct?.toDouble(),
+            "nox_corrected_b1s1_ppm" to noxCorrectedB1s1Ppm?.toDouble(),
+            "nox_corrected_b1s2_ppm" to noxCorrectedB1s2Ppm?.toDouble(),
+            "nox_corrected_b2s1_ppm" to noxCorrectedB2s1Ppm?.toDouble(),
+            "nox_corrected_b2s2_ppm" to noxCorrectedB2s2Ppm?.toDouble(),
+            "nox_conc_s3_ppm" to noxConcS3Ppm?.toDouble(),
+            "nox_conc_s4_ppm" to noxConcS4Ppm?.toDouble(),
+            "nox_corrected_s3_ppm" to noxCorrectedS3Ppm?.toDouble(),
+            "nox_corrected_s4_ppm" to noxCorrectedS4Ppm?.toDouble(),
+            "cylinder_fuel_rate_mg" to cylinderFuelRateMg?.toDouble(),
+            "evap_sys_vapor_pa" to evapSysVaporPa?.toDouble(),
+            "trans_gear_ratio" to transGearRatio?.toDouble(),
+            "obd_odometer_km" to obdOdometerKm?.toDouble(),
+            "abs_disable_supported" to absDisableSupported,
+            "abs_disabled" to absDisabled,
+            "fuel_press_a_kpa" to fuelPressAKpa?.toDouble(),
+            "fuel_press_b_kpa" to fuelPressBKpa?.toDouble(),
+            "reflash_dist_km" to reflashDistKm?.toDouble(),
+            "fuel_level_input_a_pct" to fuelLevelInputAPct?.toDouble(),
+            "fuel_level_input_b_pct" to fuelLevelInputBPct?.toDouble(),
+            "epcs_diag_time_sec" to epcsDiagTimeSec?.toDouble(),
+            "epcs_diag_count" to epcsDiagCount?.toDouble(),
+            "nox_pcd_lamp_on" to noxPcdLampOn,
+            "particulate_induce_status" to particulateInduceStatus,
+            "dpf_removal_counter" to dpfRemovalCounter?.toDouble(),
+            "reagent_injection_fail_counter" to reagentInjectionFailCounter?.toDouble(),
+            "particulate_monitor_malfunction_counter" to particulateMonitorMalfunctionCounter?.toDouble(),
+            "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

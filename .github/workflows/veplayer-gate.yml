@@ -1,0 +1,67 @@
+name: VePlayer validation gate
+
+on:
+  push:
+    paths:
+      - 'veplayer/**'
+      - 'senseflow/server/src/fleetPro.ts'
+      - '.github/workflows/veplayer-gate.yml'
+  pull_request:
+    paths:
+      - 'veplayer/**'
+      - 'senseflow/server/src/fleetPro.ts'
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build VePlayer debug APK
+        working-directory: veplayer/android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Install SenseFlow server deps
+        working-directory: senseflow/server
+        run: npm ci
+
+      - name: Start SenseFlow API
+        working-directory: senseflow/server
+        run: |
+          npm run start &
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:4100/api/health >/dev/null; then
+              echo "SenseFlow up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "SenseFlow failed to start"
+          exit 1
+
+      - name: Validate gate (parser + fleet smokes)
+        run: npm run veplayer:validate-gate
+        env:
+          SENSEFLOW_URL: http://127.0.0.1:4100
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: veplayer-debug-apk
+          path: veplayer/android/app/build/outputs/apk/debug/*.apk

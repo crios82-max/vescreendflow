@@ -1147,6 +1147,388 @@ Rail absoluto (**OBD PID 0159**), kPa · `rail_abs_warn` / `rail_abs_alert` · H
 npm run veplayer:fase17-smoke
 ```
 
+**Fase 18 (completa):** EGR comandado · pedal relativo · torque demanda/real · catalizador B2.
+
+## Commanded EGR (v0.95 · Fase 18)
+
+EGR comandado (**OBD PID 014C**), % · `egr_cmd_warn` / `egr_cmd_alert` · HUD `EGRcmd · XX%`
+
+## Relative accel pedal (v0.96 · Fase 18)
+
+Pedal relativo (**OBD PID 015A**), % · `rel_aped_warn` / `rel_aped_alert` · HUD `RelAP · XX%`
+
+## Driver torque (v0.97 · Fase 18)
+
+Demanda torque (**OBD PID 0161**), % (A−125) · `drv_torque_warn` / `drv_torque_alert` · HUD `DrvT · XX%`
+
+## Actual torque (v0.98 · Fase 18)
+
+Torque real (**OBD PID 0162**), % (A−125) · `act_torque_warn` / `act_torque_alert` · HUD `ActT · XX%`
+
+## Catalyst B2 (v0.99 · Fase 18)
+
+Catalizador banco 2 (**OBD PID 0170**), °C · `cat_b2_warn` / `cat_b2_alert` · HUD `CatB2 · XXX°C`
+
+```bash
+npm run veplayer:fase18-smoke
+```
+
+**Fase 19 (completa):** catalizador B1S2 · B2S2 · B1S3 · B2S3 · B1S4.
+
+## Catalyst B1S2 (v1.00 · Fase 19)
+
+Catalizador banco 1 sensor 2 (**OBD PID 0171**), °C · `cat_b1s2_warn` / `cat_b1s2_alert` · HUD `CatB1S2 · XXX°C`
+
+## Catalyst B2S2 (v1.01 · Fase 19)
+
+Catalizador banco 2 sensor 2 (**OBD PID 0172**), °C · `cat_b2s2_warn` / `cat_b2s2_alert` · HUD `CatB2S2 · XXX°C`
+
+## Catalyst B1S3 (v1.02 · Fase 19)
+
+Catalizador banco 1 sensor 3 (**OBD PID 0173**), °C · `cat_b1s3_warn` / `cat_b1s3_alert` · HUD `CatB1S3 · XXX°C`
+
+## Catalyst B2S3 (v1.03 · Fase 19)
+
+Catalizador banco 2 sensor 3 (**OBD PID 0174**), °C · `cat_b2s3_warn` / `cat_b2s3_alert` · HUD `CatB2S3 · XXX°C`
+
+## Catalyst B1S4 (v1.04 · Fase 19)
+
+Catalizador banco 1 sensor 4 (**OBD PID 0175**), °C · `cat_b1s4_warn` / `cat_b1s4_alert` · HUD `CatB1S4 · XXX°C`
+
+```bash
+npm run veplayer:fase19-smoke
+```
+
+**Fase 20 (completa):** catalizador B2S4 · trims O2 secundarios ST/LT B1/B2.
+
+## Catalyst B2S4 (v1.05 · Fase 20)
+
+Catalizador banco 2 sensor 4 (**OBD PID 0176**), °C · `cat_b2s4_warn` / `cat_b2s4_alert` · HUD `CatB2S4 · XXX°C`
+
+## STFT O2 sec B1 (v1.06 · Fase 20)
+
+Trim corto O2 secundario B1 (**OBD PID 0155**), % · `stft2_b1_warn` / `stft2_b1_alert` · HUD `ST2B1 · ±XX%`
+
+## LTFT O2 sec B1 (v1.07 · Fase 20)
+
+Trim largo O2 secundario B1 (**OBD PID 0156**), % · `ltft2_b1_warn` / `ltft2_b1_alert` · HUD `LT2B1 · ±XX%`
+
+## STFT O2 sec B2 (v1.08 · Fase 20)
+
+Trim corto O2 secundario B2 (**OBD PID 0157**), % · `stft2_b2_warn` / `stft2_b2_alert` · HUD `ST2B2 · ±XX%`
+
+## LTFT O2 sec B2 (v1.09 · Fase 20)
+
+Trim largo O2 secundario B2 (**OBD PID 0158**), % · `ltft2_b2_warn` / `ltft2_b2_alert` · HUD `LT2B2 · ±XX%`
+
+```bash
+npm run veplayer:fase20-smoke
+```
+
+**Fase 21 (completa):** catalizador B1S5/B2S5 · inyección · batería híbrida · torque ref.
+
+## Catalyst B1S5 (v1.10 · Fase 21)
+
+Catalizador banco 1 sensor 5 (**OBD PID 0177**), °C · `cat_b1s5_warn` / `cat_b1s5_alert` · HUD `CatB1S5 · XXX°C`
+
+## Catalyst B2S5 (v1.11 · Fase 21)
+
+Catalizador banco 2 sensor 5 (**OBD PID 0178**), °C · `cat_b2s5_warn` / `cat_b2s5_alert` · HUD `CatB2S5 · XXX°C`
+
+## Fuel injection timing (v1.12 · Fase 21)
+
+Inyección (**OBD PID 015D**), ° · `inject_warn` / `inject_alert` · HUD `Inject · XX°`
+
+## Hybrid battery life (v1.13 · Fase 21)
+
+Vida batería híbrida (**OBD PID 015B**), % · `hybrid_batt_warn` / `hybrid_batt_alert` · HUD `HyBatt · XX%`
+
+## Engine ref torque (v1.14 · Fase 21)
+
+Torque referencia (**OBD PID 0163**), Nm · `ref_torque_warn` / `ref_torque_alert` · HUD `RefT · XXXNm`
+
+```bash
+npm run veplayer:fase21-smoke
+```
+
+## Cat B1S6 / B2S6 · throttle B/C · MIL time (v1.19 · Fase 22)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0179 | Catalyst B1S6 | `cat_b1s6_warn` / `cat_b1s6_alert` | `CatB1S6 · XXX°C` |
+| 017A | Catalyst B2S6 | `cat_b2s6_warn` / `cat_b2s6_alert` | `CatB2S6 · XXX°C` |
+| 0147 | Throttle B | `thr_b_warn` / `thr_b_alert` | `ThrB · XX%` |
+| 0148 | Throttle C | `thr_c_warn` / `thr_c_alert` | `ThrC · XX%` |
+| 0154 | MIL time on | `mil_time_warn` / `mil_time_alert` | `MILt · XXm` |
+
+```bash
+npm run veplayer:fase22-smoke
+npm run veplayer:validate-gate
+```
+
+## Cat B1S7/B2S7 · fuel type · max λ/MAF (v1.24 · Fase 23)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 017B | Catalyst B1S7 | `cat_b1s7_warn` / `cat_b1s7_alert` | `CatB1S7 · XXX°C` |
+| 017C | Catalyst B2S7 | `cat_b2s7_warn` / `cat_b2s7_alert` | `CatB2S7 · XXX°C` |
+| 0151 | Fuel type | `fuel_type_alert` | `Fuel · Gas/Diesel…` |
+| 014F | Max lambda | `max_equiv_warn` / `max_equiv_alert` | `Maxλ · X.XX` |
+| 0150 | Max MAF | `max_maf_warn` / `max_maf_alert` | `MaxMAF · XXg/s` |
+
+```bash
+npm run veplayer:fase23-smoke
+```
+
+## Cat B1S8/B2S8 · max torque · MAF IAT · aux (v1.29 · Fase 24)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 017D | Catalyst B1S8 | `cat_b1s8_warn` / `cat_b1s8_alert` | `CatB1S8 · XXX°C` |
+| 017E | Catalyst B2S8 | `cat_b2s8_warn` / `cat_b2s8_alert` | `CatB2S8 · XXX°C` |
+| 0164 | Max avail torque | `max_avail_torque_warn` / `max_avail_torque_alert` | `MaxTq · XX%` |
+| 0166 | MAF sensor IAT | `maf_iat_warn` / `maf_iat_alert` | `MafIAT · XX°C` |
+| 0165 | Aux input | `aux_input_alert` | `Aux · 0xNN` |
+
+```bash
+npm run veplayer:fase24-smoke
+```
+
+## Cat B1S9/B2S9 · ECT2 · IAT2 · turbo inlet (v1.34 · Fase 25)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 017F | Catalyst B1S9 | `cat_b1s9_warn` / `cat_b1s9_alert` | `CatB1S9 · XXX°C` |
+| 0180 | Catalyst B2S9 | `cat_b2s9_warn` / `cat_b2s9_alert` | `CatB2S9 · XXX°C` |
+| 0167 | Coolant ECT2 | `ect2_warn` / `ect2_alert` | `ECT2 · XX°C` |
+| 0168 | IAT sensor 2 | `iat2_warn` / `iat2_alert` | `IAT2 · XX°C` |
+| 016F | Turbo inlet | `turbo_inlet_warn` / `turbo_inlet_alert` | `TurboIn · XXkPa` |
+
+```bash
+npm run veplayer:fase25-smoke
+```
+
+## Cat B1S10/B2S10 · EGR temp · diesel IAF · thr act (v1.39 · Fase 26)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0181 | Catalyst B1S10 | `cat_b1s10_warn` / `cat_b1s10_alert` | `CatB1S10 · XXX°C` |
+| 0182 | Catalyst B2S10 | `cat_b2s10_warn` / `cat_b2s10_alert` | `CatB2S10 · XXX°C` |
+| 016B | EGR temperature | `egr_temp_warn` / `egr_temp_alert` | `EgrT · XX°C` |
+| 016A | Diesel IAF | `diesel_iaf_warn` / `diesel_iaf_alert` | `DslIAF · XX%` |
+| 016C | Throttle actuator | `thr_act_warn` / `thr_act_alert` | `ThrAct · XX%` |
+
+```bash
+npm run veplayer:fase26-smoke
+```
+
+## Cat B1S11/B2S11 · EGR actual · inject/fuel ctrl (v1.44 · Fase 27)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0183 | Catalyst B1S11 | `cat_b1s11_warn` / `cat_b1s11_alert` | `CatB1S11 · XXX°C` |
+| 0184 | Catalyst B2S11 | `cat_b2s11_warn` / `cat_b2s11_alert` | `CatB2S11 · XXX°C` |
+| 0169 | Actual EGR | `egr_actual_warn` / `egr_actual_alert` | `EgrAct · XX%` |
+| 016E | Injection pressure | `inject_ctrl_warn` / `inject_ctrl_alert` | `Inject · XXkPa` |
+| 016D | Fuel pressure control | `fuel_ctrl_warn` / `fuel_ctrl_alert` | `FuelCtrl · XXkPa` |
+
+```bash
+npm run veplayer:fase27-smoke
+```
+
+## Cat B1S12/B2S12 · STFT/LTFT B2 (v1.49 · Fase 28)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0185 | Catalyst B1S12 | `cat_b1s12_warn` / `cat_b1s12_alert` | `CatB1S12 · XXX°C` |
+| 0186 | Catalyst B2S12 | `cat_b2s12_warn` / `cat_b2s12_alert` | `CatB2S12 · XXX°C` |
+| 0108 | STFT bank 2 | `stft_b2_warn` / `stft_b2_alert` | `STB2 · ±XX%` |
+| 0109 | LTFT bank 2 | `ltft_b2_warn` / `ltft_b2_alert` | `LTB2 · ±XX%` |
+
+```bash
+npm run veplayer:fase28-smoke
+```
+
+## Cat B1S13/B2S13 · DPF · Thr G · friction (v1.54 · Fase 29)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0187 | Catalyst B1S13 | `cat_b1s13_warn` / `cat_b1s13_alert` | `CatB1S13 · XXX°C` |
+| 0188 | Catalyst B2S13 | `cat_b2s13_warn` / `cat_b2s13_alert` | `CatB2S13 · XXX°C` |
+| 018B | DPF trigger | `dpf_trigger_warn` / `dpf_trigger_alert` | `DpfTrig · XX%` |
+| 018D | Throttle G | `thr_g_warn` / `thr_g_alert` | `ThrG · XX%` |
+| 018E | Engine friction | `eng_friction_warn` / `eng_friction_alert` | `Frict · XX%` |
+
+```bash
+npm run veplayer:fase29-smoke
+```
+
+## Cat B1S14/B2S14 · O2λ · PM B1/B2 (v1.59 · Fase 30)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0189 | Catalyst B1S14 | `cat_b1s14_warn` / `cat_b1s14_alert` | `CatB1S14 · XXX°C` |
+| 018A | Catalyst B2S14 | `cat_b2s14_warn` / `cat_b2s14_alert` | `CatB2S14 · XXX°C` |
+| 018C | O2 lambda B1S1 | `o2_lambda_warn` / `o2_lambda_alert` | `O2λ · X.XX` |
+| 018F | PM sensor B1 | `pm_b1_warn` / `pm_b1_alert` | `PMB1 · XX%` |
+| 018F | PM sensor B2 | `pm_b2_warn` / `pm_b2_alert` | `PMB2 · XX%` |
+
+```bash
+npm run veplayer:fase30-smoke
+```
+
+## EGT B1S5/B2S5 · O2λ3 · NOx reagent (v1.64 · Fase 31)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0198 | EGT B1S5 | `egt_b1s5_warn` / `egt_b1s5_alert` | `EGTB1S5 · XXX°C` |
+| 0199 | EGT B2S5 | `egt_b2s5_warn` / `egt_b2s5_alert` | `EGTB2S5 · XXX°C` |
+| 019C | O2λ B1S3 | `o2_lmb_b1s3_warn` / `o2_lmb_b1s3_alert` | `O2λ3 · X.XX` |
+| 019C | O2λ B2S3 | `o2_lmb_b2s3_warn` / `o2_lmb_b2s3_alert` | `O2λ23 · X.XX` |
+| 0194 | NOx reagent qual | `nox_req_warn` / `nox_req_alert` | `NOxReq · XXh` |
+
+```bash
+npm run veplayer:fase31-smoke
+```
+
+## EGT B1S6/B2S6 · O2λ4 · DEF (v1.69 · Fase 32)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0198 | EGT B1S6 | `egt_b1s6_warn` / `egt_b1s6_alert` | `EGTB1S6 · XXX°C` |
+| 0199 | EGT B2S6 | `egt_b2s6_warn` / `egt_b2s6_alert` | `EGTB2S6 · XXX°C` |
+| 019C | O2λ B1S4 | `o2_lmb_b1s4_warn` / `o2_lmb_b1s4_alert` | `O2λ4 · X.XX` |
+| 019C | O2λ B2S4 | `o2_lmb_b2s4_warn` / `o2_lmb_b2s4_alert` | `O2λ24 · X.XX` |
+| 019B | DEF fluid % | `def_warn` / `def_alert` | `DEF · XX%` |
+
+```bash
+npm run veplayer:fase32-smoke
+```
+
+## EGT B1S7/B2S7/B1S8/B2S8 · O2C3 (v1.74 · Fase 33)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0198 | EGT B1S7 | `egt_b1s7_warn` / `egt_b1s7_alert` | `EGTB1S7 · XXX°C` |
+| 0199 | EGT B2S7 | `egt_b2s7_warn` / `egt_b2s7_alert` | `EGTB2S7 · XXX°C` |
+| 0198 | EGT B1S8 | `egt_b1s8_warn` / `egt_b1s8_alert` | `EGTB1S8 · XXX°C` |
+| 0199 | EGT B2S8 | `egt_b2s8_warn` / `egt_b2s8_alert` | `EGTB2S8 · XXX°C` |
+| 019C | O2 conc B1S3 | `o2_conc_b1s3_warn` / `o2_conc_b1s3_alert` | `O2C3 · XX%` |
+
+```bash
+npm run veplayer:fase33-smoke
+```
+
+## O2C4/O2C23/O2C24 · DEFDose · NOxC1 (v1.79 · Fase 34)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 019C | O2 conc B1S4 | `o2_conc_b1s4_warn` / `o2_conc_b1s4_alert` | `O2C4 · XX%` |
+| 019C | O2 conc B2S3 | `o2_conc_b2s3_warn` / `o2_conc_b2s3_alert` | `O2C23 · XX%` |
+| 019C | O2 conc B2S4 | `o2_conc_b2s4_warn` / `o2_conc_b2s4_alert` | `O2C24 · XX%` |
+| 01A5 | DEF dosing cmd % | `def_dose_warn` / `def_dose_alert` | `DEFDose · XX%` |
+| 01A1 | NOx corrected B1S1 ppm | `nox_corr_b1s1_warn` / `nox_corr_b1s1_alert` | `NOxC1 · XXX` |
+
+```bash
+npm run veplayer:fase34-smoke
+```
+
+## NOxC2/C21/C22 · NOx3/4 (v1.84 · Fase 35)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 01A1 | NOx corr B1S2 | `nox_corr_b1s2_warn` / `nox_corr_b1s2_alert` | `NOxC2 · XXX` |
+| 01A1 | NOx corr B2S1 | `nox_corr_b2s1_warn` / `nox_corr_b2s1_alert` | `NOxC21 · XXX` |
+| 01A1 | NOx corr B2S2 | `nox_corr_b2s2_warn` / `nox_corr_b2s2_alert` | `NOxC22 · XXX` |
+| 01A7 | NOx conc S3 | `nox_conc_s3_warn` / `nox_conc_s3_alert` | `NOx3 · XXX` |
+| 01A7 | NOx conc S4 | `nox_conc_s4_warn` / `nox_conc_s4_alert` | `NOx4 · XXX` |
+
+```bash
+npm run veplayer:fase35-smoke
+```
+
+## NOxC3/C4 · CylFuel · EvapVP · Gear (v1.89 · Fase 36)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 01A8 | NOx corr S3 | `nox_corr_s3_warn` / `nox_corr_s3_alert` | `NOxC3 · XXX` |
+| 01A8 | NOx corr S4 | `nox_corr_s4_warn` / `nox_corr_s4_alert` | `NOxC4 · XXX` |
+| 01A2 | Cylinder fuel rate | `cyl_fuel_warn` / `cyl_fuel_alert` | `CylFuel · XX` |
+| 01A3 | Evap sys vapor Pa | `evap_sys_vapor_warn` / `evap_sys_vapor_alert` | `EvapVP · XXX` |
+| 01A4 | Trans gear ratio | `trans_gear_warn` / `trans_gear_alert` | `Gear · X.XX` |
+
+```bash
+npm run veplayer:fase36-smoke
+```
+
+## Odo · ABSoff · FPa/b · Reflash (v1.94 · Fase 37)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 01A6 | OBD odometer | `obd_odometer_warn` / `obd_odometer_alert` | `Odo · XXXXX` |
+| 01A9 | ABS disable | `abs_disable_alert` | `ABS off` |
+| 01C5 | Fuel press A | `fuel_press_a_warn` / `fuel_press_a_alert` | `FPa · XXX` |
+| 01C5 | Fuel press B | `fuel_press_b_warn` / `fuel_press_b_alert` | `FPb · XXX` |
+| 01C7 | Reflash distance | `reflash_dist_warn` / `reflash_dist_alert` | `Reflash · XXX` |
+
+```bash
+npm run veplayer:fase37-smoke
+```
+
+## FuelA/B · EPCS · NCD/PCD (v1.99 · Fase 38)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 01C3 | Fuel level A | `fuel_level_a_warn` / `fuel_level_a_alert` | `FuelA · XX%` |
+| 01C3 | Fuel level B | `fuel_level_b_warn` / `fuel_level_b_alert` | `FuelB · XX%` |
+| 01C4 | EPCS time | `epcs_time_warn` / `epcs_time_alert` | `EPCS · XXs` |
+| 01C4 | EPCS count | `epcs_count_warn` / `epcs_count_alert` | `EPCSn · XX` |
+| 01C8 | NOx/PCD lamp | `nox_pcd_lamp_alert` | `NCD/PCD` |
+
+```bash
+npm run veplayer:fase38-smoke
+```
+
+## IndW · Induce · DpfRem · ReagFail · PCMmal (v2.04 · Fase 39)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 01C6 | Inducement warn | `particulate_induce_warn` | `IndW · X` |
+| 01C6 | Inducement alert | `particulate_induce_alert` | `Induce · X` |
+| 01C6 | DPF removal counter | `dpf_removal_warn` / `dpf_removal_alert` | `DpfRem · XXX` |
+| 01C6 | Reagent injection fail | `reagent_fail_warn` / `reagent_fail_alert` | `ReagFail · XXX` |
+| 01C6 | PCM malfunction | `particulate_malf_warn` / `particulate_malf_alert` | `PCMmal · XXX` |
+
+```bash
+npm run veplayer:fase39-smoke
+```
+
+## Validation gate (pre-fase · v1.15)
+
+Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
+
+| Paso | Qué valida |
+|------|------------|
+| `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
+| `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
+| `dbc-smoke` | DBC decode (Kotlin mirror) |
+| `fase16–39-smoke` | Alertas `fleetPro.ts` con heartbeats |
+
+```bash
+# SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)
+npm run senseflow:dev
+
+# Gate completo
+npm run veplayer:validate-gate
+
+# Solo parser/poll/dbc (sin API)
+VALIDATE_SKIP_FLEET=1 npm run veplayer:validate-gate
+```
+
+CI: workflow `.github/workflows/veplayer-gate.yml` — **build APK** + gate.
+
+**Producto = APK Compose** (`veplayer/android`). `veplayer/web/index.html` es solo preview decorativo, no la app.
+
 ## Device Owner (kiosk duro · v0.12)
 
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
