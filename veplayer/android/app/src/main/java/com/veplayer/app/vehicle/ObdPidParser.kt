@@ -162,6 +162,16 @@ object ObdPidParser {
         val fuelTrimStftB2Pct: Float? = null,
         /** LTFT bank 2 % (OBD PID 0109), signed. */
         val fuelTrimLtftB2Pct: Float? = null,
+        /** Catalyst temp bank 1 sensor 13 °C (OBD PID 0187). */
+        val catalystB1s13TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 13 °C (OBD PID 0188). */
+        val catalystB2s13TempC: Float? = null,
+        /** DPF regen trigger % (OBD PID 018B byte C). */
+        val dpfTriggerPct: Float? = null,
+        /** Absolute throttle G % (OBD PID 018D). */
+        val throttleGPct: Float? = null,
+        /** Engine friction torque % (OBD PID 018E), signed. */
+        val engineFrictionPct: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -453,6 +463,20 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(catalystB2s12TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
             }
+            0x87 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB1s13TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x88 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2s13TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x8B -> {
+                if (data.size < 3) PidValues()
+                else PidValues(dpfTriggerPct = data[2] * 100f / 255f)
+            }
+            0x8D -> PidValues(throttleGPct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x8E -> PidValues(engineFrictionPct = data.getOrNull(0)?.let { (it - 125).toFloat() })
             0x69 -> PidValues(actualEgrPct = data.getOrNull(0)?.let { it * 100f / 255f })
             0x6E -> {
                 if (data.size < 2) PidValues()
@@ -567,6 +591,11 @@ object ObdPidParser {
             catalystB2s12TempC = add.catalystB2s12TempC ?: base.catalystB2s12TempC,
             fuelTrimStftB2Pct = add.fuelTrimStftB2Pct ?: base.fuelTrimStftB2Pct,
             fuelTrimLtftB2Pct = add.fuelTrimLtftB2Pct ?: base.fuelTrimLtftB2Pct,
+            catalystB1s13TempC = add.catalystB1s13TempC ?: base.catalystB1s13TempC,
+            catalystB2s13TempC = add.catalystB2s13TempC ?: base.catalystB2s13TempC,
+            dpfTriggerPct = add.dpfTriggerPct ?: base.dpfTriggerPct,
+            throttleGPct = add.throttleGPct ?: base.throttleGPct,
+            engineFrictionPct = add.engineFrictionPct ?: base.engineFrictionPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

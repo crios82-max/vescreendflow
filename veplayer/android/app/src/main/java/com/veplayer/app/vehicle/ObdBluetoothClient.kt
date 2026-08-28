@@ -316,6 +316,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0186", // catalyst B2S12 temp
                 "0108", // STFT bank 2
                 "0109", // LTFT bank 2
+                "0187", // catalyst B1S13 temp
+                "0188", // catalyst B2S13 temp
+                "018B", // DPF aftertreatment
+                "018D", // throttle G
+                "018E", // engine friction torque
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim

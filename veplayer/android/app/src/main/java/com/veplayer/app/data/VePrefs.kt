@@ -2498,6 +2498,109 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("ltft_b2_sim_speed", 40f)
         set(value) = sp.edit().putFloat("ltft_b2_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Catalyst temp B1S13 °C (OBD 0187). */
+    var catB1s13Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s13", true)
+        set(value) = sp.edit().putBoolean("cat_b1s13", value).apply()
+    var catB1s13Tts: Boolean
+        get() = sp.getBoolean("cat_b1s13_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s13_tts", value).apply()
+    var catB1s13WarnC: Float
+        get() = sp.getFloat("cat_b1s13_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s13_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s13AlertC: Float
+        get() = sp.getFloat("cat_b1s13_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s13_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s13SimC: Float
+        get() = sp.getFloat("cat_b1s13_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s13_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B2S13 °C (OBD 0188). */
+    var catB2s13Enabled: Boolean
+        get() = sp.getBoolean("cat_b2s13", true)
+        set(value) = sp.edit().putBoolean("cat_b2s13", value).apply()
+    var catB2s13Tts: Boolean
+        get() = sp.getBoolean("cat_b2s13_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2s13_tts", value).apply()
+    var catB2s13WarnC: Float
+        get() = sp.getFloat("cat_b2s13_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2s13_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2s13AlertC: Float
+        get() = sp.getFloat("cat_b2s13_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2s13_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2s13SimC: Float
+        get() = sp.getFloat("cat_b2s13_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2s13_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** DPF aftertreatment trigger % (OBD 018B). */
+    var dpfTrigEnabled: Boolean
+        get() = sp.getBoolean("dpf_trig", true)
+        set(value) = sp.edit().putBoolean("dpf_trig", value).apply()
+    var dpfTrigTts: Boolean
+        get() = sp.getBoolean("dpf_trig_tts", true)
+        set(value) = sp.edit().putBoolean("dpf_trig_tts", value).apply()
+    var dpfTrigWarnPct: Float
+        get() = sp.getFloat("dpf_trig_warn_pct", 70f)
+        set(value) = sp.edit().putFloat("dpf_trig_warn_pct", value.coerceIn(40f, 95f)).apply()
+    var dpfTrigAlertPct: Float
+        get() = sp.getFloat("dpf_trig_alert_pct", 85f)
+        set(value) = sp.edit().putFloat("dpf_trig_alert_pct", value.coerceAtLeast(45f)).apply()
+    var dpfTrigSpeedMinKmh: Float
+        get() = sp.getFloat("dpf_trig_speed_min", 15f)
+        set(value) = sp.edit().putFloat("dpf_trig_speed_min", value.coerceIn(0f, 60f)).apply()
+    var dpfTrigSimPct: Float
+        get() = sp.getFloat("dpf_trig_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("dpf_trig_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var dpfTrigSimSpeedKmh: Float
+        get() = sp.getFloat("dpf_trig_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("dpf_trig_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Throttle G % (OBD 018D). */
+    var thrGEnabled: Boolean
+        get() = sp.getBoolean("thr_g", true)
+        set(value) = sp.edit().putBoolean("thr_g", value).apply()
+    var thrGTts: Boolean
+        get() = sp.getBoolean("thr_g_tts", true)
+        set(value) = sp.edit().putBoolean("thr_g_tts", value).apply()
+    var thrGWarnPct: Float
+        get() = sp.getFloat("thr_g_warn_pct", 75f)
+        set(value) = sp.edit().putFloat("thr_g_warn_pct", value.coerceIn(40f, 95f)).apply()
+    var thrGAlertPct: Float
+        get() = sp.getFloat("thr_g_alert_pct", 90f)
+        set(value) = sp.edit().putFloat("thr_g_alert_pct", value.coerceAtLeast(45f)).apply()
+    var thrGSpeedMinKmh: Float
+        get() = sp.getFloat("thr_g_speed_min", 20f)
+        set(value) = sp.edit().putFloat("thr_g_speed_min", value.coerceIn(0f, 60f)).apply()
+    var thrGSimPct: Float
+        get() = sp.getFloat("thr_g_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("thr_g_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var thrGSimSpeedKmh: Float
+        get() = sp.getFloat("thr_g_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("thr_g_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Engine friction torque % (OBD 018E). */
+    var engFrictionEnabled: Boolean
+        get() = sp.getBoolean("eng_friction", true)
+        set(value) = sp.edit().putBoolean("eng_friction", value).apply()
+    var engFrictionTts: Boolean
+        get() = sp.getBoolean("eng_friction_tts", true)
+        set(value) = sp.edit().putBoolean("eng_friction_tts", value).apply()
+    var engFrictionWarnPct: Float
+        get() = sp.getFloat("eng_friction_warn_pct", 35f)
+        set(value) = sp.edit().putFloat("eng_friction_warn_pct", value.coerceIn(10f, 100f)).apply()
+    var engFrictionAlertPct: Float
+        get() = sp.getFloat("eng_friction_alert_pct", 50f)
+        set(value) = sp.edit().putFloat("eng_friction_alert_pct", value.coerceAtLeast(15f)).apply()
+    var engFrictionSpeedMinKmh: Float
+        get() = sp.getFloat("eng_friction_speed_min", 20f)
+        set(value) = sp.edit().putFloat("eng_friction_speed_min", value.coerceIn(0f, 60f)).apply()
+    var engFrictionSimPct: Float
+        get() = sp.getFloat("eng_friction_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("eng_friction_sim_pct", value.coerceIn(-125f, 125f)).apply()
+    var engFrictionSimSpeedKmh: Float
+        get() = sp.getFloat("eng_friction_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("eng_friction_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

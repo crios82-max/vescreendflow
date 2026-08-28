@@ -136,6 +136,11 @@ import com.veplayer.app.vehicle.CatalystB1S12Monitor
 import com.veplayer.app.vehicle.CatalystB2S12Monitor
 import com.veplayer.app.vehicle.FuelTrimStftB2Monitor
 import com.veplayer.app.vehicle.FuelTrimLtftB2Monitor
+import com.veplayer.app.vehicle.CatalystB1S13Monitor
+import com.veplayer.app.vehicle.CatalystB2S13Monitor
+import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
+import com.veplayer.app.vehicle.ThrottleGMonitor
+import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -268,6 +273,11 @@ fun DriveVizPanel(
     val catB2s12 by CatalystB2S12Monitor.state.collectAsState()
     val stftB2 by FuelTrimStftB2Monitor.state.collectAsState()
     val ltftB2 by FuelTrimLtftB2Monitor.state.collectAsState()
+    val catB1s13 by CatalystB1S13Monitor.state.collectAsState()
+    val catB2s13 by CatalystB2S13Monitor.state.collectAsState()
+    val dpfTrig by DpfAftertreatmentMonitor.state.collectAsState()
+    val thrG by ThrottleGMonitor.state.collectAsState()
+    val engFriction by EngineFrictionTorqueMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -386,6 +396,11 @@ fun DriveVizPanel(
             CatalystB2S12Monitor.tick(prefs, snap)
             FuelTrimStftB2Monitor.tick(prefs, snap)
             FuelTrimLtftB2Monitor.tick(prefs, snap)
+            CatalystB1S13Monitor.tick(prefs, snap)
+            CatalystB2S13Monitor.tick(prefs, snap)
+            DpfAftertreatmentMonitor.tick(prefs, snap)
+            ThrottleGMonitor.tick(prefs, snap)
+            EngineFrictionTorqueMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1065,6 +1080,21 @@ fun DriveVizPanel(
                 }
                 if (ltftB2.showWarn || (prefs.ltftB2Enabled && ltftB2.band == "ok" && ltftB2.label.isNotBlank())) {
                     Text(ltftB2.label, color = Color(com.veplayer.app.vehicle.FuelTrimLtftB2.accentArgb(ltftB2.band)), fontSize = 11.sp)
+                }
+                if (catB1s13.showWarn || (prefs.catB1s13Enabled && catB1s13.band == "ok" && catB1s13.label.isNotBlank())) {
+                    Text(catB1s13.label, color = Color(com.veplayer.app.vehicle.CatalystB1S13.accentArgb(catB1s13.band)), fontSize = 11.sp)
+                }
+                if (catB2s13.showWarn || (prefs.catB2s13Enabled && catB2s13.band == "ok" && catB2s13.label.isNotBlank())) {
+                    Text(catB2s13.label, color = Color(com.veplayer.app.vehicle.CatalystB2S13.accentArgb(catB2s13.band)), fontSize = 11.sp)
+                }
+                if (dpfTrig.showWarn || (prefs.dpfTrigEnabled && dpfTrig.band == "ok" && dpfTrig.label.isNotBlank())) {
+                    Text(dpfTrig.label, color = Color(com.veplayer.app.vehicle.DpfAftertreatment.accentArgb(dpfTrig.band)), fontSize = 11.sp)
+                }
+                if (thrG.showWarn || (prefs.thrGEnabled && thrG.band == "ok" && thrG.label.isNotBlank())) {
+                    Text(thrG.label, color = Color(com.veplayer.app.vehicle.ThrottleG.accentArgb(thrG.band)), fontSize = 11.sp)
+                }
+                if (engFriction.showWarn || (prefs.engFrictionEnabled && engFriction.band == "ok" && engFriction.label.isNotBlank())) {
+                    Text(engFriction.label, color = Color(com.veplayer.app.vehicle.EngineFrictionTorque.accentArgb(engFriction.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

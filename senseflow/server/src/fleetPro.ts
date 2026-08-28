@@ -4044,6 +4044,186 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Catalyst B1S13 (OBD PID 0187)
+    const catalystB1s13Obj = signals.catalyst_b1s13 as Record<string, unknown> | undefined
+    const catalystB1s13TempC =
+      typeof catalystB1s13Obj?.catalyst_temp_c === 'number'
+        ? (catalystB1s13Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b1s13_temp_c === 'number'
+          ? (signals.catalyst_b1s13_temp_c as number)
+          : null
+    if (typeof catalystB1s13TempC === 'number') {
+      const warnC = typeof signals.cat_b1s13_warn_c === 'number' ? (signals.cat_b1s13_warn_c as number) : 750
+      const alertC = typeof signals.cat_b1s13_alert_c === 'number' ? (signals.cat_b1s13_alert_c as number) : 850
+      if (catalystB1s13TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b1s13_alert', 300)) {
+        insertAlert(deviceId, 'cat_b1s13_alert', 'critical', `Catalizador B1S13 crítico · ${Math.round(catalystB1s13TempC)} °C`, {
+          catalyst_b1s13_temp_c: catalystB1s13TempC,
+          catalyst_b1s13: catalystB1s13Obj ?? null,
+        })
+        raised.push('cat_b1s13_alert')
+      } else if (
+        catalystB1s13TempC >= warnC &&
+        catalystB1s13TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b1s13_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b1s13_warn', 'warn', `Catalizador B1S13 caliente · ${Math.round(catalystB1s13TempC)} °C`, {
+          catalyst_b1s13_temp_c: catalystB1s13TempC,
+          catalyst_b1s13: catalystB1s13Obj ?? null,
+        })
+        raised.push('cat_b1s13_warn')
+      }
+    }
+
+    // Catalyst B2S13 (OBD PID 0188)
+    const catalystB2s13Obj = signals.catalyst_b2s13 as Record<string, unknown> | undefined
+    const catalystB2s13TempC =
+      typeof catalystB2s13Obj?.catalyst_temp_c === 'number'
+        ? (catalystB2s13Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b2s13_temp_c === 'number'
+          ? (signals.catalyst_b2s13_temp_c as number)
+          : null
+    if (typeof catalystB2s13TempC === 'number') {
+      const warnC = typeof signals.cat_b2s13_warn_c === 'number' ? (signals.cat_b2s13_warn_c as number) : 750
+      const alertC = typeof signals.cat_b2s13_alert_c === 'number' ? (signals.cat_b2s13_alert_c as number) : 850
+      if (catalystB2s13TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b2s13_alert', 300)) {
+        insertAlert(deviceId, 'cat_b2s13_alert', 'critical', `Catalizador B2S13 crítico · ${Math.round(catalystB2s13TempC)} °C`, {
+          catalyst_b2s13_temp_c: catalystB2s13TempC,
+          catalyst_b2s13: catalystB2s13Obj ?? null,
+        })
+        raised.push('cat_b2s13_alert')
+      } else if (
+        catalystB2s13TempC >= warnC &&
+        catalystB2s13TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b2s13_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b2s13_warn', 'warn', `Catalizador B2S13 caliente · ${Math.round(catalystB2s13TempC)} °C`, {
+          catalyst_b2s13_temp_c: catalystB2s13TempC,
+          catalyst_b2s13: catalystB2s13Obj ?? null,
+        })
+        raised.push('cat_b2s13_warn')
+      }
+    }
+
+    // DPF aftertreatment trigger (OBD PID 018B)
+    const dpfAftertreatmentObj = signals.dpf_aftertreatment as Record<string, unknown> | undefined
+    const dpfTriggerPct =
+      typeof dpfAftertreatmentObj?.trigger_pct === 'number'
+        ? (dpfAftertreatmentObj.trigger_pct as number)
+        : typeof signals.dpf_trigger_pct === 'number'
+          ? (signals.dpf_trigger_pct as number)
+          : null
+    const dpfTriggerSpeed =
+      typeof dpfAftertreatmentObj?.speed_kmh === 'number'
+        ? (dpfAftertreatmentObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof dpfTriggerPct === 'number') {
+      const warnPct = typeof signals.dpf_trigger_warn_pct === 'number' ? (signals.dpf_trigger_warn_pct as number) : 70
+      const alertPct = typeof signals.dpf_trigger_alert_pct === 'number' ? (signals.dpf_trigger_alert_pct as number) : 85
+      const minSpd = typeof signals.dpf_trigger_speed_min_kmh === 'number' ? (signals.dpf_trigger_speed_min_kmh as number) : 15
+      const spdOk = typeof dpfTriggerSpeed === 'number' && dpfTriggerSpeed >= minSpd
+      if (spdOk && dpfTriggerPct >= alertPct && !recentlyAlerted(deviceId, 'dpf_trigger_alert', 120)) {
+        insertAlert(deviceId, 'dpf_trigger_alert', 'critical', `DPF trigger crítico · ${Math.round(dpfTriggerPct)}%`, {
+          dpf_trigger_pct: dpfTriggerPct,
+          dpf_aftertreatment: dpfAftertreatmentObj ?? null,
+        })
+        raised.push('dpf_trigger_alert')
+      } else if (
+        spdOk &&
+        dpfTriggerPct >= warnPct &&
+        dpfTriggerPct < alertPct &&
+        !recentlyAlerted(deviceId, 'dpf_trigger_warn', 120)
+      ) {
+        insertAlert(deviceId, 'dpf_trigger_warn', 'warn', `DPF trigger alto · ${Math.round(dpfTriggerPct)}%`, {
+          dpf_trigger_pct: dpfTriggerPct,
+          dpf_aftertreatment: dpfAftertreatmentObj ?? null,
+        })
+        raised.push('dpf_trigger_warn')
+      }
+    }
+
+    // Throttle G (OBD PID 018D)
+    const throttleGObj = signals.throttle_g as Record<string, unknown> | undefined
+    const throttleGPct =
+      typeof throttleGObj?.throttle_pct === 'number'
+        ? (throttleGObj.throttle_pct as number)
+        : typeof signals.throttle_g_pct === 'number'
+          ? (signals.throttle_g_pct as number)
+          : null
+    const thrGSpeed =
+      typeof throttleGObj?.speed_kmh === 'number'
+        ? (throttleGObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const thrGMinSpd = typeof signals.thr_g_speed_min_kmh === 'number' ? (signals.thr_g_speed_min_kmh as number) : 20
+    if (
+      typeof throttleGPct === 'number' &&
+      typeof thrGSpeed === 'number' &&
+      thrGSpeed >= thrGMinSpd
+    ) {
+      const warnPct = typeof signals.thr_g_warn_pct === 'number' ? (signals.thr_g_warn_pct as number) : 75
+      const alertPct = typeof signals.thr_g_alert_pct === 'number' ? (signals.thr_g_alert_pct as number) : 90
+      if (throttleGPct >= alertPct && !recentlyAlerted(deviceId, 'thr_g_alert', 120)) {
+        insertAlert(deviceId, 'thr_g_alert', 'critical', `Mariposa G crítica · ${Math.round(throttleGPct)}%`, {
+          throttle_g_pct: throttleGPct,
+          throttle_g: throttleGObj ?? null,
+        })
+        raised.push('thr_g_alert')
+      } else if (
+        throttleGPct >= warnPct &&
+        throttleGPct < alertPct &&
+        !recentlyAlerted(deviceId, 'thr_g_warn', 120)
+      ) {
+        insertAlert(deviceId, 'thr_g_warn', 'warn', `Mariposa G alta · ${Math.round(throttleGPct)}%`, {
+          throttle_g_pct: throttleGPct,
+          throttle_g: throttleGObj ?? null,
+        })
+        raised.push('thr_g_warn')
+      }
+    }
+
+    // Engine friction torque (OBD PID 018E)
+    const engFrictionObj = signals.eng_friction as Record<string, unknown> | undefined
+    const engFrictionPct =
+      typeof engFrictionObj?.friction_pct === 'number'
+        ? (engFrictionObj.friction_pct as number)
+        : typeof signals.engine_friction_pct === 'number'
+          ? (signals.engine_friction_pct as number)
+          : null
+    const engFrictionSpeed =
+      typeof engFrictionObj?.speed_kmh === 'number'
+        ? (engFrictionObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof engFrictionPct === 'number') {
+      const warnPct = typeof signals.eng_friction_warn_pct === 'number' ? (signals.eng_friction_warn_pct as number) : 35
+      const alertPct = typeof signals.eng_friction_alert_pct === 'number' ? (signals.eng_friction_alert_pct as number) : 50
+      const minSpd = typeof signals.eng_friction_speed_min_kmh === 'number' ? (signals.eng_friction_speed_min_kmh as number) : 20
+      const spdOk = typeof engFrictionSpeed === 'number' && engFrictionSpeed >= minSpd
+      const absF = Math.abs(engFrictionPct)
+      if (spdOk && absF >= alertPct && !recentlyAlerted(deviceId, 'eng_friction_alert', 120)) {
+        insertAlert(deviceId, 'eng_friction_alert', 'critical', `Fricción motor crítica · ${Math.round(engFrictionPct)}%`, {
+          engine_friction_pct: engFrictionPct,
+          eng_friction: engFrictionObj ?? null,
+        })
+        raised.push('eng_friction_alert')
+      } else if (
+        spdOk &&
+        absF >= warnPct &&
+        absF < alertPct &&
+        !recentlyAlerted(deviceId, 'eng_friction_warn', 120)
+      ) {
+        insertAlert(deviceId, 'eng_friction_warn', 'warn', `Fricción motor alta · ${Math.round(engFrictionPct)}%`, {
+          engine_friction_pct: engFrictionPct,
+          eng_friction: engFrictionObj ?? null,
+        })
+        raised.push('eng_friction_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
