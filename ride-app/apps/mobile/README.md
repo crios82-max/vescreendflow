@@ -74,16 +74,13 @@ También edita `app.config.js` / keys nativas en iOS si haces build standalone.
 ## Al regresar (prueba full)
 
 ```bash
-# Mac mini
-Desde la raíz del repo:
-
-```bash
+# Mac mini — desde la raíz del repo
 ./macmini-stacks/bootstrap-ride-app.sh
-```
 
 # iPhone: API → http://IP_LOCAL_MAC:4001
-# Registra pasajero en un dispositivo, conductor en otro (o web :5175)
 ```
+
+Ver guía completa: `docs/APP_STORE.md`
 
 ## Comandos
 
