@@ -103,6 +103,36 @@ class ApiClient {
       { method: 'POST' },
     );
   }
+
+  getHistory() {
+    return this.request<{ rides: Ride[] }>('/rides/history');
+  }
+
+  rateRide(id: string, stars: number, comment?: string) {
+    return this.request(`/rides/${id}/rate`, {
+      method: 'POST',
+      body: JSON.stringify({ stars, comment }),
+    });
+  }
+
+  getAdminStats() {
+    return this.request<{ users: number; drivers: number; rides: number; revenue: number }>('/admin/stats');
+  }
+
+  getAdminRides() {
+    return this.request<{ rides: Array<Ride & { passengerName?: string; driverName?: string }> }>('/admin/rides');
+  }
+
+  getAdminUsers() {
+    return this.request<{ users: Array<User & { isAdmin: boolean; createdAt: string }> }>('/admin/users');
+  }
+
+  registerPushToken(token: string, platform?: string) {
+    return this.request<{ ok: boolean }>('/push/register', {
+      method: 'POST',
+      body: JSON.stringify({ token, platform }),
+    });
+  }
 }
 
 export const api = new ApiClient();

@@ -13,11 +13,17 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null);
 
-const TOKEN_KEY = 'ride_token';
+const DEFAULT_TOKEN_KEY = 'ride_token';
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({
+  children,
+  storageKey = DEFAULT_TOKEN_KEY,
+}: {
+  children: ReactNode;
+  storageKey?: string;
+}) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem(TOKEN_KEY));
+  const [token, setToken] = useState<string | null>(localStorage.getItem(storageKey));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,15 +35,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     api.getMe()
       .then((data) => setUser(data.user))
       .catch(() => {
-        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(storageKey);
         setToken(null);
       })
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, storageKey]);
 
   const login = async (email: string, password: string) => {
     const data = await api.login(email, password);
-    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(storageKey, data.token);
     api.setToken(data.token);
     setToken(data.token);
     setUser(data.user);
@@ -45,14 +51,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (body: Record<string, string>) => {
     const data = await api.register(body);
-    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(storageKey, data.token);
     api.setToken(data.token);
     setToken(data.token);
     setUser(data.user);
   };
 
   const logout = () => {
-    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(storageKey);
     api.setToken(null);
     setToken(null);
     setUser(null);

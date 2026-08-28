@@ -37,5 +37,16 @@ module.exports = {
       max_restarts: 10,
       restart_delay: 3000,
     },
+    {
+      name: 'ride-admin',
+      cwd: root,
+      script: 'npm',
+      args: 'run preview -w @ride-app/admin -- --host 0.0.0.0 --port 5176',
+      env: {
+        NODE_ENV: 'production',
+      },
+      max_restarts: 10,
+      restart_delay: 3000,
+    },
   ],
 };

@@ -9,6 +9,8 @@ import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import { createRidesRouter } from './routes/rides.js';
 import { createDriversRouter } from './routes/drivers.js';
+import pushRoutes from './routes/push.js';
+import adminRoutes from './routes/admin.js';
 import { pool } from './db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -17,7 +19,7 @@ dotenv.config({ path: join(__dirname, '../../../.env') });
 const app = express();
 const httpServer = createServer(app);
 
-const corsOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5174,http://localhost:5175')
+const corsOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5174,http://localhost:5175,http://localhost:5176')
   .split(',')
   .map((s) => s.trim());
 
@@ -41,6 +43,8 @@ app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/rides', createRidesRouter(io));
 app.use('/drivers', createDriversRouter(io));
+app.use('/push', pushRoutes);
+app.use('/admin', adminRoutes);
 
 io.on('connection', (socket) => {
   socket.on('join:ride', (rideId: string) => {

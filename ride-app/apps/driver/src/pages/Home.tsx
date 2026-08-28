@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Ride, VehicleType } from '@ride-app/shared';
 import { RIDE_STATUS_LABELS, vehicleTypeLabel } from '@ride-app/shared';
-import { api, getSocket, GoogleMapsProvider, MapView, useAuth } from '@ride-app/web-shared';
+import { api, getSocket, GoogleMapsProvider, HistoryPanel, MapView, RatingForm, useAuth } from '@ride-app/web-shared';
 
 interface PendingRide {
   id: string;
@@ -14,12 +14,16 @@ interface PendingRide {
   vehicleType: string;
 }
 
+type Tab = 'rides' | 'history';
+
 export default function Home() {
   const { user, logout } = useAuth();
+  const [tab, setTab] = useState<Tab>('rides');
   const [online, setOnline] = useState(false);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [pending, setPending] = useState<PendingRide[]>([]);
   const [ride, setRide] = useState<Ride | null>(null);
+  const [rated, setRated] = useState(false);
   const [error, setError] = useState('');
   const watchRef = useRef<number | null>(null);
 
@@ -86,6 +90,7 @@ export default function Home() {
     try {
       const accepted = await api.acceptRide(id);
       setRide(accepted);
+      setRated(false);
       setPending([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error');
@@ -97,58 +102,82 @@ export default function Home() {
     if (!ride) return;
     const updated = await api.updateRideStatus(ride.id, status);
     setRide(updated);
-    if (status === 'completed') setRide(null);
   };
+
+  const showRating = ride?.status === 'completed' && !rated;
 
   return (
     <GoogleMapsProvider>
-    <div className="map-page">
-      <MapView
-        pickup={ride ? { lat: ride.pickupLat, lng: ride.pickupLng } : null}
-        dropoff={ride ? { lat: ride.dropoffLat, lng: ride.dropoffLng } : null}
-        follow={position}
-      />
-      <div className="top-bar">
-        <span className="badge">{online ? '🟢 En línea' : '⚫ Offline'} — {user?.name}</span>
-        <button className="btn-secondary" onClick={logout}>Salir</button>
-      </div>
-      <div className="bottom-sheet">
-        {!ride ? (
-          <>
-            <h2>{online ? 'Viajes disponibles' : 'Ponte en línea para recibir viajes'}</h2>
-            <button className="btn-primary" onClick={toggleOnline}>
-              {online ? 'Ir offline' : 'Ir online'}
+      <div className="map-page">
+        <MapView
+          pickup={ride ? { lat: ride.pickupLat, lng: ride.pickupLng } : null}
+          dropoff={ride ? { lat: ride.dropoffLat, lng: ride.dropoffLng } : null}
+          routePolyline={ride?.routePolyline}
+          follow={position}
+        />
+        <div className="top-bar">
+          <span className="badge">{online ? '🟢 En línea' : '⚫ Offline'} — {user?.name}</span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn-secondary" onClick={() => setTab(tab === 'rides' ? 'history' : 'rides')}>
+              {tab === 'rides' ? 'Historial' : 'Viajes'}
             </button>
-            {error && <p className="error-text">{error}</p>}
-            <div className="ride-list">
-              {pending.map((p) => (
-                <div className="ride-card" key={p.id}>
-                  <strong>${p.estimatedPrice} — {p.distanceKm} km · {vehicleTypeLabel(p.vehicleType as VehicleType)}</strong>
-                  <div className="meta-row"><span>Origen</span><span>{p.pickupAddress}</span></div>
-                  <div className="meta-row"><span>Destino</span><span>{p.dropoffAddress}</span></div>
-                  <button className="btn-primary" onClick={() => acceptRide(p.id)}>Aceptar</button>
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="status-pill">{RIDE_STATUS_LABELS[ride.status]}</div>
-            <div className="meta-row"><span>Tipo</span><span>{vehicleTypeLabel(ride.vehicleType)}</span></div>
-            <div className="meta-row"><span>Ganancia</span><span>${ride.estimatedPrice}</span></div>
-            {ride.status === 'accepted' && (
-              <button className="btn-primary" onClick={() => updateStatus('arriving')}>Voy en camino</button>
-            )}
-            {ride.status === 'arriving' && (
-              <button className="btn-primary" onClick={() => updateStatus('in_progress')}>Iniciar viaje</button>
-            )}
-            {ride.status === 'in_progress' && (
-              <button className="btn-primary" onClick={() => updateStatus('completed')}>Completar viaje</button>
-            )}
-          </>
-        )}
+            <button className="btn-secondary" onClick={logout}>Salir</button>
+          </div>
+        </div>
+        <div className="bottom-sheet">
+          {tab === 'history' ? (
+            <>
+              <h2>Historial</h2>
+              <HistoryPanel />
+            </>
+          ) : !ride ? (
+            <>
+              <h2>{online ? 'Viajes disponibles' : 'Ponte en línea para recibir viajes'}</h2>
+              <button className="btn-primary" onClick={toggleOnline}>
+                {online ? 'Ir offline' : 'Ir online'}
+              </button>
+              {error && <p className="error-text">{error}</p>}
+              <div className="ride-list">
+                {pending.map((p) => (
+                  <div className="ride-card" key={p.id}>
+                    <strong>${p.estimatedPrice} — {p.distanceKm} km · {vehicleTypeLabel(p.vehicleType as VehicleType)}</strong>
+                    <div className="meta-row"><span>Origen</span><span>{p.pickupAddress}</span></div>
+                    <div className="meta-row"><span>Destino</span><span>{p.dropoffAddress}</span></div>
+                    <button className="btn-primary" onClick={() => acceptRide(p.id)}>Aceptar</button>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="status-pill">{RIDE_STATUS_LABELS[ride.status]}</div>
+              <div className="meta-row"><span>Tipo</span><span>{vehicleTypeLabel(ride.vehicleType)}</span></div>
+              <div className="meta-row"><span>Ganancia</span><span>${ride.estimatedPrice}</span></div>
+              {ride.status === 'accepted' && (
+                <button className="btn-primary" onClick={() => updateStatus('arriving')}>Voy en camino</button>
+              )}
+              {ride.status === 'arriving' && (
+                <button className="btn-primary" onClick={() => updateStatus('in_progress')}>Iniciar viaje</button>
+              )}
+              {ride.status === 'in_progress' && (
+                <button className="btn-primary" onClick={() => updateStatus('completed')}>Completar viaje</button>
+              )}
+              {showRating && (
+                <RatingForm
+                  title="Califica al pasajero"
+                  onSubmit={async (stars, comment) => {
+                    await api.rateRide(ride.id, stars, comment);
+                    setRated(true);
+                  }}
+                />
+              )}
+              {ride.status === 'completed' && rated && (
+                <button className="btn-primary" onClick={() => { setRide(null); setRated(false); }}>Listo</button>
+              )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
     </GoogleMapsProvider>
   );
 }

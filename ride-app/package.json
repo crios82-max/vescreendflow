@@ -7,21 +7,22 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -n api,passenger,driver -c blue,green,yellow \"npm run dev -w @ride-app/api\" \"npm run dev -w @ride-app/passenger\" \"npm run dev -w @ride-app/driver\"",
+    "dev": "concurrently -n api,passenger,driver,admin -c blue,green,yellow,magenta \"npm run dev -w @ride-app/api\" \"npm run dev -w @ride-app/passenger\" \"npm run dev -w @ride-app/driver\" \"npm run dev -w @ride-app/admin\"",
     "dev:api": "npm run dev -w @ride-app/api",
     "dev:passenger": "npm run dev -w @ride-app/passenger",
     "dev:driver": "npm run dev -w @ride-app/driver",
+    "dev:admin": "npm run dev -w @ride-app/admin",
     "dev:mobile": "npm run start -w @ride-app/mobile",
     "dev:mobile:tunnel": "npm run start:tunnel -w @ride-app/mobile",
-    "build": "npm run build -w @ride-app/shared && npm run build -w @ride-app/api && npm run build -w @ride-app/passenger && npm run build -w @ride-app/driver",
+    "build": "npm run build -w @ride-app/shared && npm run build -w @ride-app/api && npm run build -w @ride-app/passenger && npm run build -w @ride-app/driver && npm run build -w @ride-app/admin",
     "start:prod": "npm run build && pm2 start ecosystem.config.cjs",
     "pm2:start": "pm2 start ecosystem.config.cjs",
-    "pm2:stop": "pm2 stop ride-api ride-passenger ride-driver",
-    "pm2:restart": "pm2 restart ride-api ride-passenger ride-driver",
-    "pm2:logs": "pm2 logs ride-api ride-passenger ride-driver",
+    "pm2:stop": "pm2 stop ride-api ride-passenger ride-driver ride-admin",
+    "pm2:restart": "pm2 restart ride-api ride-passenger ride-driver ride-admin",
+    "pm2:logs": "pm2 logs ride-api ride-passenger ride-driver ride-admin",
     "stack:start": "./scripts/start-stack.sh",
     "stack:stop": "./scripts/stop-stack.sh",
-    "health": "curl -sf http://localhost:4001/health && echo ' API ok' && curl -sf -o /dev/null http://localhost:5174 && echo ' Passenger ok' && curl -sf -o /dev/null http://localhost:5175 && echo ' Driver ok'"
+    "health": "curl -sf http://localhost:4001/health && echo ' API ok' && curl -sf -o /dev/null http://localhost:5174 && echo ' Passenger ok' && curl -sf -o /dev/null http://localhost:5175 && echo ' Driver ok' && curl -sf -o /dev/null http://localhost:5176 && echo ' Admin ok'"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

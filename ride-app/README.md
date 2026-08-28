@@ -1,6 +1,6 @@
 # Ride App — MVP tipo Uber
 
-Monorepo con backend Node/Express, apps web (pasajero + conductor), app móvil Expo y pagos mock.
+Monorepo con backend Node/Express, apps web (pasajero + conductor + admin), app móvil Expo, Google Directions, matching automático, calificaciones, push y pagos Stripe/mock.
 
 ## Stack
 
@@ -9,24 +9,35 @@ Monorepo con backend Node/Express, apps web (pasajero + conductor), app móvil E
 | API | Node + Express + Socket.io + PostgreSQL |
 | Web pasajero | React + Vite + Google Maps (`:5174`) |
 | Web conductor | React + Vite + Google Maps (`:5175`) |
+| Web admin | React + Vite (`:5176`) |
 | Móvil | Expo + React Native Maps (Google) |
-| Pagos | Mock (tarjeta `•••• 4242`, siempre aprueba) |
+| Pagos | Stripe test (`pm_card_visa`) o mock `•••• 4242` |
+| Push | Expo push notifications |
+
+## Features
+
+- Google Places autocomplete (web + móvil)
+- Google Directions: ruta en mapa + ETA real (fallback haversine sin API key)
+- Matching automático al conductor online más cercano (mismo tipo de vehículo)
+- Historial de viajes + calificaciones (1–5 estrellas)
+- Tipos de vehículo: Standard, Confort, XL, Vans
+- Panel admin: stats, viajes, usuarios
 
 ## Requisitos
 
 - Node 20+
 - Docker (PostgreSQL)
-- **Google Maps API Key** con Maps JavaScript API, **Places API** y Maps SDK (Android/iOS)
+- **Google Maps API Key** con Maps JavaScript API, **Places API**, **Directions API** y Maps SDK (Android/iOS)
 
 ## Setup rápido
 
 ```bash
 cd ride-app
 cp .env.example .env
-# Edita .env con JWT_SECRET y VITE_GOOGLE_MAPS_API_KEY
+# Edita .env: JWT_SECRET, VITE_GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_API_KEY
 
 docker compose up -d
-npm install
+npm install --legacy-peer-deps
 npm run build -w @ride-app/shared
 npm run dev
 ```
@@ -35,29 +46,45 @@ Servicios:
 - API: http://localhost:4001
 - Pasajero web: http://localhost:5174
 - Conductor web: http://localhost:5175
+- Admin: http://localhost:5176
+
+### Admin
+
+Marca un usuario como admin en la DB:
+
+```sql
+UPDATE users SET is_admin = true WHERE email = 'tu@email.com';
+```
+
+Luego entra en http://localhost:5176 con ese usuario.
 
 ### Móvil
 
 ```bash
-cd apps/mobile
-# En .env raíz ya tienes EXPO_PUBLIC_API_URL y EXPO_PUBLIC_GOOGLE_MAPS_API_KEY
-# Actualiza app.json con las API keys nativas de Google
-npm run start
+npm run dev:mobile
+# o con tunnel para iPhone en viaje:
+npm run dev:mobile:tunnel
 ```
 
 > En dispositivo físico usa la IP de tu máquina en `EXPO_PUBLIC_API_URL` (ej. `http://192.168.1.10:4001`).
+
+### Migración (DB existente)
+
+Si ya tenías la DB corriendo antes de estas features:
+
+```bash
+docker compose exec -T db psql -U ride -d ride_app < db/migrations/003_uber_features.sql
+```
 
 ## Producción con PM2 (Mac mini)
 
 ```bash
 cd ride-app
-cp .env.example .env   # JWT_SECRET, Google Maps key, CORS si accedes por IP/LAN
+cp .env.example .env
 docker compose up -d
 npm install --legacy-peer-deps
-npm run start:prod     # build + pm2 start
+npm run start:prod
 
-# o si ya hiciste build:
-npm run pm2:start
 npm run health
 ```
 
@@ -66,36 +93,25 @@ npm run health
 | `ride-api` | 4001 |
 | `ride-passenger` | 5174 |
 | `ride-driver` | 5175 |
+| `ride-admin` | 5176 |
 | Postgres (Docker) | 5436 |
 
-```bash
-pm2 list
-npm run pm2:logs
-npm run pm2:restart
-npm run pm2:stop
-```
-
-Si accedes desde otra máquina en la red, agrega las URLs en `CORS_ORIGINS` del `.env`.
-
-### Autostart Mac mini (un comando)
+### Autostart Mac mini
 
 ```bash
-# desde la raíz del repo, en el Mac mini:
 git pull
 chmod +x macmini-stacks/bootstrap-ride-app.sh
 ./macmini-stacks/bootstrap-ride-app.sh
 ```
 
-Setup completo + autostart + arranque. Solo autostart: `./macmini-stacks/install-ride-app.sh`
-
 ## Flujo demo
 
-1. Registra un **pasajero** en http://localhost:5174
-2. Registra un **conductor** en http://localhost:5175
-3. Conductor → **Ir online**
-4. Pasajero → busca origen/destino con **Google Places** → **Pedir Ride**
-5. Conductor → **Aceptar** → actualiza estados hasta **Completar**
-6. Pasajero → **Pagar con tarjeta mock**
+1. Registra **pasajero** (:5174) y **conductor** (:5175) con el mismo tipo de vehículo
+2. Conductor → **Ir online**
+3. Pasajero → origen/destino → **Pedir ride** (auto-asigna si hay conductor cerca)
+4. Conductor → estados hasta **Completar**
+5. Pasajero → **Pagar** → **Calificar**
+6. Admin (:5176) → ver stats e historial global
 
 ## Estructura
 
@@ -105,15 +121,10 @@ ride-app/
 │   ├── api/          # Backend REST + WebSockets
 │   ├── passenger/    # Web pasajero
 │   ├── driver/       # Web conductor
+│   ├── admin/        # Panel admin
 │   └── mobile/       # Expo (ambos roles)
 ├── packages/
 │   ├── shared/       # Tipos y utilidades
-│   └── web-shared/   # Auth, API client, MapView
+│   └── web-shared/   # Auth, API client, MapView, ratings
 └── db/init.sql
 ```
-
-## Próximos pasos
-
-- Stripe real (reemplazar `/rides/:id/pay`)
-- Push notifications
-- Panel admin

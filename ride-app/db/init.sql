@@ -9,8 +9,8 @@ CREATE TYPE ride_status AS ENUM (
   'completed',
   'cancelled'
 );
-
 CREATE TYPE vehicle_type AS ENUM ('standard', 'comfort', 'xl', 'vans');
+CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed');
 
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -19,6 +19,7 @@ CREATE TABLE users (
   name TEXT NOT NULL,
   phone TEXT,
   role user_role NOT NULL,
+  is_admin BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -49,14 +50,14 @@ CREATE TABLE rides (
   vehicle_type vehicle_type NOT NULL DEFAULT 'standard',
   estimated_price NUMERIC(10,2) NOT NULL,
   final_price NUMERIC(10,2),
+  payment_status payment_status NOT NULL DEFAULT 'pending',
   distance_km NUMERIC(10,2) NOT NULL,
   duration_min NUMERIC(10,2) NOT NULL,
+  route_polyline TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   accepted_at TIMESTAMPTZ,
   completed_at TIMESTAMPTZ
 );
-
-CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed');
 
 CREATE TABLE payments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -64,11 +65,30 @@ CREATE TABLE payments (
   amount NUMERIC(10,2) NOT NULL,
   method TEXT NOT NULL DEFAULT 'mock_card',
   card_last4 TEXT NOT NULL DEFAULT '4242',
+  stripe_payment_intent_id TEXT,
   status payment_status NOT NULL DEFAULT 'paid',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-ALTER TABLE rides ADD COLUMN payment_status payment_status NOT NULL DEFAULT 'pending';
+CREATE TABLE ratings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ride_id UUID NOT NULL REFERENCES rides(id) ON DELETE CASCADE,
+  rater_id UUID NOT NULL REFERENCES users(id),
+  ratee_id UUID NOT NULL REFERENCES users(id),
+  stars INTEGER NOT NULL CHECK (stars >= 1 AND stars <= 5),
+  comment TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (ride_id, rater_id)
+);
+
+CREATE TABLE push_tokens (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token TEXT NOT NULL,
+  platform TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (user_id, token)
+);
 
 CREATE INDEX idx_rides_passenger ON rides(passenger_id);
 CREATE INDEX idx_rides_driver ON rides(driver_id);
@@ -76,3 +96,6 @@ CREATE INDEX idx_rides_status ON rides(status);
 CREATE INDEX idx_driver_online ON driver_profiles(is_online) WHERE is_online = TRUE;
 CREATE INDEX idx_rides_vehicle_type ON rides(vehicle_type);
 CREATE INDEX idx_driver_vehicle_type ON driver_profiles(vehicle_type);
+CREATE INDEX idx_payments_ride ON payments(ride_id);
+CREATE INDEX idx_ratings_ride ON ratings(ride_id);
+CREATE INDEX idx_push_tokens_user ON push_tokens(user_id);

@@ -2,21 +2,24 @@
 
 Scripts para el LaunchAgent `com.macmini.stacks.autostart`.
 
-## Ride App (un comando)
+## Ride App — todo en un comando
 
-En el Mac mini, desde el repo:
+En el Mac mini, desde la raíz del repo (después de `git pull`):
 
 ```bash
-chmod +x macmini-stacks/install-ride-app.sh
-./macmini-stacks/install-ride-app.sh
-# o con ruta custom:
-./macmini-stacks/install-ride-app.sh /Users/server/Documents/vescreendflow/ride-app
+chmod +x macmini-stacks/bootstrap-ride-app.sh
+./macmini-stacks/bootstrap-ride-app.sh
 ```
 
-Esto:
-1. Agrega el bloque Ride App a `~/Library/Application Support/macmini-stacks/autostart.sh` (si no existe)
-2. Instala/recarga el LaunchAgent
-3. Ejecuta `ride-app/scripts/start-stack.sh` si ya hay `.env`
+Hace: `.env` → `npm install` → `build` → autostart → docker + PM2.
+
+Solo edita `ride-app/.env` con tu Google Maps key y un `JWT_SECRET` fuerte si aún no lo hiciste.
+
+## Solo autostart (si ya tienes build)
+
+```bash
+./macmini-stacks/install-ride-app.sh
+```
 
 ## Requisito previo
 

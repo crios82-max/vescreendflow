@@ -42,6 +42,7 @@ export function mapRide(row: Record<string, unknown>): Ride {
     paymentStatus: (row.payment_status as Ride['paymentStatus']) ?? 'pending',
     distanceKm: Number(row.distance_km),
     durationMin: Number(row.duration_min),
+    routePolyline: (row.route_polyline as string) ?? null,
     createdAt: (row.created_at as Date).toISOString(),
     acceptedAt: row.accepted_at ? (row.accepted_at as Date).toISOString() : null,
     completedAt: row.completed_at ? (row.completed_at as Date).toISOString() : null,

@@ -7,3 +7,5 @@ export { PlaceAutocomplete } from './PlaceAutocomplete';
 export type { PlaceResult } from './PlaceAutocomplete';
 export { VehicleTypePicker } from './VehicleTypePicker';
 export { vehicleTypeLabel } from '@ride-app/shared';
+export { RatingForm } from './RatingForm';
+export { HistoryPanel } from './HistoryPanel';

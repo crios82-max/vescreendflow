@@ -114,6 +114,24 @@ class MobileApi {
       vehicleType: string;
     }> }>('/drivers/pending-rides');
   }
+
+  getHistory() {
+    return this.request<{ rides: Ride[] }>('/rides/history');
+  }
+
+  rateRide(id: string, stars: number, comment?: string) {
+    return this.request(`/rides/${id}/rate`, {
+      method: 'POST',
+      body: JSON.stringify({ stars, comment }),
+    });
+  }
+
+  registerPushToken(token: string, platform?: string) {
+    return this.request<{ ok: boolean }>('/push/register', {
+      method: 'POST',
+      body: JSON.stringify({ token, platform }),
+    });
+  }
 }
 
 export const mobileApi = new MobileApi();

@@ -5,8 +5,10 @@ import {
   api,
   getSocket,
   GoogleMapsProvider,
+  HistoryPanel,
   MapView,
   PlaceAutocomplete,
+  RatingForm,
   useAuth,
   VehicleTypePicker,
   vehicleTypeLabel,
@@ -14,9 +16,11 @@ import {
 } from '@ride-app/web-shared';
 
 type Point = { lat: number; lng: number; address: string };
+type Tab = 'ride' | 'history';
 
 export default function Home() {
   const { user, logout } = useAuth();
+  const [tab, setTab] = useState<Tab>('ride');
   const [pickup, setPickup] = useState<Point | null>(null);
   const [dropoff, setDropoff] = useState<Point | null>(null);
   const [estimate, setEstimate] = useState<RideEstimate | null>(null);
@@ -25,6 +29,7 @@ export default function Home() {
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [rated, setRated] = useState(false);
   const [locationBias, setLocationBias] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
@@ -90,6 +95,7 @@ export default function Home() {
         vehicleType,
       });
       setRide(created);
+      setRated(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error');
     } finally {
@@ -122,11 +128,13 @@ export default function Home() {
     setDropoff(null);
     setEstimate(null);
     setDriverPos(null);
+    setRated(false);
   };
 
   const selectedOption = estimate?.options.find((o) => o.vehicleType === vehicleType);
-
   const readyToBook = pickup && dropoff && !ride && selectedOption;
+  const routePolyline = ride?.routePolyline ?? estimate?.polyline ?? null;
+  const showRating = ride?.status === 'completed' && ride.paymentStatus === 'paid' && !rated;
 
   return (
     <GoogleMapsProvider>
@@ -135,77 +143,100 @@ export default function Home() {
           pickup={pickup}
           dropoff={dropoff}
           driver={driverPos}
+          routePolyline={routePolyline}
           follow={driverPos ?? pickup ?? locationBias}
         />
         <div className="top-bar">
           <span className="badge">Hola, {user?.name}</span>
-          <button className="btn-secondary" onClick={logout}>Salir</button>
-        </div>
-        {!ride && (
-          <div className="search-panel">
-            <PlaceAutocomplete
-              label="Origen"
-              placeholder="Buscar dirección de origen"
-              defaultValue={pickup?.address}
-              bias={locationBias}
-              onSelect={onPickupSelect}
-            />
-            <PlaceAutocomplete
-              label="Destino"
-              placeholder="¿A dónde vas?"
-              defaultValue={dropoff?.address}
-              bias={pickup ?? locationBias}
-              onSelect={onDropoffSelect}
-            />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn-secondary" onClick={() => setTab(tab === 'ride' ? 'history' : 'ride')}>
+              {tab === 'ride' ? 'Historial' : 'Viaje'}
+            </button>
+            <button className="btn-secondary" onClick={logout}>Salir</button>
           </div>
-        )}
-        <div className="bottom-sheet">
-          {!ride ? (
-            <>
-              <h2>{readyToBook ? 'Confirmar viaje' : 'Busca origen y destino'}</h2>
-              {pickup && <div className="meta-row"><span>Origen</span><span>{pickup.address}</span></div>}
-              {dropoff && <div className="meta-row"><span>Destino</span><span>{dropoff.address}</span></div>}
-              {estimate && (
+        </div>
+        {tab === 'history' ? (
+          <div className="bottom-sheet">
+            <h2>Historial de viajes</h2>
+            <HistoryPanel />
+          </div>
+        ) : (
+          <>
+            {!ride && (
+              <div className="search-panel">
+                <PlaceAutocomplete
+                  label="Origen"
+                  placeholder="Buscar dirección de origen"
+                  defaultValue={pickup?.address}
+                  bias={locationBias}
+                  onSelect={onPickupSelect}
+                />
+                <PlaceAutocomplete
+                  label="Destino"
+                  placeholder="¿A dónde vas?"
+                  defaultValue={dropoff?.address}
+                  bias={pickup ?? locationBias}
+                  onSelect={onDropoffSelect}
+                />
+              </div>
+            )}
+            <div className="bottom-sheet">
+              {!ride ? (
                 <>
-                  <div className="meta-row"><span>Distancia</span><span>{estimate.distanceKm} km</span></div>
-                  <div className="meta-row"><span>Tiempo est.</span><span>{estimate.durationMin} min</span></div>
-                  <VehicleTypePicker
-                    options={estimate.options}
-                    selected={vehicleType}
-                    onSelect={setVehicleType}
-                  />
+                  <h2>{readyToBook ? 'Confirmar viaje' : 'Busca origen y destino'}</h2>
+                  {pickup && <div className="meta-row"><span>Origen</span><span>{pickup.address}</span></div>}
+                  {dropoff && <div className="meta-row"><span>Destino</span><span>{dropoff.address}</span></div>}
+                  {estimate && (
+                    <>
+                      <div className="meta-row"><span>Distancia</span><span>{estimate.distanceKm} km</span></div>
+                      <div className="meta-row"><span>Tiempo est.</span><span>{estimate.durationMin} min</span></div>
+                      <VehicleTypePicker
+                        options={estimate.options}
+                        selected={vehicleType}
+                        onSelect={setVehicleType}
+                      />
+                    </>
+                  )}
+                  {error && <p className="error-text">{error}</p>}
+                  {readyToBook && (
+                    <button className="btn-primary" onClick={requestRide} disabled={loading}>
+                      {loading ? 'Solicitando...' : `Pedir ${vehicleTypeLabel(vehicleType)} · $${selectedOption?.estimatedPrice}`}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="status-pill">{RIDE_STATUS_LABELS[ride.status]}</div>
+                  <div className="meta-row"><span>Vehículo</span><span>{vehicleTypeLabel(ride.vehicleType)}</span></div>
+                  <div className="meta-row"><span>Precio</span><span>${ride.finalPrice ?? ride.estimatedPrice}</span></div>
+                  <div className="meta-row">
+                    <span>Pago</span>
+                    <span>{ride.paymentStatus === 'paid' ? 'Pagado' : 'Pendiente'}</span>
+                  </div>
+                  {ride.status === 'requested' && (
+                    <button className="btn-danger" onClick={cancelRide}>Cancelar</button>
+                  )}
+                  {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
+                    <button className="btn-primary" onClick={payRide} disabled={loading}>
+                      {loading ? 'Procesando...' : 'Pagar con tarjeta'}
+                    </button>
+                  )}
+                  {showRating && (
+                    <RatingForm
+                      onSubmit={async (stars, comment) => {
+                        await api.rateRide(ride.id, stars, comment);
+                        setRated(true);
+                      }}
+                    />
+                  )}
+                  {ride.status === 'completed' && ride.paymentStatus === 'paid' && rated && (
+                    <button className="btn-primary" onClick={reset}>Nuevo viaje</button>
+                  )}
                 </>
               )}
-              {error && <p className="error-text">{error}</p>}
-              {readyToBook && (
-                <button className="btn-primary" onClick={requestRide} disabled={loading}>
-                  {loading ? 'Solicitando...' : `Pedir ${vehicleTypeLabel(vehicleType)} · $${selectedOption?.estimatedPrice}`}
-                </button>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="status-pill">{RIDE_STATUS_LABELS[ride.status]}</div>
-              <div className="meta-row"><span>Vehículo</span><span>{vehicleTypeLabel(ride.vehicleType)}</span></div>
-              <div className="meta-row"><span>Precio</span><span>${ride.finalPrice ?? ride.estimatedPrice}</span></div>
-              <div className="meta-row"><span>Pago</span><span>{ride.paymentStatus === 'paid' ? 'Pagado (mock)' : 'Pendiente'}</span></div>
-              {ride.status === 'requested' && (
-                <button className="btn-danger" onClick={cancelRide}>Cancelar</button>
-              )}
-              {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
-                <button className="btn-primary" onClick={payRide} disabled={loading}>
-                  {loading ? 'Procesando...' : 'Pagar con tarjeta mock •••• 4242'}
-                </button>
-              )}
-              {ride.status === 'completed' && ride.paymentStatus === 'paid' && (
-                <button className="btn-primary" onClick={reset}>Nuevo viaje</button>
-              )}
-              {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
-                <p style={{ color: '#aaa', margin: 0 }}>Pago simulado — siempre aprueba</p>
-              )}
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </GoogleMapsProvider>
   );

@@ -1,9 +1,13 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { buildRideEstimate, estimateFare, haversineKm, VEHICLE_OPTIONS, type VehicleType } from '@ride-app/shared';
+import { buildRideEstimate, estimateFare, VEHICLE_OPTIONS, type VehicleType } from '@ride-app/shared';
 import { pool } from '../db.js';
 import { authMiddleware, requireRole } from '../middleware/auth.js';
 import { mapRide } from '../mappers.js';
+import { resolveTripMetrics } from '../services/directions.js';
+import { autoAssignDriver, findNearestDriver } from '../services/matching.js';
+import { notifyRideEvent } from '../services/push.js';
+import { processRidePayment } from '../services/stripe.js';
 import type { Server as SocketServer } from 'socket.io';
 
 const router = Router();
@@ -30,9 +34,7 @@ const createRideSchema = locationSchema.extend({
 });
 
 function tripMetrics(pickupLat: number, pickupLng: number, dropoffLat: number, dropoffLng: number) {
-  const distanceKm = haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
-  const durationMin = Math.max(5, Math.round((distanceKm / 30) * 60));
-  return { distanceKm: Math.round(distanceKm * 100) / 100, durationMin };
+  return resolveTripMetrics(pickupLat, pickupLng, dropoffLat, dropoffLng);
 }
 
 function priceForType(
@@ -54,15 +56,26 @@ function priceForType(
 export function createRidesRouter(io: SocketServer) {
   router.use(authMiddleware);
 
-  router.post('/estimate', (req, res) => {
+  router.post('/estimate', async (req, res) => {
     const parsed = locationSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: parsed.error.flatten() });
     }
     const { pickupLat, pickupLng, dropoffLat, dropoffLng } = parsed.data;
-    const { distanceKm, durationMin } = tripMetrics(pickupLat, pickupLng, dropoffLat, dropoffLng);
+    const metrics = await tripMetrics(pickupLat, pickupLng, dropoffLat, dropoffLng);
     const p = pricing();
-    res.json(buildRideEstimate(distanceKm, durationMin, p.baseFare, p.pricePerKm, p.pricePerMin));
+    res.json(buildRideEstimate(metrics.distanceKm, metrics.durationMin, p.baseFare, p.pricePerKm, p.pricePerMin, metrics.polyline));
+  });
+
+  router.get('/history', async (req, res) => {
+    const { role, userId } = req.auth!;
+    const column = role === 'driver' ? 'driver_id' : 'passenger_id';
+    const result = await pool.query(
+      `SELECT * FROM rides WHERE ${column} = $1 AND status IN ('completed', 'cancelled')
+       ORDER BY created_at DESC LIMIT 50`,
+      [userId],
+    );
+    res.json({ rides: result.rows.map(mapRide) });
   });
 
   router.post('/', requireRole('passenger'), async (req, res) => {
@@ -72,21 +85,16 @@ export function createRidesRouter(io: SocketServer) {
     }
 
     const data = parsed.data;
-    const { distanceKm, durationMin } = tripMetrics(
-      data.pickupLat,
-      data.pickupLng,
-      data.dropoffLat,
-      data.dropoffLng,
-    );
+    const metrics = await tripMetrics(data.pickupLat, data.pickupLng, data.dropoffLat, data.dropoffLng);
     const p = pricing();
-    const estimatedPrice = priceForType(distanceKm, durationMin, data.vehicleType, p);
+    const estimatedPrice = priceForType(metrics.distanceKm, metrics.durationMin, data.vehicleType, p);
 
     const result = await pool.query(
       `INSERT INTO rides (
         passenger_id, pickup_address, pickup_lat, pickup_lng,
         dropoff_address, dropoff_lat, dropoff_lng,
-        vehicle_type, estimated_price, distance_km, duration_min
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+        vehicle_type, estimated_price, distance_km, duration_min, route_polyline
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
       RETURNING *`,
       [
         req.auth!.userId,
@@ -98,13 +106,30 @@ export function createRidesRouter(io: SocketServer) {
         data.dropoffLng,
         data.vehicleType,
         estimatedPrice,
-        distanceKm,
-        durationMin,
+        metrics.distanceKm,
+        metrics.durationMin,
+        metrics.polyline,
       ],
     );
 
-    const ride = mapRide(result.rows[0]);
-    io.to('drivers:online').emit('ride:requested', ride);
+    let ride = mapRide(result.rows[0]);
+    const nearestDriver = await findNearestDriver(data.vehicleType, data.pickupLat, data.pickupLng);
+    if (nearestDriver) {
+      const assigned = await autoAssignDriver(ride.id, nearestDriver);
+      if (assigned) {
+        ride = mapRide(assigned);
+        await notifyRideEvent(
+          { id: ride.id, passengerId: ride.passengerId, driverId: ride.driverId, status: ride.status },
+          'Conductor asignado',
+          'Un conductor aceptó tu viaje',
+        );
+        io.to(`ride:${ride.id}`).emit('ride:updated', ride);
+        io.to('drivers:online').emit('ride:taken', { rideId: ride.id });
+      }
+    } else {
+      io.to('drivers:online').emit('ride:requested', ride);
+    }
+
     res.status(201).json(ride);
   });
 
@@ -181,16 +206,16 @@ export function createRidesRouter(io: SocketServer) {
     }
 
     const amount = ride.finalPrice ?? ride.estimatedPrice;
-    const cardLast4 = '4242';
+    const paymentInfo = await processRidePayment(amount, ride.id);
 
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
       const paymentResult = await client.query(
-        `INSERT INTO payments (ride_id, amount, method, card_last4, status)
-         VALUES ($1, $2, 'mock_card', $3, 'paid')
+        `INSERT INTO payments (ride_id, amount, method, card_last4, stripe_payment_intent_id, status)
+         VALUES ($1, $2, $3, $4, $5, 'paid')
          RETURNING *`,
-        [ride.id, amount, cardLast4],
+        [ride.id, amount, paymentInfo.method, paymentInfo.cardLast4, paymentInfo.stripePaymentIntentId],
       );
       await client.query(`UPDATE rides SET payment_status = 'paid' WHERE id = $1`, [ride.id]);
       await client.query('COMMIT');
@@ -263,7 +288,70 @@ export function createRidesRouter(io: SocketServer) {
 
     const ride = mapRide(result.rows[0]);
     io.to(`ride:${ride.id}`).emit('ride:updated', ride);
+    await notifyRideEvent(
+      { id: ride.id, passengerId: ride.passengerId, driverId: ride.driverId, status: ride.status },
+      'Actualización de viaje',
+      `Estado: ${ride.status}`,
+    );
     res.json(ride);
+  });
+
+  const rateSchema = z.object({
+    stars: z.number().int().min(1).max(5),
+    comment: z.string().max(500).optional(),
+  });
+
+  router.post('/:id/rate', async (req, res) => {
+    const parsed = rateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.flatten() });
+    }
+
+    const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
+    if (rideResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Viaje no encontrado' });
+    }
+
+    const ride = mapRide(rideResult.rows[0]);
+    if (ride.status !== 'completed') {
+      return res.status(400).json({ error: 'Solo puedes calificar viajes completados' });
+    }
+
+    const { userId } = req.auth!;
+    let rateeId: string | null = null;
+    if (userId === ride.passengerId && ride.driverId) rateeId = ride.driverId;
+    if (userId === ride.driverId) rateeId = ride.passengerId;
+    if (!rateeId) return res.status(403).json({ error: 'No puedes calificar este viaje' });
+
+    const ratingResult = await pool.query(
+      `INSERT INTO ratings (ride_id, rater_id, ratee_id, stars, comment)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (ride_id, rater_id) DO UPDATE SET stars = EXCLUDED.stars, comment = EXCLUDED.comment
+       RETURNING *`,
+      [ride.id, userId, rateeId, parsed.data.stars, parsed.data.comment ?? null],
+    );
+
+    if (ride.driverId && rateeId === ride.driverId) {
+      await pool.query(
+        `UPDATE driver_profiles SET rating = (
+           SELECT COALESCE(AVG(stars), 5)::numeric(3,2) FROM ratings WHERE ratee_id = $1
+         ) WHERE user_id = $1`,
+        [ride.driverId],
+      );
+    }
+
+    const row = ratingResult.rows[0];
+    res.json({
+      rating: {
+        id: row.id,
+        rideId: row.ride_id,
+        raterId: row.rater_id,
+        rateeId: row.ratee_id,
+        stars: row.stars,
+        comment: row.comment,
+        createdAt: row.created_at.toISOString(),
+      },
+    });
   });
 
   return router;

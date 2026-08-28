@@ -77,6 +77,7 @@ export interface RideEstimate {
   distanceKm: number;
   durationMin: number;
   options: RideEstimateOption[];
+  polyline: string | null;
 }
 
 export interface DriverProfile {
@@ -120,11 +121,22 @@ export interface Ride {
   paymentStatus: PaymentStatus;
   distanceKm: number;
   durationMin: number;
+  routePolyline: string | null;
   createdAt: string;
   acceptedAt: string | null;
   completedAt: string | null;
   passenger?: Pick<User, 'id' | 'name' | 'phone'>;
   driver?: Pick<User, 'id' | 'name' | 'phone'> & { profile?: DriverProfile };
+}
+
+export interface Rating {
+  id: string;
+  rideId: string;
+  raterId: string;
+  rateeId: string;
+  stars: number;
+  comment: string | null;
+  createdAt: string;
 }
 
 export interface AuthResponse {
@@ -187,11 +199,13 @@ export function buildRideEstimate(
   baseFare = 2.5,
   pricePerKm = 1.2,
   pricePerMin = 0.25,
+  polyline: string | null = null,
 ): RideEstimate {
   const roundedDistance = Math.round(distanceKm * 100) / 100;
   return {
     distanceKm: roundedDistance,
     durationMin,
+    polyline,
     options: VEHICLE_TYPES.map((type) => {
       const option = VEHICLE_OPTIONS[type];
       return {

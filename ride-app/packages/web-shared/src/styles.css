@@ -299,3 +299,119 @@ input {
   font-weight: 700;
   font-size: 1rem;
 }
+
+.rating-form {
+  display: grid;
+  gap: 10px;
+}
+
+.rating-form h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.stars-row {
+  display: flex;
+  gap: 6px;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  color: #444;
+  cursor: pointer;
+  padding: 0;
+}
+
+.star-btn--on {
+  color: #fbbf24;
+}
+
+.history-list {
+  display: grid;
+  gap: 10px;
+  max-height: 60vh;
+  overflow: auto;
+}
+
+.history-card {
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  padding: 14px;
+  background: #0d0d0d;
+  display: grid;
+  gap: 6px;
+}
+
+.muted-text {
+  color: #888;
+  margin: 0;
+}
+
+.tab-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 999px;
+  border: 1px solid #333;
+  background: #111;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.tab-btn--active {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+.admin-page {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  padding: 24px;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.stat-card strong {
+  display: block;
+  font-size: 1.6rem;
+  margin-top: 4px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid #222;
+}
+
+.admin-table th {
+  color: #888;
+  font-weight: 500;
+}

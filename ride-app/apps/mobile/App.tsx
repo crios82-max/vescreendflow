@@ -21,8 +21,10 @@ import { getMobileSocket, reconnectSocket } from './src/socket';
 import { PlaceSearch } from './src/PlaceSearch';
 import { VehicleTypePicker } from './src/VehicleTypePicker';
 import { defaultApiUrl, getApiUrl } from './src/storage';
+import { registerForPushNotifications } from './src/push';
 
 type Screen = 'auth' | 'home';
+type Tab = 'ride' | 'history';
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -46,6 +48,9 @@ export default function App() {
   const [vehicleType, setVehicleType] = useState<VehicleType>('standard');
   const [online, setOnline] = useState(false);
   const [pending, setPending] = useState<Array<{ id: string; pickupAddress: string; estimatedPrice: number; vehicleType: string }>>([]);
+  const [tab, setTab] = useState<Tab>('ride');
+  const [history, setHistory] = useState<Ride[]>([]);
+  const [rated, setRated] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -144,6 +149,7 @@ export default function App() {
       mobileApi.setToken(data.token);
       setUser(data.user);
       setScreen('home');
+      registerForPushNotifications().catch(() => {});
       if (data.user.role === 'passenger') {
         const active = await mobileApi.getActiveRide();
         if (active.ride) setRide(active.ride);
@@ -192,6 +198,19 @@ export default function App() {
       setVehicleType(data.options[0]?.vehicleType ?? 'standard');
     }).catch(() => setEstimate(null));
   }, [pickup, position, dropoff, user?.role]);
+
+  const loadHistory = async () => {
+    try {
+      const data = await mobileApi.getHistory();
+      setHistory(data.rides);
+    } catch {
+      setHistory([]);
+    }
+  };
+
+  useEffect(() => {
+    if (tab === 'history' && user) loadHistory();
+  }, [tab, user?.id]);
 
   const toggleOnline = async () => {
     if (!position) return;
@@ -331,8 +350,29 @@ export default function App() {
         <View style={styles.sheetHeader}>
           <Text style={styles.sheetTitle}>{user?.name}</Text>
           <Text style={styles.roleBadge}>{user?.role === 'passenger' ? 'Pasajero' : 'Conductor'} · {connectionBadge}</Text>
+          <View style={styles.row}>
+            <Pressable style={[styles.chip, tab === 'ride' && styles.chipActive]} onPress={() => setTab('ride')}>
+              <Text style={tab === 'ride' ? styles.chipTextActive : styles.chipText}>Viaje</Text>
+            </Pressable>
+            <Pressable style={[styles.chip, tab === 'history' && styles.chipActive]} onPress={() => setTab('history')}>
+              <Text style={tab === 'history' ? styles.chipTextActive : styles.chipText}>Historial</Text>
+            </Pressable>
+          </View>
         </View>
-        {user?.role === 'passenger' ? (
+        {tab === 'history' ? (
+          <ScrollView>
+            {history.length === 0 ? (
+              <Text style={styles.muted}>Sin viajes anteriores</Text>
+            ) : history.map((h) => (
+              <View key={h.id} style={styles.card}>
+                <Text style={styles.cardTitle}>{RIDE_STATUS_LABELS[h.status]}</Text>
+                <Text style={styles.muted} numberOfLines={1}>{h.pickupAddress}</Text>
+                <Text style={styles.muted} numberOfLines={1}>{h.dropoffAddress}</Text>
+                <Text style={styles.price}>${h.finalPrice ?? h.estimatedPrice}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        ) : user?.role === 'passenger' ? (
           <ScrollView keyboardShouldPersistTaps="handled">
             {!ride ? (
               <>
@@ -365,6 +405,28 @@ export default function App() {
                     setRide(r.ride);
                   }}>
                     <Text style={styles.btnText}>Pagar mock •••• 4242</Text>
+                  </Pressable>
+                )}
+                {ride.status === 'completed' && ride.paymentStatus === 'paid' && !rated && (
+                  <View style={styles.ratingBox}>
+                    <Text style={styles.status}>Califica tu viaje</Text>
+                    {[1, 2, 3, 4, 5].map((stars) => (
+                      <Pressable
+                        key={stars}
+                        style={styles.btnSecondary}
+                        onPress={async () => {
+                          await mobileApi.rateRide(ride.id, stars);
+                          setRated(true);
+                        }}
+                      >
+                        <Text style={styles.btnSecondaryText}>{'★'.repeat(stars)}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
+                {ride.status === 'completed' && ride.paymentStatus === 'paid' && rated && (
+                  <Pressable style={styles.btn} onPress={() => { setRide(null); setRated(false); }}>
+                    <Text style={styles.btnText}>Nuevo viaje</Text>
                   </Pressable>
                 )}
                 {ride.status === 'requested' && (
@@ -410,10 +472,33 @@ export default function App() {
                 )}
                 {ride.status === 'in_progress' && (
                   <Pressable style={styles.btn} onPress={async () => {
-                    await mobileApi.updateRideStatus(ride.id, 'completed');
-                    setRide(null);
+                    const updated = await mobileApi.updateRideStatus(ride.id, 'completed');
+                    setRide(updated);
+                    setRated(false);
                   }}>
                     <Text style={styles.btnText}>Completar</Text>
+                  </Pressable>
+                )}
+                {ride.status === 'completed' && !rated && (
+                  <View style={styles.ratingBox}>
+                    <Text style={styles.status}>Califica al pasajero</Text>
+                    {[5, 4, 3].map((stars) => (
+                      <Pressable
+                        key={stars}
+                        style={styles.btnSecondary}
+                        onPress={async () => {
+                          await mobileApi.rateRide(ride.id, stars);
+                          setRated(true);
+                        }}
+                      >
+                        <Text style={styles.btnSecondaryText}>{'★'.repeat(stars)}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
+                {ride.status === 'completed' && rated && (
+                  <Pressable style={styles.btn} onPress={() => { setRide(null); setRated(false); }}>
+                    <Text style={styles.btnText}>Listo</Text>
                   </Pressable>
                 )}
               </>
@@ -461,4 +546,5 @@ const styles = StyleSheet.create({
   status: { color: '#fff', fontSize: 18, fontWeight: '600', marginBottom: 8 },
   card: { backgroundColor: '#0d0d0d', borderRadius: 14, padding: 14, marginTop: 10, gap: 6, borderWidth: 1, borderColor: '#222' },
   cardTitle: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  ratingBox: { gap: 6, marginTop: 8 },
 });
