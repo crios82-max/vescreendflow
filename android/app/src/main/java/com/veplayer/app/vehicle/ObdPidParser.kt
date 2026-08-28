@@ -172,6 +172,16 @@ object ObdPidParser {
         val throttleGPct: Float? = null,
         /** Engine friction torque % (OBD PID 018E), signed. */
         val engineFrictionPct: Float? = null,
+        /** Catalyst temp bank 1 sensor 14 °C (OBD PID 0189). */
+        val catalystB1s14TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 14 °C (OBD PID 018A). */
+        val catalystB2s14TempC: Float? = null,
+        /** O2 wide-range lambda B1S1 (OBD PID 018C). */
+        val o2LambdaB1: Float? = null,
+        /** PM sensor normalized B1S1 % (OBD PID 018F bytes C/D). */
+        val pmSensorB1Pct: Float? = null,
+        /** PM sensor normalized B2S1 % (OBD PID 018F bytes F/G). */
+        val pmSensorB2Pct: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -471,6 +481,23 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(catalystB2s13TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
             }
+            0x89 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB1s14TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x8A -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2s14TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x8C -> {
+                if (data.size < 11) PidValues()
+                else PidValues(o2LambdaB1 = ((data[9] * 256) + data[10]) * 0.000122f)
+            }
+            0x8F -> {
+                val b1 = if (data.size >= 4) ((data[2] * 256) + data[3]) / 100f else null
+                val b2 = if (data.size >= 7) ((data[5] * 256) + data[6]) / 100f else null
+                PidValues(pmSensorB1Pct = b1, pmSensorB2Pct = b2)
+            }
             0x8B -> {
                 if (data.size < 3) PidValues()
                 else PidValues(dpfTriggerPct = data[2] * 100f / 255f)
@@ -596,6 +623,11 @@ object ObdPidParser {
             dpfTriggerPct = add.dpfTriggerPct ?: base.dpfTriggerPct,
             throttleGPct = add.throttleGPct ?: base.throttleGPct,
             engineFrictionPct = add.engineFrictionPct ?: base.engineFrictionPct,
+            catalystB1s14TempC = add.catalystB1s14TempC ?: base.catalystB1s14TempC,
+            catalystB2s14TempC = add.catalystB2s14TempC ?: base.catalystB2s14TempC,
+            o2LambdaB1 = add.o2LambdaB1 ?: base.o2LambdaB1,
+            pmSensorB1Pct = add.pmSensorB1Pct ?: base.pmSensorB1Pct,
+            pmSensorB2Pct = add.pmSensorB2Pct ?: base.pmSensorB2Pct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,
