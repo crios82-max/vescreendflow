@@ -2139,6 +2139,97 @@ class VePrefs(context: Context) {
         get() = sp.getInt("aux_input_sim_code", 0)
         set(value) = sp.edit().putInt("aux_input_sim_code", value.coerceIn(0, 255)).apply()
 
+    /** Catalyst temp B1S9 °C (OBD 017F). */
+    var catB1s9Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s9", true)
+        set(value) = sp.edit().putBoolean("cat_b1s9", value).apply()
+    var catB1s9Tts: Boolean
+        get() = sp.getBoolean("cat_b1s9_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s9_tts", value).apply()
+    var catB1s9WarnC: Float
+        get() = sp.getFloat("cat_b1s9_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s9_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s9AlertC: Float
+        get() = sp.getFloat("cat_b1s9_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s9_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s9SimC: Float
+        get() = sp.getFloat("cat_b1s9_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s9_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B2S9 °C (OBD 0180). */
+    var catB2s9Enabled: Boolean
+        get() = sp.getBoolean("cat_b2s9", true)
+        set(value) = sp.edit().putBoolean("cat_b2s9", value).apply()
+    var catB2s9Tts: Boolean
+        get() = sp.getBoolean("cat_b2s9_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2s9_tts", value).apply()
+    var catB2s9WarnC: Float
+        get() = sp.getFloat("cat_b2s9_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2s9_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2s9AlertC: Float
+        get() = sp.getFloat("cat_b2s9_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2s9_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2s9SimC: Float
+        get() = sp.getFloat("cat_b2s9_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2s9_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Coolant ECT2 °C (OBD 0167). */
+    var ect2Enabled: Boolean
+        get() = sp.getBoolean("ect2", true)
+        set(value) = sp.edit().putBoolean("ect2", value).apply()
+    var ect2Tts: Boolean
+        get() = sp.getBoolean("ect2_tts", true)
+        set(value) = sp.edit().putBoolean("ect2_tts", value).apply()
+    var ect2WarnC: Float
+        get() = sp.getFloat("ect2_warn_c", 95f)
+        set(value) = sp.edit().putFloat("ect2_warn_c", value.coerceIn(80f, 120f)).apply()
+    var ect2AlertC: Float
+        get() = sp.getFloat("ect2_alert_c", 105f)
+        set(value) = sp.edit().putFloat("ect2_alert_c", value.coerceAtLeast(90f)).apply()
+    var ect2SimC: Float
+        get() = sp.getFloat("ect2_sim_c", 0f)
+        set(value) = sp.edit().putFloat("ect2_sim_c", value.coerceIn(0f, 215f)).apply()
+
+    /** IAT sensor 2 °C (OBD 0168). */
+    var iat2Enabled: Boolean
+        get() = sp.getBoolean("iat2", true)
+        set(value) = sp.edit().putBoolean("iat2", value).apply()
+    var iat2Tts: Boolean
+        get() = sp.getBoolean("iat2_tts", true)
+        set(value) = sp.edit().putBoolean("iat2_tts", value).apply()
+    var iat2WarnC: Float
+        get() = sp.getFloat("iat2_warn_c", 55f)
+        set(value) = sp.edit().putFloat("iat2_warn_c", value.coerceIn(35f, 100f)).apply()
+    var iat2AlertC: Float
+        get() = sp.getFloat("iat2_alert_c", 65f)
+        set(value) = sp.edit().putFloat("iat2_alert_c", value.coerceAtLeast(40f)).apply()
+    var iat2SpeedMinKmh: Float
+        get() = sp.getFloat("iat2_speed_min", 10f)
+        set(value) = sp.edit().putFloat("iat2_speed_min", value.coerceIn(0f, 60f)).apply()
+    var iat2SimC: Float
+        get() = sp.getFloat("iat2_sim_c", 0f)
+        set(value) = sp.edit().putFloat("iat2_sim_c", value.coerceIn(0f, 215f)).apply()
+
+    /** Turbo inlet pressure kPa (OBD 016F). */
+    var turboInletEnabled: Boolean
+        get() = sp.getBoolean("turbo_inlet", true)
+        set(value) = sp.edit().putBoolean("turbo_inlet", value).apply()
+    var turboInletTts: Boolean
+        get() = sp.getBoolean("turbo_inlet_tts", true)
+        set(value) = sp.edit().putBoolean("turbo_inlet_tts", value).apply()
+    var turboInletWarnKpa: Float
+        get() = sp.getFloat("turbo_inlet_warn_kpa", 200f)
+        set(value) = sp.edit().putFloat("turbo_inlet_warn_kpa", value.coerceIn(120f, 250f)).apply()
+    var turboInletAlertKpa: Float
+        get() = sp.getFloat("turbo_inlet_alert_kpa", 230f)
+        set(value) = sp.edit().putFloat("turbo_inlet_alert_kpa", value.coerceAtLeast(150f)).apply()
+    var turboInletSpeedMinKmh: Float
+        get() = sp.getFloat("turbo_inlet_speed_min", 15f)
+        set(value) = sp.edit().putFloat("turbo_inlet_speed_min", value.coerceIn(0f, 60f)).apply()
+    var turboInletSimKpa: Float
+        get() = sp.getFloat("turbo_inlet_sim_kpa", 0f)
+        set(value) = sp.edit().putFloat("turbo_inlet_sim_kpa", value.coerceIn(0f, 255f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

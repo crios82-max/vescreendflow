@@ -3328,6 +3328,182 @@ export function evaluateFleetAlerts(
       raised.push('aux_input_alert')
     }
 
+    // Catalyst B1S9 (OBD PID 017F)
+    const catalystB1s9Obj = signals.catalyst_b1s9 as Record<string, unknown> | undefined
+    const catalystB1s9TempC =
+      typeof catalystB1s9Obj?.catalyst_temp_c === 'number'
+        ? (catalystB1s9Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b1s9_temp_c === 'number'
+          ? (signals.catalyst_b1s9_temp_c as number)
+          : null
+    if (typeof catalystB1s9TempC === 'number') {
+      const warnC = typeof signals.cat_b1s9_warn_c === 'number' ? (signals.cat_b1s9_warn_c as number) : 750
+      const alertC = typeof signals.cat_b1s9_alert_c === 'number' ? (signals.cat_b1s9_alert_c as number) : 850
+      if (catalystB1s9TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b1s9_alert', 300)) {
+        insertAlert(deviceId, 'cat_b1s9_alert', 'critical', `Catalizador B1S9 crítico · ${Math.round(catalystB1s9TempC)} °C`, {
+          catalyst_b1s9_temp_c: catalystB1s9TempC,
+          catalyst_b1s9: catalystB1s9Obj ?? null,
+        })
+        raised.push('cat_b1s9_alert')
+      } else if (
+        catalystB1s9TempC >= warnC &&
+        catalystB1s9TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b1s9_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b1s9_warn', 'warn', `Catalizador B1S9 caliente · ${Math.round(catalystB1s9TempC)} °C`, {
+          catalyst_b1s9_temp_c: catalystB1s9TempC,
+          catalyst_b1s9: catalystB1s9Obj ?? null,
+        })
+        raised.push('cat_b1s9_warn')
+      }
+    }
+
+    // Catalyst B2S9 (OBD PID 0180)
+    const catalystB2s9Obj = signals.catalyst_b2s9 as Record<string, unknown> | undefined
+    const catalystB2s9TempC =
+      typeof catalystB2s9Obj?.catalyst_temp_c === 'number'
+        ? (catalystB2s9Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b2s9_temp_c === 'number'
+          ? (signals.catalyst_b2s9_temp_c as number)
+          : null
+    if (typeof catalystB2s9TempC === 'number') {
+      const warnC = typeof signals.cat_b2s9_warn_c === 'number' ? (signals.cat_b2s9_warn_c as number) : 750
+      const alertC = typeof signals.cat_b2s9_alert_c === 'number' ? (signals.cat_b2s9_alert_c as number) : 850
+      if (catalystB2s9TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b2s9_alert', 300)) {
+        insertAlert(deviceId, 'cat_b2s9_alert', 'critical', `Catalizador B2S9 crítico · ${Math.round(catalystB2s9TempC)} °C`, {
+          catalyst_b2s9_temp_c: catalystB2s9TempC,
+          catalyst_b2s9: catalystB2s9Obj ?? null,
+        })
+        raised.push('cat_b2s9_alert')
+      } else if (
+        catalystB2s9TempC >= warnC &&
+        catalystB2s9TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b2s9_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b2s9_warn', 'warn', `Catalizador B2S9 caliente · ${Math.round(catalystB2s9TempC)} °C`, {
+          catalyst_b2s9_temp_c: catalystB2s9TempC,
+          catalyst_b2s9: catalystB2s9Obj ?? null,
+        })
+        raised.push('cat_b2s9_warn')
+      }
+    }
+
+    // Coolant ECT2 (OBD PID 0167)
+    const ect2Obj = signals.ect2 as Record<string, unknown> | undefined
+    const coolantEct2C =
+      typeof ect2Obj?.coolant_c === 'number'
+        ? (ect2Obj.coolant_c as number)
+        : typeof signals.coolant_ect2_c === 'number'
+          ? (signals.coolant_ect2_c as number)
+          : null
+    if (typeof coolantEct2C === 'number') {
+      const warnC = typeof signals.ect2_warn_c === 'number' ? (signals.ect2_warn_c as number) : 95
+      const alertC = typeof signals.ect2_alert_c === 'number' ? (signals.ect2_alert_c as number) : 105
+      if (coolantEct2C >= alertC && !recentlyAlerted(deviceId, 'ect2_alert', 300)) {
+        insertAlert(deviceId, 'ect2_alert', 'critical', `Refrigerante ECT2 crítico · ${Math.round(coolantEct2C)} °C`, {
+          coolant_ect2_c: coolantEct2C,
+          ect2: ect2Obj ?? null,
+        })
+        raised.push('ect2_alert')
+      } else if (
+        coolantEct2C >= warnC &&
+        coolantEct2C < alertC &&
+        !recentlyAlerted(deviceId, 'ect2_warn', 300)
+      ) {
+        insertAlert(deviceId, 'ect2_warn', 'warn', `Refrigerante ECT2 caliente · ${Math.round(coolantEct2C)} °C`, {
+          coolant_ect2_c: coolantEct2C,
+          ect2: ect2Obj ?? null,
+        })
+        raised.push('ect2_warn')
+      }
+    }
+
+    // IAT sensor 2 (OBD PID 0168)
+    const iat2Obj = signals.iat2 as Record<string, unknown> | undefined
+    const iatSensor2C =
+      typeof iat2Obj?.temp_c === 'number'
+        ? (iat2Obj.temp_c as number)
+        : typeof signals.iat_sensor2_c === 'number'
+          ? (signals.iat_sensor2_c as number)
+          : null
+    const iat2Speed =
+      typeof iat2Obj?.speed_kmh === 'number'
+        ? (iat2Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const iat2MinSpd =
+      typeof signals.iat2_speed_min_kmh === 'number' ? (signals.iat2_speed_min_kmh as number) : 10
+    if (
+      typeof iatSensor2C === 'number' &&
+      typeof iat2Speed === 'number' &&
+      iat2Speed >= iat2MinSpd
+    ) {
+      const warnC = typeof signals.iat2_warn_c === 'number' ? (signals.iat2_warn_c as number) : 55
+      const alertC = typeof signals.iat2_alert_c === 'number' ? (signals.iat2_alert_c as number) : 65
+      if (iatSensor2C >= alertC && !recentlyAlerted(deviceId, 'iat2_alert', 120)) {
+        insertAlert(deviceId, 'iat2_alert', 'critical', `IAT2 crítica · ${Math.round(iatSensor2C)} °C`, {
+          iat_sensor2_c: iatSensor2C,
+          iat2: iat2Obj ?? null,
+        })
+        raised.push('iat2_alert')
+      } else if (
+        iatSensor2C >= warnC &&
+        iatSensor2C < alertC &&
+        !recentlyAlerted(deviceId, 'iat2_warn', 120)
+      ) {
+        insertAlert(deviceId, 'iat2_warn', 'warn', `IAT2 caliente · ${Math.round(iatSensor2C)} °C`, {
+          iat_sensor2_c: iatSensor2C,
+          iat2: iat2Obj ?? null,
+        })
+        raised.push('iat2_warn')
+      }
+    }
+
+    // Turbo inlet pressure (OBD PID 016F)
+    const turboInletObj = signals.turbo_inlet as Record<string, unknown> | undefined
+    const turboInletKpa =
+      typeof turboInletObj?.pressure_kpa === 'number'
+        ? (turboInletObj.pressure_kpa as number)
+        : typeof signals.turbo_inlet_kpa === 'number'
+          ? (signals.turbo_inlet_kpa as number)
+          : null
+    const turboInletSpeed =
+      typeof turboInletObj?.speed_kmh === 'number'
+        ? (turboInletObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const turboInletMinSpd =
+      typeof signals.turbo_inlet_speed_min_kmh === 'number' ? (signals.turbo_inlet_speed_min_kmh as number) : 15
+    if (
+      typeof turboInletKpa === 'number' &&
+      typeof turboInletSpeed === 'number' &&
+      turboInletSpeed >= turboInletMinSpd
+    ) {
+      const warnKpa =
+        typeof signals.turbo_inlet_warn_kpa === 'number' ? (signals.turbo_inlet_warn_kpa as number) : 200
+      const alertKpa =
+        typeof signals.turbo_inlet_alert_kpa === 'number' ? (signals.turbo_inlet_alert_kpa as number) : 230
+      if (turboInletKpa >= alertKpa && !recentlyAlerted(deviceId, 'turbo_inlet_alert', 120)) {
+        insertAlert(deviceId, 'turbo_inlet_alert', 'critical', `Turbo inlet crítico · ${Math.round(turboInletKpa)} kPa`, {
+          turbo_inlet_kpa: turboInletKpa,
+          turbo_inlet: turboInletObj ?? null,
+        })
+        raised.push('turbo_inlet_alert')
+      } else if (
+        turboInletKpa >= warnKpa &&
+        turboInletKpa < alertKpa &&
+        !recentlyAlerted(deviceId, 'turbo_inlet_warn', 120)
+      ) {
+        insertAlert(deviceId, 'turbo_inlet_warn', 'warn', `Turbo inlet alto · ${Math.round(turboInletKpa)} kPa`, {
+          turbo_inlet_kpa: turboInletKpa,
+          turbo_inlet: turboInletObj ?? null,
+        })
+        raised.push('turbo_inlet_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
