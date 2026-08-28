@@ -18,6 +18,8 @@
     "pm2:stop": "pm2 stop ride-api ride-passenger ride-driver",
     "pm2:restart": "pm2 restart ride-api ride-passenger ride-driver",
     "pm2:logs": "pm2 logs ride-api ride-passenger ride-driver",
+    "stack:start": "./scripts/start-stack.sh",
+    "stack:stop": "./scripts/stop-stack.sh",
     "health": "curl -sf http://localhost:4001/health && echo ' API ok' && curl -sf -o /dev/null http://localhost:5174 && echo ' Passenger ok' && curl -sf -o /dev/null http://localhost:5175 && echo ' Driver ok'"
   },
   "devDependencies": {
