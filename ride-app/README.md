@@ -47,6 +47,36 @@ npm run start
 
 > En dispositivo físico usa la IP de tu máquina en `EXPO_PUBLIC_API_URL` (ej. `http://192.168.1.10:4001`).
 
+## Producción con PM2 (Mac mini)
+
+```bash
+cd ride-app
+cp .env.example .env   # JWT_SECRET, Google Maps key, CORS si accedes por IP/LAN
+docker compose up -d
+npm install --legacy-peer-deps
+npm run start:prod     # build + pm2 start
+
+# o si ya hiciste build:
+npm run pm2:start
+npm run health
+```
+
+| Proceso PM2 | Puerto |
+|-------------|--------|
+| `ride-api` | 4001 |
+| `ride-passenger` | 5174 |
+| `ride-driver` | 5175 |
+| Postgres (Docker) | 5436 |
+
+```bash
+pm2 list
+npm run pm2:logs
+npm run pm2:restart
+npm run pm2:stop
+```
+
+Si accedes desde otra máquina en la red, agrega las URLs en `CORS_ORIGINS` del `.env`.
+
 ## Flujo demo
 
 1. Registra un **pasajero** en http://localhost:5174
