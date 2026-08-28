@@ -81,11 +81,12 @@ Si accedes desde otra máquina en la red, agrega las URLs en `CORS_ORIGINS` del 
 
 ```bash
 # desde la raíz del repo, en el Mac mini:
-chmod +x macmini-stacks/install-ride-app.sh
-./macmini-stacks/install-ride-app.sh
+git pull
+chmod +x macmini-stacks/bootstrap-ride-app.sh
+./macmini-stacks/bootstrap-ride-app.sh
 ```
 
-Instala el bloque en `com.macmini.stacks.autostart` y levanta el stack. Detalle: [`docs/macmini-autostart.md`](docs/macmini-autostart.md) y [`../macmini-stacks/README.md`](../macmini-stacks/README.md).
+Setup completo + autostart + arranque. Solo autostart: `./macmini-stacks/install-ride-app.sh`
 
 ## Flujo demo
 
