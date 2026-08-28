@@ -310,6 +310,15 @@ export function parseMode01(raw) {
       return data.length < 2 ? {} : { epcsDiagTimeSec: data[0], epcsDiagCount: data[1] }
     case 0xc8:
       return data.length < 1 ? {} : { noxPcdLampOn: data[0] & 0x03 ? 1 : 0 }
+    case 0xc6:
+      return data.length < 7
+        ? {}
+        : {
+            particulateInduceStatus: data[0],
+            dpfRemovalCounter: data[1] * 256 + data[2],
+            reagentInjectionFailCounter: data[3] * 256 + data[4],
+            particulateMonitorMalfunctionCounter: data[5] * 256 + data[6],
+          }
     case 0x9b:
       return data.length < 4 ? {} : { defFluidPct: (data[3] * 100) / 255 }
     case 0x8b:
@@ -336,7 +345,7 @@ export const POLL_PID_HEX = [
   '010D', '010C', '0110', '010A', '0133', '010E', '014A', '0143', '0145', '0149', '014B', '014D',
   '0144', '014E', '0152', '0153', '0159', '014C', '015A', '0161', '0162', '0170', '0171', '0172',
   '0173', '0174', '0175', '0176', '0155', '0156', '0157', '0158', '0177', '0178', '015D', '015B',
-  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0198', '0199', '019C', '0194', '019B', '01A1', '01A5', '01A7', '01A8', '01A2', '01A3', '01A4', '01A6', '01A9', '01C5', '01C7', '01C3', '01C4', '01C8', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
+  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0198', '0199', '019C', '0194', '019B', '01A1', '01A5', '01A7', '01A8', '01A2', '01A3', '01A4', '01A6', '01A9', '01C5', '01C7', '01C3', '01C4', '01C8', '01C6', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
   '011F', '0121', '0131', '0134', '0142',
 ]
 
@@ -471,6 +480,7 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 C3 14 50', expect: { fuelLevelInputAPct: (0x14 * 100) / 255, fuelLevelInputBPct: (0x50 * 100) / 255 } },
   { raw: '41 C4 C8 90', expect: { epcsDiagTimeSec: 0xc8, epcsDiagCount: 0x90 } },
   { raw: '41 C8 03', expect: { noxPcdLampOn: 1 } },
+  { raw: '41 C6 02 01 2C 00 90 00 90', expect: { particulateInduceStatus: 2, dpfRemovalCounter: 300, reagentInjectionFailCounter: 144, particulateMonitorMalfunctionCounter: 144 } },
   { raw: '41 8B 00 00 D9', expect: { dpfTriggerPct: (0xd9 * 100) / 255 } },
   { raw: '41 8D E6', expect: { throttleGPct: (0xe6 * 100) / 255 } },
   { raw: '41 8E B9', expect: { engineFrictionPct: 60 } },
@@ -653,6 +663,13 @@ export function runFaseFormulaChecks(fase, assert) {
       assert(0xc8 === 200, 'pid 01C4 EPCS time')
       assert(0x90 === 144, 'pid 01C4 EPCS count')
       assert(0x03 & 0x03 !== 0, 'pid 01C8 NOx/PCD lamp')
+      break
+    case 39:
+      assert(0x02 >= 2, 'pid 01C6 induce alert status')
+      assert(0x01 * 256 + 0x2c === 300, 'pid 01C6 DPF removal counter')
+      assert(0x00 * 256 + 0x90 === 144, 'pid 01C6 reagent fail counter')
+      assert(0x00 * 256 + 0x90 === 144, 'pid 01C6 particulate malf counter')
+      assert(0x01 === 1, 'pid 01C6 induce warn status')
       break
     default:
       throw new Error(`unknown fase ${fase}`)

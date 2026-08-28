@@ -321,6 +321,10 @@ data class VehicleSignals(
         val epcsDiagTimeSec: Float? = null,
         val epcsDiagCount: Float? = null,
         val noxPcdLampOn: Int? = null,
+        val particulateInduceStatus: Int? = null,
+        val dpfRemovalCounter: Float? = null,
+        val reagentInjectionFailCounter: Float? = null,
+        val particulateMonitorMalfunctionCounter: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -526,6 +530,10 @@ data class VehicleSignals(
             "epcs_diag_time_sec" to epcsDiagTimeSec?.toDouble(),
             "epcs_diag_count" to epcsDiagCount?.toDouble(),
             "nox_pcd_lamp_on" to noxPcdLampOn,
+            "particulate_induce_status" to particulateInduceStatus,
+            "dpf_removal_counter" to dpfRemovalCounter?.toDouble(),
+            "reagent_injection_fail_counter" to reagentInjectionFailCounter?.toDouble(),
+            "particulate_monitor_malfunction_counter" to particulateMonitorMalfunctionCounter?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
