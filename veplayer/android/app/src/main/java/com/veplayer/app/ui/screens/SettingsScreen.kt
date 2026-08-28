@@ -5166,6 +5166,74 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 39 OBD (C6):", color = Mist)
+            val induceWarnSt by com.veplayer.app.vehicle.ParticulateInduceWarnMonitor.state.collectAsState()
+            val induceAlertSt by com.veplayer.app.vehicle.ParticulateInduceAlertMonitor.state.collectAsState()
+            val dpfRemovalSt by com.veplayer.app.vehicle.DpfRemovalCounterMonitor.state.collectAsState()
+            val reagentFailSt by com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor.state.collectAsState()
+            val particulateMalfSt by com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.collectAsState()
+            var f39Induce by remember {
+                mutableStateOf(if (prefs.particulateInduceSimStatus > 0f) prefs.particulateInduceSimStatus.toInt().toString() else "0")
+            }
+            var f39DpfRem by remember {
+                mutableStateOf(if (prefs.dpfRemovalSimCount > 0f) prefs.dpfRemovalSimCount.toInt().toString() else "0")
+            }
+            var f39Reag by remember {
+                mutableStateOf(if (prefs.reagentFailSimCount > 0f) prefs.reagentFailSimCount.toInt().toString() else "0")
+            }
+            var f39Malf by remember {
+                mutableStateOf(if (prefs.particulateMalfSimCount > 0f) prefs.particulateMalfSimCount.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f39Induce,
+                    onValueChange = { f39Induce = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("Induce") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f39DpfRem,
+                    onValueChange = { f39DpfRem = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("DpfRem") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f39Reag,
+                    onValueChange = { f39Reag = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("ReagFail") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedTextField(
+                value = f39Malf,
+                onValueChange = { f39Malf = it.filter { c -> c.isDigit() }.take(5) },
+                label = { Text("PCMmal") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedButton(
+                onClick = {
+                    prefs.particulateInduceSimStatus = f39Induce.toFloatOrNull() ?: 0f
+                    prefs.dpfRemovalSimCount = f39DpfRem.toFloatOrNull() ?: 0f
+                    prefs.reagentFailSimCount = f39Reag.toFloatOrNull() ?: 0f
+                    prefs.particulateMalfSimCount = f39Malf.toFloatOrNull() ?: 0f
+                    status = "Fase 39 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 39") }
+            Text(
+                listOfNotNull(
+                    induceWarnSt.label.takeIf { it.isNotBlank() },
+                    induceAlertSt.label.takeIf { it.isNotBlank() },
+                    dpfRemovalSt.label.takeIf { it.isNotBlank() },
+                    reagentFailSt.label.takeIf { it.isNotBlank() },
+                    particulateMalfSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 39 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

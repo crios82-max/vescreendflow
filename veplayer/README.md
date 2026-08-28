@@ -1489,6 +1489,20 @@ npm run veplayer:fase37-smoke
 npm run veplayer:fase38-smoke
 ```
 
+## IndW · Induce · DpfRem · ReagFail · PCMmal (v2.04 · Fase 39)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 01C6 | Inducement warn | `particulate_induce_warn` | `IndW · X` |
+| 01C6 | Inducement alert | `particulate_induce_alert` | `Induce · X` |
+| 01C6 | DPF removal counter | `dpf_removal_warn` / `dpf_removal_alert` | `DpfRem · XXX` |
+| 01C6 | Reagent injection fail | `reagent_fail_warn` / `reagent_fail_alert` | `ReagFail · XXX` |
+| 01C6 | PCM malfunction | `particulate_malf_warn` / `particulate_malf_alert` | `PCMmal · XXX` |
+
+```bash
+npm run veplayer:fase39-smoke
+```
+
 ## Validation gate (pre-fase · v1.15)
 
 Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
@@ -1498,7 +1512,7 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 | `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
 | `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
 | `dbc-smoke` | DBC decode (Kotlin mirror) |
-| `fase16–38-smoke` | Alertas `fleetPro.ts` con heartbeats |
+| `fase16–39-smoke` | Alertas `fleetPro.ts` con heartbeats |
 
 ```bash
 # SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)

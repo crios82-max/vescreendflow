@@ -1601,6 +1601,59 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.NoxPcdLamp.toJsonMap(
                                             com.veplayer.app.vehicle.NoxPcdLampMonitor.state.value,
                                         ),
+                                    "particulate_induce_warn_status" to prefs.particulateInduceWarnStatus.toDouble(),
+                                    "particulate_induce_alert_status" to prefs.particulateInduceAlertStatus.toDouble(),
+                                    "particulate_induce_warn_speed_min_kmh" to prefs.particulateInduceWarnSpeedMinKmh.toDouble(),
+                                    "particulate_induce_alert_speed_min_kmh" to prefs.particulateInduceAlertSpeedMinKmh.toDouble(),
+                                    "particulate_induce_status" to
+                                        (if (prefs.particulateInduceSimStatus > 0f) prefs.particulateInduceSimStatus.toInt()
+                                        else com.veplayer.app.vehicle.ParticulateInduceAlertMonitor.state.value.status
+                                            ?: snap.particulateInduceStatus
+                                        ),
+                                    "particulate_induce_warn" to
+                                        com.veplayer.app.vehicle.ParticulateInduceWarn.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateInduceWarnMonitor.state.value,
+                                        ),
+                                    "particulate_induce_alert" to
+                                        com.veplayer.app.vehicle.ParticulateInduceAlert.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateInduceAlertMonitor.state.value,
+                                        ),
+                                    "dpf_removal_warn_count" to prefs.dpfRemovalWarnCount.toDouble(),
+                                    "dpf_removal_alert_count" to prefs.dpfRemovalAlertCount.toDouble(),
+                                    "dpf_removal_speed_min_kmh" to prefs.dpfRemovalSpeedMinKmh.toDouble(),
+                                    "dpf_removal_counter" to
+                                        (if (prefs.dpfRemovalSimCount > 0f) prefs.dpfRemovalSimCount
+                                        else com.veplayer.app.vehicle.DpfRemovalCounterMonitor.state.value.count
+                                            ?: snap.dpfRemovalCounter
+                                        )?.toDouble(),
+                                    "dpf_removal" to
+                                        com.veplayer.app.vehicle.DpfRemovalCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.DpfRemovalCounterMonitor.state.value,
+                                        ),
+                                    "reagent_fail_warn_count" to prefs.reagentFailWarnCount.toDouble(),
+                                    "reagent_fail_alert_count" to prefs.reagentFailAlertCount.toDouble(),
+                                    "reagent_fail_speed_min_kmh" to prefs.reagentFailSpeedMinKmh.toDouble(),
+                                    "reagent_injection_fail_counter" to
+                                        (if (prefs.reagentFailSimCount > 0f) prefs.reagentFailSimCount
+                                        else com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor.state.value.count
+                                            ?: snap.reagentInjectionFailCounter
+                                        )?.toDouble(),
+                                    "reagent_fail" to
+                                        com.veplayer.app.vehicle.ReagentInjectionFailCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor.state.value,
+                                        ),
+                                    "particulate_malf_warn_count" to prefs.particulateMalfWarnCount.toDouble(),
+                                    "particulate_malf_alert_count" to prefs.particulateMalfAlertCount.toDouble(),
+                                    "particulate_malf_speed_min_kmh" to prefs.particulateMalfSpeedMinKmh.toDouble(),
+                                    "particulate_monitor_malfunction_counter" to
+                                        (if (prefs.particulateMalfSimCount > 0f) prefs.particulateMalfSimCount
+                                        else com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.value.count
+                                            ?: snap.particulateMonitorMalfunctionCounter
+                                        )?.toDouble(),
+                                    "particulate_malf" to
+                                        com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -3343,6 +3396,59 @@ class SenseBridgeService : Service() {
                                     "nox_pcd_lamp" to
                                         com.veplayer.app.vehicle.NoxPcdLamp.toJsonMap(
                                             com.veplayer.app.vehicle.NoxPcdLampMonitor.state.value,
+                                        ),
+                                    "particulate_induce_warn_status" to prefs.particulateInduceWarnStatus.toDouble(),
+                                    "particulate_induce_alert_status" to prefs.particulateInduceAlertStatus.toDouble(),
+                                    "particulate_induce_warn_speed_min_kmh" to prefs.particulateInduceWarnSpeedMinKmh.toDouble(),
+                                    "particulate_induce_alert_speed_min_kmh" to prefs.particulateInduceAlertSpeedMinKmh.toDouble(),
+                                    "particulate_induce_status" to
+                                        (if (prefs.particulateInduceSimStatus > 0f) prefs.particulateInduceSimStatus.toInt()
+                                        else com.veplayer.app.vehicle.ParticulateInduceAlertMonitor.state.value.status
+                                            ?: snap.particulateInduceStatus
+                                        ),
+                                    "particulate_induce_warn" to
+                                        com.veplayer.app.vehicle.ParticulateInduceWarn.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateInduceWarnMonitor.state.value,
+                                        ),
+                                    "particulate_induce_alert" to
+                                        com.veplayer.app.vehicle.ParticulateInduceAlert.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateInduceAlertMonitor.state.value,
+                                        ),
+                                    "dpf_removal_warn_count" to prefs.dpfRemovalWarnCount.toDouble(),
+                                    "dpf_removal_alert_count" to prefs.dpfRemovalAlertCount.toDouble(),
+                                    "dpf_removal_speed_min_kmh" to prefs.dpfRemovalSpeedMinKmh.toDouble(),
+                                    "dpf_removal_counter" to
+                                        (if (prefs.dpfRemovalSimCount > 0f) prefs.dpfRemovalSimCount
+                                        else com.veplayer.app.vehicle.DpfRemovalCounterMonitor.state.value.count
+                                            ?: snap.dpfRemovalCounter
+                                        )?.toDouble(),
+                                    "dpf_removal" to
+                                        com.veplayer.app.vehicle.DpfRemovalCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.DpfRemovalCounterMonitor.state.value,
+                                        ),
+                                    "reagent_fail_warn_count" to prefs.reagentFailWarnCount.toDouble(),
+                                    "reagent_fail_alert_count" to prefs.reagentFailAlertCount.toDouble(),
+                                    "reagent_fail_speed_min_kmh" to prefs.reagentFailSpeedMinKmh.toDouble(),
+                                    "reagent_injection_fail_counter" to
+                                        (if (prefs.reagentFailSimCount > 0f) prefs.reagentFailSimCount
+                                        else com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor.state.value.count
+                                            ?: snap.reagentInjectionFailCounter
+                                        )?.toDouble(),
+                                    "reagent_fail" to
+                                        com.veplayer.app.vehicle.ReagentInjectionFailCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor.state.value,
+                                        ),
+                                    "particulate_malf_warn_count" to prefs.particulateMalfWarnCount.toDouble(),
+                                    "particulate_malf_alert_count" to prefs.particulateMalfAlertCount.toDouble(),
+                                    "particulate_malf_speed_min_kmh" to prefs.particulateMalfSpeedMinKmh.toDouble(),
+                                    "particulate_monitor_malfunction_counter" to
+                                        (if (prefs.particulateMalfSimCount > 0f) prefs.particulateMalfSimCount
+                                        else com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.value.count
+                                            ?: snap.particulateMonitorMalfunctionCounter
+                                        )?.toDouble(),
+                                    "particulate_malf" to
+                                        com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounter.toJsonMap(
+                                            com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

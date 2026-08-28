@@ -262,6 +262,14 @@ object ObdPidParser {
         val epcsDiagCount: Float? = null,
         /** NOx/PCD warning lamp on (OBD PID 01C8). */
         val noxPcdLampOn: Int? = null,
+        /** Particulate inducement status (OBD PID 01C6 byte A). */
+        val particulateInduceStatus: Int? = null,
+        /** DPF removal/block counter (OBD PID 01C6 bytes B/C). */
+        val dpfRemovalCounter: Float? = null,
+        /** Reagent injection failure counter (OBD PID 01C6 bytes D/E). */
+        val reagentInjectionFailCounter: Float? = null,
+        /** Particulate monitor malfunction counter (OBD PID 01C6 bytes F/G). */
+        val particulateMonitorMalfunctionCounter: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -709,6 +717,15 @@ object ObdPidParser {
                 if (data.isEmpty()) PidValues()
                 else PidValues(noxPcdLampOn = if ((data[0] and 0x03) != 0) 1 else 0)
             }
+            0xC6 -> {
+                if (data.size < 7) PidValues()
+                else PidValues(
+                    particulateInduceStatus = data[0],
+                    dpfRemovalCounter = (data[1] * 256 + data[2]).toFloat(),
+                    reagentInjectionFailCounter = (data[3] * 256 + data[4]).toFloat(),
+                    particulateMonitorMalfunctionCounter = (data[5] * 256 + data[6]).toFloat(),
+                )
+            }
             0x9B -> {
                 if (data.size < 4) PidValues()
                 else PidValues(defFluidPct = data[3] * 100f / 255f)
@@ -883,6 +900,10 @@ object ObdPidParser {
             epcsDiagTimeSec = add.epcsDiagTimeSec ?: base.epcsDiagTimeSec,
             epcsDiagCount = add.epcsDiagCount ?: base.epcsDiagCount,
             noxPcdLampOn = add.noxPcdLampOn ?: base.noxPcdLampOn,
+            particulateInduceStatus = add.particulateInduceStatus ?: base.particulateInduceStatus,
+            dpfRemovalCounter = add.dpfRemovalCounter ?: base.dpfRemovalCounter,
+            reagentInjectionFailCounter = add.reagentInjectionFailCounter ?: base.reagentInjectionFailCounter,
+            particulateMonitorMalfunctionCounter = add.particulateMonitorMalfunctionCounter ?: base.particulateMonitorMalfunctionCounter,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

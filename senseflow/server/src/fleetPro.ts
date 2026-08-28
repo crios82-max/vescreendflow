@@ -5879,6 +5879,198 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Particulate inducement warn (OBD PID 01C6 byte A == 1)
+    const induceWarnObj = signals.particulate_induce_warn as Record<string, unknown> | undefined
+    const induceStatusWarn =
+      typeof induceWarnObj?.status === 'number'
+        ? (induceWarnObj.status as number)
+        : typeof signals.particulate_induce_status === 'number'
+          ? (signals.particulate_induce_status as number)
+          : null
+    const induceWarnSpeed =
+      typeof induceWarnObj?.speed_kmh === 'number'
+        ? (induceWarnObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof induceStatusWarn === 'number') {
+      const warnStatus =
+        typeof signals.particulate_induce_warn_status === 'number'
+          ? (signals.particulate_induce_warn_status as number)
+          : 1
+      const minSpd =
+        typeof signals.particulate_induce_warn_speed_min_kmh === 'number'
+          ? (signals.particulate_induce_warn_speed_min_kmh as number)
+          : 20
+      const spdOk = typeof induceWarnSpeed === 'number' && induceWarnSpeed >= minSpd
+      if (spdOk && induceStatusWarn === warnStatus && !recentlyAlerted(deviceId, 'particulate_induce_warn', 120)) {
+        insertAlert(deviceId, 'particulate_induce_warn', 'warn', `Inducement partículas aviso · estado ${induceStatusWarn}`, {
+          particulate_induce_status: induceStatusWarn,
+          particulate_induce_warn: induceWarnObj ?? null,
+        })
+        raised.push('particulate_induce_warn')
+      }
+    }
+
+    // Particulate inducement alert (OBD PID 01C6 byte A >= 2)
+    const induceAlertObj = signals.particulate_induce_alert as Record<string, unknown> | undefined
+    const induceStatusAlert =
+      typeof induceAlertObj?.status === 'number'
+        ? (induceAlertObj.status as number)
+        : typeof signals.particulate_induce_status === 'number'
+          ? (signals.particulate_induce_status as number)
+          : null
+    const induceAlertSpeed =
+      typeof induceAlertObj?.speed_kmh === 'number'
+        ? (induceAlertObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof induceStatusAlert === 'number') {
+      const alertStatus =
+        typeof signals.particulate_induce_alert_status === 'number'
+          ? (signals.particulate_induce_alert_status as number)
+          : 2
+      const minSpd =
+        typeof signals.particulate_induce_alert_speed_min_kmh === 'number'
+          ? (signals.particulate_induce_alert_speed_min_kmh as number)
+          : 20
+      const spdOk = typeof induceAlertSpeed === 'number' && induceAlertSpeed >= minSpd
+      if (spdOk && induceStatusAlert >= alertStatus && !recentlyAlerted(deviceId, 'particulate_induce_alert', 120)) {
+        insertAlert(deviceId, 'particulate_induce_alert', 'critical', `Inducement partículas activo · estado ${induceStatusAlert}`, {
+          particulate_induce_status: induceStatusAlert,
+          particulate_induce_alert: induceAlertObj ?? null,
+        })
+        raised.push('particulate_induce_alert')
+      }
+    }
+
+    // DPF removal/block counter (OBD PID 01C6 bytes B/C)
+    const dpfRemovalObj = signals.dpf_removal as Record<string, unknown> | undefined
+    const dpfRemovalCount =
+      typeof dpfRemovalObj?.count === 'number'
+        ? (dpfRemovalObj.count as number)
+        : typeof signals.dpf_removal_counter === 'number'
+          ? (signals.dpf_removal_counter as number)
+          : null
+    const dpfRemovalSpeed =
+      typeof dpfRemovalObj?.speed_kmh === 'number'
+        ? (dpfRemovalObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof dpfRemovalCount === 'number') {
+      const warnCount =
+        typeof signals.dpf_removal_warn_count === 'number' ? (signals.dpf_removal_warn_count as number) : 100
+      const alertCount =
+        typeof signals.dpf_removal_alert_count === 'number' ? (signals.dpf_removal_alert_count as number) : 200
+      const minSpd =
+        typeof signals.dpf_removal_speed_min_kmh === 'number' ? (signals.dpf_removal_speed_min_kmh as number) : 20
+      const spdOk = typeof dpfRemovalSpeed === 'number' && dpfRemovalSpeed >= minSpd
+      if (spdOk && dpfRemovalCount >= alertCount && !recentlyAlerted(deviceId, 'dpf_removal_alert', 120)) {
+        insertAlert(deviceId, 'dpf_removal_alert', 'critical', `Contador remoción DPF crítico · ${Math.round(dpfRemovalCount)}`, {
+          dpf_removal_counter: dpfRemovalCount,
+          dpf_removal: dpfRemovalObj ?? null,
+        })
+        raised.push('dpf_removal_alert')
+      } else if (
+        spdOk &&
+        dpfRemovalCount >= warnCount &&
+        dpfRemovalCount < alertCount &&
+        !recentlyAlerted(deviceId, 'dpf_removal_warn', 120)
+      ) {
+        insertAlert(deviceId, 'dpf_removal_warn', 'warn', `Contador remoción DPF alto · ${Math.round(dpfRemovalCount)}`, {
+          dpf_removal_counter: dpfRemovalCount,
+          dpf_removal: dpfRemovalObj ?? null,
+        })
+        raised.push('dpf_removal_warn')
+      }
+    }
+
+    // Reagent injection failure counter (OBD PID 01C6 bytes D/E)
+    const reagentFailObj = signals.reagent_fail as Record<string, unknown> | undefined
+    const reagentFailCount =
+      typeof reagentFailObj?.count === 'number'
+        ? (reagentFailObj.count as number)
+        : typeof signals.reagent_injection_fail_counter === 'number'
+          ? (signals.reagent_injection_fail_counter as number)
+          : null
+    const reagentFailSpeed =
+      typeof reagentFailObj?.speed_kmh === 'number'
+        ? (reagentFailObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof reagentFailCount === 'number') {
+      const warnCount =
+        typeof signals.reagent_fail_warn_count === 'number' ? (signals.reagent_fail_warn_count as number) : 50
+      const alertCount =
+        typeof signals.reagent_fail_alert_count === 'number' ? (signals.reagent_fail_alert_count as number) : 80
+      const minSpd =
+        typeof signals.reagent_fail_speed_min_kmh === 'number' ? (signals.reagent_fail_speed_min_kmh as number) : 20
+      const spdOk = typeof reagentFailSpeed === 'number' && reagentFailSpeed >= minSpd
+      if (spdOk && reagentFailCount >= alertCount && !recentlyAlerted(deviceId, 'reagent_fail_alert', 120)) {
+        insertAlert(deviceId, 'reagent_fail_alert', 'critical', `Fallos inyección reactivo críticos · ${Math.round(reagentFailCount)}`, {
+          reagent_injection_fail_counter: reagentFailCount,
+          reagent_fail: reagentFailObj ?? null,
+        })
+        raised.push('reagent_fail_alert')
+      } else if (
+        spdOk &&
+        reagentFailCount >= warnCount &&
+        reagentFailCount < alertCount &&
+        !recentlyAlerted(deviceId, 'reagent_fail_warn', 120)
+      ) {
+        insertAlert(deviceId, 'reagent_fail_warn', 'warn', `Fallos inyección reactivo altos · ${Math.round(reagentFailCount)}`, {
+          reagent_injection_fail_counter: reagentFailCount,
+          reagent_fail: reagentFailObj ?? null,
+        })
+        raised.push('reagent_fail_warn')
+      }
+    }
+
+    // Particulate monitor malfunction counter (OBD PID 01C6 bytes F/G)
+    const particulateMalfObj = signals.particulate_malf as Record<string, unknown> | undefined
+    const particulateMalfCount =
+      typeof particulateMalfObj?.count === 'number'
+        ? (particulateMalfObj.count as number)
+        : typeof signals.particulate_monitor_malfunction_counter === 'number'
+          ? (signals.particulate_monitor_malfunction_counter as number)
+          : null
+    const particulateMalfSpeed =
+      typeof particulateMalfObj?.speed_kmh === 'number'
+        ? (particulateMalfObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof particulateMalfCount === 'number') {
+      const warnCount =
+        typeof signals.particulate_malf_warn_count === 'number' ? (signals.particulate_malf_warn_count as number) : 50
+      const alertCount =
+        typeof signals.particulate_malf_alert_count === 'number' ? (signals.particulate_malf_alert_count as number) : 80
+      const minSpd =
+        typeof signals.particulate_malf_speed_min_kmh === 'number' ? (signals.particulate_malf_speed_min_kmh as number) : 20
+      const spdOk = typeof particulateMalfSpeed === 'number' && particulateMalfSpeed >= minSpd
+      if (spdOk && particulateMalfCount >= alertCount && !recentlyAlerted(deviceId, 'particulate_malf_alert', 120)) {
+        insertAlert(deviceId, 'particulate_malf_alert', 'critical', `Malfunction partículas crítico · ${Math.round(particulateMalfCount)}`, {
+          particulate_monitor_malfunction_counter: particulateMalfCount,
+          particulate_malf: particulateMalfObj ?? null,
+        })
+        raised.push('particulate_malf_alert')
+      } else if (
+        spdOk &&
+        particulateMalfCount >= warnCount &&
+        particulateMalfCount < alertCount &&
+        !recentlyAlerted(deviceId, 'particulate_malf_warn', 120)
+      ) {
+        insertAlert(deviceId, 'particulate_malf_warn', 'warn', `Malfunction partículas alto · ${Math.round(particulateMalfCount)}`, {
+          particulate_monitor_malfunction_counter: particulateMalfCount,
+          particulate_malf: particulateMalfObj ?? null,
+        })
+        raised.push('particulate_malf_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

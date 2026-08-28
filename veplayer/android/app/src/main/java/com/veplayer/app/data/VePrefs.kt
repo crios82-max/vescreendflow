@@ -3552,6 +3552,109 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("nox_pcd_lamp_sim_speed", 40f)
         set(value) = sp.edit().putFloat("nox_pcd_lamp_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** Particulate inducement warn (OBD 01C6 byte A == 1). */
+    var particulateInduceWarnEnabled: Boolean
+        get() = sp.getBoolean("particulate_induce_warn", true)
+        set(value) = sp.edit().putBoolean("particulate_induce_warn", value).apply()
+    var particulateInduceWarnTts: Boolean
+        get() = sp.getBoolean("particulate_induce_warn_tts", true)
+        set(value) = sp.edit().putBoolean("particulate_induce_warn_tts", value).apply()
+    var particulateInduceWarnStatus: Int
+        get() = sp.getInt("particulate_induce_warn_status", 1)
+        set(value) = sp.edit().putInt("particulate_induce_warn_status", value.coerceIn(1, 10)).apply()
+    var particulateInduceWarnSpeedMinKmh: Float
+        get() = sp.getFloat("particulate_induce_warn_speed_min", 20f)
+        set(value) = sp.edit().putFloat("particulate_induce_warn_speed_min", value.coerceIn(0f, 60f)).apply()
+
+    /** Particulate inducement alert (OBD 01C6 byte A >= 2). */
+    var particulateInduceAlertEnabled: Boolean
+        get() = sp.getBoolean("particulate_induce_alert", true)
+        set(value) = sp.edit().putBoolean("particulate_induce_alert", value).apply()
+    var particulateInduceAlertTts: Boolean
+        get() = sp.getBoolean("particulate_induce_alert_tts", true)
+        set(value) = sp.edit().putBoolean("particulate_induce_alert_tts", value).apply()
+    var particulateInduceAlertStatus: Int
+        get() = sp.getInt("particulate_induce_alert_status", 2)
+        set(value) = sp.edit().putInt("particulate_induce_alert_status", value.coerceIn(2, 20)).apply()
+    var particulateInduceAlertSpeedMinKmh: Float
+        get() = sp.getFloat("particulate_induce_alert_speed_min", 20f)
+        set(value) = sp.edit().putFloat("particulate_induce_alert_speed_min", value.coerceIn(0f, 60f)).apply()
+    var particulateInduceSimStatus: Float
+        get() = sp.getFloat("particulate_induce_sim_status", 0f)
+        set(value) = sp.edit().putFloat("particulate_induce_sim_status", value.coerceIn(0f, 255f)).apply()
+    var particulateInduceSimSpeedKmh: Float
+        get() = sp.getFloat("particulate_induce_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("particulate_induce_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** DPF removal counter (OBD 01C6 bytes B/C). */
+    var dpfRemovalEnabled: Boolean
+        get() = sp.getBoolean("dpf_removal", true)
+        set(value) = sp.edit().putBoolean("dpf_removal", value).apply()
+    var dpfRemovalTts: Boolean
+        get() = sp.getBoolean("dpf_removal_tts", true)
+        set(value) = sp.edit().putBoolean("dpf_removal_tts", value).apply()
+    var dpfRemovalWarnCount: Float
+        get() = sp.getFloat("dpf_removal_warn_count", 100f)
+        set(value) = sp.edit().putFloat("dpf_removal_warn_count", value.coerceIn(10f, 10000f)).apply()
+    var dpfRemovalAlertCount: Float
+        get() = sp.getFloat("dpf_removal_alert_count", 200f)
+        set(value) = sp.edit().putFloat("dpf_removal_alert_count", value.coerceIn(20f, 20000f)).apply()
+    var dpfRemovalSpeedMinKmh: Float
+        get() = sp.getFloat("dpf_removal_speed_min", 20f)
+        set(value) = sp.edit().putFloat("dpf_removal_speed_min", value.coerceIn(0f, 60f)).apply()
+    var dpfRemovalSimCount: Float
+        get() = sp.getFloat("dpf_removal_sim_count", 0f)
+        set(value) = sp.edit().putFloat("dpf_removal_sim_count", value.coerceIn(0f, 65535f)).apply()
+    var dpfRemovalSimSpeedKmh: Float
+        get() = sp.getFloat("dpf_removal_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("dpf_removal_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Reagent injection fail counter (OBD 01C6 bytes D/E). */
+    var reagentFailEnabled: Boolean
+        get() = sp.getBoolean("reagent_fail", true)
+        set(value) = sp.edit().putBoolean("reagent_fail", value).apply()
+    var reagentFailTts: Boolean
+        get() = sp.getBoolean("reagent_fail_tts", true)
+        set(value) = sp.edit().putBoolean("reagent_fail_tts", value).apply()
+    var reagentFailWarnCount: Float
+        get() = sp.getFloat("reagent_fail_warn_count", 50f)
+        set(value) = sp.edit().putFloat("reagent_fail_warn_count", value.coerceIn(10f, 10000f)).apply()
+    var reagentFailAlertCount: Float
+        get() = sp.getFloat("reagent_fail_alert_count", 80f)
+        set(value) = sp.edit().putFloat("reagent_fail_alert_count", value.coerceIn(20f, 20000f)).apply()
+    var reagentFailSpeedMinKmh: Float
+        get() = sp.getFloat("reagent_fail_speed_min", 20f)
+        set(value) = sp.edit().putFloat("reagent_fail_speed_min", value.coerceIn(0f, 60f)).apply()
+    var reagentFailSimCount: Float
+        get() = sp.getFloat("reagent_fail_sim_count", 0f)
+        set(value) = sp.edit().putFloat("reagent_fail_sim_count", value.coerceIn(0f, 65535f)).apply()
+    var reagentFailSimSpeedKmh: Float
+        get() = sp.getFloat("reagent_fail_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("reagent_fail_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Particulate monitor malfunction counter (OBD 01C6 bytes F/G). */
+    var particulateMalfEnabled: Boolean
+        get() = sp.getBoolean("particulate_malf", true)
+        set(value) = sp.edit().putBoolean("particulate_malf", value).apply()
+    var particulateMalfTts: Boolean
+        get() = sp.getBoolean("particulate_malf_tts", true)
+        set(value) = sp.edit().putBoolean("particulate_malf_tts", value).apply()
+    var particulateMalfWarnCount: Float
+        get() = sp.getFloat("particulate_malf_warn_count", 50f)
+        set(value) = sp.edit().putFloat("particulate_malf_warn_count", value.coerceIn(10f, 10000f)).apply()
+    var particulateMalfAlertCount: Float
+        get() = sp.getFloat("particulate_malf_alert_count", 80f)
+        set(value) = sp.edit().putFloat("particulate_malf_alert_count", value.coerceIn(20f, 20000f)).apply()
+    var particulateMalfSpeedMinKmh: Float
+        get() = sp.getFloat("particulate_malf_speed_min", 20f)
+        set(value) = sp.edit().putFloat("particulate_malf_speed_min", value.coerceIn(0f, 60f)).apply()
+    var particulateMalfSimCount: Float
+        get() = sp.getFloat("particulate_malf_sim_count", 0f)
+        set(value) = sp.edit().putFloat("particulate_malf_sim_count", value.coerceIn(0f, 65535f)).apply()
+    var particulateMalfSimSpeedKmh: Float
+        get() = sp.getFloat("particulate_malf_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("particulate_malf_sim_speed", value.coerceIn(0f, 160f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

@@ -183,6 +183,11 @@ import com.veplayer.app.vehicle.FuelLevelInputBMonitor
 import com.veplayer.app.vehicle.EpcsDiagTimeMonitor
 import com.veplayer.app.vehicle.EpcsDiagCountMonitor
 import com.veplayer.app.vehicle.NoxPcdLampMonitor
+import com.veplayer.app.vehicle.ParticulateInduceWarnMonitor
+import com.veplayer.app.vehicle.ParticulateInduceAlertMonitor
+import com.veplayer.app.vehicle.DpfRemovalCounterMonitor
+import com.veplayer.app.vehicle.ReagentInjectionFailCounterMonitor
+import com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -368,6 +373,11 @@ fun DriveVizPanel(
     val epcsTime by EpcsDiagTimeMonitor.state.collectAsState()
     val epcsCount by EpcsDiagCountMonitor.state.collectAsState()
     val noxPcdLamp by NoxPcdLampMonitor.state.collectAsState()
+    val particulateInduceWarn by ParticulateInduceWarnMonitor.state.collectAsState()
+    val particulateInduceAlert by ParticulateInduceAlertMonitor.state.collectAsState()
+    val dpfRemoval by DpfRemovalCounterMonitor.state.collectAsState()
+    val reagentFail by ReagentInjectionFailCounterMonitor.state.collectAsState()
+    val particulateMalf by ParticulateMonitorMalfunctionCounterMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -536,6 +546,11 @@ fun DriveVizPanel(
             EpcsDiagTimeMonitor.tick(prefs, snap)
             EpcsDiagCountMonitor.tick(prefs, snap)
             NoxPcdLampMonitor.tick(prefs, snap)
+            ParticulateInduceWarnMonitor.tick(prefs, snap)
+            ParticulateInduceAlertMonitor.tick(prefs, snap)
+            DpfRemovalCounterMonitor.tick(prefs, snap)
+            ReagentInjectionFailCounterMonitor.tick(prefs, snap)
+            ParticulateMonitorMalfunctionCounterMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1365,6 +1380,21 @@ fun DriveVizPanel(
                 }
                 if (noxPcdLamp.showWarn || (prefs.noxPcdLampEnabled && noxPcdLamp.band == "ok" && noxPcdLamp.label.isNotBlank())) {
                     Text(noxPcdLamp.label, color = Color(com.veplayer.app.vehicle.NoxPcdLamp.accentArgb(noxPcdLamp.band)), fontSize = 11.sp)
+                }
+                if (particulateInduceWarn.showWarn || (prefs.particulateInduceWarnEnabled && particulateInduceWarn.band == "ok" && particulateInduceWarn.label.isNotBlank())) {
+                    Text(particulateInduceWarn.label, color = Color(com.veplayer.app.vehicle.ParticulateInduceWarn.accentArgb(particulateInduceWarn.band)), fontSize = 11.sp)
+                }
+                if (particulateInduceAlert.showWarn || (prefs.particulateInduceAlertEnabled && particulateInduceAlert.band == "ok" && particulateInduceAlert.label.isNotBlank())) {
+                    Text(particulateInduceAlert.label, color = Color(com.veplayer.app.vehicle.ParticulateInduceAlert.accentArgb(particulateInduceAlert.band)), fontSize = 11.sp)
+                }
+                if (dpfRemoval.showWarn || (prefs.dpfRemovalEnabled && dpfRemoval.band == "ok" && dpfRemoval.label.isNotBlank())) {
+                    Text(dpfRemoval.label, color = Color(com.veplayer.app.vehicle.DpfRemovalCounter.accentArgb(dpfRemoval.band)), fontSize = 11.sp)
+                }
+                if (reagentFail.showWarn || (prefs.reagentFailEnabled && reagentFail.band == "ok" && reagentFail.label.isNotBlank())) {
+                    Text(reagentFail.label, color = Color(com.veplayer.app.vehicle.ReagentInjectionFailCounter.accentArgb(reagentFail.band)), fontSize = 11.sp)
+                }
+                if (particulateMalf.showWarn || (prefs.particulateMalfEnabled && particulateMalf.band == "ok" && particulateMalf.label.isNotBlank())) {
+                    Text(particulateMalf.label, color = Color(com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounter.accentArgb(particulateMalf.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(
