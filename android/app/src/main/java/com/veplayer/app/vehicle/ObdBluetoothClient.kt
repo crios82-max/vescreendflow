@@ -322,6 +322,10 @@ class ObdBluetoothClient(private val context: Context) {
                 "018A", // catalyst B2S14 temp
                 "018C", // O2 lambda B1S1
                 "018F", // PM sensor B1/B2
+                "0198", // EGT B1S5
+                "0199", // EGT B2S5
+                "019C", // O2 lambda B1S3/B2S3
+                "0194", // NOx reagent quality
                 "018B", // DPF aftertreatment
                 "018D", // throttle G
                 "018E", // engine friction torque
