@@ -302,6 +302,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0167", // coolant ECT2
                 "0168", // IAT sensor 2
                 "016F", // turbo inlet pressure
+                "0181", // catalyst B1S10 temp
+                "0182", // catalyst B2S10 temp
+                "016B", // EGR temperature
+                "016A", // diesel intake air flow
+                "016C", // throttle actuator
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim

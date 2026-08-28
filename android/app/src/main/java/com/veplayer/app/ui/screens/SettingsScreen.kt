@@ -4130,6 +4130,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 26 OBD (181/82/6B/6A/6C):", color = Mist)
+            val catB1s10St by com.veplayer.app.vehicle.CatalystB1S10Monitor.state.collectAsState()
+            val catB2s10St by com.veplayer.app.vehicle.CatalystB2S10Monitor.state.collectAsState()
+            val egrTempSt by com.veplayer.app.vehicle.EgrTemperatureMonitor.state.collectAsState()
+            val dieselIafSt by com.veplayer.app.vehicle.DieselIntakeAirflowMonitor.state.collectAsState()
+            val thrActSt by com.veplayer.app.vehicle.ThrottleActuatorMonitor.state.collectAsState()
+            var f26B1s10 by remember {
+                mutableStateOf(if (prefs.catB1s10SimC > 0f) prefs.catB1s10SimC.toInt().toString() else "0")
+            }
+            var f26B2s10 by remember {
+                mutableStateOf(if (prefs.catB2s10SimC > 0f) prefs.catB2s10SimC.toInt().toString() else "0")
+            }
+            var f26EgrT by remember {
+                mutableStateOf(if (prefs.egrTempSimC > 0f) prefs.egrTempSimC.toInt().toString() else "0")
+            }
+            var f26Dsl by remember {
+                mutableStateOf(if (prefs.dieselIafSimPct > 0f) prefs.dieselIafSimPct.toInt().toString() else "0")
+            }
+            var f26ThrAct by remember {
+                mutableStateOf(if (prefs.thrActSimPct > 0f) prefs.thrActSimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f26B1s10,
+                    onValueChange = { f26B1s10 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S10 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f26B2s10,
+                    onValueChange = { f26B2s10 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S10 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f26EgrT,
+                    onValueChange = { f26EgrT = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EgrT °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f26Dsl,
+                    onValueChange = { f26Dsl = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("DslIAF %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f26ThrAct,
+                    onValueChange = { f26ThrAct = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("ThrAct %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s10SimC = f26B1s10.toFloatOrNull() ?: 0f
+                    prefs.catB2s10SimC = f26B2s10.toFloatOrNull() ?: 0f
+                    prefs.egrTempSimC = f26EgrT.toFloatOrNull() ?: 0f
+                    prefs.dieselIafSimPct = f26Dsl.toFloatOrNull() ?: 0f
+                    prefs.thrActSimPct = f26ThrAct.toFloatOrNull() ?: 0f
+                    status = "Fase 26 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 26") }
+            Text(
+                listOfNotNull(
+                    catB1s10St.label.takeIf { it.isNotBlank() },
+                    catB2s10St.label.takeIf { it.isNotBlank() },
+                    egrTempSt.label.takeIf { it.isNotBlank() },
+                    dieselIafSt.label.takeIf { it.isNotBlank() },
+                    thrActSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 26 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

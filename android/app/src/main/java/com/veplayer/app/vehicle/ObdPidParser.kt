@@ -134,6 +134,16 @@ object ObdPidParser {
         val iatSensor2C: Float? = null,
         /** Turbo inlet pressure kPa (OBD PID 016F). */
         val turboInletKpa: Float? = null,
+        /** Catalyst temp bank 1 sensor 10 °C (OBD PID 0181). */
+        val catalystB1s10TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 10 °C (OBD PID 0182). */
+        val catalystB2s10TempC: Float? = null,
+        /** EGR temperature °C (OBD PID 016B). */
+        val egrTempC: Float? = null,
+        /** Diesel intake air flow commanded % (OBD PID 016A). */
+        val dieselIafCmdPct: Float? = null,
+        /** Commanded throttle actuator % (OBD PID 016C). */
+        val thrActuatorPct: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -385,6 +395,20 @@ object ObdPidParser {
                 else PidValues(iatSensor2C = (data[2].minus(40)).toFloat())
             }
             0x6F -> PidValues(turboInletKpa = data.getOrNull(0)?.toFloat())
+            0x81 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB1s10TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x82 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2s10TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x6B -> {
+                if (data.size < 2) PidValues()
+                else PidValues(egrTempC = (data[1].minus(40)).toFloat())
+            }
+            0x6A -> PidValues(dieselIafCmdPct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x6C -> PidValues(thrActuatorPct = data.getOrNull(0)?.let { it * 100f / 255f })
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -476,6 +500,11 @@ object ObdPidParser {
             coolantEct2C = add.coolantEct2C ?: base.coolantEct2C,
             iatSensor2C = add.iatSensor2C ?: base.iatSensor2C,
             turboInletKpa = add.turboInletKpa ?: base.turboInletKpa,
+            catalystB1s10TempC = add.catalystB1s10TempC ?: base.catalystB1s10TempC,
+            catalystB2s10TempC = add.catalystB2s10TempC ?: base.catalystB2s10TempC,
+            egrTempC = add.egrTempC ?: base.egrTempC,
+            dieselIafCmdPct = add.dieselIafCmdPct ?: base.dieselIafCmdPct,
+            thrActuatorPct = add.thrActuatorPct ?: base.thrActuatorPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

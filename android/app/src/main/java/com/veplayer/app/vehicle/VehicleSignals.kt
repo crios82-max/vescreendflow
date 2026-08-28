@@ -209,6 +209,16 @@ data class VehicleSignals(
         val iatSensor2C: Float? = null,
         /** Turbo inlet pressure kPa (OBD PID 016F). */
         val turboInletKpa: Float? = null,
+        /** Catalyst temp bank 1 sensor 10 °C (OBD PID 0181). */
+        val catalystB1s10TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 10 °C (OBD PID 0182). */
+        val catalystB2s10TempC: Float? = null,
+        /** EGR temperature °C (OBD PID 016B). */
+        val egrTempC: Float? = null,
+        /** Diesel intake air flow commanded % (OBD PID 016A). */
+        val dieselIafCmdPct: Float? = null,
+        /** Commanded throttle actuator % (OBD PID 016C). */
+        val thrActuatorPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -348,6 +358,11 @@ data class VehicleSignals(
             "coolant_ect2_c" to coolantEct2C?.toDouble(),
             "iat_sensor2_c" to iatSensor2C?.toDouble(),
             "turbo_inlet_kpa" to turboInletKpa?.toDouble(),
+            "catalyst_b1s10_temp_c" to catalystB1s10TempC?.toDouble(),
+            "catalyst_b2s10_temp_c" to catalystB2s10TempC?.toDouble(),
+            "egr_temp_c" to egrTempC?.toDouble(),
+            "diesel_iaf_cmd_pct" to dieselIafCmdPct?.toDouble(),
+            "thr_actuator_pct" to thrActuatorPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),
