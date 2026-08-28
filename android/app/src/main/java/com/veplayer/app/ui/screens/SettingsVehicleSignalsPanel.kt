@@ -1189,12 +1189,13 @@ private fun SettingsVehicleSignalsPart1(
                     onCheckedChange = {
                         pbrakeSimOn = it
                         prefs.pbrakeSim = it
-                        status =
+                        onStatus(
                             if (it) {
                                 "P-brake sim ON · ${prefs.pbrakeSimKmh.toInt()} km/h"
                             } else {
                                 "P-brake sim OFF"
                             }
+                        )
                     },
                 )
             }
@@ -1250,12 +1251,13 @@ private fun SettingsVehicleSignalsPart1(
                     onCheckedChange = {
                         gearRollSimOn = it
                         prefs.gearRollSim = it
-                        status =
+                        onStatus(
                             if (it) {
                                 "Gear roll sim ${prefs.gearRollSimGear} · ${prefs.gearRollSimKmh.toInt()} km/h"
                             } else {
                                 "Gear roll sim OFF"
                             }
+                        )
                     },
                 )
             }
@@ -2004,12 +2006,13 @@ private fun SettingsVehicleSignalsPart1(
                                 }
                             r.onSuccess {
                                 val sum = com.veplayer.app.fleet.ShiftTracker.summary.value
-                                status =
+                                onStatus(
                                     if (sum.show) {
                                         sum.message
                                     } else {
                                         "Turno cerrado · ${"%.1f".format(it.distanceKm)} km"
                                     }
+                                )
                             }.onFailure { onStatus("Turno end: ${it.message}" })
                         }
                     },
