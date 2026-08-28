@@ -1,13 +1,13 @@
 /** Marca central — cambia aquí para renombrar toda la app */
 export const BRAND = {
-  name: 'Movi',
+  name: 'Movify',
   tagline: 'Muévete fácil.',
-  legalName: 'Movi',
+  legalName: 'Movify',
   domain: 'vescreenflow.com',
-  apiHost: 'movi-api.vescreenflow.com',
-  webHost: 'movi.vescreenflow.com',
-  apiUrl: 'https://movi-api.vescreenflow.com',
-  webUrl: 'https://movi.vescreenflow.com',
+  apiHost: 'movify-api.vescreenflow.com',
+  webHost: 'movify.vescreenflow.com',
+  apiUrl: 'https://movify-api.vescreenflow.com',
+  webUrl: 'https://movify.vescreenflow.com',
   colors: {
     primary: '#A3E635',
     primaryOnDark: '#000000',
@@ -15,9 +15,9 @@ export const BRAND = {
     surface: '#111111',
   },
   /** iOS / Android — fijar antes del primer build TestFlight */
-  bundleId: 'com.movi.app',
-  slug: 'movi',
-  scheme: 'movi',
+  bundleId: 'com.movify.app',
+  slug: 'movify',
+  scheme: 'movify',
   supportEmail: 'hola@vescreenflow.com',
 } as const;
 

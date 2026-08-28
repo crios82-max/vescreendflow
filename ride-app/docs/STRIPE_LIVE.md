@@ -34,7 +34,7 @@ pm2 restart ride-api ride-passenger ride-driver ride-admin --update-env
 
 | Campo | Valor |
 |-------|-------|
-| URL | `https://movi-api.vescreenflow.com/webhooks/stripe` |
+| URL | `https://movify-api.vescreenflow.com/webhooks/stripe` |
 | Events | `payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.refunded`, `account.updated` |
 
 Copia el **Signing secret** (`whsec_...`) → `STRIPE_WEBHOOK_SECRET`.
@@ -42,7 +42,7 @@ Copia el **Signing secret** (`whsec_...`) → `STRIPE_WEBHOOK_SECRET`.
 Verificar (tras `pm2 restart ride-api`):
 
 ```bash
-curl -sf https://movi-api.vescreenflow.com/health
+curl -sf https://movify-api.vescreenflow.com/health
 # En Stripe → Webhook → Send test event → payment_intent.succeeded
 ```
 
@@ -60,7 +60,7 @@ En Stripe Dashboard → **Settings → Payment methods** — activa Apple Pay y 
 
 Dominio web (Apple Pay en browser):
 
-- **Settings → Payment method domains** → añade `movi.vescreenflow.com`
+- **Settings → Payment method domains** → añade `movify.vescreenflow.com`
 
 ## 6. Checklist rápido
 
@@ -70,9 +70,9 @@ cd ride-app
 ```
 
 - [ ] Keys `sk_live_` / `pk_live_` (no `sk_test_`)
-- [ ] Webhook live apuntando a `movi-api.vescreenflow.com`
+- [ ] Webhook live apuntando a `movify-api.vescreenflow.com`
 - [ ] `npm run build` después de cambiar `VITE_STRIPE_PUBLISHABLE_KEY`
-- [ ] Pago de prueba real (monto bajo) desde `https://movi.vescreenflow.com`
+- [ ] Pago de prueba real (monto bajo) desde `https://movify.vescreenflow.com`
 - [ ] Conductor completa Connect y recibe payout de prueba
 
 ## 7. Rollback a test
