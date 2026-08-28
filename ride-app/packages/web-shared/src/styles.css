@@ -415,3 +415,46 @@ input {
   color: #888;
   font-weight: 500;
 }
+
+.fare-breakdown {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0;
+  padding: 10px;
+  background: #0d0d0d;
+  border-radius: 12px;
+}
+
+.tip-selector, .promo-input, .saved-places, .chat-panel {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.chat-messages {
+  max-height: 120px;
+  overflow: auto;
+  display: grid;
+  gap: 6px;
+}
+
+.chat-msg {
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.eta-badge {
+  background: #1e3a5f;
+  color: #93c5fd;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.extras-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

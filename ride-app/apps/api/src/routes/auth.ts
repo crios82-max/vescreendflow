@@ -41,8 +41,8 @@ router.post('/register', async (req, res) => {
 
     if (role === 'driver') {
       await client.query(
-        `INSERT INTO driver_profiles (user_id, vehicle_make, vehicle_model, vehicle_plate, vehicle_type)
-         VALUES ($1, $2, $3, $4, $5)`,
+        `INSERT INTO driver_profiles (user_id, vehicle_make, vehicle_model, vehicle_plate, vehicle_type, approval_status)
+         VALUES ($1, $2, $3, $4, $5, 'pending')`,
         [user.id, vehicleMake ?? null, vehicleModel ?? null, vehiclePlate ?? null, vehicleType ?? 'standard'],
       );
     }
@@ -79,6 +79,9 @@ router.post('/login', async (req, res) => {
   }
 
   const row = result.rows[0];
+  if (row.banned) {
+    return res.status(403).json({ error: 'Cuenta suspendida' });
+  }
   const valid = await bcrypt.compare(password, row.password_hash);
   if (!valid) {
     return res.status(401).json({ error: 'Credenciales inválidas' });

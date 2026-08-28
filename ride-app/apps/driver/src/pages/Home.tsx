@@ -24,6 +24,7 @@ export default function Home() {
   const [pending, setPending] = useState<PendingRide[]>([]);
   const [ride, setRide] = useState<Ride | null>(null);
   const [rated, setRated] = useState(false);
+  const [earnings, setEarnings] = useState<{ totalEarnings: number; today: { total: number } } | null>(null);
   const [error, setError] = useState('');
   const watchRef = useRef<number | null>(null);
 
@@ -33,6 +34,7 @@ export default function Home() {
 
   useEffect(() => {
     api.getActiveRide().then((r) => r.ride && setRide(r.ride)).catch(() => {});
+    api.getDriverEarnings().then(setEarnings).catch(() => {});
     const socket = getSocket();
     socket.emit('join:drivers');
     socket.on('ride:requested', loadPending);
@@ -115,6 +117,17 @@ export default function Home() {
           routePolyline={ride?.routePolyline}
           follow={position}
         />
+        {ride && (
+          <a
+            className="btn-secondary"
+            style={{ position: 'absolute', bottom: '45%', right: 16, zIndex: 10 }}
+            href={`https://www.google.com/maps/dir/?api=1&destination=${ride.status === 'in_progress' ? `${ride.dropoffLat},${ride.dropoffLng}` : `${ride.pickupLat},${ride.pickupLng}`}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Navegar
+          </a>
+        )}
         <div className="top-bar">
           <span className="badge">{online ? '🟢 En línea' : '⚫ Offline'} — {user?.name}</span>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -133,6 +146,9 @@ export default function Home() {
           ) : !ride ? (
             <>
               <h2>{online ? 'Viajes disponibles' : 'Ponte en línea para recibir viajes'}</h2>
+              {earnings && (
+                <div className="meta-row"><span>Ganancias hoy</span><span>${earnings.today.total.toFixed(2)}</span></div>
+              )}
               <button className="btn-primary" onClick={toggleOnline}>
                 {online ? 'Ir offline' : 'Ir online'}
               </button>

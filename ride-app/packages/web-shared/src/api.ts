@@ -97,11 +97,86 @@ class ApiClient {
     }> }>('/drivers/pending-rides');
   }
 
-  payRide(id: string) {
-    return this.request<{ payment: { id: string; amount: number; cardLast4: string }; ride: Ride }>(
+  payRide(id: string, body?: { tipAmount?: number; useWallet?: boolean }) {
+    return this.request<{ payment: { id: string; amount: number; cardLast4: string; tipAmount?: number }; ride: Ride }>(
       `/rides/${id}/pay`,
-      { method: 'POST' },
+      { method: 'POST', body: JSON.stringify(body ?? {}) },
     );
+  }
+
+  getRideEta(id: string) {
+    return this.request<{ etaPickupMin: number | null; etaDropoffMin: number | null }>(`/rides/${id}/eta`);
+  }
+
+  shareRide(id: string) {
+    return this.request<{ shareUrl: string; shareToken: string }>(`/rides/${id}/share`, { method: 'POST' });
+  }
+
+  getReceipt(id: string) {
+    return this.request<{ ok: boolean }>(`/rides/${id}/receipt`);
+  }
+
+  validatePromo(code: string, subtotal: number) {
+    return this.request<{ discount: number; code: string }>('/promos/validate', {
+      method: 'POST',
+      body: JSON.stringify({ code, subtotal }),
+    });
+  }
+
+  getSavedPlaces() {
+    return this.request<{ places: Array<{ id: string; label: string; name: string; address: string; lat: number; lng: number }> }>('/places');
+  }
+
+  savePlace(body: { label: string; name: string; address: string; lat: number; lng: number }) {
+    return this.request('/places', { method: 'POST', body: JSON.stringify(body) });
+  }
+
+  getWalletBalance() {
+    return this.request<{ balance: number }>('/wallet/balance');
+  }
+
+  topupWallet(amount: number) {
+    return this.request<{ balance: number }>('/wallet/topup', { method: 'POST', body: JSON.stringify({ amount }) });
+  }
+
+  getChatMessages(rideId: string) {
+    return this.request<{ messages: Array<{ id: string; senderName?: string; message: string; createdAt: string }> }>(`/chat/${rideId}`);
+  }
+
+  sendChatMessage(rideId: string, message: string) {
+    return this.request(`/chat/${rideId}`, { method: 'POST', body: JSON.stringify({ message }) });
+  }
+
+  triggerSos(rideId: string, lat?: number, lng?: number) {
+    return this.request('/sos', { method: 'POST', body: JSON.stringify({ rideId, lat, lng }) });
+  }
+
+  getDriverEarnings() {
+    return this.request<{ totalEarnings: number; today: { total: number; rides: number }; week: { total: number; rides: number } }>('/onboarding/earnings');
+  }
+
+  getOnboardingStatus() {
+    return this.request<{ approvalStatus: string; rejectionReason: string | null }>('/onboarding/status');
+  }
+
+  submitDriverDocs(body: { licenseUrl?: string; idUrl?: string; vehiclePhotoUrl?: string }) {
+    return this.request('/onboarding/documents', { method: 'POST', body: JSON.stringify(body) });
+  }
+
+  getAdminStats() {
+    return this.request<{ users: number; drivers: number; rides: number; revenue: number; pendingDrivers: number; sosLast24h: number }>('/admin/stats');
+  }
+
+  getPendingDrivers() {
+    return this.request<{ drivers: Array<{ userId: string; name: string; email: string }> }>('/admin/drivers/pending');
+  }
+
+  approveDriver(userId: string) {
+    return this.request(`/admin/drivers/${userId}/approve`, { method: 'POST' });
+  }
+
+  banUser(userId: string) {
+    return this.request(`/admin/users/${userId}/ban`, { method: 'POST' });
   }
 
   getHistory() {
@@ -113,10 +188,6 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify({ stars, comment }),
     });
-  }
-
-  getAdminStats() {
-    return this.request<{ users: number; drivers: number; rides: number; revenue: number }>('/admin/stats');
   }
 
   getAdminRides() {

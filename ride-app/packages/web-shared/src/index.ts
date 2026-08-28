@@ -9,3 +9,8 @@ export { VehicleTypePicker } from './VehicleTypePicker';
 export { vehicleTypeLabel } from '@ride-app/shared';
 export { RatingForm } from './RatingForm';
 export { HistoryPanel } from './HistoryPanel';
+export { FareBreakdownView } from './FareBreakdownView';
+export { TipSelector } from './TipSelector';
+export { PromoInput } from './PromoInput';
+export { SavedPlacesBar } from './SavedPlacesBar';
+export { ChatPanel } from './ChatPanel';

@@ -12,6 +12,11 @@ import {
   useAuth,
   VehicleTypePicker,
   vehicleTypeLabel,
+  FareBreakdownView,
+  TipSelector,
+  PromoInput,
+  SavedPlacesBar,
+  ChatPanel,
   type PlaceResult,
 } from '@ride-app/web-shared';
 
@@ -31,6 +36,13 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [rated, setRated] = useState(false);
   const [locationBias, setLocationBias] = useState<{ lat: number; lng: number } | null>(null);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [tipAmount, setTipAmount] = useState(0);
+  const [scheduledAt, setScheduledAt] = useState('');
+  const [etaPickup, setEtaPickup] = useState<number | null>(null);
+  const [etaDropoff, setEtaDropoff] = useState<number | null>(null);
+  const [useWallet, setUseWallet] = useState(false);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) => {
@@ -47,11 +59,20 @@ export default function Home() {
     socket.emit('join:ride', ride.id);
     const onUpdate = (updated: Ride) => setRide(updated);
     const onLocation = (data: { lat: number; lng: number }) => setDriverPos({ lat: data.lat, lng: data.lng });
+    const onEta = (data: { etaPickupMin: number | null; etaDropoffMin: number | null }) => {
+      setEtaPickup(data.etaPickupMin);
+      setEtaDropoff(data.etaDropoffMin);
+    };
     socket.on('ride:updated', onUpdate);
     socket.on('driver:location', onLocation);
+    socket.on('ride:eta', onEta);
+    api.getRideEta(ride.id).then(onEta).catch(() => {});
+    const poll = setInterval(() => api.getRideEta(ride.id).then(onEta).catch(() => {}), 15000);
     return () => {
       socket.off('ride:updated', onUpdate);
       socket.off('driver:location', onLocation);
+      socket.off('ride:eta', onEta);
+      clearInterval(poll);
     };
   }, [ride?.id]);
 
@@ -64,11 +85,12 @@ export default function Home() {
       dropoffAddress: dropoff.address,
       dropoffLat: dropoff.lat,
       dropoffLng: dropoff.lng,
+      promoCode: promoCode || undefined,
     }).then((data) => {
       setEstimate(data);
       setVehicleType(data.options[0]?.vehicleType ?? 'standard');
     }).catch(() => setEstimate(null));
-  }, [pickup, dropoff, ride]);
+  }, [pickup, dropoff, ride, promoCode]);
 
   const onPickupSelect = (place: PlaceResult) => {
     setPickup(place);
@@ -93,6 +115,8 @@ export default function Home() {
         dropoffLat: dropoff.lat,
         dropoffLng: dropoff.lng,
         vehicleType,
+        promoCode: promoCode || undefined,
+        scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
       });
       setRide(created);
       setRated(false);
@@ -114,7 +138,7 @@ export default function Home() {
     if (!ride) return;
     setLoading(true);
     try {
-      const result = await api.payRide(ride.id);
+      const result = await api.payRide(ride.id, { tipAmount, useWallet });
       setRide(result.ride);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error');
@@ -178,6 +202,7 @@ export default function Home() {
                   bias={pickup ?? locationBias}
                   onSelect={onDropoffSelect}
                 />
+                <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
               </div>
             )}
             <div className="bottom-sheet">
@@ -188,8 +213,22 @@ export default function Home() {
                   {dropoff && <div className="meta-row"><span>Destino</span><span>{dropoff.address}</span></div>}
                   {estimate && (
                     <>
+                      {estimate.surgeMultiplier > 1 && (
+                        <div className="eta-badge">⚡ Surge {estimate.surgeMultiplier}x activo</div>
+                      )}
                       <div className="meta-row"><span>Distancia</span><span>{estimate.distanceKm} km</span></div>
                       <div className="meta-row"><span>Tiempo est.</span><span>{estimate.durationMin} min</span></div>
+                      <PromoInput
+                        subtotal={selectedOption?.estimatedPrice ?? estimate.options[0]?.estimatedPrice ?? 0}
+                        onApplied={(code, discount) => { setPromoCode(code); setPromoDiscount(discount); }}
+                      />
+                      <input
+                        className="place-input"
+                        type="datetime-local"
+                        value={scheduledAt}
+                        onChange={(e) => setScheduledAt(e.target.value)}
+                        placeholder="Programar viaje"
+                      />
                       <VehicleTypePicker
                         options={estimate.options}
                         selected={vehicleType}
@@ -207,8 +246,25 @@ export default function Home() {
               ) : (
                 <>
                   <div className="status-pill">{RIDE_STATUS_LABELS[ride.status]}</div>
+                  {(etaPickup != null || ride.etaPickupMin != null) && ['accepted', 'arriving'].includes(ride.status) && (
+                    <div className="eta-badge">Llega en ~{etaPickup ?? ride.etaPickupMin} min</div>
+                  )}
+                  {(etaDropoff != null || ride.etaDropoffMin != null) && ride.status === 'in_progress' && (
+                    <div className="eta-badge">Destino en ~{etaDropoff ?? ride.etaDropoffMin} min</div>
+                  )}
                   <div className="meta-row"><span>Vehículo</span><span>{vehicleTypeLabel(ride.vehicleType)}</span></div>
+                  <FareBreakdownView breakdown={ride.fareBreakdown} surgeMultiplier={ride.surgeMultiplier} />
                   <div className="meta-row"><span>Precio</span><span>${ride.finalPrice ?? ride.estimatedPrice}</span></div>
+                  <div className="extras-row">
+                    <button className="btn-secondary" type="button" onClick={async () => {
+                      const s = await api.shareRide(ride.id);
+                      const url = `${window.location.origin}${s.shareUrl}`;
+                      navigator.clipboard.writeText(url).catch(() => {});
+                      alert('Link copiado: ' + url);
+                    }}>Compartir</button>
+                    <button className="btn-danger" type="button" onClick={() => api.triggerSos(ride.id, pickup?.lat, pickup?.lng)}>SOS</button>
+                  </div>
+                  {ride.driverId && <ChatPanel rideId={ride.id} />}
                   <div className="meta-row">
                     <span>Pago</span>
                     <span>{ride.paymentStatus === 'paid' ? 'Pagado' : 'Pendiente'}</span>
@@ -217,9 +273,16 @@ export default function Home() {
                     <button className="btn-danger" onClick={cancelRide}>Cancelar</button>
                   )}
                   {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
-                    <button className="btn-primary" onClick={payRide} disabled={loading}>
-                      {loading ? 'Procesando...' : 'Pagar con tarjeta'}
-                    </button>
+                    <>
+                      <TipSelector value={tipAmount} onChange={setTipAmount} />
+                      <label className="meta-row">
+                        <span>Pagar con wallet</span>
+                        <input type="checkbox" checked={useWallet} onChange={(e) => setUseWallet(e.target.checked)} />
+                      </label>
+                      <button className="btn-primary" onClick={payRide} disabled={loading}>
+                        {loading ? 'Procesando...' : `Pagar $${(ride.finalPrice ?? ride.estimatedPrice) + tipAmount}`}
+                      </button>
+                    </>
                   )}
                   {showRating && (
                     <RatingForm

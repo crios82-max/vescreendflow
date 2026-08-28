@@ -79,8 +79,11 @@ class MobileApi {
     });
   }
 
-  payRide(id: string) {
-    return this.request<{ ride: Ride }>(`/rides/${id}/pay`, { method: 'POST' });
+  payRide(id: string, tipAmount = 0) {
+    return this.request<{ ride: Ride }>(`/rides/${id}/pay`, {
+      method: 'POST',
+      body: JSON.stringify({ tipAmount }),
+    });
   }
 
   acceptRide(id: string) {
@@ -131,6 +134,18 @@ class MobileApi {
       method: 'POST',
       body: JSON.stringify({ token, platform }),
     });
+  }
+
+  getRideEta(id: string) {
+    return this.request<{ etaPickupMin: number | null; etaDropoffMin: number | null }>(`/rides/${id}/eta`);
+  }
+
+  shareRide(id: string) {
+    return this.request<{ shareUrl: string; shareToken: string }>(`/rides/${id}/share`, { method: 'POST' });
+  }
+
+  triggerSos(rideId: string, lat?: number, lng?: number) {
+    return this.request('/sos', { method: 'POST', body: JSON.stringify({ rideId, lat, lng }) });
   }
 }
 

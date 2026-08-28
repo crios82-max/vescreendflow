@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import * as Location from 'expo-location';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StatusBar } from 'expo-status-bar';
 import type { Ride, RideEstimate, User, VehicleType } from '@ride-app/shared';
 import { RIDE_STATUS_LABELS, VEHICLE_OPTIONS, VEHICLE_TYPES } from '@ride-app/shared';
@@ -22,6 +22,7 @@ import { PlaceSearch } from './src/PlaceSearch';
 import { VehicleTypePicker } from './src/VehicleTypePicker';
 import { defaultApiUrl, getApiUrl } from './src/storage';
 import { registerForPushNotifications } from './src/push';
+import { decodePolyline } from './src/polyline';
 
 type Screen = 'auth' | 'home';
 type Tab = 'ride' | 'history';
@@ -51,6 +52,8 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('ride');
   const [history, setHistory] = useState<Ride[]>([]);
   const [rated, setRated] = useState(false);
+  const [tipAmount, setTipAmount] = useState(2);
+  const [etaPickup, setEtaPickup] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -101,6 +104,8 @@ export default function App() {
         setDriverPos({ latitude: data.lat, longitude: data.lng });
       socket.on('ride:updated', onUpdate);
       socket.on('driver:location', onLocation);
+      socket.on('ride:eta', (data: { etaPickupMin: number | null }) => setEtaPickup(data.etaPickupMin));
+      mobileApi.getRideEta(ride.id).then((e) => setEtaPickup(e.etaPickupMin)).catch(() => {});
       cleanup = () => {
         socket.off('ride:updated', onUpdate);
         socket.off('driver:location', onLocation);
@@ -318,6 +323,7 @@ export default function App() {
 
   const mapCenter = driverPos ?? dropoff ?? pickup ?? position;
   const selectedOption = estimate?.options.find((o) => o.vehicleType === vehicleType);
+  const routeCoords = ride?.routePolyline ? decodePolyline(ride.routePolyline) : estimate?.polyline ? decodePolyline(estimate.polyline) : [];
 
   return (
     <View style={styles.flex}>
@@ -338,6 +344,7 @@ export default function App() {
           {(pickup ?? position) && <Marker coordinate={(pickup ?? position)!} title="Origen" pinColor="#fff" />}
           {dropoff && <Marker coordinate={dropoff} title="Destino" pinColor="green" />}
           {driverPos && <Marker coordinate={driverPos} title="Conductor" pinColor="#3b82f6" />}
+          {routeCoords.length > 0 && <Polyline coordinates={routeCoords} strokeColor="#3b82f6" strokeWidth={4} />}
         </MapView>
       )}
       {user?.role === 'passenger' && !ride && (
@@ -397,16 +404,39 @@ export default function App() {
             ) : (
               <>
                 <Text style={styles.status}>{RIDE_STATUS_LABELS[ride.status]}</Text>
+                {etaPickup != null && ['accepted', 'arriving'].includes(ride.status) && (
+                  <Text style={styles.muted}>Llega en ~{etaPickup} min</Text>
+                )}
                 <Text style={styles.muted}>{VEHICLE_OPTIONS[ride.vehicleType].label}</Text>
                 <Text style={styles.price}>${ride.finalPrice ?? ride.estimatedPrice}</Text>
                 {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
-                  <Pressable style={styles.btn} onPress={async () => {
-                    const r = await mobileApi.payRide(ride.id);
-                    setRide(r.ride);
-                  }}>
-                    <Text style={styles.btnText}>Pagar mock •••• 4242</Text>
-                  </Pressable>
+                  <>
+                    <View style={styles.row}>
+                      {[0, 1, 2, 5].map((t) => (
+                        <Pressable key={t} style={[styles.chip, tipAmount === t && styles.chipActive]} onPress={() => setTipAmount(t)}>
+                          <Text style={tipAmount === t ? styles.chipTextActive : styles.chipText}>{t === 0 ? 'Sin tip' : `$${t}`}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                    <Pressable style={styles.btn} onPress={async () => {
+                      const r = await mobileApi.payRide(ride.id, tipAmount);
+                      setRide(r.ride);
+                    }}>
+                      <Text style={styles.btnText}>Pagar ${(ride.finalPrice ?? ride.estimatedPrice) + tipAmount}</Text>
+                    </Pressable>
+                  </>
                 )}
+                <View style={styles.row}>
+                  <Pressable style={styles.btnSecondary} onPress={async () => {
+                    const s = await mobileApi.shareRide(ride.id);
+                    alert('Comparte: ' + s.shareToken);
+                  }}>
+                    <Text style={styles.btnSecondaryText}>Compartir</Text>
+                  </Pressable>
+                  <Pressable style={styles.btnSecondary} onPress={() => mobileApi.triggerSos(ride.id, position?.latitude, position?.longitude)}>
+                    <Text style={styles.btnSecondaryText}>SOS</Text>
+                  </Pressable>
+                </View>
                 {ride.status === 'completed' && ride.paymentStatus === 'paid' && !rated && (
                   <View style={styles.ratingBox}>
                     <Text style={styles.status}>Califica tu viaje</Text>

@@ -18,10 +18,22 @@ Monorepo con backend Node/Express, apps web (pasajero + conductor + admin), app 
 
 - Google Places autocomplete (web + móvil)
 - Google Directions: ruta en mapa + ETA real (fallback haversine sin API key)
-- Matching automático al conductor online más cercano (mismo tipo de vehículo)
+- **ETA en vivo** al pickup/destino (socket + polling)
+- Matching automático inteligente (distancia + rating)
 - Historial de viajes + calificaciones (1–5 estrellas)
 - Tipos de vehículo: Standard, Confort, XL, Vans
-- Panel admin: stats, viajes, usuarios
+- **Surge pricing** dinámico por demanda
+- **Propinas**, **promos** (`BIENVENIDA`, `RIDE5`), **wallet**
+- **Viajes programados**, paradas múltiples, viaje para otro
+- **Lugares guardados** (Casa, Trabajo)
+- **Compartir viaje** (link público `/share/:token`)
+- **Chat** pasajero ↔ conductor
+- **Botón SOS** + alertas admin
+- **Onboarding conductor** con aprobación admin
+- **Cancelaciones** con fee + re-asignación si cancela conductor
+- Recibos (mock email log)
+- Stripe / mock + PaymentIntent para móvil
+- Panel admin: stats, viajes, aprobar conductores, ban, reembolsos, SOS
 
 ## Requisitos
 

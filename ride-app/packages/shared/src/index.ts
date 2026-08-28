@@ -1,6 +1,7 @@
 export type UserRole = 'passenger' | 'driver';
 
 export type RideStatus =
+  | 'scheduled'
   | 'requested'
   | 'accepted'
   | 'arriving'
@@ -8,12 +9,44 @@ export type RideStatus =
   | 'completed'
   | 'cancelled';
 
+export type DriverApprovalStatus = 'pending' | 'approved' | 'rejected';
+
+export interface FareBreakdown {
+  baseFare: number;
+  distanceFare: number;
+  timeFare: number;
+  vehicleMultiplier: number;
+  surgeMultiplier: number;
+  surgeAmount: number;
+  promoDiscount: number;
+  total: number;
+}
+
+export interface SavedPlace {
+  id: string;
+  label: string;
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+}
+
+export interface RideMessage {
+  id: string;
+  rideId: string;
+  senderId: string;
+  senderName?: string;
+  message: string;
+  createdAt: string;
+}
+
 export interface User {
   id: string;
   email: string;
   name: string;
   phone: string | null;
   role: UserRole;
+  walletBalance?: number;
 }
 
 export type VehicleType = 'standard' | 'comfort' | 'xl' | 'vans';
@@ -78,6 +111,7 @@ export interface RideEstimate {
   durationMin: number;
   options: RideEstimateOption[];
   polyline: string | null;
+  surgeMultiplier: number;
 }
 
 export interface DriverProfile {
@@ -90,6 +124,8 @@ export interface DriverProfile {
   rating: number;
   lat: number | null;
   lng: number | null;
+  approvalStatus: DriverApprovalStatus;
+  totalEarnings: number;
 }
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed';
@@ -122,6 +158,18 @@ export interface Ride {
   distanceKm: number;
   durationMin: number;
   routePolyline: string | null;
+  scheduledAt: string | null;
+  surgeMultiplier: number;
+  fareBreakdown: FareBreakdown | null;
+  tipAmount: number;
+  promoCode: string | null;
+  promoDiscount: number;
+  cancellationFee: number | null;
+  shareToken: string | null;
+  rideForName: string | null;
+  rideForPhone: string | null;
+  etaPickupMin: number | null;
+  etaDropoffMin: number | null;
   createdAt: string;
   acceptedAt: string | null;
   completedAt: string | null;
@@ -152,6 +200,7 @@ export interface LocationUpdate {
 }
 
 export const RIDE_STATUS_LABELS: Record<RideStatus, string> = {
+  scheduled: 'Programado',
   requested: 'Buscando conductor',
   accepted: 'Conductor asignado',
   arriving: 'Conductor en camino',
@@ -200,28 +249,31 @@ export function buildRideEstimate(
   pricePerKm = 1.2,
   pricePerMin = 0.25,
   polyline: string | null = null,
+  surgeMultiplier = 1,
 ): RideEstimate {
   const roundedDistance = Math.round(distanceKm * 100) / 100;
   return {
     distanceKm: roundedDistance,
     durationMin,
     polyline,
+    surgeMultiplier,
     options: VEHICLE_TYPES.map((type) => {
       const option = VEHICLE_OPTIONS[type];
+      const base = estimateFare(
+        roundedDistance,
+        durationMin,
+        baseFare,
+        pricePerKm,
+        pricePerMin,
+        option.multiplier,
+      );
       return {
         vehicleType: type,
         label: option.label,
         description: option.description,
         seats: option.seats,
         icon: option.icon,
-        estimatedPrice: estimateFare(
-          roundedDistance,
-          durationMin,
-          baseFare,
-          pricePerKm,
-          pricePerMin,
-          option.multiplier,
-        ),
+        estimatedPrice: Math.round(base * surgeMultiplier * 100) / 100,
       };
     }),
   };

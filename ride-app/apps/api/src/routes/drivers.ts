@@ -30,6 +30,15 @@ export function createDriversRouter(io: SocketServer) {
     if (!parsed.success) {
       return res.status(400).json({ error: parsed.error.flatten() });
     }
+
+    const profile = await pool.query(
+      'SELECT approval_status FROM driver_profiles WHERE user_id = $1',
+      [req.auth!.userId],
+    );
+    if (profile.rows[0]?.approval_status !== 'approved') {
+      return res.status(403).json({ error: 'Tu cuenta de conductor está pendiente de aprobación' });
+    }
+
     const { lat, lng } = parsed.data;
     const result = await pool.query(
       `UPDATE driver_profiles
@@ -73,6 +82,9 @@ export function createDriversRouter(io: SocketServer) {
     if (activeRide.rows.length > 0) {
       const rideId = activeRide.rows[0].id;
       io.to(`ride:${rideId}`).emit('driver:location', { rideId, lat, lng });
+      const { computeRideEta } = await import('../services/eta.js');
+      const eta = await computeRideEta(rideId);
+      io.to(`ride:${rideId}`).emit('ride:eta', eta);
     }
 
     res.json({ ok: true });

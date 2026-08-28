@@ -11,7 +11,15 @@ import { createRidesRouter } from './routes/rides.js';
 import { createDriversRouter } from './routes/drivers.js';
 import pushRoutes from './routes/push.js';
 import adminRoutes from './routes/admin.js';
+import placesRoutes from './routes/places.js';
+import walletRoutes from './routes/wallet.js';
+import promoRoutes from './routes/promos.js';
+import chatRoutes from './routes/chat.js';
+import sosRoutes from './routes/sos.js';
+import shareRoutes from './routes/share.js';
+import onboardingRoutes from './routes/onboarding.js';
 import { pool } from './db.js';
+import { activateScheduledRides } from './services/matching.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: join(__dirname, '../../../.env') });
@@ -45,6 +53,22 @@ app.use('/rides', createRidesRouter(io));
 app.use('/drivers', createDriversRouter(io));
 app.use('/push', pushRoutes);
 app.use('/admin', adminRoutes);
+app.use('/places', placesRoutes);
+app.use('/wallet', walletRoutes);
+app.use('/promos', promoRoutes);
+app.use('/chat', chatRoutes);
+app.use('/sos', sosRoutes);
+app.use('/share', shareRoutes);
+app.use('/onboarding', onboardingRoutes);
+
+// Activate scheduled rides every minute
+setInterval(async () => {
+  try {
+    await activateScheduledRides();
+  } catch (err) {
+    console.warn('Scheduled rides tick failed:', err);
+  }
+}, 60_000);
 
 io.on('connection', (socket) => {
   socket.on('join:ride', (rideId: string) => {
