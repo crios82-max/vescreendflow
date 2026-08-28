@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Ride",
+    "slug": "ride-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.rideapp.mobile",
+      "config": {
+        "googleMapsApiKey": "YOUR_IOS_GOOGLE_MAPS_KEY"
+      }
+    },
+    "android": {
+      "package": "com.rideapp.mobile",
+      "config": {
+        "googleMaps": {
+          "apiKey": "YOUR_ANDROID_GOOGLE_MAPS_KEY"
+        }
+      }
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Ride necesita tu ubicación para pedir y completar viajes."
+        }
+      ]
+    ]
+  }
+}
