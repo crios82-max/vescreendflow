@@ -363,8 +363,8 @@ class ObdElm327Adapter(
         val rpm = 900f + kmh * 35f
         val fuelGps = (kmh / 90f * 18f + 2f).coerceIn(0.5f, 40f)
         val milActive = DtcBus.snap.value.mil
-        val milKm = if (milActive) (t * 0.4f).coerceAtMost(150f) else null
-        val clearKm = if (milActive) (t * 0.35f).coerceAtMost(250f) else null
+        val milKm = if (milActive) (t * 0.4).toFloat().coerceAtMost(150f) else null
+        val clearKm = if (milActive) (t * 0.35).toFloat().coerceAtMost(250f) else null
         val gear =
             when {
                 forceReverse -> Gear.R

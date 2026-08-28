@@ -1841,6 +1841,7 @@ fun DriveVizPanel(
                     MediaSource.RADIO -> "RADIO"
                     MediaSource.FM -> "FM"
                     MediaSource.SPOTIFY -> "SPOTIFY"
+                    MediaSource.PHONE -> "PHONE"
                     MediaSource.NONE -> "MEDIA"
                 }
             Text(media.title, color = Mist, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
