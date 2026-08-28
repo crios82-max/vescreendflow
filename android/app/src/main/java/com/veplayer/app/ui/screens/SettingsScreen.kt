@@ -5999,6 +5999,7 @@ fun SettingsScreen() {
                 color = if (mapSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
+            var thrOn by remember { mutableStateOf(prefs.throttleEnabled) }
             var thrTtsOn by remember { mutableStateOf(prefs.throttleTts) }
             var thrSim by remember {
                 mutableStateOf(

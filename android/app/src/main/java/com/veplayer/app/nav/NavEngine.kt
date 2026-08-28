@@ -124,8 +124,9 @@ object NavEngine {
         if (scope != null) refreshAsync(scope)
     }
 
-    fun loadWaypoints(p: VePrefs = prefs ?: return emptyList()): List<NavDestination> {
-        val raw = p.navWaypointsJson
+    fun loadWaypoints(p: VePrefs? = null): List<NavDestination> {
+        val prefs = p ?: this.prefs ?: return emptyList()
+        val raw = prefs.navWaypointsJson
         if (raw.isBlank()) return emptyList()
         return runCatching {
             val arr = JSONArray(raw)

@@ -62,10 +62,12 @@ object MessageReplyBus {
         _pending.value = null
     }
 
-    fun label(p: Pending = _pending.value ?: return ""): String =
-        when (p.status) {
-            "acked" -> "Msg ✓ · ${p.text.take(36)}"
-            "replied" -> "Msg → ${p.replyText.ifBlank { "ok" }.take(24)}"
-            else -> "Msg · ${p.text.take(40)}"
+    fun label(p: Pending? = null): String {
+        val cur = p ?: _pending.value ?: return ""
+        return when (cur.status) {
+            "acked" -> "Msg ✓ · ${cur.text.take(36)}"
+            "replied" -> "Msg → ${cur.replyText.ifBlank { "ok" }.take(24)}"
+            else -> "Msg · ${cur.text.take(40)}"
         }
+    }
 }
