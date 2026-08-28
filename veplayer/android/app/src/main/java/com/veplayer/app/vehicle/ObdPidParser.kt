@@ -378,7 +378,20 @@ object ObdPidParser {
         if (bytes.size < 3 || bytes[0] != 0x41) return PidValues()
         val pid = bytes[1]
         val data = bytes.drop(2)
-        return when (pid) {
+        return parseMode01Pid(pid, data)
+    }
+
+    private fun parseMode01Pid(pid: Int, data: List<Int>): PidValues {
+        return when {
+            pid == 0x21 || pid == 0x31 || pid == 0x42 || pid >= 0xB0 -> parseMode01Part4(pid, data)
+            pid < 0x60 -> parseMode01Part1(pid, data)
+            pid < 0x90 -> parseMode01Part2(pid, data)
+            pid < 0xB0 -> parseMode01Part3(pid, data)
+            else -> parseMode01Part4(pid, data)
+        }
+    }
+
+    private fun parseMode01Part1(pid: Int, data: List<Int>): PidValues = when (pid) {
             0x0D -> PidValues(speedKmh = data.getOrNull(0)?.toFloat())
             0x0C -> {
                 if (data.size < 2) PidValues()
@@ -473,6 +486,9 @@ object ObdPidParser {
                 PidValues(
                     driverTorquePct = data.getOrNull(0)?.let { (it - 125).toFloat() },
                 )
+        else -> PidValues()
+    }
+    private fun parseMode01Part2(pid: Int, data: List<Int>): PidValues = when (pid) {
             0x62 ->
                 PidValues(
                     actualTorquePct = data.getOrNull(0)?.let { (it - 125).toFloat() },
@@ -592,6 +608,9 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(catalystB2s9TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
             }
+        else -> PidValues()
+    }
+    private fun parseMode01Part3(pid: Int, data: List<Int>): PidValues = when (pid) {
             0x67 -> {
                 if (data.size < 3) PidValues()
                 else PidValues(coolantEct2C = (data[2].minus(40)).toFloat())
@@ -786,6 +805,9 @@ object ObdPidParser {
                     fuelLevelInputBPct = data[1] * 100f / 255f,
                 )
             }
+        else -> PidValues()
+    }
+    private fun parseMode01Part4(pid: Int, data: List<Int>): PidValues = when (pid) {
             0xC4 -> {
                 if (data.size < 2) PidValues()
                 else PidValues(
@@ -945,7 +967,6 @@ object ObdPidParser {
                 else PidValues(batteryVoltageV = ((data[0] * 256) + data[1]) / 1000f)
             }
             else -> PidValues()
-        }
     }
 
     fun merge(base: PidValues, add: PidValues): PidValues =
