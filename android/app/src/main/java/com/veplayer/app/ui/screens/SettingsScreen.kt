@@ -344,7 +344,6 @@ fun SettingsScreen() {
                 onStatus = { status = it },
             )
         }
-        }
 
         PanelBlock("Phone Link · Android Auto / CarPlay") {
             var phoneOn by remember { mutableStateOf(prefs.phoneLinkEnabled) }
