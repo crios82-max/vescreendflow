@@ -163,6 +163,16 @@ export function parseMode01(raw) {
       return { mafSensorIatC: data[0] - 40 }
     case 0x65:
       return { auxInputStatus: data[0] }
+    case 0x7f:
+      return data.length < 2 ? {} : { catalystB1s9TempC: (data[0] * 256 + data[1]) / 10 - 40 }
+    case 0x80:
+      return data.length < 2 ? {} : { catalystB2s9TempC: (data[0] * 256 + data[1]) / 10 - 40 }
+    case 0x67:
+      return data.length < 3 ? {} : { coolantEct2C: data[2] - 40 }
+    case 0x68:
+      return data.length < 3 ? {} : { iatSensor2C: data[2] - 40 }
+    case 0x6f:
+      return { turboInletKpa: data[0] }
     case 0x1f:
       return data.length < 2 ? {} : { runtimeSec: data[0] * 256 + data[1] }
     case 0x21:
@@ -181,7 +191,7 @@ export const POLL_PID_HEX = [
   '010D', '010C', '0110', '010A', '0133', '010E', '014A', '0143', '0145', '0149', '014B', '014D',
   '0144', '014E', '0152', '0153', '0159', '014C', '015A', '0161', '0162', '0170', '0171', '0172',
   '0173', '0174', '0175', '0176', '0155', '0156', '0157', '0158', '0177', '0178', '015D', '015B',
-  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
+  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
   '011F', '0121', '0131', '0134', '0142',
 ]
 
@@ -255,6 +265,11 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 64 91', expect: { maxAvailTorquePct: 20 } },
   { raw: '41 66 7D', expect: { mafSensorIatC: 85 } },
   { raw: '41 65 0F', expect: { auxInputStatus: 0x0f } },
+  { raw: '41 7F 24 54', expect: { catalystB1s9TempC: 890 } },
+  { raw: '41 80 24 54', expect: { catalystB2s9TempC: 890 } },
+  { raw: '41 67 03 5A 8C', expect: { coolantEct2C: 100 } },
+  { raw: '41 68 03 50 82', expect: { iatSensor2C: 90 } },
+  { raw: '41 6F DC', expect: { turboInletKpa: 220 } },
   { raw: '41 1F 01 2C', expect: { runtimeSec: 300 } },
   { raw: '41 21 00 64', expect: { milDistanceKm: 100 } },
   { raw: '41 31 00 C8', expect: { distSinceClearKm: 200 } },
@@ -338,6 +353,13 @@ export function runFaseFormulaChecks(fase, assert) {
       assert(0x91 - 125 === 20, 'pid 0164')
       assert(0x7d - 40 === 85, 'pid 0166')
       assert(0x0f === 15, 'pid 0165')
+      break
+    case 25:
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 017F')
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0180')
+      assert(0x8c - 40 === 100, 'pid 0167 ECT2')
+      assert(0x82 - 40 === 90, 'pid 0168 IAT2')
+      assert(0xdc === 220, 'pid 016F')
       break
     default:
       throw new Error(`unknown fase ${fase}`)

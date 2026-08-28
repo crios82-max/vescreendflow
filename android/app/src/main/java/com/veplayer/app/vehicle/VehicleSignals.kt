@@ -199,6 +199,16 @@ data class VehicleSignals(
         val mafSensorIatC: Float? = null,
         /** Auxiliary input status (OBD PID 0165). */
         val auxInputStatus: Int? = null,
+        /** Catalyst temp bank 1 sensor 9 °C (OBD PID 017F). */
+        val catalystB1s9TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 9 °C (OBD PID 0180). */
+        val catalystB2s9TempC: Float? = null,
+        /** Engine coolant sensor 2 °C (OBD PID 0167). */
+        val coolantEct2C: Float? = null,
+        /** Intake air sensor 2 °C (OBD PID 0168). */
+        val iatSensor2C: Float? = null,
+        /** Turbo inlet pressure kPa (OBD PID 016F). */
+        val turboInletKpa: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -333,6 +343,11 @@ data class VehicleSignals(
             "max_avail_torque_pct" to maxAvailTorquePct?.toDouble(),
             "maf_sensor_iat_c" to mafSensorIatC?.toDouble(),
             "aux_input_status" to auxInputStatus,
+            "catalyst_b1s9_temp_c" to catalystB1s9TempC?.toDouble(),
+            "catalyst_b2s9_temp_c" to catalystB2s9TempC?.toDouble(),
+            "coolant_ect2_c" to coolantEct2C?.toDouble(),
+            "iat_sensor2_c" to iatSensor2C?.toDouble(),
+            "turbo_inlet_kpa" to turboInletKpa?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

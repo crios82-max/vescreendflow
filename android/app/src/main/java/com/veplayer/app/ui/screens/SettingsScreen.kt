@@ -4049,6 +4049,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 25 OBD (017F/80/67/68/6F):", color = Mist)
+            val catB1s9St by com.veplayer.app.vehicle.CatalystB1S9Monitor.state.collectAsState()
+            val catB2s9St by com.veplayer.app.vehicle.CatalystB2S9Monitor.state.collectAsState()
+            val ect2St by com.veplayer.app.vehicle.CoolantEct2Monitor.state.collectAsState()
+            val iat2St by com.veplayer.app.vehicle.IatSensor2Monitor.state.collectAsState()
+            val turboInletSt by com.veplayer.app.vehicle.TurboInletPressureMonitor.state.collectAsState()
+            var f25B1s9 by remember {
+                mutableStateOf(if (prefs.catB1s9SimC > 0f) prefs.catB1s9SimC.toInt().toString() else "0")
+            }
+            var f25B2s9 by remember {
+                mutableStateOf(if (prefs.catB2s9SimC > 0f) prefs.catB2s9SimC.toInt().toString() else "0")
+            }
+            var f25Ect2 by remember {
+                mutableStateOf(if (prefs.ect2SimC > 0f) prefs.ect2SimC.toInt().toString() else "0")
+            }
+            var f25Iat2 by remember {
+                mutableStateOf(if (prefs.iat2SimC > 0f) prefs.iat2SimC.toInt().toString() else "0")
+            }
+            var f25Turbo by remember {
+                mutableStateOf(if (prefs.turboInletSimKpa > 0f) prefs.turboInletSimKpa.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f25B1s9,
+                    onValueChange = { f25B1s9 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S9 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f25B2s9,
+                    onValueChange = { f25B2s9 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S9 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f25Ect2,
+                    onValueChange = { f25Ect2 = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("ECT2 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f25Iat2,
+                    onValueChange = { f25Iat2 = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("IAT2 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f25Turbo,
+                    onValueChange = { f25Turbo = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("TurboIn") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s9SimC = f25B1s9.toFloatOrNull() ?: 0f
+                    prefs.catB2s9SimC = f25B2s9.toFloatOrNull() ?: 0f
+                    prefs.ect2SimC = f25Ect2.toFloatOrNull() ?: 0f
+                    prefs.iat2SimC = f25Iat2.toFloatOrNull() ?: 0f
+                    prefs.turboInletSimKpa = f25Turbo.toFloatOrNull() ?: 0f
+                    status = "Fase 25 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 25") }
+            Text(
+                listOfNotNull(
+                    catB1s9St.label.takeIf { it.isNotBlank() },
+                    catB2s9St.label.takeIf { it.isNotBlank() },
+                    ect2St.label.takeIf { it.isNotBlank() },
+                    iat2St.label.takeIf { it.isNotBlank() },
+                    turboInletSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 25 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

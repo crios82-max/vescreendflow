@@ -297,6 +297,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0164", // max avail torque
                 "0166", // MAF sensor IAT
                 "0165", // aux input status
+                "017F", // catalyst B1S9 temp
+                "0180", // catalyst B2S9 temp
+                "0167", // coolant ECT2
+                "0168", // IAT sensor 2
+                "016F", // turbo inlet pressure
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim

@@ -124,6 +124,16 @@ object ObdPidParser {
         val mafSensorIatC: Float? = null,
         /** Auxiliary input status (OBD PID 0165). */
         val auxInputStatus: Int? = null,
+        /** Catalyst temp bank 1 sensor 9 °C (OBD PID 017F). */
+        val catalystB1s9TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 9 °C (OBD PID 0180). */
+        val catalystB2s9TempC: Float? = null,
+        /** Engine coolant sensor 2 °C (OBD PID 0167). */
+        val coolantEct2C: Float? = null,
+        /** Intake air sensor 2 °C (OBD PID 0168). */
+        val iatSensor2C: Float? = null,
+        /** Turbo inlet pressure kPa (OBD PID 016F). */
+        val turboInletKpa: Float? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -358,6 +368,23 @@ object ObdPidParser {
             0x64 -> PidValues(maxAvailTorquePct = data.getOrNull(0)?.let { (it - 125).toFloat() })
             0x66 -> PidValues(mafSensorIatC = (data.getOrNull(0)?.minus(40))?.toFloat())
             0x65 -> PidValues(auxInputStatus = data.getOrNull(0))
+            0x7F -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB1s9TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x80 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2s9TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x67 -> {
+                if (data.size < 3) PidValues()
+                else PidValues(coolantEct2C = (data[2].minus(40)).toFloat())
+            }
+            0x68 -> {
+                if (data.size < 3) PidValues()
+                else PidValues(iatSensor2C = (data[2].minus(40)).toFloat())
+            }
+            0x6F -> PidValues(turboInletKpa = data.getOrNull(0)?.toFloat())
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -444,6 +471,11 @@ object ObdPidParser {
             maxAvailTorquePct = add.maxAvailTorquePct ?: base.maxAvailTorquePct,
             mafSensorIatC = add.mafSensorIatC ?: base.mafSensorIatC,
             auxInputStatus = add.auxInputStatus ?: base.auxInputStatus,
+            catalystB1s9TempC = add.catalystB1s9TempC ?: base.catalystB1s9TempC,
+            catalystB2s9TempC = add.catalystB2s9TempC ?: base.catalystB2s9TempC,
+            coolantEct2C = add.coolantEct2C ?: base.coolantEct2C,
+            iatSensor2C = add.iatSensor2C ?: base.iatSensor2C,
+            turboInletKpa = add.turboInletKpa ?: base.turboInletKpa,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

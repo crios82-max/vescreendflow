@@ -117,6 +117,11 @@ import com.veplayer.app.vehicle.CatalystB2S8Monitor
 import com.veplayer.app.vehicle.MaxAvailTorqueMonitor
 import com.veplayer.app.vehicle.MafSensorIatMonitor
 import com.veplayer.app.vehicle.AuxInputStatusMonitor
+import com.veplayer.app.vehicle.CatalystB1S9Monitor
+import com.veplayer.app.vehicle.CatalystB2S9Monitor
+import com.veplayer.app.vehicle.CoolantEct2Monitor
+import com.veplayer.app.vehicle.IatSensor2Monitor
+import com.veplayer.app.vehicle.TurboInletPressureMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -230,6 +235,11 @@ fun DriveVizPanel(
     val maxAvailTorque by MaxAvailTorqueMonitor.state.collectAsState()
     val mafIat by MafSensorIatMonitor.state.collectAsState()
     val auxInput by AuxInputStatusMonitor.state.collectAsState()
+    val catB1s9 by CatalystB1S9Monitor.state.collectAsState()
+    val catB2s9 by CatalystB2S9Monitor.state.collectAsState()
+    val ect2 by CoolantEct2Monitor.state.collectAsState()
+    val iat2 by IatSensor2Monitor.state.collectAsState()
+    val turboInlet by TurboInletPressureMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -329,6 +339,11 @@ fun DriveVizPanel(
             MaxAvailTorqueMonitor.tick(prefs, snap)
             MafSensorIatMonitor.tick(prefs, snap)
             AuxInputStatusMonitor.tick(prefs, snap)
+            CatalystB1S9Monitor.tick(prefs, snap)
+            CatalystB2S9Monitor.tick(prefs, snap)
+            CoolantEct2Monitor.tick(prefs, snap)
+            IatSensor2Monitor.tick(prefs, snap)
+            TurboInletPressureMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -951,6 +966,21 @@ fun DriveVizPanel(
                 }
                 if (auxInput.showWarn || (prefs.auxInputEnabled && auxInput.label.isNotBlank())) {
                     Text(auxInput.label, color = Color(com.veplayer.app.vehicle.AuxInputStatus.accentArgb(auxInput.band)), fontSize = 11.sp)
+                }
+                if (catB1s9.showWarn || (prefs.catB1s9Enabled && catB1s9.band == "ok" && catB1s9.label.isNotBlank())) {
+                    Text(catB1s9.label, color = Color(com.veplayer.app.vehicle.CatalystB1S9.accentArgb(catB1s9.band)), fontSize = 11.sp)
+                }
+                if (catB2s9.showWarn || (prefs.catB2s9Enabled && catB2s9.band == "ok" && catB2s9.label.isNotBlank())) {
+                    Text(catB2s9.label, color = Color(com.veplayer.app.vehicle.CatalystB2S9.accentArgb(catB2s9.band)), fontSize = 11.sp)
+                }
+                if (ect2.showWarn || (prefs.ect2Enabled && ect2.band == "ok" && ect2.label.isNotBlank())) {
+                    Text(ect2.label, color = Color(com.veplayer.app.vehicle.CoolantEct2.accentArgb(ect2.band)), fontSize = 11.sp)
+                }
+                if (iat2.showWarn || (prefs.iat2Enabled && iat2.band == "ok" && iat2.label.isNotBlank())) {
+                    Text(iat2.label, color = Color(com.veplayer.app.vehicle.IatSensor2.accentArgb(iat2.band)), fontSize = 11.sp)
+                }
+                if (turboInlet.showWarn || (prefs.turboInletEnabled && turboInlet.band == "ok" && turboInlet.label.isNotBlank())) {
+                    Text(turboInlet.label, color = Color(com.veplayer.app.vehicle.TurboInletPressure.accentArgb(turboInlet.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(
