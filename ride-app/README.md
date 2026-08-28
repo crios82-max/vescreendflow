@@ -86,7 +86,22 @@ Si ya tenías la DB corriendo antes de estas features:
 
 ```bash
 docker compose exec -T db psql -U ride -d ride_app < db/migrations/003_uber_features.sql
+docker compose exec -T db psql -U ride -d ride_app < db/migrations/004_complete_features.sql
+docker compose exec -T db psql -U ride -d ride_app < db/migrations/005_production.sql
 ```
+
+### Producción (Stripe Connect, SMTP, OTP)
+
+En `.env`:
+
+| Variable | Para qué |
+|----------|----------|
+| `STRIPE_SECRET_KEY` | Pagos + Connect payouts |
+| `SMTP_*` | Recibos por email |
+| `TWILIO_*` | OTP SMS (sin esto: mock `123456` en dev) |
+| `PLATFORM_FEE_PERCENT` | Comisión plataforma (default 25%) |
+
+Conductores: web `:5175` → **Configurar cobros (Stripe)** → onboarding Express.
 
 ## Producción con PM2 (Mac mini)
 

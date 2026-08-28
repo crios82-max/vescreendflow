@@ -55,6 +55,17 @@ function tripMetrics(pickupLat: number, pickupLng: number, dropoffLat: number, d
   return resolveTripMetrics(pickupLat, pickupLng, dropoffLat, dropoffLng);
 }
 
+async function driverConnectAccountId(driverId: string | null): Promise<string | null> {
+  if (!driverId) return null;
+  const r = await pool.query(
+    `SELECT stripe_connect_account_id, stripe_connect_onboarded
+     FROM driver_profiles WHERE user_id = $1`,
+    [driverId],
+  );
+  if (!r.rows[0]?.stripe_connect_onboarded) return null;
+  return (r.rows[0].stripe_connect_account_id as string) ?? null;
+}
+
 export function createRidesRouter(io: SocketServer) {
   router.use(authMiddleware);
 
@@ -283,7 +294,8 @@ export function createRidesRouter(io: SocketServer) {
 
     const tipAmount = Number((req.body as { tipAmount?: number }).tipAmount ?? 0);
     const amount = ride.finalPrice ?? ride.estimatedPrice;
-    const intent = await createPaymentIntent(amount, ride.id, tipAmount);
+    const connectId = await driverConnectAccountId(ride.driverId);
+    const intent = await createPaymentIntent(amount, ride.id, tipAmount, connectId);
     if (!intent) return res.json({ mock: true, amount: amount + tipAmount });
     res.json(intent);
   });
@@ -314,7 +326,7 @@ export function createRidesRouter(io: SocketServer) {
       if (!ok) return res.status(400).json({ error: 'Saldo insuficiente en wallet' });
       paymentInfo = { method: 'wallet', cardLast4: '0000', stripePaymentIntentId: null, total: amount + tipAmount };
     } else {
-      paymentInfo = await processRidePayment(amount, ride.id, tipAmount);
+      paymentInfo = await processRidePayment(amount, ride.id, tipAmount, await driverConnectAccountId(ride.driverId));
     }
 
     const client = await pool.connect();

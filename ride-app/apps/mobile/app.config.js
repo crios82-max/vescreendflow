@@ -33,6 +33,12 @@ export default ({ config }) => ({
             'Ride necesita tu ubicación para pedir y completar viajes.',
         },
       ],
+      [
+        'expo-notifications',
+        {
+          color: '#ffffff',
+        },
+      ],
     ],
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4001',

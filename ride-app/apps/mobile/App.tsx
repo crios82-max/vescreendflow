@@ -23,6 +23,7 @@ import { VehicleTypePicker } from './src/VehicleTypePicker';
 import { defaultApiUrl, getApiUrl } from './src/storage';
 import { registerForPushNotifications } from './src/push';
 import { decodePolyline } from './src/polyline';
+import { openTurnByTurnNavigation } from './src/navigation';
 
 type Screen = 'auth' | 'home';
 type Tab = 'ride' | 'history';
@@ -54,6 +55,9 @@ export default function App() {
   const [rated, setRated] = useState(false);
   const [tipAmount, setTipAmount] = useState(2);
   const [etaPickup, setEtaPickup] = useState<number | null>(null);
+  const [phoneVerified, setPhoneVerified] = useState(true);
+  const [phoneInput, setPhoneInput] = useState('');
+  const [otpInput, setOtpInput] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -159,6 +163,7 @@ export default function App() {
         const active = await mobileApi.getActiveRide();
         if (active.ride) setRide(active.ride);
       }
+      mobileApi.getPhoneVerifyStatus().then((s) => setPhoneVerified(s.verified)).catch(() => {});
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error');
     } finally {
@@ -354,6 +359,23 @@ export default function App() {
         </SafeAreaView>
       )}
       <SafeAreaView style={styles.sheet}>
+        {user?.role === 'passenger' && !phoneVerified && (
+          <View style={styles.settingsBox}>
+            <Text style={styles.muted}>Verifica tu teléfono</Text>
+            <TextInput style={styles.input} placeholder="+58..." value={phoneInput} onChangeText={setPhoneInput} placeholderTextColor="#666" />
+            <TextInput style={styles.input} placeholder="Código 6 dígitos" value={otpInput} onChangeText={setOtpInput} placeholderTextColor="#666" keyboardType="number-pad" />
+            <View style={styles.row}>
+              <Pressable style={styles.btnSmall} onPress={async () => {
+                const r = await mobileApi.sendPhoneOtp(phoneInput);
+                if (r.devHint) alert(`Dev OTP: ${r.devHint}`);
+              }}><Text style={styles.btnText}>Enviar OTP</Text></Pressable>
+              <Pressable style={styles.btnSmall} onPress={async () => {
+                await mobileApi.confirmPhoneOtp(phoneInput, otpInput);
+                setPhoneVerified(true);
+              }}><Text style={styles.btnText}>Verificar</Text></Pressable>
+            </View>
+          </View>
+        )}
         <View style={styles.sheetHeader}>
           <Text style={styles.sheetTitle}>{user?.name}</Text>
           <Text style={styles.roleBadge}>{user?.role === 'passenger' ? 'Pasajero' : 'Conductor'} · {connectionBadge}</Text>
@@ -491,8 +513,11 @@ export default function App() {
               <>
                 <Text style={styles.status}>{RIDE_STATUS_LABELS[ride.status]}</Text>
                 {ride.status === 'accepted' && (
-                  <Pressable style={styles.btn} onPress={async () => setRide(await mobileApi.updateRideStatus(ride.id, 'arriving'))}>
-                    <Text style={styles.btnText}>En camino</Text>
+                  <Pressable style={styles.btn} onPress={async () => {
+                    openTurnByTurnNavigation(ride.pickupLat, ride.pickupLng, ride.pickupAddress, false);
+                    setRide(await mobileApi.updateRideStatus(ride.id, 'arriving'));
+                  }}>
+                    <Text style={styles.btnText}>Navegar al pickup</Text>
                   </Pressable>
                 )}
                 {ride.status === 'arriving' && (
@@ -501,13 +526,18 @@ export default function App() {
                   </Pressable>
                 )}
                 {ride.status === 'in_progress' && (
-                  <Pressable style={styles.btn} onPress={async () => {
-                    const updated = await mobileApi.updateRideStatus(ride.id, 'completed');
-                    setRide(updated);
-                    setRated(false);
-                  }}>
-                    <Text style={styles.btnText}>Completar</Text>
-                  </Pressable>
+                  <>
+                    <Pressable style={styles.btnSecondary} onPress={() => openTurnByTurnNavigation(ride.dropoffLat, ride.dropoffLng, ride.dropoffAddress, true)}>
+                      <Text style={styles.btnSecondaryText}>Navegar al destino</Text>
+                    </Pressable>
+                    <Pressable style={styles.btn} onPress={async () => {
+                      const updated = await mobileApi.updateRideStatus(ride.id, 'completed');
+                      setRide(updated);
+                      setRated(false);
+                    }}>
+                      <Text style={styles.btnText}>Completar</Text>
+                    </Pressable>
+                  </>
                 )}
                 {ride.status === 'completed' && !rated && (
                   <View style={styles.ratingBox}>

@@ -43,6 +43,25 @@ Sin API solo puedes ver UI/auth; los viajes requieren backend.
 
 La sesión se guarda en el iPhone (SecureStore). La URL del API se guarda en ajustes.
 
+## Build para App Store / Play Store
+
+```bash
+cd apps/mobile
+npm install -g eas-cli
+eas login
+eas build:configure   # ya hay eas.json
+
+# Preview APK/IPA (test interno)
+npm run build:preview
+
+# Producción
+npm run build:production
+npm run submit:ios      # requiere Apple Developer + ascAppId en eas.json
+npm run submit:android  # requiere google-play-service-account.json
+```
+
+Edita `eas.json` con tu Apple ID, Team ID y cuenta de Google Play antes de submit.
+
 ## Variables
 
 | Variable | Uso |

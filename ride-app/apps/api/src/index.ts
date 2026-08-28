@@ -18,6 +18,8 @@ import chatRoutes from './routes/chat.js';
 import sosRoutes from './routes/sos.js';
 import shareRoutes from './routes/share.js';
 import onboardingRoutes from './routes/onboarding.js';
+import connectRoutes from './routes/connect.js';
+import verifyRoutes from './routes/verify.js';
 import { pool } from './db.js';
 import { activateScheduledRides } from './services/matching.js';
 
@@ -60,6 +62,8 @@ app.use('/chat', chatRoutes);
 app.use('/sos', sosRoutes);
 app.use('/share', shareRoutes);
 app.use('/onboarding', onboardingRoutes);
+app.use('/connect', connectRoutes);
+app.use('/verify', verifyRoutes);
 
 // Activate scheduled rides every minute
 setInterval(async () => {

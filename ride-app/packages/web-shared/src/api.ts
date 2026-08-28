@@ -163,6 +163,32 @@ class ApiClient {
     return this.request('/onboarding/documents', { method: 'POST', body: JSON.stringify(body) });
   }
 
+  getConnectStatus() {
+    return this.request<{ connected: boolean; onboarded: boolean; chargesEnabled: boolean }>('/connect/status');
+  }
+
+  startConnectOnboarding() {
+    return this.request<{ url?: string; mock?: boolean; message?: string }>('/connect/onboard', { method: 'POST' });
+  }
+
+  getPhoneVerifyStatus() {
+    return this.request<{ phone: string | null; verified: boolean }>('/verify/phone/status');
+  }
+
+  sendPhoneOtp(phone: string) {
+    return this.request<{ sent: boolean; mock?: boolean; devHint?: string }>('/verify/phone/send', {
+      method: 'POST',
+      body: JSON.stringify({ phone }),
+    });
+  }
+
+  confirmPhoneOtp(phone: string, code: string) {
+    return this.request<{ verified: boolean }>('/verify/phone/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ phone, code }),
+    });
+  }
+
   getAdminStats() {
     return this.request<{ users: number; drivers: number; rides: number; revenue: number; pendingDrivers: number; sosLast24h: number }>('/admin/stats');
   }

@@ -147,6 +147,32 @@ class MobileApi {
   triggerSos(rideId: string, lat?: number, lng?: number) {
     return this.request('/sos', { method: 'POST', body: JSON.stringify({ rideId, lat, lng }) });
   }
+
+  getConnectStatus() {
+    return this.request<{ onboarded: boolean }>('/connect/status');
+  }
+
+  startConnectOnboarding() {
+    return this.request<{ url?: string; message?: string }>('/connect/onboard', { method: 'POST' });
+  }
+
+  sendPhoneOtp(phone: string) {
+    return this.request<{ sent: boolean; devHint?: string }>('/verify/phone/send', {
+      method: 'POST',
+      body: JSON.stringify({ phone }),
+    });
+  }
+
+  confirmPhoneOtp(phone: string, code: string) {
+    return this.request<{ verified: boolean }>('/verify/phone/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ phone, code }),
+    });
+  }
+
+  getPhoneVerifyStatus() {
+    return this.request<{ phone: string | null; verified: boolean }>('/verify/phone/status');
+  }
 }
 
 export const mobileApi = new MobileApi();

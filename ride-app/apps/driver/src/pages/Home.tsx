@@ -25,6 +25,7 @@ export default function Home() {
   const [ride, setRide] = useState<Ride | null>(null);
   const [rated, setRated] = useState(false);
   const [earnings, setEarnings] = useState<{ totalEarnings: number; today: { total: number } } | null>(null);
+  const [connectStatus, setConnectStatus] = useState<{ onboarded: boolean } | null>(null);
   const [error, setError] = useState('');
   const watchRef = useRef<number | null>(null);
 
@@ -35,6 +36,7 @@ export default function Home() {
   useEffect(() => {
     api.getActiveRide().then((r) => r.ride && setRide(r.ride)).catch(() => {});
     api.getDriverEarnings().then(setEarnings).catch(() => {});
+    api.getConnectStatus().then(setConnectStatus).catch(() => {});
     const socket = getSocket();
     socket.emit('join:drivers');
     socket.on('ride:requested', loadPending);
@@ -148,6 +150,15 @@ export default function Home() {
               <h2>{online ? 'Viajes disponibles' : 'Ponte en línea para recibir viajes'}</h2>
               {earnings && (
                 <div className="meta-row"><span>Ganancias hoy</span><span>${earnings.today.total.toFixed(2)}</span></div>
+              )}
+              {connectStatus && !connectStatus.onboarded && (
+                <button className="btn-secondary" onClick={async () => {
+                  const r = await api.startConnectOnboarding();
+                  if (r.url) window.location.href = r.url;
+                  else alert(r.message ?? 'Stripe Connect no configurado');
+                }}>
+                  Configurar cobros (Stripe)
+                </button>
               )}
               <button className="btn-primary" onClick={toggleOnline}>
                 {online ? 'Ir offline' : 'Ir online'}
