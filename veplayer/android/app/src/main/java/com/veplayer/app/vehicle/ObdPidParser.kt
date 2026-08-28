@@ -94,6 +94,16 @@ object ObdPidParser {
         val hybridBattLifePct: Float? = null,
         /** Engine reference torque Nm (OBD PID 0163). */
         val engineRefTorqueNm: Float? = null,
+        /** Catalyst temp bank 1 sensor 6 °C (OBD PID 0179). */
+        val catalystB1s6TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 6 °C (OBD PID 017A). */
+        val catalystB2s6TempC: Float? = null,
+        /** Absolute throttle B % (OBD PID 0147). */
+        val throttleBPct: Float? = null,
+        /** Absolute throttle C % (OBD PID 0148). */
+        val throttleCPct: Float? = null,
+        /** Time run with MIL on min (OBD PID 0154). */
+        val milTimeMin: Int? = null,
         val runtimeSec: Int? = null,
         val milDistanceKm: Float? = null,
         val distSinceClearKm: Float? = null,
@@ -286,6 +296,20 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(engineRefTorqueNm = ((data[0] * 256) + data[1]).toFloat())
             }
+            0x79 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB1s6TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x7A -> {
+                if (data.size < 2) PidValues()
+                else PidValues(catalystB2s6TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
+            }
+            0x47 -> PidValues(throttleBPct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x48 -> PidValues(throttleCPct = data.getOrNull(0)?.let { it * 100f / 255f })
+            0x54 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(milTimeMin = (data[0] * 256) + data[1])
+            }
             0x1F -> {
                 if (data.size < 2) PidValues()
                 else PidValues(runtimeSec = (data[0] * 256) + data[1])
@@ -357,6 +381,11 @@ object ObdPidParser {
             fuelInjectTimingDeg = add.fuelInjectTimingDeg ?: base.fuelInjectTimingDeg,
             hybridBattLifePct = add.hybridBattLifePct ?: base.hybridBattLifePct,
             engineRefTorqueNm = add.engineRefTorqueNm ?: base.engineRefTorqueNm,
+            catalystB1s6TempC = add.catalystB1s6TempC ?: base.catalystB1s6TempC,
+            catalystB2s6TempC = add.catalystB2s6TempC ?: base.catalystB2s6TempC,
+            throttleBPct = add.throttleBPct ?: base.throttleBPct,
+            throttleCPct = add.throttleCPct ?: base.throttleCPct,
+            milTimeMin = add.milTimeMin ?: base.milTimeMin,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
             distSinceClearKm = add.distSinceClearKm ?: base.distSinceClearKm,

@@ -169,6 +169,16 @@ data class VehicleSignals(
         val hybridBattLifePct: Float? = null,
         /** Engine reference torque Nm (OBD PID 0163). */
         val engineRefTorqueNm: Float? = null,
+        /** Catalyst temp bank 1 sensor 6 °C (OBD PID 0179). */
+        val catalystB1s6TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 6 °C (OBD PID 017A). */
+        val catalystB2s6TempC: Float? = null,
+        /** Absolute throttle B % (OBD PID 0147). */
+        val throttleBPct: Float? = null,
+        /** Absolute throttle C % (OBD PID 0148). */
+        val throttleCPct: Float? = null,
+        /** Time run with MIL on min (OBD PID 0154). */
+        val milTimeMin: Int? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -288,6 +298,11 @@ data class VehicleSignals(
             "fuel_inject_timing_deg" to fuelInjectTimingDeg?.toDouble(),
             "hybrid_batt_life_pct" to hybridBattLifePct?.toDouble(),
             "engine_ref_torque_nm" to engineRefTorqueNm?.toDouble(),
+            "catalyst_b1s6_temp_c" to catalystB1s6TempC?.toDouble(),
+            "catalyst_b2s6_temp_c" to catalystB2s6TempC?.toDouble(),
+            "throttle_b_pct" to throttleBPct?.toDouble(),
+            "throttle_c_pct" to throttleCPct?.toDouble(),
+            "mil_time_min" to milTimeMin,
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

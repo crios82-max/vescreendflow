@@ -1860,6 +1860,103 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("ref_torque_sim_nm", 0f)
         set(value) = sp.edit().putFloat("ref_torque_sim_nm", value.coerceIn(0f, 2000f)).apply()
 
+    /** Catalyst temp B1S6 °C (OBD 0179). */
+    var catB1s6Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s6", true)
+        set(value) = sp.edit().putBoolean("cat_b1s6", value).apply()
+    var catB1s6Tts: Boolean
+        get() = sp.getBoolean("cat_b1s6_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s6_tts", value).apply()
+    var catB1s6WarnC: Float
+        get() = sp.getFloat("cat_b1s6_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s6_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s6AlertC: Float
+        get() = sp.getFloat("cat_b1s6_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s6_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s6SimC: Float
+        get() = sp.getFloat("cat_b1s6_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s6_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B2S6 °C (OBD 017A). */
+    var catB2s6Enabled: Boolean
+        get() = sp.getBoolean("cat_b2s6", true)
+        set(value) = sp.edit().putBoolean("cat_b2s6", value).apply()
+    var catB2s6Tts: Boolean
+        get() = sp.getBoolean("cat_b2s6_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2s6_tts", value).apply()
+    var catB2s6WarnC: Float
+        get() = sp.getFloat("cat_b2s6_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2s6_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2s6AlertC: Float
+        get() = sp.getFloat("cat_b2s6_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2s6_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2s6SimC: Float
+        get() = sp.getFloat("cat_b2s6_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2s6_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Throttle B % (OBD 0147). */
+    var thrBEnabled: Boolean
+        get() = sp.getBoolean("thr_b", true)
+        set(value) = sp.edit().putBoolean("thr_b", value).apply()
+    var thrBTts: Boolean
+        get() = sp.getBoolean("thr_b_tts", true)
+        set(value) = sp.edit().putBoolean("thr_b_tts", value).apply()
+    var thrBWarnPct: Float
+        get() = sp.getFloat("thr_b_warn_pct", 75f)
+        set(value) = sp.edit().putFloat("thr_b_warn_pct", value.coerceIn(40f, 95f)).apply()
+    var thrBAlertPct: Float
+        get() = sp.getFloat("thr_b_alert_pct", 90f)
+        set(value) = sp.edit().putFloat("thr_b_alert_pct", value.coerceIn(50f, 100f)).apply()
+    var thrBSpeedMinKmh: Float
+        get() = sp.getFloat("thr_b_speed_min", 20f)
+        set(value) = sp.edit().putFloat("thr_b_speed_min", value.coerceIn(0f, 60f)).apply()
+    var thrBSimPct: Float
+        get() = sp.getFloat("thr_b_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("thr_b_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var thrBSimSpeedKmh: Float
+        get() = sp.getFloat("thr_b_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("thr_b_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Throttle C % (OBD 0148). */
+    var thrCEnabled: Boolean
+        get() = sp.getBoolean("thr_c", true)
+        set(value) = sp.edit().putBoolean("thr_c", value).apply()
+    var thrCTts: Boolean
+        get() = sp.getBoolean("thr_c_tts", true)
+        set(value) = sp.edit().putBoolean("thr_c_tts", value).apply()
+    var thrCWarnPct: Float
+        get() = sp.getFloat("thr_c_warn_pct", 75f)
+        set(value) = sp.edit().putFloat("thr_c_warn_pct", value.coerceIn(40f, 95f)).apply()
+    var thrCAlertPct: Float
+        get() = sp.getFloat("thr_c_alert_pct", 90f)
+        set(value) = sp.edit().putFloat("thr_c_alert_pct", value.coerceIn(50f, 100f)).apply()
+    var thrCSpeedMinKmh: Float
+        get() = sp.getFloat("thr_c_speed_min", 20f)
+        set(value) = sp.edit().putFloat("thr_c_speed_min", value.coerceIn(0f, 60f)).apply()
+    var thrCSimPct: Float
+        get() = sp.getFloat("thr_c_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("thr_c_sim_pct", value.coerceIn(0f, 100f)).apply()
+    var thrCSimSpeedKmh: Float
+        get() = sp.getFloat("thr_c_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("thr_c_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Time with MIL on min (OBD 0154). */
+    var milTimeEnabled: Boolean
+        get() = sp.getBoolean("mil_time", true)
+        set(value) = sp.edit().putBoolean("mil_time", value).apply()
+    var milTimeTts: Boolean
+        get() = sp.getBoolean("mil_time_tts", true)
+        set(value) = sp.edit().putBoolean("mil_time_tts", value).apply()
+    var milTimeWarnMin: Int
+        get() = sp.getInt("mil_time_warn_min", 30)
+        set(value) = sp.edit().putInt("mil_time_warn_min", value.coerceIn(5, 180)).apply()
+    var milTimeAlertMin: Int
+        get() = sp.getInt("mil_time_alert_min", 60)
+        set(value) = sp.edit().putInt("mil_time_alert_min", value.coerceIn(10, 600)).apply()
+    var milTimeSimMin: Int
+        get() = sp.getInt("mil_time_sim_min", 0)
+        set(value) = sp.edit().putInt("mil_time_sim_min", value.coerceIn(0, 600)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
