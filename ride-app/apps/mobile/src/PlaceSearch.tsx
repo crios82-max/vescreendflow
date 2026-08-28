@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { googleMapsKey } from './storage';
+import { colors, placeholderColor } from './theme';
 
 export interface PlaceResult {
   latitude: number;
@@ -53,7 +54,7 @@ export function PlaceSearch({ placeholder, bias, onSelect }: Props) {
           separator: styles.separator,
         }}
         textInputProps={{
-          placeholderTextColor: '#888',
+          placeholderTextColor: placeholderColor,
           returnKeyType: 'search',
         }}
         keyboardShouldPersistTaps="handled"
@@ -66,23 +67,23 @@ const styles = StyleSheet.create({
   wrapper: { zIndex: 10, marginBottom: 4 },
   container: { flex: 0 },
   input: {
-    backgroundColor: 'rgba(17,17,17,0.95)',
-    color: '#fff',
+    backgroundColor: 'rgba(10,10,10,0.95)',
+    color: colors.text,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: colors.borderStrong,
     fontSize: 16,
     height: 48,
   },
   list: {
-    backgroundColor: '#111',
+    backgroundColor: colors.surfaceRaised,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: colors.borderStrong,
     marginTop: 4,
     maxHeight: 180,
   },
-  row: { backgroundColor: '#111', padding: 12 },
-  description: { color: '#ddd' },
-  separator: { backgroundColor: '#222', height: 1 },
+  row: { backgroundColor: colors.surfaceRaised, padding: 12 },
+  description: { color: colors.textMuted },
+  separator: { backgroundColor: colors.border, height: 1 },
 });

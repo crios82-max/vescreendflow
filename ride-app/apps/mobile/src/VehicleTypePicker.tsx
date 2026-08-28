@@ -1,5 +1,6 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import type { RideEstimateOption, VehicleType } from '@ride-app/shared';
+import { colors } from './theme';
 
 interface Props {
   options: RideEstimateOption[];
@@ -21,7 +22,7 @@ export function VehicleTypePicker({ options, selected, onSelect }: Props) {
             <Text style={styles.icon}>{option.icon}</Text>
             <Text style={styles.label}>{option.label}</Text>
             <Text style={styles.meta}>{option.seats} pax</Text>
-            <Text style={styles.price}>${option.estimatedPrice}</Text>
+            <Text style={[styles.price, active && styles.priceActive]}>${option.estimatedPrice}</Text>
           </Pressable>
         );
       })}
@@ -36,15 +37,19 @@ const styles = StyleSheet.create({
     padding: 12,
     marginRight: 8,
     borderRadius: 14,
-    backgroundColor: '#0d0d0d',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#2a2a2a',
+    borderColor: colors.borderStrong,
     alignItems: 'center',
     gap: 4,
   },
-  cardActive: { borderColor: '#fff', backgroundColor: '#1a1a1a' },
+  cardActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryDim,
+  },
   icon: { fontSize: 22 },
-  label: { color: '#fff', fontWeight: '700', fontSize: 13 },
-  meta: { color: '#888', fontSize: 11 },
-  price: { color: '#fff', fontWeight: '700', fontSize: 14, marginTop: 4 },
+  label: { color: colors.text, fontWeight: '700', fontSize: 13 },
+  meta: { color: colors.textMuted, fontSize: 11 },
+  price: { color: colors.textMuted, fontWeight: '700', fontSize: 14, marginTop: 4 },
+  priceActive: { color: colors.primary },
 });

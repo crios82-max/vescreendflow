@@ -2,7 +2,9 @@
 
 Desarrollo desde iPhone con **Expo Go** mientras estás de viaje. Pruebas completas con API en el Mac mini al regresar.
 
-## Requisitos
+## Tema Movify
+
+Colores en `src/theme.ts` (negro + lima `#A3E635`), alineado con la web.
 
 - iPhone con **Expo Go** ([App Store](https://apps.apple.com/app/expo-go/id982107779))
 - Mac con Node 20+ (puede estar en casa; ver tunnel abajo)
