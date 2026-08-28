@@ -79,15 +79,20 @@ export function createDriversRouter(io: SocketServer) {
   });
 
   router.get('/pending-rides', async (req, res) => {
-    const profile = await pool.query('SELECT lat, lng FROM driver_profiles WHERE user_id = $1', [
-      req.auth!.userId,
-    ]);
+    const profile = await pool.query(
+      'SELECT lat, lng, is_online, vehicle_type FROM driver_profiles WHERE user_id = $1',
+      [req.auth!.userId],
+    );
     if (profile.rows.length === 0 || !profile.rows[0].is_online) {
       return res.json({ rides: [] });
     }
 
+    const vehicleType = profile.rows[0].vehicle_type;
     const result = await pool.query(
-      `SELECT * FROM rides WHERE status = 'requested' ORDER BY created_at DESC LIMIT 20`,
+      `SELECT * FROM rides
+       WHERE status = 'requested' AND vehicle_type = $1
+       ORDER BY created_at DESC LIMIT 20`,
+      [vehicleType],
     );
     res.json({ rides: result.rows.map((r) => ({
       id: r.id,
@@ -95,6 +100,7 @@ export function createDriversRouter(io: SocketServer) {
       pickupLat: Number(r.pickup_lat),
       pickupLng: Number(r.pickup_lng),
       dropoffAddress: r.dropoff_address,
+      vehicleType: r.vehicle_type,
       estimatedPrice: Number(r.estimated_price),
       distanceKm: Number(r.distance_km),
     }))});

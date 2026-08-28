@@ -1,4 +1,4 @@
-import type { AuthResponse, Ride, User } from '@ride-app/shared';
+import type { AuthResponse, Ride, RideEstimate, User } from '@ride-app/shared';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4001';
 
@@ -41,10 +41,10 @@ class ApiClient {
   }
 
   estimateRide(body: object) {
-    return this.request<{ distanceKm: number; durationMin: number; estimatedPrice: number }>(
-      '/rides/estimate',
-      { method: 'POST', body: JSON.stringify(body) },
-    );
+    return this.request<RideEstimate>('/rides/estimate', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
   }
 
   createRide(body: object) {
@@ -93,6 +93,7 @@ class ApiClient {
       dropoffAddress: string;
       estimatedPrice: number;
       distanceKm: number;
+      vehicleType: string;
     }> }>('/drivers/pending-rides');
   }
 

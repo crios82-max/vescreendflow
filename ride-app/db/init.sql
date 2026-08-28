@@ -10,6 +10,8 @@ CREATE TYPE ride_status AS ENUM (
   'cancelled'
 );
 
+CREATE TYPE vehicle_type AS ENUM ('standard', 'comfort', 'xl', 'vans');
+
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT UNIQUE NOT NULL,
@@ -26,6 +28,7 @@ CREATE TABLE driver_profiles (
   vehicle_make TEXT,
   vehicle_model TEXT,
   vehicle_plate TEXT,
+  vehicle_type vehicle_type NOT NULL DEFAULT 'standard',
   rating NUMERIC(3,2) NOT NULL DEFAULT 5.00,
   lat DOUBLE PRECISION,
   lng DOUBLE PRECISION,
@@ -43,6 +46,7 @@ CREATE TABLE rides (
   dropoff_address TEXT NOT NULL,
   dropoff_lat DOUBLE PRECISION NOT NULL,
   dropoff_lng DOUBLE PRECISION NOT NULL,
+  vehicle_type vehicle_type NOT NULL DEFAULT 'standard',
   estimated_price NUMERIC(10,2) NOT NULL,
   final_price NUMERIC(10,2),
   distance_km NUMERIC(10,2) NOT NULL,
@@ -70,4 +74,5 @@ CREATE INDEX idx_rides_passenger ON rides(passenger_id);
 CREATE INDEX idx_rides_driver ON rides(driver_id);
 CREATE INDEX idx_rides_status ON rides(status);
 CREATE INDEX idx_driver_online ON driver_profiles(is_online) WHERE is_online = TRUE;
-CREATE INDEX idx_payments_ride ON payments(ride_id);
+CREATE INDEX idx_rides_vehicle_type ON rides(vehicle_type);
+CREATE INDEX idx_driver_vehicle_type ON driver_profiles(vehicle_type);

@@ -14,11 +14,12 @@ import {
 import * as Location from 'expo-location';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StatusBar } from 'expo-status-bar';
-import type { Ride, User } from '@ride-app/shared';
-import { RIDE_STATUS_LABELS } from '@ride-app/shared';
+import type { Ride, RideEstimate, User, VehicleType } from '@ride-app/shared';
+import { RIDE_STATUS_LABELS, VEHICLE_OPTIONS, VEHICLE_TYPES } from '@ride-app/shared';
 import { mobileApi } from './src/api';
 import { getMobileSocket, reconnectSocket } from './src/socket';
 import { PlaceSearch } from './src/PlaceSearch';
+import { VehicleTypePicker } from './src/VehicleTypePicker';
 import { defaultApiUrl, getApiUrl } from './src/storage';
 
 type Screen = 'auth' | 'home';
@@ -29,7 +30,7 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [role, setRole] = useState<'passenger' | 'driver'>('passenger');
-  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', phone: '', vehicleType: 'standard' as VehicleType });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [apiUrlInput, setApiUrlInput] = useState(defaultApiUrl());
@@ -41,9 +42,10 @@ export default function App() {
   const [dropoff, setDropoff] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
   const [ride, setRide] = useState<Ride | null>(null);
   const [driverPos, setDriverPos] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [estimate, setEstimate] = useState<{ estimatedPrice: number; distanceKm: number; durationMin: number } | null>(null);
+  const [estimate, setEstimate] = useState<RideEstimate | null>(null);
+  const [vehicleType, setVehicleType] = useState<VehicleType>('standard');
   const [online, setOnline] = useState(false);
-  const [pending, setPending] = useState<Array<{ id: string; pickupAddress: string; estimatedPrice: number }>>([]);
+  const [pending, setPending] = useState<Array<{ id: string; pickupAddress: string; estimatedPrice: number; vehicleType: string }>>([]);
 
   useEffect(() => {
     (async () => {
@@ -165,6 +167,7 @@ export default function App() {
         dropoffAddress: dropoff.address,
         dropoffLat: dropoff.latitude,
         dropoffLng: dropoff.longitude,
+        vehicleType,
       });
       setRide(created);
     } catch (err) {
@@ -184,7 +187,10 @@ export default function App() {
       dropoffAddress: dropoff.address,
       dropoffLat: dropoff.latitude,
       dropoffLng: dropoff.longitude,
-    }).then(setEstimate).catch(() => setEstimate(null));
+    }).then((data) => {
+      setEstimate(data);
+      setVehicleType(data.options[0]?.vehicleType ?? 'standard');
+    }).catch(() => setEstimate(null));
   }, [pickup, position, dropoff, user?.role]);
 
   const toggleOnline = async () => {
@@ -261,6 +267,21 @@ export default function App() {
             {mode === 'register' && (
               <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#888" value={form.name} onChangeText={(name) => setForm({ ...form, name })} />
             )}
+            {mode === 'register' && role === 'driver' && (
+              <View style={styles.row}>
+                {VEHICLE_TYPES.map((type) => (
+                  <Pressable
+                    key={type}
+                    style={[styles.chip, form.vehicleType === type && styles.chipActive]}
+                    onPress={() => setForm({ ...form, vehicleType: type })}
+                  >
+                    <Text style={form.vehicleType === type ? styles.chipTextActive : styles.chipText}>
+                      {VEHICLE_OPTIONS[type].icon} {VEHICLE_OPTIONS[type].label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
             <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" autoCapitalize="none" keyboardType="email-address" value={form.email} onChangeText={(email) => setForm({ ...form, email })} />
             <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor="#888" secureTextEntry value={form.password} onChangeText={(password) => setForm({ ...form, password })} />
             {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -277,6 +298,7 @@ export default function App() {
   }
 
   const mapCenter = driverPos ?? dropoff ?? pickup ?? position;
+  const selectedOption = estimate?.options.find((o) => o.vehicleType === vehicleType);
 
   return (
     <View style={styles.flex}>
@@ -316,16 +338,26 @@ export default function App() {
               <>
                 {dropoff && <Text style={styles.muted} numberOfLines={2}>{dropoff.address}</Text>}
                 {estimate && (
-                  <Text style={styles.price}>${estimate.estimatedPrice} · {estimate.distanceKm} km · ~{Math.round(estimate.durationMin)} min</Text>
+                  <Text style={styles.muted}>{estimate.distanceKm} km · ~{Math.round(estimate.durationMin)} min</Text>
+                )}
+                {estimate && (
+                  <VehicleTypePicker
+                    options={estimate.options}
+                    selected={vehicleType}
+                    onSelect={setVehicleType}
+                  />
                 )}
                 {error ? <Text style={styles.error}>{error}</Text> : null}
                 <Pressable style={[styles.btn, (!dropoff || loading) && styles.btnDisabled]} onPress={requestRide} disabled={!dropoff || loading}>
-                  <Text style={styles.btnText}>{loading ? 'Solicitando…' : 'Pedir Ride'}</Text>
+                  <Text style={styles.btnText}>
+                    {loading ? 'Solicitando…' : `Pedir ${selectedOption?.label ?? 'Ride'} · $${selectedOption?.estimatedPrice ?? ''}`}
+                  </Text>
                 </Pressable>
               </>
             ) : (
               <>
                 <Text style={styles.status}>{RIDE_STATUS_LABELS[ride.status]}</Text>
+                <Text style={styles.muted}>{VEHICLE_OPTIONS[ride.vehicleType].label}</Text>
                 <Text style={styles.price}>${ride.finalPrice ?? ride.estimatedPrice}</Text>
                 {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
                   <Pressable style={styles.btn} onPress={async () => {
@@ -355,7 +387,7 @@ export default function App() {
                 </Pressable>
                 {pending.map((p) => (
                   <View key={p.id} style={styles.card}>
-                    <Text style={styles.cardTitle}>${p.estimatedPrice}</Text>
+                    <Text style={styles.cardTitle}>${p.estimatedPrice} · {VEHICLE_OPTIONS[p.vehicleType as VehicleType]?.label ?? p.vehicleType}</Text>
                     <Text style={styles.muted} numberOfLines={2}>{p.pickupAddress}</Text>
                     <Pressable style={styles.btn} onPress={async () => setRide(await mobileApi.acceptRide(p.id))}>
                       <Text style={styles.btnText}>Aceptar</Text>

@@ -16,6 +16,7 @@ const registerSchema = z.object({
   vehicleMake: z.string().optional(),
   vehicleModel: z.string().optional(),
   vehiclePlate: z.string().optional(),
+  vehicleType: z.enum(['standard', 'comfort', 'xl', 'vans']).optional(),
 });
 
 router.post('/register', async (req, res) => {
@@ -24,7 +25,7 @@ router.post('/register', async (req, res) => {
     return res.status(400).json({ error: parsed.error.flatten() });
   }
 
-  const { email, password, name, phone, role, vehicleMake, vehicleModel, vehiclePlate } = parsed.data;
+  const { email, password, name, phone, role, vehicleMake, vehicleModel, vehiclePlate, vehicleType } = parsed.data;
   const hash = await bcrypt.hash(password, 10);
 
   const client = await pool.connect();
@@ -40,9 +41,9 @@ router.post('/register', async (req, res) => {
 
     if (role === 'driver') {
       await client.query(
-        `INSERT INTO driver_profiles (user_id, vehicle_make, vehicle_model, vehicle_plate)
-         VALUES ($1, $2, $3, $4)`,
-        [user.id, vehicleMake ?? null, vehicleModel ?? null, vehiclePlate ?? null],
+        `INSERT INTO driver_profiles (user_id, vehicle_make, vehicle_model, vehicle_plate, vehicle_type)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [user.id, vehicleMake ?? null, vehicleModel ?? null, vehiclePlate ?? null, vehicleType ?? 'standard'],
       );
     }
 

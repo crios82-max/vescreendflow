@@ -1,4 +1,4 @@
-import type { AuthResponse, Ride, User } from '@ride-app/shared';
+import type { AuthResponse, Ride, RideEstimate, User, VehicleType } from '@ride-app/shared';
 import { getApiUrl, getToken, setToken as persistToken } from './storage';
 
 class MobileApi {
@@ -66,10 +66,10 @@ class MobileApi {
   }
 
   estimateRide(body: object) {
-    return this.request<{ distanceKm: number; durationMin: number; estimatedPrice: number }>(
-      '/rides/estimate',
-      { method: 'POST', body: JSON.stringify(body) },
-    );
+    return this.request<RideEstimate>('/rides/estimate', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
   }
 
   updateRideStatus(id: string, status: string) {
@@ -111,6 +111,7 @@ class MobileApi {
       pickupAddress: string;
       estimatedPrice: number;
       distanceKm: number;
+      vehicleType: string;
     }> }>('/drivers/pending-rides');
   }
 }
