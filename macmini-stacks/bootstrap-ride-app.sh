@@ -42,7 +42,7 @@ npm install --legacy-peer-deps
 
 echo ">> docker + migraciones..."
 docker compose up -d
-chmod +x scripts/migrate.sh scripts/start-stack.sh scripts/stop-stack.sh
+chmod +x scripts/migrate.sh scripts/start-stack.sh scripts/stop-stack.sh scripts/check-prod.sh
 ./scripts/migrate.sh
 
 echo ">> build..."
@@ -55,10 +55,11 @@ echo ""
 echo "========================================"
 echo " Listo"
 echo "========================================"
-echo "  Pasajero:  http://localhost:5174"
+echo "  Pasajero:  http://localhost:5174  |  https://ride.vescreenflow.com"
 echo "  Conductor: http://localhost:5175"
 echo "  Admin:     http://localhost:5176"
 echo "  API:       http://localhost:4001/health"
 echo "  Tunnel:    https://ride-api.vescreenflow.com/health (tras DNS + cloudflared)"
+echo "  Check:     ./scripts/check-prod.sh"
 echo ""
 npm run health 2>/dev/null || curl -sf http://localhost:4001/health && echo " API ok"
