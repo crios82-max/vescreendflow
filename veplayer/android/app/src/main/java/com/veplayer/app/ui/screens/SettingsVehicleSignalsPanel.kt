@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.veplayer.app.data.VePrefs
@@ -70,7 +71,7 @@ internal fun SettingsVehicleSignalsPanel(
     SettingsVehicleSignalsPreamble(prefs, signalSource, onSignalSourceChange, obdAddr, onObdAddrChange, canBackend, onCanBackendChange, canIface, onCanIfaceChange, fmBackend, onFmBackendChange, onStatus, context, scope, live)
     SettingsVehicleSignalsNavPanel(prefs, onStatus, scope, context)
     SettingsVehicleSignalsSpeedHudPanel(prefs, onStatus, scope)
-    SettingsVehicleSignalsFuelHudPanel(prefs, onStatus, scope)
+    SettingsVehicleSignalsFuelHudPanel(prefs, onStatus, scope, live)
     SettingsVehicleSignalsIdlePanel(prefs, onStatus, scope)
     SettingsVehicleSignalsSosPanel(prefs, onStatus, scope, live, context)
     SettingsVehicleSignalsRemolquePanel(prefs, onStatus, scope, live)
@@ -96,7 +97,7 @@ private fun SettingsVehicleSignalsPreamble(
                         Button(
                             onClick = {
                                 onSignalSourceChange(kind.id)
-                                prefs.onSignalSourceChange(kind.id)
+                                prefs.signalSource = kind.id
                                 CanBusManager.rebind()
                                 onStatus("Fuente → ${kind.label}")
                             },
@@ -105,7 +106,7 @@ private fun SettingsVehicleSignalsPreamble(
                         OutlinedButton(
                             onClick = {
                                 onSignalSourceChange(kind.id)
-                                prefs.onSignalSourceChange(kind.id)
+                                prefs.signalSource = kind.id
                                 CanBusManager.rebind()
                                 onStatus("Fuente → ${kind.label}")
                             },
@@ -121,7 +122,7 @@ private fun SettingsVehicleSignalsPreamble(
                         Button(
                             onClick = {
                                 onCanBackendChange(b.id)
-                                prefs.onCanBackendChange(b.id)
+                                prefs.canBackend = b.id
                                 if (signalSource == "can") CanBusManager.rebind()
                                 onStatus("CAN → ${b.label}")
                             },
@@ -130,7 +131,7 @@ private fun SettingsVehicleSignalsPreamble(
                         OutlinedButton(
                             onClick = {
                                 onCanBackendChange(b.id)
-                                prefs.onCanBackendChange(b.id)
+                                prefs.canBackend = b.id
                                 if (signalSource == "can") CanBusManager.rebind()
                                 onStatus("CAN → ${b.label}")
                             },
@@ -270,7 +271,7 @@ private fun SettingsVehicleSignalsPreamble(
                         Button(
                             onClick = {
                                 onFmBackendChange(b.id)
-                                prefs.onFmBackendChange(b.id)
+                                prefs.fmBackend = b.id
                                 onStatus("FM → ${b.label}")
                             },
                         ) { Text(b.id) }
@@ -278,7 +279,7 @@ private fun SettingsVehicleSignalsPreamble(
                         OutlinedButton(
                             onClick = {
                                 onFmBackendChange(b.id)
-                                prefs.onFmBackendChange(b.id)
+                                prefs.fmBackend = b.id
                                 onStatus("FM → ${b.label}")
                             },
                         ) { Text(b.id) }
@@ -301,7 +302,7 @@ private fun SettingsVehicleSignalsPreamble(
                         onClick = {
                             onObdAddrChange(d.address)
                             prefs.obdDeviceAddress = d.address
-                            prefs.onSignalSourceChange("obd")
+                            prefs.signalSource = "obd"
                             onSignalSourceChange("obd")
                             CanBusManager.rebind()
                             onStatus("OBD → ${d.name} (${d.address})")
@@ -865,7 +866,7 @@ private fun SettingsVehicleSignalsSpeedHudPanel(
 
 @Composable
 private fun SettingsVehicleSignalsFuelHudPanel(
-    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope,
+    prefs: VePrefs, onStatus: (String) -> Unit, scope: CoroutineScope, live: com.veplayer.app.vehicle.VehicleSignals,
 ) {
         PanelBlock("Fuel / Range HUD") {
             var fuelOn by remember { mutableStateOf(prefs.fuelHudEnabled) }
@@ -5902,7 +5903,6 @@ private fun SettingsVehicleSignalsObdFase41_45(
                 color = if (thrSt.showWarn) Teal else Mute,
                 fontSize = 12.sp,
             )
-        }
 }
 
 private fun fmtPsi(v: Float?): String = v?.let { "%.1f".format(it) } ?: "—"
