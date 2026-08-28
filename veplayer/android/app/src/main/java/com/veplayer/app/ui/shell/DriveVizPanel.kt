@@ -127,6 +127,11 @@ import com.veplayer.app.vehicle.CatalystB2S10Monitor
 import com.veplayer.app.vehicle.EgrTemperatureMonitor
 import com.veplayer.app.vehicle.DieselIntakeAirflowMonitor
 import com.veplayer.app.vehicle.ThrottleActuatorMonitor
+import com.veplayer.app.vehicle.CatalystB1S11Monitor
+import com.veplayer.app.vehicle.CatalystB2S11Monitor
+import com.veplayer.app.vehicle.ActualEgrMonitor
+import com.veplayer.app.vehicle.InjectPressureControlMonitor
+import com.veplayer.app.vehicle.FuelPressureControlMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -250,6 +255,11 @@ fun DriveVizPanel(
     val egrTemp by EgrTemperatureMonitor.state.collectAsState()
     val dieselIaf by DieselIntakeAirflowMonitor.state.collectAsState()
     val thrAct by ThrottleActuatorMonitor.state.collectAsState()
+    val catB1s11 by CatalystB1S11Monitor.state.collectAsState()
+    val catB2s11 by CatalystB2S11Monitor.state.collectAsState()
+    val egrActual by ActualEgrMonitor.state.collectAsState()
+    val injectCtrl by InjectPressureControlMonitor.state.collectAsState()
+    val fuelCtrl by FuelPressureControlMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -359,6 +369,11 @@ fun DriveVizPanel(
             EgrTemperatureMonitor.tick(prefs, snap)
             DieselIntakeAirflowMonitor.tick(prefs, snap)
             ThrottleActuatorMonitor.tick(prefs, snap)
+            CatalystB1S11Monitor.tick(prefs, snap)
+            CatalystB2S11Monitor.tick(prefs, snap)
+            ActualEgrMonitor.tick(prefs, snap)
+            InjectPressureControlMonitor.tick(prefs, snap)
+            FuelPressureControlMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1011,6 +1026,21 @@ fun DriveVizPanel(
                 }
                 if (thrAct.showWarn || (prefs.thrActEnabled && thrAct.band == "ok" && thrAct.label.isNotBlank())) {
                     Text(thrAct.label, color = Color(com.veplayer.app.vehicle.ThrottleActuator.accentArgb(thrAct.band)), fontSize = 11.sp)
+                }
+                if (catB1s11.showWarn || (prefs.catB1s11Enabled && catB1s11.band == "ok" && catB1s11.label.isNotBlank())) {
+                    Text(catB1s11.label, color = Color(com.veplayer.app.vehicle.CatalystB1S11.accentArgb(catB1s11.band)), fontSize = 11.sp)
+                }
+                if (catB2s11.showWarn || (prefs.catB2s11Enabled && catB2s11.band == "ok" && catB2s11.label.isNotBlank())) {
+                    Text(catB2s11.label, color = Color(com.veplayer.app.vehicle.CatalystB2S11.accentArgb(catB2s11.band)), fontSize = 11.sp)
+                }
+                if (egrActual.showWarn || (prefs.egrActualEnabled && egrActual.band == "ok" && egrActual.label.isNotBlank())) {
+                    Text(egrActual.label, color = Color(com.veplayer.app.vehicle.ActualEgr.accentArgb(egrActual.band)), fontSize = 11.sp)
+                }
+                if (injectCtrl.showWarn || (prefs.injectCtrlEnabled && injectCtrl.band == "ok" && injectCtrl.label.isNotBlank())) {
+                    Text(injectCtrl.label, color = Color(com.veplayer.app.vehicle.InjectPressureControl.accentArgb(injectCtrl.band)), fontSize = 11.sp)
+                }
+                if (fuelCtrl.showWarn || (prefs.fuelCtrlEnabled && fuelCtrl.band == "ok" && fuelCtrl.label.isNotBlank())) {
+                    Text(fuelCtrl.label, color = Color(com.veplayer.app.vehicle.FuelPressureControl.accentArgb(fuelCtrl.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

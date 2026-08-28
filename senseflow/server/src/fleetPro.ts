@@ -3690,6 +3690,192 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Catalyst B1S11 (OBD PID 0183)
+    const catalystB1s11Obj = signals.catalyst_b1s11 as Record<string, unknown> | undefined
+    const catalystB1s11TempC =
+      typeof catalystB1s11Obj?.catalyst_temp_c === 'number'
+        ? (catalystB1s11Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b1s11_temp_c === 'number'
+          ? (signals.catalyst_b1s11_temp_c as number)
+          : null
+    if (typeof catalystB1s11TempC === 'number') {
+      const warnC = typeof signals.cat_b1s11_warn_c === 'number' ? (signals.cat_b1s11_warn_c as number) : 750
+      const alertC = typeof signals.cat_b1s11_alert_c === 'number' ? (signals.cat_b1s11_alert_c as number) : 850
+      if (catalystB1s11TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b1s11_alert', 300)) {
+        insertAlert(deviceId, 'cat_b1s11_alert', 'critical', `Catalizador B1S11 crítico · ${Math.round(catalystB1s11TempC)} °C`, {
+          catalyst_b1s11_temp_c: catalystB1s11TempC,
+          catalyst_b1s11: catalystB1s11Obj ?? null,
+        })
+        raised.push('cat_b1s11_alert')
+      } else if (
+        catalystB1s11TempC >= warnC &&
+        catalystB1s11TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b1s11_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b1s11_warn', 'warn', `Catalizador B1S11 caliente · ${Math.round(catalystB1s11TempC)} °C`, {
+          catalyst_b1s11_temp_c: catalystB1s11TempC,
+          catalyst_b1s11: catalystB1s11Obj ?? null,
+        })
+        raised.push('cat_b1s11_warn')
+      }
+    }
+
+    // Catalyst B2S11 (OBD PID 0184)
+    const catalystB2s11Obj = signals.catalyst_b2s11 as Record<string, unknown> | undefined
+    const catalystB2s11TempC =
+      typeof catalystB2s11Obj?.catalyst_temp_c === 'number'
+        ? (catalystB2s11Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b2s11_temp_c === 'number'
+          ? (signals.catalyst_b2s11_temp_c as number)
+          : null
+    if (typeof catalystB2s11TempC === 'number') {
+      const warnC = typeof signals.cat_b2s11_warn_c === 'number' ? (signals.cat_b2s11_warn_c as number) : 750
+      const alertC = typeof signals.cat_b2s11_alert_c === 'number' ? (signals.cat_b2s11_alert_c as number) : 850
+      if (catalystB2s11TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b2s11_alert', 300)) {
+        insertAlert(deviceId, 'cat_b2s11_alert', 'critical', `Catalizador B2S11 crítico · ${Math.round(catalystB2s11TempC)} °C`, {
+          catalyst_b2s11_temp_c: catalystB2s11TempC,
+          catalyst_b2s11: catalystB2s11Obj ?? null,
+        })
+        raised.push('cat_b2s11_alert')
+      } else if (
+        catalystB2s11TempC >= warnC &&
+        catalystB2s11TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b2s11_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b2s11_warn', 'warn', `Catalizador B2S11 caliente · ${Math.round(catalystB2s11TempC)} °C`, {
+          catalyst_b2s11_temp_c: catalystB2s11TempC,
+          catalyst_b2s11: catalystB2s11Obj ?? null,
+        })
+        raised.push('cat_b2s11_warn')
+      }
+    }
+
+    // Actual EGR (OBD PID 0169)
+    const egrActualObj = signals.egr_actual as Record<string, unknown> | undefined
+    const egrActualPct =
+      typeof egrActualObj?.egr_pct === 'number'
+        ? (egrActualObj.egr_pct as number)
+        : typeof signals.actual_egr_pct === 'number'
+          ? (signals.actual_egr_pct as number)
+          : null
+    const egrActualSpeed =
+      typeof egrActualObj?.speed_kmh === 'number'
+        ? (egrActualObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const egrActualMinSpd =
+      typeof signals.egr_actual_speed_min_kmh === 'number' ? (signals.egr_actual_speed_min_kmh as number) : 15
+    if (
+      typeof egrActualPct === 'number' &&
+      typeof egrActualSpeed === 'number' &&
+      egrActualSpeed >= egrActualMinSpd
+    ) {
+      const warnPct = typeof signals.egr_actual_warn_pct === 'number' ? (signals.egr_actual_warn_pct as number) : 55
+      const alertPct = typeof signals.egr_actual_alert_pct === 'number' ? (signals.egr_actual_alert_pct as number) : 70
+      if (egrActualPct >= alertPct && !recentlyAlerted(deviceId, 'egr_actual_alert', 120)) {
+        insertAlert(deviceId, 'egr_actual_alert', 'critical', `EGR real crítico · ${Math.round(egrActualPct)}%`, {
+          actual_egr_pct: egrActualPct,
+          egr_actual: egrActualObj ?? null,
+        })
+        raised.push('egr_actual_alert')
+      } else if (
+        egrActualPct >= warnPct &&
+        egrActualPct < alertPct &&
+        !recentlyAlerted(deviceId, 'egr_actual_warn', 120)
+      ) {
+        insertAlert(deviceId, 'egr_actual_warn', 'warn', `EGR real alto · ${Math.round(egrActualPct)}%`, {
+          actual_egr_pct: egrActualPct,
+          egr_actual: egrActualObj ?? null,
+        })
+        raised.push('egr_actual_warn')
+      }
+    }
+
+    // Injection pressure control (OBD PID 016E)
+    const injectCtrlObj = signals.inject_ctrl as Record<string, unknown> | undefined
+    const injectCtrlKpa =
+      typeof injectCtrlObj?.pressure_kpa === 'number'
+        ? (injectCtrlObj.pressure_kpa as number)
+        : typeof signals.inject_ctrl_kpa === 'number'
+          ? (signals.inject_ctrl_kpa as number)
+          : null
+    const injectCtrlSpeed =
+      typeof injectCtrlObj?.speed_kmh === 'number'
+        ? (injectCtrlObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const injectCtrlMinSpd =
+      typeof signals.inject_ctrl_speed_min_kmh === 'number' ? (signals.inject_ctrl_speed_min_kmh as number) : 10
+    if (
+      typeof injectCtrlKpa === 'number' &&
+      typeof injectCtrlSpeed === 'number' &&
+      injectCtrlSpeed >= injectCtrlMinSpd
+    ) {
+      const warnKpa = typeof signals.inject_ctrl_warn_kpa === 'number' ? (signals.inject_ctrl_warn_kpa as number) : 8000
+      const alertKpa = typeof signals.inject_ctrl_alert_kpa === 'number' ? (signals.inject_ctrl_alert_kpa as number) : 12000
+      if (injectCtrlKpa >= alertKpa && !recentlyAlerted(deviceId, 'inject_ctrl_alert', 120)) {
+        insertAlert(deviceId, 'inject_ctrl_alert', 'critical', `Presión inyección crítica · ${Math.round(injectCtrlKpa)} kPa`, {
+          inject_ctrl_kpa: injectCtrlKpa,
+          inject_ctrl: injectCtrlObj ?? null,
+        })
+        raised.push('inject_ctrl_alert')
+      } else if (
+        injectCtrlKpa >= warnKpa &&
+        injectCtrlKpa < alertKpa &&
+        !recentlyAlerted(deviceId, 'inject_ctrl_warn', 120)
+      ) {
+        insertAlert(deviceId, 'inject_ctrl_warn', 'warn', `Presión inyección alta · ${Math.round(injectCtrlKpa)} kPa`, {
+          inject_ctrl_kpa: injectCtrlKpa,
+          inject_ctrl: injectCtrlObj ?? null,
+        })
+        raised.push('inject_ctrl_warn')
+      }
+    }
+
+    // Fuel pressure control (OBD PID 016D)
+    const fuelCtrlObj = signals.fuel_ctrl as Record<string, unknown> | undefined
+    const fuelCtrlKpa =
+      typeof fuelCtrlObj?.pressure_kpa === 'number'
+        ? (fuelCtrlObj.pressure_kpa as number)
+        : typeof signals.fuel_ctrl_kpa === 'number'
+          ? (signals.fuel_ctrl_kpa as number)
+          : null
+    const fuelCtrlSpeed =
+      typeof fuelCtrlObj?.speed_kmh === 'number'
+        ? (fuelCtrlObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const fuelCtrlMinSpd =
+      typeof signals.fuel_ctrl_speed_min_kmh === 'number' ? (signals.fuel_ctrl_speed_min_kmh as number) : 10
+    if (
+      typeof fuelCtrlKpa === 'number' &&
+      typeof fuelCtrlSpeed === 'number' &&
+      fuelCtrlSpeed >= fuelCtrlMinSpd
+    ) {
+      const warnKpa = typeof signals.fuel_ctrl_warn_kpa === 'number' ? (signals.fuel_ctrl_warn_kpa as number) : 6000
+      const alertKpa = typeof signals.fuel_ctrl_alert_kpa === 'number' ? (signals.fuel_ctrl_alert_kpa as number) : 9000
+      if (fuelCtrlKpa >= alertKpa && !recentlyAlerted(deviceId, 'fuel_ctrl_alert', 120)) {
+        insertAlert(deviceId, 'fuel_ctrl_alert', 'critical', `Control combustible crítico · ${Math.round(fuelCtrlKpa)} kPa`, {
+          fuel_ctrl_kpa: fuelCtrlKpa,
+          fuel_ctrl: fuelCtrlObj ?? null,
+        })
+        raised.push('fuel_ctrl_alert')
+      } else if (
+        fuelCtrlKpa >= warnKpa &&
+        fuelCtrlKpa < alertKpa &&
+        !recentlyAlerted(deviceId, 'fuel_ctrl_warn', 120)
+      ) {
+        insertAlert(deviceId, 'fuel_ctrl_warn', 'warn', `Control combustible alto · ${Math.round(fuelCtrlKpa)} kPa`, {
+          fuel_ctrl_kpa: fuelCtrlKpa,
+          fuel_ctrl: fuelCtrlObj ?? null,
+        })
+        raised.push('fuel_ctrl_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
