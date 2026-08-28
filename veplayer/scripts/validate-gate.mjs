@@ -4,7 +4,7 @@
  * 1) OBD parser parity (JS ↔ Kotlin)
  * 2) POLL list parity
  * 3) DBC decode smoke
- * 4) Fleet alert smokes fase 16–33 (SenseFlow API)
+ * 4) Fleet alert smokes fase 16–34 (SenseFlow API)
  *
  * Env: SENSEFLOW_URL (default http://127.0.0.1:4100)
  * Skip API: VALIDATE_SKIP_FLEET=1
@@ -47,7 +47,7 @@ async function main() {
       console.error(e)
       process.exit(1)
     }
-    for (const n of [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33]) {
+    for (const n of [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34]) {
       run(`fase${n}-smoke`, `fase${n}-smoke.mjs`)
     }
   }

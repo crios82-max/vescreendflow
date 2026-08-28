@@ -158,6 +158,11 @@ import com.veplayer.app.vehicle.EgtB2S7Monitor
 import com.veplayer.app.vehicle.EgtB1S8Monitor
 import com.veplayer.app.vehicle.EgtB2S8Monitor
 import com.veplayer.app.vehicle.O2ConcB1S3Monitor
+import com.veplayer.app.vehicle.O2ConcB1S4Monitor
+import com.veplayer.app.vehicle.O2ConcB2S3Monitor
+import com.veplayer.app.vehicle.O2ConcB2S4Monitor
+import com.veplayer.app.vehicle.DefDosingCmdMonitor
+import com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -318,6 +323,11 @@ fun DriveVizPanel(
     val egtB1s8 by EgtB1S8Monitor.state.collectAsState()
     val egtB2s8 by EgtB2S8Monitor.state.collectAsState()
     val o2ConcB1s3 by O2ConcB1S3Monitor.state.collectAsState()
+    val o2ConcB1s4 by O2ConcB1S4Monitor.state.collectAsState()
+    val o2ConcB2s3 by O2ConcB2S3Monitor.state.collectAsState()
+    val o2ConcB2s4 by O2ConcB2S4Monitor.state.collectAsState()
+    val defDose by DefDosingCmdMonitor.state.collectAsState()
+    val noxCorrB1s1 by NoxCorrectedB1S1Monitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -461,6 +471,11 @@ fun DriveVizPanel(
             EgtB1S8Monitor.tick(prefs, snap)
             EgtB2S8Monitor.tick(prefs, snap)
             O2ConcB1S3Monitor.tick(prefs, snap)
+            O2ConcB1S4Monitor.tick(prefs, snap)
+            O2ConcB2S3Monitor.tick(prefs, snap)
+            O2ConcB2S4Monitor.tick(prefs, snap)
+            DefDosingCmdMonitor.tick(prefs, snap)
+            NoxCorrectedB1S1Monitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1215,6 +1230,21 @@ fun DriveVizPanel(
                 }
                 if (o2ConcB1s3.showWarn || (prefs.o2ConcB1s3Enabled && o2ConcB1s3.band == "ok" && o2ConcB1s3.label.isNotBlank())) {
                     Text(o2ConcB1s3.label, color = Color(com.veplayer.app.vehicle.O2ConcB1S3.accentArgb(o2ConcB1s3.band)), fontSize = 11.sp)
+                }
+                if (o2ConcB1s4.showWarn || (prefs.o2ConcB1s4Enabled && o2ConcB1s4.band == "ok" && o2ConcB1s4.label.isNotBlank())) {
+                    Text(o2ConcB1s4.label, color = Color(com.veplayer.app.vehicle.O2ConcB1S4.accentArgb(o2ConcB1s4.band)), fontSize = 11.sp)
+                }
+                if (o2ConcB2s3.showWarn || (prefs.o2ConcB2s3Enabled && o2ConcB2s3.band == "ok" && o2ConcB2s3.label.isNotBlank())) {
+                    Text(o2ConcB2s3.label, color = Color(com.veplayer.app.vehicle.O2ConcB2S3.accentArgb(o2ConcB2s3.band)), fontSize = 11.sp)
+                }
+                if (o2ConcB2s4.showWarn || (prefs.o2ConcB2s4Enabled && o2ConcB2s4.band == "ok" && o2ConcB2s4.label.isNotBlank())) {
+                    Text(o2ConcB2s4.label, color = Color(com.veplayer.app.vehicle.O2ConcB2S4.accentArgb(o2ConcB2s4.band)), fontSize = 11.sp)
+                }
+                if (defDose.showWarn || (prefs.defDoseEnabled && defDose.band == "ok" && defDose.label.isNotBlank())) {
+                    Text(defDose.label, color = Color(com.veplayer.app.vehicle.DefDosingCmd.accentArgb(defDose.band)), fontSize = 11.sp)
+                }
+                if (noxCorrB1s1.showWarn || (prefs.noxCorrB1s1Enabled && noxCorrB1s1.band == "ok" && noxCorrB1s1.label.isNotBlank())) {
+                    Text(noxCorrB1s1.label, color = Color(com.veplayer.app.vehicle.NoxCorrectedB1S1.accentArgb(noxCorrB1s1.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

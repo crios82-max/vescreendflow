@@ -4765,6 +4765,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 34 OBD (9C/A5/A1):", color = Mist)
+            val o2ConcB1s4St by com.veplayer.app.vehicle.O2ConcB1S4Monitor.state.collectAsState()
+            val o2ConcB2s3St by com.veplayer.app.vehicle.O2ConcB2S3Monitor.state.collectAsState()
+            val o2ConcB2s4St by com.veplayer.app.vehicle.O2ConcB2S4Monitor.state.collectAsState()
+            val defDoseSt by com.veplayer.app.vehicle.DefDosingCmdMonitor.state.collectAsState()
+            val noxCorrB1s1St by com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor.state.collectAsState()
+            var f34O2C4 by remember {
+                mutableStateOf(if (prefs.o2ConcB1s4Sim > 0f) prefs.o2ConcB1s4Sim.toString() else "0")
+            }
+            var f34O2C23 by remember {
+                mutableStateOf(if (prefs.o2ConcB2s3Sim > 0f) prefs.o2ConcB2s3Sim.toString() else "0")
+            }
+            var f34O2C24 by remember {
+                mutableStateOf(if (prefs.o2ConcB2s4Sim > 0f) prefs.o2ConcB2s4Sim.toString() else "0")
+            }
+            var f34DefDose by remember {
+                mutableStateOf(if (prefs.defDoseSimPct > 0f) prefs.defDoseSimPct.toInt().toString() else "0")
+            }
+            var f34NoxCorr by remember {
+                mutableStateOf(if (prefs.noxCorrB1s1Sim > 0f) prefs.noxCorrB1s1Sim.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f34O2C4,
+                    onValueChange = { f34O2C4 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2C4 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f34O2C23,
+                    onValueChange = { f34O2C23 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2C23 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f34O2C24,
+                    onValueChange = { f34O2C24 = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("O2C24 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f34DefDose,
+                    onValueChange = { f34DefDose = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("DEFDose %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f34NoxCorr,
+                    onValueChange = { f34NoxCorr = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("NOxC1 ppm") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.o2ConcB1s4Sim = f34O2C4.toFloatOrNull() ?: 0f
+                    prefs.o2ConcB2s3Sim = f34O2C23.toFloatOrNull() ?: 0f
+                    prefs.o2ConcB2s4Sim = f34O2C24.toFloatOrNull() ?: 0f
+                    prefs.defDoseSimPct = f34DefDose.toFloatOrNull() ?: 0f
+                    prefs.noxCorrB1s1Sim = f34NoxCorr.toFloatOrNull() ?: 0f
+                    status = "Fase 34 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 34") }
+            Text(
+                listOfNotNull(
+                    o2ConcB1s4St.label.takeIf { it.isNotBlank() },
+                    o2ConcB2s3St.label.takeIf { it.isNotBlank() },
+                    o2ConcB2s4St.label.takeIf { it.isNotBlank() },
+                    defDoseSt.label.takeIf { it.isNotBlank() },
+                    noxCorrB1s1St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 34 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

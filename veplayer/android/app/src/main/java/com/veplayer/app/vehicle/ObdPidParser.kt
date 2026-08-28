@@ -210,6 +210,16 @@ object ObdPidParser {
         val o2LambdaB2s4: Float? = null,
         /** O2 concentration bank 1 sensor 3 % (OBD PID 019C bytes B/C). */
         val o2ConcB1s3Pct: Float? = null,
+        /** O2 concentration bank 1 sensor 4 % (OBD PID 019C bytes D/E). */
+        val o2ConcB1s4Pct: Float? = null,
+        /** O2 concentration bank 2 sensor 3 % (OBD PID 019C bytes F/G). */
+        val o2ConcB2s3Pct: Float? = null,
+        /** O2 concentration bank 2 sensor 4 % (OBD PID 019C bytes H/I). */
+        val o2ConcB2s4Pct: Float? = null,
+        /** Commanded DEF dosing % (OBD PID 01A5 byte B / 2). */
+        val defDosingCmdPct: Float? = null,
+        /** NOx corrected bank 1 sensor 1 ppm (OBD PID 01A1 bytes B/C). */
+        val noxCorrectedB1s1Ppm: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -548,17 +558,31 @@ object ObdPidParser {
             }
             0x9C -> {
                 val cB1s3 = if (data.size >= 3) ((data[1] * 256) + data[2]) * 0.001526f else null
+                val cB1s4 = if (data.size >= 5) ((data[3] * 256) + data[4]) * 0.001526f else null
+                val cB2s3 = if (data.size >= 7) ((data[5] * 256) + data[6]) * 0.001526f else null
+                val cB2s4 = if (data.size >= 9) ((data[7] * 256) + data[8]) * 0.001526f else null
                 val b1s3 = if (data.size >= 11) ((data[9] * 256) + data[10]) * 0.000122f else null
                 val b2s3 = if (data.size >= 15) ((data[13] * 256) + data[14]) * 0.000122f else null
                 val b1s4 = if (data.size >= 13) ((data[11] * 256) + data[12]) * 0.000122f else null
                 val b2s4 = if (data.size >= 17) ((data[15] * 256) + data[16]) * 0.000122f else null
                 PidValues(
                     o2ConcB1s3Pct = cB1s3,
+                    o2ConcB1s4Pct = cB1s4,
+                    o2ConcB2s3Pct = cB2s3,
+                    o2ConcB2s4Pct = cB2s4,
                     o2LambdaB1s3 = b1s3,
                     o2LambdaB2s3 = b2s3,
                     o2LambdaB1s4 = b1s4,
                     o2LambdaB2s4 = b2s4,
                 )
+            }
+            0xA5 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(defDosingCmdPct = data[1] / 2f)
+            }
+            0xA1 -> {
+                if (data.size < 3) PidValues()
+                else PidValues(noxCorrectedB1s1Ppm = ((data[1] * 256) + data[2]).toFloat())
             }
             0x9B -> {
                 if (data.size < 4) PidValues()
@@ -708,6 +732,11 @@ object ObdPidParser {
             o2LambdaB1s4 = add.o2LambdaB1s4 ?: base.o2LambdaB1s4,
             o2LambdaB2s4 = add.o2LambdaB2s4 ?: base.o2LambdaB2s4,
             o2ConcB1s3Pct = add.o2ConcB1s3Pct ?: base.o2ConcB1s3Pct,
+            o2ConcB1s4Pct = add.o2ConcB1s4Pct ?: base.o2ConcB1s4Pct,
+            o2ConcB2s3Pct = add.o2ConcB2s3Pct ?: base.o2ConcB2s3Pct,
+            o2ConcB2s4Pct = add.o2ConcB2s4Pct ?: base.o2ConcB2s4Pct,
+            defDosingCmdPct = add.defDosingCmdPct ?: base.defDosingCmdPct,
+            noxCorrectedB1s1Ppm = add.noxCorrectedB1s1Ppm ?: base.noxCorrectedB1s1Ppm,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

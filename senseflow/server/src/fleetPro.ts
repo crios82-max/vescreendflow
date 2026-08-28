@@ -4896,6 +4896,201 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // O2 concentration B1S4 (OBD PID 019C)
+    const o2ConcB1s4Obj = signals.o2_conc_b1s4 as Record<string, unknown> | undefined
+    const o2ConcB1s4Pct =
+      typeof o2ConcB1s4Obj?.conc_pct === 'number'
+        ? (o2ConcB1s4Obj.conc_pct as number)
+        : typeof signals.o2_conc_b1s4_pct === 'number'
+          ? (signals.o2_conc_b1s4_pct as number)
+          : null
+    const o2ConcB1s4Speed =
+      typeof o2ConcB1s4Obj?.speed_kmh === 'number'
+        ? (o2ConcB1s4Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof o2ConcB1s4Pct === 'number') {
+      const warnP = typeof signals.o2_conc_b1s4_warn === 'number' ? (signals.o2_conc_b1s4_warn as number) : 12
+      const alertP = typeof signals.o2_conc_b1s4_alert === 'number' ? (signals.o2_conc_b1s4_alert as number) : 18
+      const minSpd = typeof signals.o2_conc_b1s4_speed_min_kmh === 'number' ? (signals.o2_conc_b1s4_speed_min_kmh as number) : 20
+      const spdOk = typeof o2ConcB1s4Speed === 'number' && o2ConcB1s4Speed >= minSpd
+      if (spdOk && o2ConcB1s4Pct >= alertP && !recentlyAlerted(deviceId, 'o2_conc_b1s4_alert', 120)) {
+        insertAlert(deviceId, 'o2_conc_b1s4_alert', 'critical', `O2 conc B1S4 crítica · ${o2ConcB1s4Pct.toFixed(1)}%`, {
+          o2_conc_b1s4_pct: o2ConcB1s4Pct,
+          o2_conc_b1s4: o2ConcB1s4Obj ?? null,
+        })
+        raised.push('o2_conc_b1s4_alert')
+      } else if (
+        spdOk &&
+        o2ConcB1s4Pct >= warnP &&
+        o2ConcB1s4Pct < alertP &&
+        !recentlyAlerted(deviceId, 'o2_conc_b1s4_warn', 120)
+      ) {
+        insertAlert(deviceId, 'o2_conc_b1s4_warn', 'warn', `O2 conc B1S4 alta · ${o2ConcB1s4Pct.toFixed(1)}%`, {
+          o2_conc_b1s4_pct: o2ConcB1s4Pct,
+          o2_conc_b1s4: o2ConcB1s4Obj ?? null,
+        })
+        raised.push('o2_conc_b1s4_warn')
+      }
+    }
+
+    // O2 concentration B2S3 (OBD PID 019C)
+    const o2ConcB2s3Obj = signals.o2_conc_b2s3 as Record<string, unknown> | undefined
+    const o2ConcB2s3Pct =
+      typeof o2ConcB2s3Obj?.conc_pct === 'number'
+        ? (o2ConcB2s3Obj.conc_pct as number)
+        : typeof signals.o2_conc_b2s3_pct === 'number'
+          ? (signals.o2_conc_b2s3_pct as number)
+          : null
+    const o2ConcB2s3Speed =
+      typeof o2ConcB2s3Obj?.speed_kmh === 'number'
+        ? (o2ConcB2s3Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof o2ConcB2s3Pct === 'number') {
+      const warnP = typeof signals.o2_conc_b2s3_warn === 'number' ? (signals.o2_conc_b2s3_warn as number) : 12
+      const alertP = typeof signals.o2_conc_b2s3_alert === 'number' ? (signals.o2_conc_b2s3_alert as number) : 18
+      const minSpd = typeof signals.o2_conc_b2s3_speed_min_kmh === 'number' ? (signals.o2_conc_b2s3_speed_min_kmh as number) : 20
+      const spdOk = typeof o2ConcB2s3Speed === 'number' && o2ConcB2s3Speed >= minSpd
+      if (spdOk && o2ConcB2s3Pct >= alertP && !recentlyAlerted(deviceId, 'o2_conc_b2s3_alert', 120)) {
+        insertAlert(deviceId, 'o2_conc_b2s3_alert', 'critical', `O2 conc B2S3 crítica · ${o2ConcB2s3Pct.toFixed(1)}%`, {
+          o2_conc_b2s3_pct: o2ConcB2s3Pct,
+          o2_conc_b2s3: o2ConcB2s3Obj ?? null,
+        })
+        raised.push('o2_conc_b2s3_alert')
+      } else if (
+        spdOk &&
+        o2ConcB2s3Pct >= warnP &&
+        o2ConcB2s3Pct < alertP &&
+        !recentlyAlerted(deviceId, 'o2_conc_b2s3_warn', 120)
+      ) {
+        insertAlert(deviceId, 'o2_conc_b2s3_warn', 'warn', `O2 conc B2S3 alta · ${o2ConcB2s3Pct.toFixed(1)}%`, {
+          o2_conc_b2s3_pct: o2ConcB2s3Pct,
+          o2_conc_b2s3: o2ConcB2s3Obj ?? null,
+        })
+        raised.push('o2_conc_b2s3_warn')
+      }
+    }
+
+    // O2 concentration B2S4 (OBD PID 019C)
+    const o2ConcB2s4Obj = signals.o2_conc_b2s4 as Record<string, unknown> | undefined
+    const o2ConcB2s4Pct =
+      typeof o2ConcB2s4Obj?.conc_pct === 'number'
+        ? (o2ConcB2s4Obj.conc_pct as number)
+        : typeof signals.o2_conc_b2s4_pct === 'number'
+          ? (signals.o2_conc_b2s4_pct as number)
+          : null
+    const o2ConcB2s4Speed =
+      typeof o2ConcB2s4Obj?.speed_kmh === 'number'
+        ? (o2ConcB2s4Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof o2ConcB2s4Pct === 'number') {
+      const warnP = typeof signals.o2_conc_b2s4_warn === 'number' ? (signals.o2_conc_b2s4_warn as number) : 12
+      const alertP = typeof signals.o2_conc_b2s4_alert === 'number' ? (signals.o2_conc_b2s4_alert as number) : 18
+      const minSpd = typeof signals.o2_conc_b2s4_speed_min_kmh === 'number' ? (signals.o2_conc_b2s4_speed_min_kmh as number) : 20
+      const spdOk = typeof o2ConcB2s4Speed === 'number' && o2ConcB2s4Speed >= minSpd
+      if (spdOk && o2ConcB2s4Pct >= alertP && !recentlyAlerted(deviceId, 'o2_conc_b2s4_alert', 120)) {
+        insertAlert(deviceId, 'o2_conc_b2s4_alert', 'critical', `O2 conc B2S4 crítica · ${o2ConcB2s4Pct.toFixed(1)}%`, {
+          o2_conc_b2s4_pct: o2ConcB2s4Pct,
+          o2_conc_b2s4: o2ConcB2s4Obj ?? null,
+        })
+        raised.push('o2_conc_b2s4_alert')
+      } else if (
+        spdOk &&
+        o2ConcB2s4Pct >= warnP &&
+        o2ConcB2s4Pct < alertP &&
+        !recentlyAlerted(deviceId, 'o2_conc_b2s4_warn', 120)
+      ) {
+        insertAlert(deviceId, 'o2_conc_b2s4_warn', 'warn', `O2 conc B2S4 alta · ${o2ConcB2s4Pct.toFixed(1)}%`, {
+          o2_conc_b2s4_pct: o2ConcB2s4Pct,
+          o2_conc_b2s4: o2ConcB2s4Obj ?? null,
+        })
+        raised.push('o2_conc_b2s4_warn')
+      }
+    }
+
+    // Commanded DEF dosing (OBD PID 01A5)
+    const defDoseObj = signals.def_dose as Record<string, unknown> | undefined
+    const defDosePct =
+      typeof defDoseObj?.dose_pct === 'number'
+        ? (defDoseObj.dose_pct as number)
+        : typeof signals.def_dosing_cmd_pct === 'number'
+          ? (signals.def_dosing_cmd_pct as number)
+          : null
+    const defDoseSpeed =
+      typeof defDoseObj?.speed_kmh === 'number'
+        ? (defDoseObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof defDosePct === 'number') {
+      const warnP = typeof signals.def_dose_warn_pct === 'number' ? (signals.def_dose_warn_pct as number) : 60
+      const alertP = typeof signals.def_dose_alert_pct === 'number' ? (signals.def_dose_alert_pct as number) : 90
+      const minSpd = typeof signals.def_dose_speed_min_kmh === 'number' ? (signals.def_dose_speed_min_kmh as number) : 20
+      const spdOk = typeof defDoseSpeed === 'number' && defDoseSpeed >= minSpd
+      if (spdOk && defDosePct >= alertP && !recentlyAlerted(deviceId, 'def_dose_alert', 120)) {
+        insertAlert(deviceId, 'def_dose_alert', 'critical', `DEF dosing crítico · ${Math.round(defDosePct)}%`, {
+          def_dosing_cmd_pct: defDosePct,
+          def_dose: defDoseObj ?? null,
+        })
+        raised.push('def_dose_alert')
+      } else if (
+        spdOk &&
+        defDosePct >= warnP &&
+        defDosePct < alertP &&
+        !recentlyAlerted(deviceId, 'def_dose_warn', 120)
+      ) {
+        insertAlert(deviceId, 'def_dose_warn', 'warn', `DEF dosing alto · ${Math.round(defDosePct)}%`, {
+          def_dosing_cmd_pct: defDosePct,
+          def_dose: defDoseObj ?? null,
+        })
+        raised.push('def_dose_warn')
+      }
+    }
+
+    // NOx corrected B1S1 (OBD PID 01A1)
+    const noxCorrB1s1Obj = signals.nox_corr_b1s1 as Record<string, unknown> | undefined
+    const noxCorrB1s1Ppm =
+      typeof noxCorrB1s1Obj?.nox_ppm === 'number'
+        ? (noxCorrB1s1Obj.nox_ppm as number)
+        : typeof signals.nox_corrected_b1s1_ppm === 'number'
+          ? (signals.nox_corrected_b1s1_ppm as number)
+          : null
+    const noxCorrB1s1Speed =
+      typeof noxCorrB1s1Obj?.speed_kmh === 'number'
+        ? (noxCorrB1s1Obj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof noxCorrB1s1Ppm === 'number') {
+      const warnP = typeof signals.nox_corr_b1s1_warn === 'number' ? (signals.nox_corr_b1s1_warn as number) : 600
+      const alertP = typeof signals.nox_corr_b1s1_alert === 'number' ? (signals.nox_corr_b1s1_alert as number) : 800
+      const minSpd = typeof signals.nox_corr_b1s1_speed_min_kmh === 'number' ? (signals.nox_corr_b1s1_speed_min_kmh as number) : 20
+      const spdOk = typeof noxCorrB1s1Speed === 'number' && noxCorrB1s1Speed >= minSpd
+      if (spdOk && noxCorrB1s1Ppm >= alertP && !recentlyAlerted(deviceId, 'nox_corr_b1s1_alert', 120)) {
+        insertAlert(deviceId, 'nox_corr_b1s1_alert', 'critical', `NOx corregido B1S1 crítico · ${Math.round(noxCorrB1s1Ppm)} ppm`, {
+          nox_corrected_b1s1_ppm: noxCorrB1s1Ppm,
+          nox_corr_b1s1: noxCorrB1s1Obj ?? null,
+        })
+        raised.push('nox_corr_b1s1_alert')
+      } else if (
+        spdOk &&
+        noxCorrB1s1Ppm >= warnP &&
+        noxCorrB1s1Ppm < alertP &&
+        !recentlyAlerted(deviceId, 'nox_corr_b1s1_warn', 120)
+      ) {
+        insertAlert(deviceId, 'nox_corr_b1s1_warn', 'warn', `NOx corregido B1S1 alto · ${Math.round(noxCorrB1s1Ppm)} ppm`, {
+          nox_corrected_b1s1_ppm: noxCorrB1s1Ppm,
+          nox_corr_b1s1: noxCorrB1s1Obj ?? null,
+        })
+        raised.push('nox_corr_b1s1_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

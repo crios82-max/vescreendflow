@@ -1309,6 +1309,66 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.O2ConcB1S3.toJsonMap(
                                             com.veplayer.app.vehicle.O2ConcB1S3Monitor.state.value,
                                         ),
+                                    "o2_conc_b1s4_warn" to prefs.o2ConcB1s4Warn.toDouble(),
+                                    "o2_conc_b1s4_alert" to prefs.o2ConcB1s4Alert.toDouble(),
+                                    "o2_conc_b1s4_speed_min_kmh" to prefs.o2ConcB1s4SpeedMinKmh.toDouble(),
+                                    "o2_conc_b1s4_pct" to
+                                        (if (prefs.o2ConcB1s4Sim > 0f) prefs.o2ConcB1s4Sim
+                                        else com.veplayer.app.vehicle.O2ConcB1S4Monitor.state.value.concPct
+                                            ?: snap.o2ConcB1s4Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b1s4" to
+                                        com.veplayer.app.vehicle.O2ConcB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB1S4Monitor.state.value,
+                                        ),
+                                    "o2_conc_b2s3_warn" to prefs.o2ConcB2s3Warn.toDouble(),
+                                    "o2_conc_b2s3_alert" to prefs.o2ConcB2s3Alert.toDouble(),
+                                    "o2_conc_b2s3_speed_min_kmh" to prefs.o2ConcB2s3SpeedMinKmh.toDouble(),
+                                    "o2_conc_b2s3_pct" to
+                                        (if (prefs.o2ConcB2s3Sim > 0f) prefs.o2ConcB2s3Sim
+                                        else com.veplayer.app.vehicle.O2ConcB2S3Monitor.state.value.concPct
+                                            ?: snap.o2ConcB2s3Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b2s3" to
+                                        com.veplayer.app.vehicle.O2ConcB2S3.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB2S3Monitor.state.value,
+                                        ),
+                                    "o2_conc_b2s4_warn" to prefs.o2ConcB2s4Warn.toDouble(),
+                                    "o2_conc_b2s4_alert" to prefs.o2ConcB2s4Alert.toDouble(),
+                                    "o2_conc_b2s4_speed_min_kmh" to prefs.o2ConcB2s4SpeedMinKmh.toDouble(),
+                                    "o2_conc_b2s4_pct" to
+                                        (if (prefs.o2ConcB2s4Sim > 0f) prefs.o2ConcB2s4Sim
+                                        else com.veplayer.app.vehicle.O2ConcB2S4Monitor.state.value.concPct
+                                            ?: snap.o2ConcB2s4Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b2s4" to
+                                        com.veplayer.app.vehicle.O2ConcB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB2S4Monitor.state.value,
+                                        ),
+                                    "def_dose_warn_pct" to prefs.defDoseWarnPct.toDouble(),
+                                    "def_dose_alert_pct" to prefs.defDoseAlertPct.toDouble(),
+                                    "def_dose_speed_min_kmh" to prefs.defDoseSpeedMinKmh.toDouble(),
+                                    "def_dosing_cmd_pct" to
+                                        (if (prefs.defDoseSimPct > 0f) prefs.defDoseSimPct
+                                        else com.veplayer.app.vehicle.DefDosingCmdMonitor.state.value.dosePct
+                                            ?: snap.defDosingCmdPct
+                                        )?.toDouble(),
+                                    "def_dose" to
+                                        com.veplayer.app.vehicle.DefDosingCmd.toJsonMap(
+                                            com.veplayer.app.vehicle.DefDosingCmdMonitor.state.value,
+                                        ),
+                                    "nox_corr_b1s1_warn" to prefs.noxCorrB1s1Warn.toDouble(),
+                                    "nox_corr_b1s1_alert" to prefs.noxCorrB1s1Alert.toDouble(),
+                                    "nox_corr_b1s1_speed_min_kmh" to prefs.noxCorrB1s1SpeedMinKmh.toDouble(),
+                                    "nox_corrected_b1s1_ppm" to
+                                        (if (prefs.noxCorrB1s1Sim > 0f) prefs.noxCorrB1s1Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedB1s1Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_b1s1" to
+                                        com.veplayer.app.vehicle.NoxCorrectedB1S1.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -2759,6 +2819,66 @@ class SenseBridgeService : Service() {
                                     "o2_conc_b1s3" to
                                         com.veplayer.app.vehicle.O2ConcB1S3.toJsonMap(
                                             com.veplayer.app.vehicle.O2ConcB1S3Monitor.state.value,
+                                        ),
+                                    "o2_conc_b1s4_warn" to prefs.o2ConcB1s4Warn.toDouble(),
+                                    "o2_conc_b1s4_alert" to prefs.o2ConcB1s4Alert.toDouble(),
+                                    "o2_conc_b1s4_speed_min_kmh" to prefs.o2ConcB1s4SpeedMinKmh.toDouble(),
+                                    "o2_conc_b1s4_pct" to
+                                        (if (prefs.o2ConcB1s4Sim > 0f) prefs.o2ConcB1s4Sim
+                                        else com.veplayer.app.vehicle.O2ConcB1S4Monitor.state.value.concPct
+                                            ?: snap.o2ConcB1s4Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b1s4" to
+                                        com.veplayer.app.vehicle.O2ConcB1S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB1S4Monitor.state.value,
+                                        ),
+                                    "o2_conc_b2s3_warn" to prefs.o2ConcB2s3Warn.toDouble(),
+                                    "o2_conc_b2s3_alert" to prefs.o2ConcB2s3Alert.toDouble(),
+                                    "o2_conc_b2s3_speed_min_kmh" to prefs.o2ConcB2s3SpeedMinKmh.toDouble(),
+                                    "o2_conc_b2s3_pct" to
+                                        (if (prefs.o2ConcB2s3Sim > 0f) prefs.o2ConcB2s3Sim
+                                        else com.veplayer.app.vehicle.O2ConcB2S3Monitor.state.value.concPct
+                                            ?: snap.o2ConcB2s3Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b2s3" to
+                                        com.veplayer.app.vehicle.O2ConcB2S3.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB2S3Monitor.state.value,
+                                        ),
+                                    "o2_conc_b2s4_warn" to prefs.o2ConcB2s4Warn.toDouble(),
+                                    "o2_conc_b2s4_alert" to prefs.o2ConcB2s4Alert.toDouble(),
+                                    "o2_conc_b2s4_speed_min_kmh" to prefs.o2ConcB2s4SpeedMinKmh.toDouble(),
+                                    "o2_conc_b2s4_pct" to
+                                        (if (prefs.o2ConcB2s4Sim > 0f) prefs.o2ConcB2s4Sim
+                                        else com.veplayer.app.vehicle.O2ConcB2S4Monitor.state.value.concPct
+                                            ?: snap.o2ConcB2s4Pct
+                                        )?.toDouble(),
+                                    "o2_conc_b2s4" to
+                                        com.veplayer.app.vehicle.O2ConcB2S4.toJsonMap(
+                                            com.veplayer.app.vehicle.O2ConcB2S4Monitor.state.value,
+                                        ),
+                                    "def_dose_warn_pct" to prefs.defDoseWarnPct.toDouble(),
+                                    "def_dose_alert_pct" to prefs.defDoseAlertPct.toDouble(),
+                                    "def_dose_speed_min_kmh" to prefs.defDoseSpeedMinKmh.toDouble(),
+                                    "def_dosing_cmd_pct" to
+                                        (if (prefs.defDoseSimPct > 0f) prefs.defDoseSimPct
+                                        else com.veplayer.app.vehicle.DefDosingCmdMonitor.state.value.dosePct
+                                            ?: snap.defDosingCmdPct
+                                        )?.toDouble(),
+                                    "def_dose" to
+                                        com.veplayer.app.vehicle.DefDosingCmd.toJsonMap(
+                                            com.veplayer.app.vehicle.DefDosingCmdMonitor.state.value,
+                                        ),
+                                    "nox_corr_b1s1_warn" to prefs.noxCorrB1s1Warn.toDouble(),
+                                    "nox_corr_b1s1_alert" to prefs.noxCorrB1s1Alert.toDouble(),
+                                    "nox_corr_b1s1_speed_min_kmh" to prefs.noxCorrB1s1SpeedMinKmh.toDouble(),
+                                    "nox_corrected_b1s1_ppm" to
+                                        (if (prefs.noxCorrB1s1Sim > 0f) prefs.noxCorrB1s1Sim
+                                        else com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor.state.value.noxPpm
+                                            ?: snap.noxCorrectedB1s1Ppm
+                                        )?.toDouble(),
+                                    "nox_corr_b1s1" to
+                                        com.veplayer.app.vehicle.NoxCorrectedB1S1.toJsonMap(
+                                            com.veplayer.app.vehicle.NoxCorrectedB1S1Monitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
