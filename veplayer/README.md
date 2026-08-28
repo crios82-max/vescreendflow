@@ -1517,6 +1517,20 @@ npm run veplayer:fase39-smoke
 npm run veplayer:fase40-smoke
 ```
 
+## WwhCMI · WwhB1 · FSCctl · WwhCum · HevV (v2.14 · Fase 41)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0190 | WWH continuous MI | `wwh_continuous_mi_warn` / `wwh_continuous_mi_alert` | `WwhCMI · XXh` |
+| 0191 | WWH ECU B1 counter | `wwh_ecu_b1_warn` / `wwh_ecu_b1_alert` | `WwhB1 · XXh` |
+| 0192 | Fuel sys closed-loop count | `fuel_sys_ctl_warn` / `fuel_sys_ctl_alert` | `FSCctl · X` |
+| 0193 | WWH cumulative MI | `wwh_cumulative_mi_warn` / `wwh_cumulative_mi_alert` | `WwhCum · XXh` |
+| 019A | Hybrid/EV pack voltage | `hybrid_ev_batt_warn` / `hybrid_ev_batt_alert` | `HevV · XXXV` |
+
+```bash
+npm run veplayer:fase41-smoke
+```
+
 ## Validation gate (pre-fase · v1.15)
 
 Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
@@ -1526,7 +1540,7 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 | `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
 | `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
 | `dbc-smoke` | DBC decode (Kotlin mirror) |
-| `fase16–40-smoke` | Alertas `fleetPro.ts` con heartbeats |
+| `fase16–41-smoke` | Alertas `fleetPro.ts` con heartbeats |
 
 ```bash
 # SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)

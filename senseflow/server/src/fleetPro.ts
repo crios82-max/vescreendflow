@@ -6275,6 +6275,166 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // WWH-OBD continuous MI hours (OBD PID 0190)
+    const wwhContMiObj = signals.wwh_continuous_mi as Record<string, unknown> | undefined
+    const wwhContMiH =
+      typeof wwhContMiObj?.mi_hours === 'number'
+        ? (wwhContMiObj.mi_hours as number)
+        : typeof signals.wwh_obd_continuous_mi_hours === 'number'
+          ? (signals.wwh_obd_continuous_mi_hours as number)
+          : null
+    if (typeof wwhContMiH === 'number') {
+      const warnH = typeof signals.wwh_cont_mi_warn_h === 'number' ? (signals.wwh_cont_mi_warn_h as number) : 24
+      const alertH = typeof signals.wwh_cont_mi_alert_h === 'number' ? (signals.wwh_cont_mi_alert_h as number) : 48
+      if (wwhContMiH >= alertH && !recentlyAlerted(deviceId, 'wwh_continuous_mi_alert', 120)) {
+        insertAlert(deviceId, 'wwh_continuous_mi_alert', 'critical', `MI continuo WWH crítico · ${Math.round(wwhContMiH)}h`, {
+          wwh_obd_continuous_mi_hours: wwhContMiH,
+          wwh_continuous_mi: wwhContMiObj ?? null,
+        })
+        raised.push('wwh_continuous_mi_alert')
+      } else if (
+        wwhContMiH >= warnH &&
+        wwhContMiH < alertH &&
+        !recentlyAlerted(deviceId, 'wwh_continuous_mi_warn', 120)
+      ) {
+        insertAlert(deviceId, 'wwh_continuous_mi_warn', 'warn', `MI continuo WWH alto · ${Math.round(wwhContMiH)}h`, {
+          wwh_obd_continuous_mi_hours: wwhContMiH,
+          wwh_continuous_mi: wwhContMiObj ?? null,
+        })
+        raised.push('wwh_continuous_mi_warn')
+      }
+    }
+
+    // WWH-OBD ECU B1 hours (OBD PID 0191)
+    const wwhEcuB1Obj = signals.wwh_ecu_b1 as Record<string, unknown> | undefined
+    const wwhEcuB1H =
+      typeof wwhEcuB1Obj?.b1_hours === 'number'
+        ? (wwhEcuB1Obj.b1_hours as number)
+        : typeof signals.wwh_obd_ecu_b1_hours === 'number'
+          ? (signals.wwh_obd_ecu_b1_hours as number)
+          : null
+    if (typeof wwhEcuB1H === 'number') {
+      const warnH = typeof signals.wwh_ecu_b1_warn_h === 'number' ? (signals.wwh_ecu_b1_warn_h as number) : 100
+      const alertH = typeof signals.wwh_ecu_b1_alert_h === 'number' ? (signals.wwh_ecu_b1_alert_h as number) : 200
+      if (wwhEcuB1H >= alertH && !recentlyAlerted(deviceId, 'wwh_ecu_b1_alert', 120)) {
+        insertAlert(deviceId, 'wwh_ecu_b1_alert', 'critical', `ECU B1 WWH crítico · ${Math.round(wwhEcuB1H)}h`, {
+          wwh_obd_ecu_b1_hours: wwhEcuB1H,
+          wwh_ecu_b1: wwhEcuB1Obj ?? null,
+        })
+        raised.push('wwh_ecu_b1_alert')
+      } else if (
+        wwhEcuB1H >= warnH &&
+        wwhEcuB1H < alertH &&
+        !recentlyAlerted(deviceId, 'wwh_ecu_b1_warn', 120)
+      ) {
+        insertAlert(deviceId, 'wwh_ecu_b1_warn', 'warn', `ECU B1 WWH alto · ${Math.round(wwhEcuB1H)}h`, {
+          wwh_obd_ecu_b1_hours: wwhEcuB1H,
+          wwh_ecu_b1: wwhEcuB1Obj ?? null,
+        })
+        raised.push('wwh_ecu_b1_warn')
+      }
+    }
+
+    // Fuel system closed-loop count (OBD PID 0192)
+    const fuelSysCtlObj = signals.fuel_sys_ctl as Record<string, unknown> | undefined
+    const fuelSysCtlCount =
+      typeof fuelSysCtlObj?.closed_count === 'number'
+        ? (fuelSysCtlObj.closed_count as number)
+        : typeof signals.fuel_sys_ctl_closed_count === 'number'
+          ? (signals.fuel_sys_ctl_closed_count as number)
+          : null
+    const fuelSysCtlSpeed =
+      typeof fuelSysCtlObj?.speed_kmh === 'number'
+        ? (fuelSysCtlObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof fuelSysCtlCount === 'number') {
+      const warnMin = typeof signals.fuel_sys_ctl_warn_min === 'number' ? (signals.fuel_sys_ctl_warn_min as number) : 3
+      const alertMin = typeof signals.fuel_sys_ctl_alert_min === 'number' ? (signals.fuel_sys_ctl_alert_min as number) : 2
+      const minSpd =
+        typeof signals.fuel_sys_ctl_speed_min_kmh === 'number' ? (signals.fuel_sys_ctl_speed_min_kmh as number) : 20
+      const spdOk = typeof fuelSysCtlSpeed === 'number' && fuelSysCtlSpeed >= minSpd
+      if (spdOk && fuelSysCtlCount < alertMin && !recentlyAlerted(deviceId, 'fuel_sys_ctl_alert', 120)) {
+        insertAlert(deviceId, 'fuel_sys_ctl_alert', 'critical', `Control combustible lazo abierto · ${Math.round(fuelSysCtlCount)}`, {
+          fuel_sys_ctl_closed_count: fuelSysCtlCount,
+          fuel_sys_ctl: fuelSysCtlObj ?? null,
+        })
+        raised.push('fuel_sys_ctl_alert')
+      } else if (
+        spdOk &&
+        fuelSysCtlCount < warnMin &&
+        fuelSysCtlCount >= alertMin &&
+        !recentlyAlerted(deviceId, 'fuel_sys_ctl_warn', 120)
+      ) {
+        insertAlert(deviceId, 'fuel_sys_ctl_warn', 'warn', `Pocos controles combustible cerrados · ${Math.round(fuelSysCtlCount)}`, {
+          fuel_sys_ctl_closed_count: fuelSysCtlCount,
+          fuel_sys_ctl: fuelSysCtlObj ?? null,
+        })
+        raised.push('fuel_sys_ctl_warn')
+      }
+    }
+
+    // WWH-OBD cumulative MI hours (OBD PID 0193)
+    const wwhCumMiObj = signals.wwh_cumulative_mi as Record<string, unknown> | undefined
+    const wwhCumMiH =
+      typeof wwhCumMiObj?.mi_hours === 'number'
+        ? (wwhCumMiObj.mi_hours as number)
+        : typeof signals.wwh_obd_cumulative_mi_hours === 'number'
+          ? (signals.wwh_obd_cumulative_mi_hours as number)
+          : null
+    if (typeof wwhCumMiH === 'number') {
+      const warnH = typeof signals.wwh_cum_mi_warn_h === 'number' ? (signals.wwh_cum_mi_warn_h as number) : 100
+      const alertH = typeof signals.wwh_cum_mi_alert_h === 'number' ? (signals.wwh_cum_mi_alert_h as number) : 200
+      if (wwhCumMiH >= alertH && !recentlyAlerted(deviceId, 'wwh_cumulative_mi_alert', 120)) {
+        insertAlert(deviceId, 'wwh_cumulative_mi_alert', 'critical', `MI acumulado WWH crítico · ${Math.round(wwhCumMiH)}h`, {
+          wwh_obd_cumulative_mi_hours: wwhCumMiH,
+          wwh_cumulative_mi: wwhCumMiObj ?? null,
+        })
+        raised.push('wwh_cumulative_mi_alert')
+      } else if (
+        wwhCumMiH >= warnH &&
+        wwhCumMiH < alertH &&
+        !recentlyAlerted(deviceId, 'wwh_cumulative_mi_warn', 120)
+      ) {
+        insertAlert(deviceId, 'wwh_cumulative_mi_warn', 'warn', `MI acumulado WWH alto · ${Math.round(wwhCumMiH)}h`, {
+          wwh_obd_cumulative_mi_hours: wwhCumMiH,
+          wwh_cumulative_mi: wwhCumMiObj ?? null,
+        })
+        raised.push('wwh_cumulative_mi_warn')
+      }
+    }
+
+    // Hybrid/EV pack voltage (OBD PID 019A)
+    const hevBattObj = signals.hybrid_ev_batt as Record<string, unknown> | undefined
+    const hevBattV =
+      typeof hevBattObj?.volts === 'number'
+        ? (hevBattObj.volts as number)
+        : typeof signals.hybrid_ev_batt_voltage_v === 'number'
+          ? (signals.hybrid_ev_batt_voltage_v as number)
+          : null
+    if (typeof hevBattV === 'number') {
+      const warnV = typeof signals.hev_volt_warn_v === 'number' ? (signals.hev_volt_warn_v as number) : 280
+      const alertV = typeof signals.hev_volt_alert_v === 'number' ? (signals.hev_volt_alert_v as number) : 260
+      if (hevBattV < alertV && !recentlyAlerted(deviceId, 'hybrid_ev_batt_alert', 120)) {
+        insertAlert(deviceId, 'hybrid_ev_batt_alert', 'critical', `Voltaje batería híbrida crítico · ${Math.round(hevBattV)}V`, {
+          hybrid_ev_batt_voltage_v: hevBattV,
+          hybrid_ev_batt: hevBattObj ?? null,
+        })
+        raised.push('hybrid_ev_batt_alert')
+      } else if (
+        hevBattV < warnV &&
+        hevBattV >= alertV &&
+        !recentlyAlerted(deviceId, 'hybrid_ev_batt_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hybrid_ev_batt_warn', 'warn', `Voltaje batería híbrida bajo · ${Math.round(hevBattV)}V`, {
+          hybrid_ev_batt_voltage_v: hevBattV,
+          hybrid_ev_batt: hevBattObj ?? null,
+        })
+        raised.push('hybrid_ev_batt_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

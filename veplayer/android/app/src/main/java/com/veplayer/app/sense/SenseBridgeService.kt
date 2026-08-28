@@ -1714,6 +1714,62 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.FuelSysUsePct3.toJsonMap(
                                             com.veplayer.app.vehicle.FuelSysUsePct3Monitor.state.value,
                                         ),
+                                    "wwh_cont_mi_warn_h" to prefs.wwhContMiWarnH.toDouble(),
+                                    "wwh_cont_mi_alert_h" to prefs.wwhContMiAlertH.toDouble(),
+                                    "wwh_obd_continuous_mi_hours" to
+                                        (if (prefs.wwhContMiSimH > 0f) prefs.wwhContMiSimH
+                                        else com.veplayer.app.vehicle.WwhObdContinuousMiMonitor.state.value.miHours
+                                            ?: snap.wwhObdContinuousMiHours
+                                        )?.toDouble(),
+                                    "wwh_continuous_mi" to
+                                        com.veplayer.app.vehicle.WwhObdContinuousMi.toJsonMap(
+                                            com.veplayer.app.vehicle.WwhObdContinuousMiMonitor.state.value,
+                                        ),
+                                    "wwh_ecu_b1_warn_h" to prefs.wwhEcuB1WarnH.toDouble(),
+                                    "wwh_ecu_b1_alert_h" to prefs.wwhEcuB1AlertH.toDouble(),
+                                    "wwh_obd_ecu_b1_hours" to
+                                        (if (prefs.wwhEcuB1SimH > 0f) prefs.wwhEcuB1SimH
+                                        else com.veplayer.app.vehicle.WwhObdEcuB1HoursMonitor.state.value.b1Hours
+                                            ?: snap.wwhObdEcuB1Hours
+                                        )?.toDouble(),
+                                    "wwh_ecu_b1" to
+                                        com.veplayer.app.vehicle.WwhObdEcuB1Hours.toJsonMap(
+                                            com.veplayer.app.vehicle.WwhObdEcuB1HoursMonitor.state.value,
+                                        ),
+                                    "fuel_sys_ctl_warn_min" to prefs.fuelSysCtlWarnMin.toDouble(),
+                                    "fuel_sys_ctl_alert_min" to prefs.fuelSysCtlAlertMin.toDouble(),
+                                    "fuel_sys_ctl_speed_min_kmh" to prefs.fuelSysCtlSpeedMinKmh.toDouble(),
+                                    "fuel_sys_ctl_closed_count" to
+                                        (if (prefs.fuelSysCtlSimCount > 0f) prefs.fuelSysCtlSimCount
+                                        else com.veplayer.app.vehicle.FuelSysCtlClosedMonitor.state.value.closedCount
+                                            ?: snap.fuelSysCtlClosedCount
+                                        )?.toDouble(),
+                                    "fuel_sys_ctl" to
+                                        com.veplayer.app.vehicle.FuelSysCtlClosed.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelSysCtlClosedMonitor.state.value,
+                                        ),
+                                    "wwh_cum_mi_warn_h" to prefs.wwhCumMiWarnH.toDouble(),
+                                    "wwh_cum_mi_alert_h" to prefs.wwhCumMiAlertH.toDouble(),
+                                    "wwh_obd_cumulative_mi_hours" to
+                                        (if (prefs.wwhCumMiSimH > 0f) prefs.wwhCumMiSimH
+                                        else com.veplayer.app.vehicle.WwhObdCumulativeMiMonitor.state.value.miHours
+                                            ?: snap.wwhObdCumulativeMiHours
+                                        )?.toDouble(),
+                                    "wwh_cumulative_mi" to
+                                        com.veplayer.app.vehicle.WwhObdCumulativeMi.toJsonMap(
+                                            com.veplayer.app.vehicle.WwhObdCumulativeMiMonitor.state.value,
+                                        ),
+                                    "hev_volt_warn_v" to prefs.hevVoltWarnV.toDouble(),
+                                    "hev_volt_alert_v" to prefs.hevVoltAlertV.toDouble(),
+                                    "hybrid_ev_batt_voltage_v" to
+                                        (if (prefs.hevVoltSimV > 0f) prefs.hevVoltSimV
+                                        else com.veplayer.app.vehicle.HybridEvBattVoltageMonitor.state.value.volts
+                                            ?: snap.hybridEvBattVoltageV
+                                        )?.toDouble(),
+                                    "hybrid_ev_batt" to
+                                        com.veplayer.app.vehicle.HybridEvBattVoltage.toJsonMap(
+                                            com.veplayer.app.vehicle.HybridEvBattVoltageMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -3569,6 +3625,62 @@ class SenseBridgeService : Service() {
                                     "fuel_sys_use3" to
                                         com.veplayer.app.vehicle.FuelSysUsePct3.toJsonMap(
                                             com.veplayer.app.vehicle.FuelSysUsePct3Monitor.state.value,
+                                        ),
+                                    "wwh_cont_mi_warn_h" to prefs.wwhContMiWarnH.toDouble(),
+                                    "wwh_cont_mi_alert_h" to prefs.wwhContMiAlertH.toDouble(),
+                                    "wwh_obd_continuous_mi_hours" to
+                                        (if (prefs.wwhContMiSimH > 0f) prefs.wwhContMiSimH
+                                        else com.veplayer.app.vehicle.WwhObdContinuousMiMonitor.state.value.miHours
+                                            ?: snap.wwhObdContinuousMiHours
+                                        )?.toDouble(),
+                                    "wwh_continuous_mi" to
+                                        com.veplayer.app.vehicle.WwhObdContinuousMi.toJsonMap(
+                                            com.veplayer.app.vehicle.WwhObdContinuousMiMonitor.state.value,
+                                        ),
+                                    "wwh_ecu_b1_warn_h" to prefs.wwhEcuB1WarnH.toDouble(),
+                                    "wwh_ecu_b1_alert_h" to prefs.wwhEcuB1AlertH.toDouble(),
+                                    "wwh_obd_ecu_b1_hours" to
+                                        (if (prefs.wwhEcuB1SimH > 0f) prefs.wwhEcuB1SimH
+                                        else com.veplayer.app.vehicle.WwhObdEcuB1HoursMonitor.state.value.b1Hours
+                                            ?: snap.wwhObdEcuB1Hours
+                                        )?.toDouble(),
+                                    "wwh_ecu_b1" to
+                                        com.veplayer.app.vehicle.WwhObdEcuB1Hours.toJsonMap(
+                                            com.veplayer.app.vehicle.WwhObdEcuB1HoursMonitor.state.value,
+                                        ),
+                                    "fuel_sys_ctl_warn_min" to prefs.fuelSysCtlWarnMin.toDouble(),
+                                    "fuel_sys_ctl_alert_min" to prefs.fuelSysCtlAlertMin.toDouble(),
+                                    "fuel_sys_ctl_speed_min_kmh" to prefs.fuelSysCtlSpeedMinKmh.toDouble(),
+                                    "fuel_sys_ctl_closed_count" to
+                                        (if (prefs.fuelSysCtlSimCount > 0f) prefs.fuelSysCtlSimCount
+                                        else com.veplayer.app.vehicle.FuelSysCtlClosedMonitor.state.value.closedCount
+                                            ?: snap.fuelSysCtlClosedCount
+                                        )?.toDouble(),
+                                    "fuel_sys_ctl" to
+                                        com.veplayer.app.vehicle.FuelSysCtlClosed.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelSysCtlClosedMonitor.state.value,
+                                        ),
+                                    "wwh_cum_mi_warn_h" to prefs.wwhCumMiWarnH.toDouble(),
+                                    "wwh_cum_mi_alert_h" to prefs.wwhCumMiAlertH.toDouble(),
+                                    "wwh_obd_cumulative_mi_hours" to
+                                        (if (prefs.wwhCumMiSimH > 0f) prefs.wwhCumMiSimH
+                                        else com.veplayer.app.vehicle.WwhObdCumulativeMiMonitor.state.value.miHours
+                                            ?: snap.wwhObdCumulativeMiHours
+                                        )?.toDouble(),
+                                    "wwh_cumulative_mi" to
+                                        com.veplayer.app.vehicle.WwhObdCumulativeMi.toJsonMap(
+                                            com.veplayer.app.vehicle.WwhObdCumulativeMiMonitor.state.value,
+                                        ),
+                                    "hev_volt_warn_v" to prefs.hevVoltWarnV.toDouble(),
+                                    "hev_volt_alert_v" to prefs.hevVoltAlertV.toDouble(),
+                                    "hybrid_ev_batt_voltage_v" to
+                                        (if (prefs.hevVoltSimV > 0f) prefs.hevVoltSimV
+                                        else com.veplayer.app.vehicle.HybridEvBattVoltageMonitor.state.value.volts
+                                            ?: snap.hybridEvBattVoltageV
+                                        )?.toDouble(),
+                                    "hybrid_ev_batt" to
+                                        com.veplayer.app.vehicle.HybridEvBattVoltage.toJsonMap(
+                                            com.veplayer.app.vehicle.HybridEvBattVoltageMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

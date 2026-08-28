@@ -30,8 +30,8 @@ android {
         applicationId = "com.veplayer.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 211
-        versionName = "2.09.0"
+        versionCode = 216
+        versionName = "2.14.0"
         buildConfigField(
             "String",
             "SENSEFLOW_URL",

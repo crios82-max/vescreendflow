@@ -330,6 +330,16 @@ data class VehicleSignals(
         val fuelSysUsePct1: Float? = null,
         val fuelSysUsePct2: Float? = null,
         val fuelSysUsePct3: Float? = null,
+        /** WWH-OBD continuous MI counter hours (OBD PID 0190). */
+        val wwhObdContinuousMiHours: Float? = null,
+        /** WWH-OBD ECU B1 counter hours (OBD PID 0191). */
+        val wwhObdEcuB1Hours: Float? = null,
+        /** Fuel system closed-loop control count (OBD PID 0192). */
+        val fuelSysCtlClosedCount: Float? = null,
+        /** WWH-OBD cumulative MI counter hours (OBD PID 0193). */
+        val wwhObdCumulativeMiHours: Float? = null,
+        /** Hybrid/EV pack voltage V (OBD PID 019A). */
+        val hybridEvBattVoltageV: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -544,6 +554,11 @@ data class VehicleSignals(
             "fuel_sys_use_pct1" to fuelSysUsePct1?.toDouble(),
             "fuel_sys_use_pct2" to fuelSysUsePct2?.toDouble(),
             "fuel_sys_use_pct3" to fuelSysUsePct3?.toDouble(),
+            "wwh_obd_continuous_mi_hours" to wwhObdContinuousMiHours?.toDouble(),
+            "wwh_obd_ecu_b1_hours" to wwhObdEcuB1Hours?.toDouble(),
+            "fuel_sys_ctl_closed_count" to fuelSysCtlClosedCount?.toDouble(),
+            "wwh_obd_cumulative_mi_hours" to wwhObdCumulativeMiHours?.toDouble(),
+            "hybrid_ev_batt_voltage_v" to hybridEvBattVoltageV?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),

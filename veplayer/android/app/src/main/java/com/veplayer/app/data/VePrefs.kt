@@ -3770,6 +3770,97 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("fuel_sys_use3_sim_speed", 40f)
         set(value) = sp.edit().putFloat("fuel_sys_use3_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** WWH-OBD continuous MI hours (OBD 0190). */
+    var wwhContMiEnabled: Boolean
+        get() = sp.getBoolean("wwh_cont_mi", true)
+        set(value) = sp.edit().putBoolean("wwh_cont_mi", value).apply()
+    var wwhContMiTts: Boolean
+        get() = sp.getBoolean("wwh_cont_mi_tts", true)
+        set(value) = sp.edit().putBoolean("wwh_cont_mi_tts", value).apply()
+    var wwhContMiWarnH: Float
+        get() = sp.getFloat("wwh_cont_mi_warn_h", 24f)
+        set(value) = sp.edit().putFloat("wwh_cont_mi_warn_h", value.coerceIn(1f, 500f)).apply()
+    var wwhContMiAlertH: Float
+        get() = sp.getFloat("wwh_cont_mi_alert_h", 48f)
+        set(value) = sp.edit().putFloat("wwh_cont_mi_alert_h", value.coerceIn(5f, 1000f)).apply()
+    var wwhContMiSimH: Float
+        get() = sp.getFloat("wwh_cont_mi_sim_h", 0f)
+        set(value) = sp.edit().putFloat("wwh_cont_mi_sim_h", value.coerceIn(0f, 65535f)).apply()
+
+    /** WWH-OBD ECU B1 hours (OBD 0191). */
+    var wwhEcuB1Enabled: Boolean
+        get() = sp.getBoolean("wwh_ecu_b1", true)
+        set(value) = sp.edit().putBoolean("wwh_ecu_b1", value).apply()
+    var wwhEcuB1Tts: Boolean
+        get() = sp.getBoolean("wwh_ecu_b1_tts", true)
+        set(value) = sp.edit().putBoolean("wwh_ecu_b1_tts", value).apply()
+    var wwhEcuB1WarnH: Float
+        get() = sp.getFloat("wwh_ecu_b1_warn_h", 100f)
+        set(value) = sp.edit().putFloat("wwh_ecu_b1_warn_h", value.coerceIn(1f, 1000f)).apply()
+    var wwhEcuB1AlertH: Float
+        get() = sp.getFloat("wwh_ecu_b1_alert_h", 200f)
+        set(value) = sp.edit().putFloat("wwh_ecu_b1_alert_h", value.coerceIn(10f, 2000f)).apply()
+    var wwhEcuB1SimH: Float
+        get() = sp.getFloat("wwh_ecu_b1_sim_h", 0f)
+        set(value) = sp.edit().putFloat("wwh_ecu_b1_sim_h", value.coerceIn(0f, 65535f)).apply()
+
+    /** Fuel system closed-loop count (OBD 0192). */
+    var fuelSysCtlEnabled: Boolean
+        get() = sp.getBoolean("fuel_sys_ctl", true)
+        set(value) = sp.edit().putBoolean("fuel_sys_ctl", value).apply()
+    var fuelSysCtlTts: Boolean
+        get() = sp.getBoolean("fuel_sys_ctl_tts", true)
+        set(value) = sp.edit().putBoolean("fuel_sys_ctl_tts", value).apply()
+    var fuelSysCtlWarnMin: Float
+        get() = sp.getFloat("fuel_sys_ctl_warn_min", 3f)
+        set(value) = sp.edit().putFloat("fuel_sys_ctl_warn_min", value.coerceIn(1f, 7f)).apply()
+    var fuelSysCtlAlertMin: Float
+        get() = sp.getFloat("fuel_sys_ctl_alert_min", 2f)
+        set(value) = sp.edit().putFloat("fuel_sys_ctl_alert_min", value.coerceIn(0f, 6f)).apply()
+    var fuelSysCtlSpeedMinKmh: Float
+        get() = sp.getFloat("fuel_sys_ctl_speed_min", 20f)
+        set(value) = sp.edit().putFloat("fuel_sys_ctl_speed_min", value.coerceIn(0f, 60f)).apply()
+    var fuelSysCtlSimCount: Float
+        get() = sp.getFloat("fuel_sys_ctl_sim_count", 0f)
+        set(value) = sp.edit().putFloat("fuel_sys_ctl_sim_count", value.coerceIn(0f, 8f)).apply()
+    var fuelSysCtlSimSpeedKmh: Float
+        get() = sp.getFloat("fuel_sys_ctl_sim_speed", 40f)
+        set(value) = sp.edit().putFloat("fuel_sys_ctl_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** WWH-OBD cumulative MI hours (OBD 0193). */
+    var wwhCumMiEnabled: Boolean
+        get() = sp.getBoolean("wwh_cum_mi", true)
+        set(value) = sp.edit().putBoolean("wwh_cum_mi", value).apply()
+    var wwhCumMiTts: Boolean
+        get() = sp.getBoolean("wwh_cum_mi_tts", true)
+        set(value) = sp.edit().putBoolean("wwh_cum_mi_tts", value).apply()
+    var wwhCumMiWarnH: Float
+        get() = sp.getFloat("wwh_cum_mi_warn_h", 100f)
+        set(value) = sp.edit().putFloat("wwh_cum_mi_warn_h", value.coerceIn(1f, 1000f)).apply()
+    var wwhCumMiAlertH: Float
+        get() = sp.getFloat("wwh_cum_mi_alert_h", 200f)
+        set(value) = sp.edit().putFloat("wwh_cum_mi_alert_h", value.coerceIn(10f, 2000f)).apply()
+    var wwhCumMiSimH: Float
+        get() = sp.getFloat("wwh_cum_mi_sim_h", 0f)
+        set(value) = sp.edit().putFloat("wwh_cum_mi_sim_h", value.coerceIn(0f, 65535f)).apply()
+
+    /** Hybrid/EV pack voltage V (OBD 019A). */
+    var hevVoltEnabled: Boolean
+        get() = sp.getBoolean("hev_volt", true)
+        set(value) = sp.edit().putBoolean("hev_volt", value).apply()
+    var hevVoltTts: Boolean
+        get() = sp.getBoolean("hev_volt_tts", true)
+        set(value) = sp.edit().putBoolean("hev_volt_tts", value).apply()
+    var hevVoltWarnV: Float
+        get() = sp.getFloat("hev_volt_warn_v", 280f)
+        set(value) = sp.edit().putFloat("hev_volt_warn_v", value.coerceIn(200f, 400f)).apply()
+    var hevVoltAlertV: Float
+        get() = sp.getFloat("hev_volt_alert_v", 260f)
+        set(value) = sp.edit().putFloat("hev_volt_alert_v", value.coerceIn(150f, 390f)).apply()
+    var hevVoltSimV: Float
+        get() = sp.getFloat("hev_volt_sim_v", 0f)
+        set(value) = sp.edit().putFloat("hev_volt_sim_v", value.coerceIn(0f, 1000f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
