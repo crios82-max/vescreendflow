@@ -1,25 +1,46 @@
 import type { AuthResponse, Ride, User } from '@ride-app/shared';
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4001';
+import { getApiUrl, getToken, setToken as persistToken } from './storage';
 
 class MobileApi {
   private token: string | null = null;
+  private baseUrl = '';
+
+  async init() {
+    this.baseUrl = await getApiUrl();
+    this.token = await getToken();
+  }
+
+  async setApiUrl(url: string) {
+    const { setApiUrl } = await import('./storage');
+    await setApiUrl(url);
+    this.baseUrl = url.trim();
+  }
+
+  getBaseUrl() {
+    return this.baseUrl;
+  }
 
   setToken(token: string | null) {
     this.token = token;
+    persistToken(token).catch(() => {});
   }
 
   private async request<T>(path: string, options: RequestInit = {}): Promise<T> {
+    if (!this.baseUrl) await this.init();
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
     };
     if (this.token) headers.Authorization = `Bearer ${this.token}`;
 
-    const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+    const res = await fetch(`${this.baseUrl}${path}`, { ...options, headers });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error ?? 'Error de red');
+    if (!res.ok) throw new Error(data.error ?? `Error ${res.status}`);
     return data as T;
+  }
+
+  async health(): Promise<{ ok: boolean }> {
+    return this.request('/health');
   }
 
   login(email: string, password: string) {

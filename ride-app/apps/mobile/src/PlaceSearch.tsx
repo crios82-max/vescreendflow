@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { googleMapsKey } from './storage';
 
 export interface PlaceResult {
   latitude: number;
@@ -13,9 +14,9 @@ interface Props {
   onSelect: (place: PlaceResult) => void;
 }
 
-const API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
-
 export function PlaceSearch({ placeholder, bias, onSelect }: Props) {
+  const API_KEY = googleMapsKey();
+
   if (!API_KEY) {
     return null;
   }
@@ -26,6 +27,8 @@ export function PlaceSearch({ placeholder, bias, onSelect }: Props) {
         placeholder={placeholder}
         fetchDetails
         enablePoweredByContainer={false}
+        minLength={2}
+        debounce={300}
         onPress={(_data, details) => {
           if (!details?.geometry?.location) return;
           onSelect({
@@ -38,7 +41,7 @@ export function PlaceSearch({ placeholder, bias, onSelect }: Props) {
           key: API_KEY,
           language: 'es',
           ...(bias
-            ? { location: `${bias.latitude},${bias.longitude}`, radius: 15000 }
+            ? { location: `${bias.latitude},${bias.longitude}`, radius: 20000 }
             : {}),
         }}
         styles={{
@@ -47,20 +50,23 @@ export function PlaceSearch({ placeholder, bias, onSelect }: Props) {
           listView: styles.list,
           row: styles.row,
           description: styles.description,
+          separator: styles.separator,
         }}
         textInputProps={{
           placeholderTextColor: '#888',
+          returnKeyType: 'search',
         }}
+        keyboardShouldPersistTaps="handled"
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: { zIndex: 10 },
+  wrapper: { zIndex: 10, marginBottom: 4 },
   container: { flex: 0 },
   input: {
-    backgroundColor: '#111',
+    backgroundColor: 'rgba(17,17,17,0.95)',
     color: '#fff',
     borderRadius: 12,
     borderWidth: 1,
@@ -74,7 +80,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#333',
     marginTop: 4,
+    maxHeight: 180,
   },
   row: { backgroundColor: '#111', padding: 12 },
   description: { color: '#ddd' },
+  separator: { backgroundColor: '#222', height: 1 },
 });
