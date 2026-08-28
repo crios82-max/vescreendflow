@@ -203,6 +203,16 @@ import com.veplayer.app.vehicle.NoxInduceLevel1Monitor
 import com.veplayer.app.vehicle.NoxInduceLevel2Monitor
 import com.veplayer.app.vehicle.NoxEgrCounterMonitor
 import com.veplayer.app.vehicle.NoxMonitorMalfunctionMonitor
+import com.veplayer.app.vehicle.HvBattSoh
+import com.veplayer.app.vehicle.HvBattSohMonitor
+import com.veplayer.app.vehicle.HvessTemp
+import com.veplayer.app.vehicle.HvessTempMonitor
+import com.veplayer.app.vehicle.HvessCurrent
+import com.veplayer.app.vehicle.HvessCurrentMonitor
+import com.veplayer.app.vehicle.HvessPackVoltage
+import com.veplayer.app.vehicle.HvessPackVoltageMonitor
+import com.veplayer.app.vehicle.HvCellMaxTemp
+import com.veplayer.app.vehicle.HvCellMaxTempMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -408,6 +418,11 @@ fun DriveVizPanel(
     val noxIndL2 by NoxInduceLevel2Monitor.state.collectAsState()
     val noxEgr by NoxEgrCounterMonitor.state.collectAsState()
     val noxMal by NoxMonitorMalfunctionMonitor.state.collectAsState()
+    val hvSoh by HvBattSohMonitor.state.collectAsState()
+    val hvessTemp by HvessTempMonitor.state.collectAsState()
+    val hvessCur by HvessCurrentMonitor.state.collectAsState()
+    val hvessVolt by HvessPackVoltageMonitor.state.collectAsState()
+    val hvCellMax by HvCellMaxTempMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -596,6 +611,11 @@ fun DriveVizPanel(
             NoxInduceLevel2Monitor.tick(prefs, snap)
             NoxEgrCounterMonitor.tick(prefs, snap)
             NoxMonitorMalfunctionMonitor.tick(prefs, snap)
+            HvBattSohMonitor.tick(prefs, snap)
+            HvessTempMonitor.tick(prefs, snap)
+            HvessCurrentMonitor.tick(prefs, snap)
+            HvessPackVoltageMonitor.tick(prefs, snap)
+            HvCellMaxTempMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1485,6 +1505,21 @@ fun DriveVizPanel(
                 }
                 if (noxMal.showWarn || (prefs.noxMalEnabled && noxMal.band == "ok" && noxMal.label.isNotBlank())) {
                     Text(noxMal.label, color = Color(com.veplayer.app.vehicle.NoxMonitorMalfunction.accentArgb(noxMal.band)), fontSize = 11.sp)
+                }
+                if (hvSoh.showWarn || (prefs.hvSohEnabled && hvSoh.band == "ok" && hvSoh.label.isNotBlank())) {
+                    Text(hvSoh.label, color = Color(HvBattSoh.accentArgb(hvSoh.band)), fontSize = 11.sp)
+                }
+                if (hvessTemp.showWarn || (prefs.hvessTempEnabled && hvessTemp.band == "ok" && hvessTemp.label.isNotBlank())) {
+                    Text(hvessTemp.label, color = Color(HvessTemp.accentArgb(hvessTemp.band)), fontSize = 11.sp)
+                }
+                if (hvessCur.showWarn || (prefs.hvessCurEnabled && hvessCur.band == "ok" && hvessCur.label.isNotBlank())) {
+                    Text(hvessCur.label, color = Color(HvessCurrent.accentArgb(hvessCur.band)), fontSize = 11.sp)
+                }
+                if (hvessVolt.showWarn || (prefs.hvessVoltEnabled && hvessVolt.band == "ok" && hvessVolt.label.isNotBlank())) {
+                    Text(hvessVolt.label, color = Color(HvessPackVoltage.accentArgb(hvessVolt.band)), fontSize = 11.sp)
+                }
+                if (hvCellMax.showWarn || (prefs.hvCellMaxEnabled && hvCellMax.band == "ok" && hvCellMax.label.isNotBlank())) {
+                    Text(hvCellMax.label, color = Color(HvCellMaxTemp.accentArgb(hvCellMax.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

@@ -350,6 +350,16 @@ data class VehicleSignals(
         val wwhObdCumulativeMiHours: Float? = null,
         /** Hybrid/EV pack voltage V (OBD PID 019A). */
         val hybridEvBattVoltageV: Float? = null,
+        /** Traction battery SOH % (OBD PID 01B2). */
+        val hvBattSohPct: Float? = null,
+        /** HVESS temperature °C (OBD PID 01B4). */
+        val hvessTempC: Float? = null,
+        /** HVESS current A (OBD PID 01B5). */
+        val hvessCurrentA: Float? = null,
+        /** HVESS pack voltage V (OBD PID 01B6). */
+        val hvessVoltageV: Float? = null,
+        /** HEV max cell temperature °C (OBD PID 01B7). */
+        val hvCellMaxTempC: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -574,6 +584,11 @@ data class VehicleSignals(
             "fuel_sys_ctl_closed_count" to fuelSysCtlClosedCount?.toDouble(),
             "wwh_obd_cumulative_mi_hours" to wwhObdCumulativeMiHours?.toDouble(),
             "hybrid_ev_batt_voltage_v" to hybridEvBattVoltageV?.toDouble(),
+            "hv_batt_soh_pct" to hvBattSohPct?.toDouble(),
+            "hvess_temp_c" to hvessTempC?.toDouble(),
+            "hvess_current_a" to hvessCurrentA?.toDouble(),
+            "hvess_voltage_v" to hvessVoltageV?.toDouble(),
+            "hv_cell_max_temp_c" to hvCellMaxTempC?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),

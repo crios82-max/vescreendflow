@@ -6594,6 +6594,166 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Traction battery SOH (OBD PID 01B2)
+    const hvSohObj = signals.hv_batt_soh as Record<string, unknown> | undefined
+    const hvSohPct =
+      typeof hvSohObj?.soh_pct === 'number'
+        ? (hvSohObj.soh_pct as number)
+        : typeof signals.hv_batt_soh_pct === 'number'
+          ? (signals.hv_batt_soh_pct as number)
+          : null
+    if (typeof hvSohPct === 'number') {
+      const warnPct = typeof signals.hv_soh_warn_pct === 'number' ? (signals.hv_soh_warn_pct as number) : 70
+      const alertPct = typeof signals.hv_soh_alert_pct === 'number' ? (signals.hv_soh_alert_pct as number) : 50
+      if (hvSohPct <= alertPct && !recentlyAlerted(deviceId, 'hv_batt_soh_alert', 120)) {
+        insertAlert(deviceId, 'hv_batt_soh_alert', 'critical', `SOH tracción crítico · ${Math.round(hvSohPct)}%`, {
+          hv_batt_soh_pct: hvSohPct,
+          hv_batt_soh: hvSohObj ?? null,
+        })
+        raised.push('hv_batt_soh_alert')
+      } else if (
+        hvSohPct <= warnPct &&
+        hvSohPct > alertPct &&
+        !recentlyAlerted(deviceId, 'hv_batt_soh_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hv_batt_soh_warn', 'warn', `SOH tracción bajo · ${Math.round(hvSohPct)}%`, {
+          hv_batt_soh_pct: hvSohPct,
+          hv_batt_soh: hvSohObj ?? null,
+        })
+        raised.push('hv_batt_soh_warn')
+      }
+    }
+
+    // HVESS temperature (OBD PID 01B4)
+    const hvessTempObj = signals.hvess_temp as Record<string, unknown> | undefined
+    const hvessTempC =
+      typeof hvessTempObj?.temp_c === 'number'
+        ? (hvessTempObj.temp_c as number)
+        : typeof signals.hvess_temp_c === 'number'
+          ? (signals.hvess_temp_c as number)
+          : null
+    if (typeof hvessTempC === 'number') {
+      const warnC = typeof signals.hvess_temp_warn_c === 'number' ? (signals.hvess_temp_warn_c as number) : 45
+      const alertC = typeof signals.hvess_temp_alert_c === 'number' ? (signals.hvess_temp_alert_c as number) : 55
+      if (hvessTempC >= alertC && !recentlyAlerted(deviceId, 'hvess_temp_alert', 120)) {
+        insertAlert(deviceId, 'hvess_temp_alert', 'critical', `Temperatura HVESS crítica · ${Math.round(hvessTempC)} °C`, {
+          hvess_temp_c: hvessTempC,
+          hvess_temp: hvessTempObj ?? null,
+        })
+        raised.push('hvess_temp_alert')
+      } else if (
+        hvessTempC >= warnC &&
+        hvessTempC < alertC &&
+        !recentlyAlerted(deviceId, 'hvess_temp_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hvess_temp_warn', 'warn', `Temperatura HVESS alta · ${Math.round(hvessTempC)} °C`, {
+          hvess_temp_c: hvessTempC,
+          hvess_temp: hvessTempObj ?? null,
+        })
+        raised.push('hvess_temp_warn')
+      }
+    }
+
+    // HVESS current (OBD PID 01B5)
+    const hvessCurObj = signals.hvess_current as Record<string, unknown> | undefined
+    const hvessCurA =
+      typeof hvessCurObj?.current_a === 'number'
+        ? (hvessCurObj.current_a as number)
+        : typeof signals.hvess_current_a === 'number'
+          ? (signals.hvess_current_a as number)
+          : null
+    const hvessCurSpeed =
+      typeof hvessCurObj?.speed_kmh === 'number'
+        ? (hvessCurObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    if (typeof hvessCurA === 'number') {
+      const warnA = typeof signals.hvess_cur_warn_a === 'number' ? (signals.hvess_cur_warn_a as number) : 120
+      const alertA = typeof signals.hvess_cur_alert_a === 'number' ? (signals.hvess_cur_alert_a as number) : 180
+      const minSpd = typeof signals.hvess_cur_speed_min_kmh === 'number' ? (signals.hvess_cur_speed_min_kmh as number) : 10
+      const spdOk = typeof hvessCurSpeed === 'number' && hvessCurSpeed >= minSpd
+      const absA = Math.abs(hvessCurA)
+      if (spdOk && absA >= alertA && !recentlyAlerted(deviceId, 'hvess_current_alert', 120)) {
+        insertAlert(deviceId, 'hvess_current_alert', 'critical', `Corriente HVESS crítica · ${Math.round(hvessCurA)}A`, {
+          hvess_current_a: hvessCurA,
+          hvess_current: hvessCurObj ?? null,
+        })
+        raised.push('hvess_current_alert')
+      } else if (
+        spdOk &&
+        absA >= warnA &&
+        absA < alertA &&
+        !recentlyAlerted(deviceId, 'hvess_current_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hvess_current_warn', 'warn', `Corriente HVESS alta · ${Math.round(hvessCurA)}A`, {
+          hvess_current_a: hvessCurA,
+          hvess_current: hvessCurObj ?? null,
+        })
+        raised.push('hvess_current_warn')
+      }
+    }
+
+    // HVESS pack voltage (OBD PID 01B6)
+    const hvessVoltObj = signals.hvess_voltage as Record<string, unknown> | undefined
+    const hvessVoltV =
+      typeof hvessVoltObj?.volts === 'number'
+        ? (hvessVoltObj.volts as number)
+        : typeof signals.hvess_voltage_v === 'number'
+          ? (signals.hvess_voltage_v as number)
+          : null
+    if (typeof hvessVoltV === 'number') {
+      const warnV = typeof signals.hvess_volt_warn_v === 'number' ? (signals.hvess_volt_warn_v as number) : 280
+      const alertV = typeof signals.hvess_volt_alert_v === 'number' ? (signals.hvess_volt_alert_v as number) : 260
+      if (hvessVoltV < alertV && !recentlyAlerted(deviceId, 'hvess_voltage_alert', 120)) {
+        insertAlert(deviceId, 'hvess_voltage_alert', 'critical', `Voltaje HVESS crítico · ${Math.round(hvessVoltV)}V`, {
+          hvess_voltage_v: hvessVoltV,
+          hvess_voltage: hvessVoltObj ?? null,
+        })
+        raised.push('hvess_voltage_alert')
+      } else if (
+        hvessVoltV < warnV &&
+        hvessVoltV >= alertV &&
+        !recentlyAlerted(deviceId, 'hvess_voltage_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hvess_voltage_warn', 'warn', `Voltaje HVESS bajo · ${Math.round(hvessVoltV)}V`, {
+          hvess_voltage_v: hvessVoltV,
+          hvess_voltage: hvessVoltObj ?? null,
+        })
+        raised.push('hvess_voltage_warn')
+      }
+    }
+
+    // HEV max cell temperature (OBD PID 01B7)
+    const hvCellMaxObj = signals.hv_cell_max as Record<string, unknown> | undefined
+    const hvCellMaxC =
+      typeof hvCellMaxObj?.temp_c === 'number'
+        ? (hvCellMaxObj.temp_c as number)
+        : typeof signals.hv_cell_max_temp_c === 'number'
+          ? (signals.hv_cell_max_temp_c as number)
+          : null
+    if (typeof hvCellMaxC === 'number') {
+      const warnC = typeof signals.hv_cell_max_warn_c === 'number' ? (signals.hv_cell_max_warn_c as number) : 42
+      const alertC = typeof signals.hv_cell_max_alert_c === 'number' ? (signals.hv_cell_max_alert_c as number) : 48
+      if (hvCellMaxC >= alertC && !recentlyAlerted(deviceId, 'hv_cell_max_alert', 120)) {
+        insertAlert(deviceId, 'hv_cell_max_alert', 'critical', `Celda máxima crítica · ${Math.round(hvCellMaxC)} °C`, {
+          hv_cell_max_temp_c: hvCellMaxC,
+          hv_cell_max: hvCellMaxObj ?? null,
+        })
+        raised.push('hv_cell_max_alert')
+      } else if (
+        hvCellMaxC >= warnC &&
+        hvCellMaxC < alertC &&
+        !recentlyAlerted(deviceId, 'hv_cell_max_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hv_cell_max_warn', 'warn', `Celda máxima caliente · ${Math.round(hvCellMaxC)} °C`, {
+          hv_cell_max_temp_c: hvCellMaxC,
+          hv_cell_max: hvCellMaxObj ?? null,
+        })
+        raised.push('hv_cell_max_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
