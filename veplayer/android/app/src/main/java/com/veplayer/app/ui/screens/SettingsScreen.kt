@@ -341,6 +341,8 @@ fun SettingsScreen() {
                 },
                 canIface = canIface,
                 onCanIfaceChange = { canIface = it },
+                fmBackend = fmBackend,
+                onFmBackendChange = { fmBackend = it },
                 onStatus = { status = it },
             )
         }
@@ -821,7 +823,7 @@ fun SettingsScreen() {
 }
 
 @Composable
-private fun PanelBlock(title: String, content: @Composable () -> Unit) {
+internal fun PanelBlock(title: String, content: @Composable () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
