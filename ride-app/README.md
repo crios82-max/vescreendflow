@@ -77,6 +77,15 @@ npm run pm2:stop
 
 Si accedes desde otra máquina en la red, agrega las URLs en `CORS_ORIGINS` del `.env`.
 
+### Autostart Mac mini
+
+Ver [`docs/macmini-autostart.md`](docs/macmini-autostart.md) para integrar con `com.macmini.stacks.autostart`.
+
+```bash
+chmod +x scripts/start-stack.sh
+./scripts/start-stack.sh   # docker + pm2, idempotente
+```
+
 ## Flujo demo
 
 1. Registra un **pasajero** en http://localhost:5174
