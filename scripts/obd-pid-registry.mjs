@@ -216,7 +216,16 @@ export function parseMode01(raw) {
       const b2 = data.length >= 7 ? (data[5] * 256 + data[6]) / 100 : null
       return { pmSensorB1Pct: b1, pmSensorB2Pct: b2 }
     case 0x94:
-      return data.length < 4 ? {} : { noxReagentQualHours: data[2] * 256 + data[3] }
+      if (data.length < 4) return {}
+      const b = data[1]
+      return {
+        noxWarningActive: b & 0x01 ? 1 : 0,
+        noxInduceLevel1: (b >> 1) & 0x03,
+        noxInduceLevel2: (b >> 3) & 0x03,
+        noxReagentQualHours: data[2] * 256 + data[3],
+        noxEgrValveCounterHours: data.length >= 10 ? data[8] * 256 + data[9] : null,
+        noxMonitorMalfunctionHours: data.length >= 12 ? data[10] * 256 + data[11] : null,
+      }
     case 0x98:
       const s5 = data.length >= 3 ? (data[1] * 256 + data[2]) / 10 - 40 : null
       const s6 = data.length >= 5 ? (data[3] * 256 + data[4]) / 10 - 40 : null
@@ -494,6 +503,10 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 9C 00 00 00 00 00 00 00 00 00 00 00 00 00 27 10', expect: { o2LambdaB2s3: 1.22 } },
   { raw: '41 9C 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 27 10', expect: { o2LambdaB2s4: 1.22 } },
   { raw: '41 94 00 00 00 19', expect: { noxReagentQualHours: 25 } },
+  { raw: '41 94 00 01 00 19', expect: { noxWarningActive: 1, noxReagentQualHours: 25 } },
+  { raw: '41 94 00 00 00 00 00 00 00 00 01 2C 01 2C', expect: { noxEgrValveCounterHours: 300, noxMonitorMalfunctionHours: 300 } },
+  { raw: '41 94 00 04 00 00 00 00 00 00 00 00 00 00', expect: { noxInduceLevel1: 2 } },
+  { raw: '41 94 00 10 00 00 00 00 00 00 00 00 00 00', expect: { noxInduceLevel2: 2 } },
   { raw: '41 9B 00 00 00 1A', expect: { defFluidPct: (0x1a * 100) / 255 } },
   { raw: '41 A5 01 BE', expect: { defDosingCmdPct: 0xbe / 2 } },
   { raw: '41 A1 00 03 84', expect: { noxCorrectedB1s1Ppm: 900 } },
@@ -737,6 +750,13 @@ export function runFaseFormulaChecks(fase, assert) {
       )
       assert(0x01 * 256 + 0x2c === 300, 'pid 0193 cumulative MI hours')
       assert((0x0e * 256 + 0x10) / 10 === 360, 'pid 019A hybrid batt voltage')
+      break
+    case 42:
+      assert((0x01 & 0x01) === 1, 'pid 0194 NOx warn active')
+      assert(((0x04 >> 1) & 0x03) === 2, 'pid 0194 induce L1 active')
+      assert(((0x10 >> 3) & 0x03) === 2, 'pid 0194 induce L2 active')
+      assert(0x01 * 256 + 0x2c === 300, 'pid 0194 EGR counter hours')
+      assert(0x01 * 256 + 0x2c === 300, 'pid 0194 monitor malf hours')
       break
     default:
       throw new Error(`unknown fase ${fase}`)

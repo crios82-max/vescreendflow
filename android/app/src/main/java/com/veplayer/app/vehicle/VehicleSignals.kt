@@ -267,6 +267,16 @@ data class VehicleSignals(
         val o2LambdaB2s3: Float? = null,
         /** NOx reagent quality counter hours (OBD PID 0194). */
         val noxReagentQualHours: Float? = null,
+        /** NOx warning system active (OBD PID 0194). */
+        val noxWarningActive: Int? = null,
+        /** NOx level-one inducement status (OBD PID 0194). */
+        val noxInduceLevel1: Int? = null,
+        /** NOx level-two inducement status (OBD PID 0194). */
+        val noxInduceLevel2: Int? = null,
+        /** NOx EGR valve counter hours (OBD PID 0194). */
+        val noxEgrValveCounterHours: Float? = null,
+        /** NOx monitor malfunction counter hours (OBD PID 0194). */
+        val noxMonitorMalfunctionHours: Float? = null,
         /** EGT bank 1 sensor 6 °C (OBD PID 0198). */
         val egtB1s6TempC: Float? = null,
         /** EGT bank 2 sensor 6 °C (OBD PID 0199). */
@@ -510,6 +520,11 @@ data class VehicleSignals(
             "o2_lambda_b1s3" to o2LambdaB1s3?.toDouble(),
             "o2_lambda_b2s3" to o2LambdaB2s3?.toDouble(),
             "nox_reagent_qual_hours" to noxReagentQualHours?.toDouble(),
+            "nox_warning_active" to noxWarningActive,
+            "nox_induce_level1" to noxInduceLevel1,
+            "nox_induce_level2" to noxInduceLevel2,
+            "nox_egr_valve_counter_hours" to noxEgrValveCounterHours?.toDouble(),
+            "nox_monitor_malfunction_hours" to noxMonitorMalfunctionHours?.toDouble(),
             "egt_b1s6_temp_c" to egtB1s6TempC?.toDouble(),
             "egt_b2s6_temp_c" to egtB2s6TempC?.toDouble(),
             "egt_b1s7_temp_c" to egtB1s7TempC?.toDouble(),

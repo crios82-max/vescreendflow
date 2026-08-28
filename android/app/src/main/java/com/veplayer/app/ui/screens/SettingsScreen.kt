@@ -5396,6 +5396,73 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 42 OBD (0194 inducement):", color = Mist)
+            val noxWarnSt by com.veplayer.app.vehicle.NoxWarnActiveMonitor.state.collectAsState()
+            val noxIndL1St by com.veplayer.app.vehicle.NoxInduceLevel1Monitor.state.collectAsState()
+            val noxIndL2St by com.veplayer.app.vehicle.NoxInduceLevel2Monitor.state.collectAsState()
+            val noxEgrSt by com.veplayer.app.vehicle.NoxEgrCounterMonitor.state.collectAsState()
+            val noxMalSt by com.veplayer.app.vehicle.NoxMonitorMalfunctionMonitor.state.collectAsState()
+            var f42NoxWarn by remember { mutableStateOf(prefs.noxWarnSim) }
+            var f42IndL1 by remember { mutableStateOf(if (prefs.noxIndL1Sim > 0) prefs.noxIndL1Sim.toString() else "0") }
+            var f42IndL2 by remember { mutableStateOf(if (prefs.noxIndL2Sim > 0) prefs.noxIndL2Sim.toString() else "0") }
+            var f42Egr by remember { mutableStateOf(if (prefs.noxEgrSimH > 0f) prefs.noxEgrSimH.toInt().toString() else "0") }
+            var f42Mal by remember { mutableStateOf(if (prefs.noxMalSimH > 0f) prefs.noxMalSimH.toInt().toString() else "0") }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedButton(onClick = { f42NoxWarn = !f42NoxWarn }) {
+                    Text(if (f42NoxWarn) "NOxWarn ON" else "NOxWarn OFF")
+                }
+                OutlinedTextField(
+                    value = f42IndL1,
+                    onValueChange = { f42IndL1 = it.filter { c -> c.isDigit() }.take(1) },
+                    label = { Text("IndL1") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f42IndL2,
+                    onValueChange = { f42IndL2 = it.filter { c -> c.isDigit() }.take(1) },
+                    label = { Text("IndL2") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f42Egr,
+                    onValueChange = { f42Egr = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EGRcnt") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f42Mal,
+                    onValueChange = { f42Mal = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("NOxMal") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.noxWarnSim = f42NoxWarn
+                    prefs.noxIndL1Sim = f42IndL1.toIntOrNull() ?: 0
+                    prefs.noxIndL2Sim = f42IndL2.toIntOrNull() ?: 0
+                    prefs.noxEgrSimH = f42Egr.toFloatOrNull() ?: 0f
+                    prefs.noxMalSimH = f42Mal.toFloatOrNull() ?: 0f
+                    status = "Fase 42 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 42") }
+            Text(
+                listOfNotNull(
+                    noxWarnSt.label.takeIf { it.isNotBlank() },
+                    noxIndL1St.label.takeIf { it.isNotBlank() },
+                    noxIndL2St.label.takeIf { it.isNotBlank() },
+                    noxEgrSt.label.takeIf { it.isNotBlank() },
+                    noxMalSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 42 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {
