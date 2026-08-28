@@ -1654,6 +1654,66 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounter.toJsonMap(
                                             com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.value,
                                         ),
+                                    "engine_fuel_rate_gps_warn" to prefs.engineFuelRateGpsWarn.toDouble(),
+                                    "engine_fuel_rate_gps_alert" to prefs.engineFuelRateGpsAlert.toDouble(),
+                                    "engine_fuel_rate_gps_speed_min_kmh" to prefs.engineFuelRateGpsSpeedMinKmh.toDouble(),
+                                    "engine_fuel_rate_gps_rate" to
+                                        (if (prefs.engineFuelRateGpsSim > 0f) prefs.engineFuelRateGpsSim
+                                        else com.veplayer.app.vehicle.EngineFuelRateGpsMonitor.state.value.rateGps
+                                            ?: snap.engineFuelRateGps
+                                        )?.toDouble(),
+                                    "engine_fuel_rate_gps" to
+                                        com.veplayer.app.vehicle.EngineFuelRateGps.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineFuelRateGpsMonitor.state.value,
+                                        ),
+                                    "exhaust_flow_warn_kgh" to prefs.exhaustFlowWarnKgh.toDouble(),
+                                    "exhaust_flow_alert_kgh" to prefs.exhaustFlowAlertKgh.toDouble(),
+                                    "exhaust_flow_speed_min_kmh" to prefs.exhaustFlowSpeedMinKmh.toDouble(),
+                                    "engine_exhaust_flow_kgh" to
+                                        (if (prefs.exhaustFlowSimKgh > 0f) prefs.exhaustFlowSimKgh
+                                        else com.veplayer.app.vehicle.EngineExhaustFlowMonitor.state.value.flowKgh
+                                            ?: snap.engineExhaustFlowKgh
+                                        )?.toDouble(),
+                                    "exhaust_flow" to
+                                        com.veplayer.app.vehicle.EngineExhaustFlow.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineExhaustFlowMonitor.state.value,
+                                        ),
+                                    "fuel_sys_use1_warn_pct" to prefs.fuelSysUse1WarnPct.toDouble(),
+                                    "fuel_sys_use1_alert_pct" to prefs.fuelSysUse1AlertPct.toDouble(),
+                                    "fuel_sys_use1_speed_min_kmh" to prefs.fuelSysUse1SpeedMinKmh.toDouble(),
+                                    "fuel_sys_use_pct1" to
+                                        (if (prefs.fuelSysUse1SimPct > 0f) prefs.fuelSysUse1SimPct
+                                        else com.veplayer.app.vehicle.FuelSysUsePct1Monitor.state.value.usePct
+                                            ?: snap.fuelSysUsePct1
+                                        )?.toDouble(),
+                                    "fuel_sys_use1" to
+                                        com.veplayer.app.vehicle.FuelSysUsePct1.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelSysUsePct1Monitor.state.value,
+                                        ),
+                                    "fuel_sys_use2_warn_pct" to prefs.fuelSysUse2WarnPct.toDouble(),
+                                    "fuel_sys_use2_alert_pct" to prefs.fuelSysUse2AlertPct.toDouble(),
+                                    "fuel_sys_use2_speed_min_kmh" to prefs.fuelSysUse2SpeedMinKmh.toDouble(),
+                                    "fuel_sys_use_pct2" to
+                                        (if (prefs.fuelSysUse2SimPct > 0f) prefs.fuelSysUse2SimPct
+                                        else com.veplayer.app.vehicle.FuelSysUsePct2Monitor.state.value.usePct
+                                            ?: snap.fuelSysUsePct2
+                                        )?.toDouble(),
+                                    "fuel_sys_use2" to
+                                        com.veplayer.app.vehicle.FuelSysUsePct2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelSysUsePct2Monitor.state.value,
+                                        ),
+                                    "fuel_sys_use3_warn_pct" to prefs.fuelSysUse3WarnPct.toDouble(),
+                                    "fuel_sys_use3_alert_pct" to prefs.fuelSysUse3AlertPct.toDouble(),
+                                    "fuel_sys_use3_speed_min_kmh" to prefs.fuelSysUse3SpeedMinKmh.toDouble(),
+                                    "fuel_sys_use_pct3" to
+                                        (if (prefs.fuelSysUse3SimPct > 0f) prefs.fuelSysUse3SimPct
+                                        else com.veplayer.app.vehicle.FuelSysUsePct3Monitor.state.value.usePct
+                                            ?: snap.fuelSysUsePct3
+                                        )?.toDouble(),
+                                    "fuel_sys_use3" to
+                                        com.veplayer.app.vehicle.FuelSysUsePct3.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelSysUsePct3Monitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -3449,6 +3509,66 @@ class SenseBridgeService : Service() {
                                     "particulate_malf" to
                                         com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounter.toJsonMap(
                                             com.veplayer.app.vehicle.ParticulateMonitorMalfunctionCounterMonitor.state.value,
+                                        ),
+                                    "engine_fuel_rate_gps_warn" to prefs.engineFuelRateGpsWarn.toDouble(),
+                                    "engine_fuel_rate_gps_alert" to prefs.engineFuelRateGpsAlert.toDouble(),
+                                    "engine_fuel_rate_gps_speed_min_kmh" to prefs.engineFuelRateGpsSpeedMinKmh.toDouble(),
+                                    "engine_fuel_rate_gps_rate" to
+                                        (if (prefs.engineFuelRateGpsSim > 0f) prefs.engineFuelRateGpsSim
+                                        else com.veplayer.app.vehicle.EngineFuelRateGpsMonitor.state.value.rateGps
+                                            ?: snap.engineFuelRateGps
+                                        )?.toDouble(),
+                                    "engine_fuel_rate_gps" to
+                                        com.veplayer.app.vehicle.EngineFuelRateGps.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineFuelRateGpsMonitor.state.value,
+                                        ),
+                                    "exhaust_flow_warn_kgh" to prefs.exhaustFlowWarnKgh.toDouble(),
+                                    "exhaust_flow_alert_kgh" to prefs.exhaustFlowAlertKgh.toDouble(),
+                                    "exhaust_flow_speed_min_kmh" to prefs.exhaustFlowSpeedMinKmh.toDouble(),
+                                    "engine_exhaust_flow_kgh" to
+                                        (if (prefs.exhaustFlowSimKgh > 0f) prefs.exhaustFlowSimKgh
+                                        else com.veplayer.app.vehicle.EngineExhaustFlowMonitor.state.value.flowKgh
+                                            ?: snap.engineExhaustFlowKgh
+                                        )?.toDouble(),
+                                    "exhaust_flow" to
+                                        com.veplayer.app.vehicle.EngineExhaustFlow.toJsonMap(
+                                            com.veplayer.app.vehicle.EngineExhaustFlowMonitor.state.value,
+                                        ),
+                                    "fuel_sys_use1_warn_pct" to prefs.fuelSysUse1WarnPct.toDouble(),
+                                    "fuel_sys_use1_alert_pct" to prefs.fuelSysUse1AlertPct.toDouble(),
+                                    "fuel_sys_use1_speed_min_kmh" to prefs.fuelSysUse1SpeedMinKmh.toDouble(),
+                                    "fuel_sys_use_pct1" to
+                                        (if (prefs.fuelSysUse1SimPct > 0f) prefs.fuelSysUse1SimPct
+                                        else com.veplayer.app.vehicle.FuelSysUsePct1Monitor.state.value.usePct
+                                            ?: snap.fuelSysUsePct1
+                                        )?.toDouble(),
+                                    "fuel_sys_use1" to
+                                        com.veplayer.app.vehicle.FuelSysUsePct1.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelSysUsePct1Monitor.state.value,
+                                        ),
+                                    "fuel_sys_use2_warn_pct" to prefs.fuelSysUse2WarnPct.toDouble(),
+                                    "fuel_sys_use2_alert_pct" to prefs.fuelSysUse2AlertPct.toDouble(),
+                                    "fuel_sys_use2_speed_min_kmh" to prefs.fuelSysUse2SpeedMinKmh.toDouble(),
+                                    "fuel_sys_use_pct2" to
+                                        (if (prefs.fuelSysUse2SimPct > 0f) prefs.fuelSysUse2SimPct
+                                        else com.veplayer.app.vehicle.FuelSysUsePct2Monitor.state.value.usePct
+                                            ?: snap.fuelSysUsePct2
+                                        )?.toDouble(),
+                                    "fuel_sys_use2" to
+                                        com.veplayer.app.vehicle.FuelSysUsePct2.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelSysUsePct2Monitor.state.value,
+                                        ),
+                                    "fuel_sys_use3_warn_pct" to prefs.fuelSysUse3WarnPct.toDouble(),
+                                    "fuel_sys_use3_alert_pct" to prefs.fuelSysUse3AlertPct.toDouble(),
+                                    "fuel_sys_use3_speed_min_kmh" to prefs.fuelSysUse3SpeedMinKmh.toDouble(),
+                                    "fuel_sys_use_pct3" to
+                                        (if (prefs.fuelSysUse3SimPct > 0f) prefs.fuelSysUse3SimPct
+                                        else com.veplayer.app.vehicle.FuelSysUsePct3Monitor.state.value.usePct
+                                            ?: snap.fuelSysUsePct3
+                                        )?.toDouble(),
+                                    "fuel_sys_use3" to
+                                        com.veplayer.app.vehicle.FuelSysUsePct3.toJsonMap(
+                                            com.veplayer.app.vehicle.FuelSysUsePct3Monitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

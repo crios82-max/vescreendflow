@@ -342,6 +342,9 @@ class ObdBluetoothClient(private val context: Context) {
                 "01C4", // EPCS diagnostic time/count
                 "01C8", // NOx/PCD warning lamp
                 "01C6", // particulate control inducement/counters
+                "019D", // engine fuel rate g/s
+                "019E", // engine exhaust flow kg/h
+                "019F", // fuel system percentage use
                 "018B", // DPF aftertreatment
                 "018D", // throttle G
                 "018E", // engine friction torque
