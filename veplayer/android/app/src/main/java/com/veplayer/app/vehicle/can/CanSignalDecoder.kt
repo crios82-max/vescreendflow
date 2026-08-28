@@ -12,6 +12,17 @@ import com.veplayer.app.vehicle.can.dbc.DbcVehicleMapper
  * Legacy IDs 0x100–0x108 are expressed in that demo DBC.
  */
 object CanSignalDecoder {
+    /** Legacy demo frame IDs (veplayer_demo.dbc BO_ 256–264). */
+    const val ID_SPEED = 0x100
+    const val ID_GEAR = 0x101
+    const val ID_TURN = 0x102
+    const val ID_DOORS = 0x103
+    const val ID_ENERGY = 0x104
+    const val ID_DYNAMICS = 0x105
+    const val ID_FLAGS = 0x106
+    const val ID_TPMS = 0x107
+    const val ID_HVAC = 0x108
+
     @Volatile
     private var db: DbcDatabase? = null
 
