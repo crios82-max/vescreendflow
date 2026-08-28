@@ -5008,6 +5008,85 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 37 OBD (A6/A9/C5/C7):", color = Mist)
+            val obdOdoSt by com.veplayer.app.vehicle.ObdOdometerMonitor.state.collectAsState()
+            val absDisableSt by com.veplayer.app.vehicle.AbsDisableMonitor.state.collectAsState()
+            val fuelPressASt by com.veplayer.app.vehicle.FuelPressAMonitor.state.collectAsState()
+            val fuelPressBSt by com.veplayer.app.vehicle.FuelPressBMonitor.state.collectAsState()
+            val reflashDistSt by com.veplayer.app.vehicle.ReflashDistanceMonitor.state.collectAsState()
+            var f37Odo by remember {
+                mutableStateOf(if (prefs.obdOdoSimKm > 0f) prefs.obdOdoSimKm.toInt().toString() else "0")
+            }
+            var f37Abs by remember { mutableStateOf(if (prefs.absDisableSim) "1" else "0") }
+            var f37Fpa by remember {
+                mutableStateOf(if (prefs.fuelPressASimKpa > 0f) prefs.fuelPressASimKpa.toInt().toString() else "0")
+            }
+            var f37Fpb by remember {
+                mutableStateOf(if (prefs.fuelPressBSimKpa > 0f) prefs.fuelPressBSimKpa.toInt().toString() else "0")
+            }
+            var f37Reflash by remember {
+                mutableStateOf(if (prefs.reflashDistSimKm > 0f) prefs.reflashDistSimKm.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f37Odo,
+                    onValueChange = { f37Odo = it.filter { c -> c.isDigit() }.take(6) },
+                    label = { Text("Odo") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f37Abs,
+                    onValueChange = { f37Abs = it.filter { c -> c.isDigit() }.take(1) },
+                    label = { Text("ABSoff") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f37Fpa,
+                    onValueChange = { f37Fpa = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("FPa") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f37Fpb,
+                    onValueChange = { f37Fpb = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("FPb") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f37Reflash,
+                    onValueChange = { f37Reflash = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("Reflash") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.obdOdoSimKm = f37Odo.toFloatOrNull() ?: 0f
+                    prefs.absDisableSim = f37Abs == "1"
+                    prefs.fuelPressASimKpa = f37Fpa.toFloatOrNull() ?: 0f
+                    prefs.fuelPressBSimKpa = f37Fpb.toFloatOrNull() ?: 0f
+                    prefs.reflashDistSimKm = f37Reflash.toFloatOrNull() ?: 0f
+                    status = "Fase 37 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 37") }
+            Text(
+                listOfNotNull(
+                    obdOdoSt.label.takeIf { it.isNotBlank() },
+                    absDisableSt.label.takeIf { it.isNotBlank() },
+                    fuelPressASt.label.takeIf { it.isNotBlank() },
+                    fuelPressBSt.label.takeIf { it.isNotBlank() },
+                    reflashDistSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 37 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

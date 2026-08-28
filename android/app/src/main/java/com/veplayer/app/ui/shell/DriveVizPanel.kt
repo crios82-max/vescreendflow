@@ -173,6 +173,11 @@ import com.veplayer.app.vehicle.NoxCorrectedS4Monitor
 import com.veplayer.app.vehicle.CylinderFuelRateMonitor
 import com.veplayer.app.vehicle.EvapSysVaporMonitor
 import com.veplayer.app.vehicle.TransGearRatioMonitor
+import com.veplayer.app.vehicle.ObdOdometerMonitor
+import com.veplayer.app.vehicle.AbsDisableMonitor
+import com.veplayer.app.vehicle.FuelPressAMonitor
+import com.veplayer.app.vehicle.FuelPressBMonitor
+import com.veplayer.app.vehicle.ReflashDistanceMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -348,6 +353,11 @@ fun DriveVizPanel(
     val cylFuel by CylinderFuelRateMonitor.state.collectAsState()
     val evapSysVapor by EvapSysVaporMonitor.state.collectAsState()
     val transGear by TransGearRatioMonitor.state.collectAsState()
+    val obdOdo by ObdOdometerMonitor.state.collectAsState()
+    val absDisable by AbsDisableMonitor.state.collectAsState()
+    val fuelPressA by FuelPressAMonitor.state.collectAsState()
+    val fuelPressB by FuelPressBMonitor.state.collectAsState()
+    val reflashDist by ReflashDistanceMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -506,6 +516,11 @@ fun DriveVizPanel(
             CylinderFuelRateMonitor.tick(prefs, snap)
             EvapSysVaporMonitor.tick(prefs, snap)
             TransGearRatioMonitor.tick(prefs, snap)
+            ObdOdometerMonitor.tick(prefs, snap)
+            AbsDisableMonitor.tick(prefs, snap)
+            FuelPressAMonitor.tick(prefs, snap)
+            FuelPressBMonitor.tick(prefs, snap)
+            ReflashDistanceMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1305,6 +1320,21 @@ fun DriveVizPanel(
                 }
                 if (transGear.showWarn || (prefs.transGearEnabled && transGear.band == "ok" && transGear.label.isNotBlank())) {
                     Text(transGear.label, color = Color(com.veplayer.app.vehicle.TransGearRatio.accentArgb(transGear.band)), fontSize = 11.sp)
+                }
+                if (obdOdo.showWarn || (prefs.obdOdoEnabled && obdOdo.band == "ok" && obdOdo.label.isNotBlank())) {
+                    Text(obdOdo.label, color = Color(com.veplayer.app.vehicle.ObdOdometer.accentArgb(obdOdo.band)), fontSize = 11.sp)
+                }
+                if (absDisable.showWarn || (prefs.absDisableEnabled && absDisable.band == "ok" && absDisable.label.isNotBlank())) {
+                    Text(absDisable.label, color = Color(com.veplayer.app.vehicle.AbsDisable.accentArgb(absDisable.band)), fontSize = 11.sp)
+                }
+                if (fuelPressA.showWarn || (prefs.fuelPressAEnabled && fuelPressA.band == "ok" && fuelPressA.label.isNotBlank())) {
+                    Text(fuelPressA.label, color = Color(com.veplayer.app.vehicle.FuelPressA.accentArgb(fuelPressA.band)), fontSize = 11.sp)
+                }
+                if (fuelPressB.showWarn || (prefs.fuelPressBEnabled && fuelPressB.band == "ok" && fuelPressB.label.isNotBlank())) {
+                    Text(fuelPressB.label, color = Color(com.veplayer.app.vehicle.FuelPressB.accentArgb(fuelPressB.band)), fontSize = 11.sp)
+                }
+                if (reflashDist.showWarn || (prefs.reflashDistEnabled && reflashDist.band == "ok" && reflashDist.label.isNotBlank())) {
+                    Text(reflashDist.label, color = Color(com.veplayer.app.vehicle.ReflashDistance.accentArgb(reflashDist.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

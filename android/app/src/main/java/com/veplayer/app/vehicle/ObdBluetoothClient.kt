@@ -334,6 +334,10 @@ class ObdBluetoothClient(private val context: Context) {
                 "01A2", // cylinder fuel rate
                 "01A3", // evap system vapor pressure
                 "01A4", // transmission actual gear
+                "01A6", // odometer
+                "01A9", // ABS disable switch
+                "01C5", // fuel pressure A/B
+                "01C7", // distance since reflash
                 "018B", // DPF aftertreatment
                 "018D", // throttle G
                 "018E", // engine friction torque
