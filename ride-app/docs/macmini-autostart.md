@@ -9,6 +9,7 @@ Integración con el LaunchAgent maestro `com.macmini.stacks.autostart`.
 | API | 4001 |
 | Pasajero web | 5174 |
 | Conductor web | 5175 |
+| Admin web | 5176 |
 | PostgreSQL (Docker) | 5436 |
 
 ## Primera vez (manual)
@@ -18,15 +19,27 @@ cd /Users/server/Documents/vescreendflow/ride-app   # ajusta ruta
 cp .env.example .env
 # JWT_SECRET, VITE_GOOGLE_MAPS_API_KEY, CORS_ORIGINS si usas LAN
 
+Desde la raíz del repo:
+
+```bash
+chmod +x macmini-stacks/bootstrap-ride-app.sh
+./macmini-stacks/bootstrap-ride-app.sh
+```
+```
+
+O paso a paso:
+
+```bash
 npm install --legacy-peer-deps
+docker compose up -d
+./scripts/migrate.sh
 npm run build
-chmod +x scripts/start-stack.sh scripts/stop-stack.sh
 ./scripts/start-stack.sh
 ```
 
 ## Bloque para `autostart.sh`
 
-**Recomendado:** usa el instalador desde la raíz del repo:
+**Recomendado:** desde la raíz del repo:
 
 ```bash
 ./macmini-stacks/install-ride-app.sh [/ruta/al/ride-app]
@@ -35,7 +48,7 @@ chmod +x scripts/start-stack.sh scripts/stop-stack.sh
 **Manual:** agrega esto en `~/Library/Application Support/macmini-stacks/autostart.sh`, **después** de que Docker Desktop esté arriba:
 
 ```bash
-# --- Ride App (:4001 / :5174 / :5175 / db :5436) ---
+# --- Ride App (:4001 / :5174 / :5175 / :5176 / db :5436) ---
 RIDE_APP_DIR="${RIDE_APP_DIR:-/Users/server/Documents/vescreendflow/ride-app}"
 if [[ -x "$RIDE_APP_DIR/scripts/start-stack.sh" ]]; then
   log "Ride App"

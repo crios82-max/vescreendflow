@@ -11,7 +11,7 @@ chmod +x macmini-stacks/bootstrap-ride-app.sh
 ./macmini-stacks/bootstrap-ride-app.sh
 ```
 
-Hace: `.env` → `npm install` → `build` → autostart → docker + PM2.
+Hace: `git pull` → `.env` → `npm install` → migraciones → `build` → autostart → docker + PM2.
 
 Solo edita `ride-app/.env` con tu Google Maps key y un `JWT_SECRET` fuerte si aún no lo hiciste.
 
@@ -46,4 +46,5 @@ pm2 list | grep ride-
 | API | 4001 |
 | Pasajero | 5174 |
 | Conductor | 5175 |
+| Admin | 5176 |
 | Postgres | 5436 |

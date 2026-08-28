@@ -22,7 +22,9 @@ if [[ ! -d "$RIDE_APP_DIR" ]]; then
 fi
 
 if [[ ! -x "$RIDE_APP_DIR/scripts/start-stack.sh" ]]; then
-  chmod +x "$RIDE_APP_DIR/scripts/start-stack.sh" "$RIDE_APP_DIR/scripts/stop-stack.sh" 2>/dev/null || true
+  chmod +x "$RIDE_APP_DIR/scripts/migrate.sh" \
+    "$RIDE_APP_DIR/scripts/start-stack.sh" \
+    "$RIDE_APP_DIR/scripts/stop-stack.sh" 2>/dev/null || true
 fi
 
 mkdir -p "$AUTOSTART_DIR"
@@ -58,7 +60,7 @@ HEADER
 
   cat >>"$AUTOSTART" <<EOF
 
-$MARKER (:4001 / :5174 / :5175 / db :5436) ---
+$MARKER (:4001 / :5174 / :5175 / :5176 / db :5436) ---
 RIDE_APP_DIR="${RIDE_APP_DIR}"
 if [[ -x "\$RIDE_APP_DIR/scripts/start-stack.sh" ]]; then
   log "Ride App"
@@ -95,4 +97,5 @@ echo ""
 echo "Verificar:"
 echo "  tail -20 \"$AUTOSTART_DIR/autostart.log\""
 echo "  curl -sf http://localhost:4001/health && echo OK"
+echo "  curl -sf -o /dev/null http://localhost:5176 && echo Admin ok"
 echo "  pm2 list | grep ride-"

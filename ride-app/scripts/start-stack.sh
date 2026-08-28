@@ -27,6 +27,9 @@ if ! docker compose exec -T db pg_isready -U ride -d ride_app >/dev/null 2>&1; t
   exit 1
 fi
 
+chmod +x scripts/migrate.sh
+./scripts/migrate.sh
+
 if [[ ! -f apps/api/dist/index.js ]]; then
   log "Build inicial..."
   npm run build
@@ -34,7 +37,7 @@ fi
 
 if pm2 jlist 2>/dev/null | grep -q '"name":"ride-api"'; then
   log "PM2 restart..."
-  pm2 restart ride-api ride-passenger ride-driver --update-env
+  pm2 restart ride-api ride-passenger ride-driver ride-admin --update-env
 else
   log "PM2 start..."
   pm2 start ecosystem.config.cjs
@@ -58,6 +61,12 @@ if curl -sf -o /dev/null http://localhost:5175; then
   log "OK driver :5175"
 else
   log "WARN driver fail"
+fi
+
+if curl -sf -o /dev/null http://localhost:5176; then
+  log "OK admin :5176"
+else
+  log "WARN admin fail"
 fi
 
 log "listo"

@@ -75,7 +75,11 @@ También edita `app.config.js` / keys nativas en iOS si haces build standalone.
 
 ```bash
 # Mac mini
+Desde la raíz del repo:
+
+```bash
 ./macmini-stacks/bootstrap-ride-app.sh
+```
 
 # iPhone: API → http://IP_LOCAL_MAC:4001
 # Registra pasajero en un dispositivo, conductor en otro (o web :5175)

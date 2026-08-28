@@ -80,14 +80,13 @@ npm run dev:mobile:tunnel
 
 > En dispositivo físico usa la IP de tu máquina en `EXPO_PUBLIC_API_URL` (ej. `http://192.168.1.10:4001`).
 
-### Migración (DB existente)
+### Migraciones
 
-Si ya tenías la DB corriendo antes de estas features:
+Aplica todas las migraciones pendientes (idempotente, trackea en `schema_migrations`):
 
 ```bash
-docker compose exec -T db psql -U ride -d ride_app < db/migrations/003_uber_features.sql
-docker compose exec -T db psql -U ride -d ride_app < db/migrations/004_complete_features.sql
-docker compose exec -T db psql -U ride -d ride_app < db/migrations/005_production.sql
+docker compose up -d
+./scripts/migrate.sh
 ```
 
 ### Producción (Stripe Connect, SMTP, OTP)
@@ -105,13 +104,21 @@ Conductores: web `:5175` → **Configurar cobros (Stripe)** → onboarding Expre
 
 ## Producción con PM2 (Mac mini)
 
-```bash
-cd ride-app
-cp .env.example .env
-docker compose up -d
-npm install --legacy-peer-deps
-npm run start:prod
+Desde la raíz del repo (`vescreendflow`):
 
+```bash
+git pull origin main
+chmod +x macmini-stacks/bootstrap-ride-app.sh
+./macmini-stacks/bootstrap-ride-app.sh
+```
+
+O manual desde `ride-app/`:
+
+```bash
+npm install --legacy-peer-deps
+docker compose up -d
+./scripts/migrate.sh
+npm run start:prod
 npm run health
 ```
 
@@ -126,10 +133,12 @@ npm run health
 ### Autostart Mac mini
 
 ```bash
-git pull
+git pull origin main
 chmod +x macmini-stacks/bootstrap-ride-app.sh
 ./macmini-stacks/bootstrap-ride-app.sh
 ```
+
+Ver `docs/macmini-autostart.md` y `../macmini-stacks/README.md`.
 
 ## Flujo demo
 
