@@ -1,4 +1,13 @@
 import { registerRootComponent } from 'expo';
 import App from './App';
+import { MobileI18nProvider } from './src/i18n';
 
-registerRootComponent(App);
+function Root() {
+  return (
+    <MobileI18nProvider>
+      <App />
+    </MobileI18nProvider>
+  );
+}
+
+registerRootComponent(Root);

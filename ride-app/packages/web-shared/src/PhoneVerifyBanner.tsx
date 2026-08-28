@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from './api';
+import { useI18n } from './I18nProvider';
 
 export function usePhoneVerified() {
   const [verified, setVerified] = useState<boolean | null>(null);
@@ -12,6 +13,7 @@ export function usePhoneVerified() {
 }
 
 export function PhoneVerifyBanner() {
+  const { t } = useI18n();
   const { verified, setVerified } = usePhoneVerified();
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
@@ -22,19 +24,19 @@ export function PhoneVerifyBanner() {
 
   return (
     <div className="rating-form">
-      <h3>Verifica tu teléfono (requerido)</h3>
+      <h3>{t('common.phoneRequired')}</h3>
       <input className="place-input" placeholder="+58..." value={phone} onChange={(e) => setPhone(e.target.value)} />
-      <input className="place-input" placeholder="Código 6 dígitos" value={code} onChange={(e) => setCode(e.target.value)} />
+      <input className="place-input" placeholder={t('common.otpPlaceholder')} value={code} onChange={(e) => setCode(e.target.value)} />
       {hint && <p className="muted-text">{hint}</p>}
       <div className="extras-row">
         <button type="button" className="btn-secondary" onClick={async () => {
           const r = await api.sendPhoneOtp(phone);
           if (r.devHint) setHint(`Dev: ${r.devHint}`);
-        }}>Enviar código</button>
+        }}>{t('common.sendCode')}</button>
         <button type="button" className="btn-primary" onClick={async () => {
           await api.confirmPhoneOtp(phone, code);
           setVerified(true);
-        }}>Verificar</button>
+        }}>{t('common.verify')}</button>
       </div>
     </div>
   );

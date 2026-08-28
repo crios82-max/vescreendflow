@@ -280,3 +280,20 @@ export function buildRideEstimate(
 }
 
 export { BRAND, brandTitle, brandAppLabel } from './brand.js';
+export {
+  type Locale,
+  type TranslationKey,
+  type TranslationParams,
+  LOCALES,
+  LOCALE_LABELS,
+  LOCALE_STORAGE_KEY,
+  translate,
+  detectLocale,
+  getStoredLocale,
+  setStoredLocale,
+  rideStatusLabel,
+  vehicleLabel,
+  vehicleDescription,
+  brandTagline,
+  brandRoleLabel,
+} from './i18n/index.js';

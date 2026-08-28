@@ -1,8 +1,9 @@
 import { FormEvent, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { api } from '@ride-app/web-shared';
+import { api, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
 
 export default function ResetPassword() {
+  const { t } = useI18n();
   const [params] = useSearchParams();
   const token = params.get('token') ?? '';
   const [password, setPassword] = useState('');
@@ -13,27 +14,34 @@ export default function ResetPassword() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (password !== confirm) {
-      setError('Las contraseñas no coinciden');
+      setError(t('auth.passwordMismatch'));
       return;
     }
     try {
       await api.resetPassword(token, password);
       setDone(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(err instanceof Error ? err.message : t('common.error'));
     }
   };
 
   if (!token) {
-    return <div className="auth-page"><p className="error-text">Token inválido</p><Link to="/login">Volver</Link></div>;
+    return (
+      <div className="auth-page">
+        <LanguageSwitcher className="auth-page__lang" />
+        <p className="error-text">{t('common.invalidToken')}</p>
+        <Link to="/login">{t('common.back')}</Link>
+      </div>
+    );
   }
 
   if (done) {
     return (
       <div className="auth-page">
+        <LanguageSwitcher className="auth-page__lang" />
         <div className="auth-card">
-          <h1>Contraseña actualizada</h1>
-          <Link to="/login">Iniciar sesión</Link>
+          <h1>{t('auth.passwordUpdated')}</h1>
+          <Link to="/login">{t('common.login')}</Link>
         </div>
       </div>
     );
@@ -41,18 +49,19 @@ export default function ResetPassword() {
 
   return (
     <div className="auth-page">
+      <LanguageSwitcher className="auth-page__lang" />
       <form className="auth-card" onSubmit={onSubmit}>
-        <h1>Nueva contraseña</h1>
+        <h1>{t('auth.newPassword')}</h1>
         <label>
-          Contraseña
+          {t('common.password')}
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
         </label>
         <label>
-          Confirmar
+          {t('auth.confirmPassword')}
           <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={6} />
         </label>
         {error && <p className="error-text">{error}</p>}
-        <button className="btn-primary" type="submit">Guardar</button>
+        <button className="btn-primary" type="submit">{t('common.save')}</button>
       </form>
     </div>
   );

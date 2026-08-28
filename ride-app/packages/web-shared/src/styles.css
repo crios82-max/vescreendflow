@@ -663,3 +663,38 @@ textarea {
 .brand-mark img {
   display: block;
 }
+
+.auth-page {
+  position: relative;
+}
+
+.auth-page__lang {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+}
+
+.lang-switcher {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--brand-surface-raised);
+  border: 1px solid var(--brand-border);
+}
+
+.lang-switcher__btn {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--brand-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.lang-switcher__btn--active {
+  background: var(--brand-primary);
+  color: var(--brand-primary-on-dark);
+}

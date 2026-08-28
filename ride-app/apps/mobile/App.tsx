@@ -16,7 +16,7 @@ import * as Location from 'expo-location';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StatusBar } from 'expo-status-bar';
 import type { Ride, RideEstimate, User, VehicleType } from '@ride-app/shared';
-import { BRAND, RIDE_STATUS_LABELS, VEHICLE_OPTIONS, VEHICLE_TYPES } from '@ride-app/shared';
+import { BRAND, VEHICLE_TYPES } from '@ride-app/shared';
 import { mobileApi } from './src/api';
 import { getMobileSocket, reconnectSocket } from './src/socket';
 import { PlaceSearch } from './src/PlaceSearch';
@@ -26,11 +26,13 @@ import { registerForPushNotifications } from './src/push';
 import { decodePolyline } from './src/polyline';
 import { openTurnByTurnNavigation } from './src/navigation';
 import { appStyles as styles, colors, placeholderColor } from './src/theme';
+import { LOCALES, useMobileI18n } from './src/i18n';
 
 type Screen = 'auth' | 'home';
 type Tab = 'ride' | 'history';
 
 export default function App() {
+  const { t, tagline, locale, setLocale, vehicle, rideStatus } = useMobileI18n();
   const [ready, setReady] = useState(false);
   const [screen, setScreen] = useState<Screen>('auth');
   const [user, setUser] = useState<User | null>(null);
@@ -261,7 +263,7 @@ export default function App() {
     );
   }
 
-  const connectionBadge = apiConnected === null ? '…' : apiConnected ? 'Conectado al API' : 'Sin conexión al API';
+  const connectionBadge = apiConnected === null ? '…' : apiConnected ? t('mobile.connectedApi') : t('mobile.disconnectedApi');
 
   if (screen === 'auth') {
     return (
@@ -269,17 +271,24 @@ export default function App() {
         <StatusBar style="light" />
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
           <ScrollView contentContainerStyle={styles.authScroll} keyboardShouldPersistTaps="handled">
+            <View style={styles.row}>
+              {LOCALES.map((code) => (
+                <Pressable key={code} style={[styles.chip, locale === code && styles.chipActive]} onPress={() => setLocale(code)}>
+                  <Text style={locale === code ? styles.chipTextActive : styles.chipText}>{code.toUpperCase()}</Text>
+                </Pressable>
+              ))}
+            </View>
             <Image source={require('./assets/icon.png')} style={styles.authLogo} accessibilityLabel={BRAND.name} />
             <Text style={styles.brandName}>
               Movi<Text style={styles.brandNameAccent}>fy</Text>
             </Text>
-            <Text style={styles.tagline}>{BRAND.tagline}</Text>
+            <Text style={styles.tagline}>{tagline}</Text>
             <Text style={apiConnected ? styles.connectionOk : apiConnected === false ? styles.connectionBad : styles.muted}>
               {connectionBadge}
             </Text>
 
             <Pressable onPress={() => setShowSettings(!showSettings)}>
-              <Text style={styles.link}>Configurar servidor API</Text>
+              <Text style={styles.link}>{t('mobile.configureApi')}</Text>
             </Pressable>
             {showSettings && (
               <View style={styles.settingsBox}>
@@ -293,31 +302,31 @@ export default function App() {
                   placeholderTextColor={placeholderColor}
                 />
                 <Pressable style={styles.btnSmall} onPress={saveApiUrl}>
-                  <Text style={styles.btnText}>Guardar y probar</Text>
+                  <Text style={styles.btnText}>{t('mobile.saveAndTest')}</Text>
                 </Pressable>
               </View>
             )}
 
             <View style={styles.row}>
               <Pressable style={[styles.chip, mode === 'login' && styles.chipActive]} onPress={() => setMode('login')}>
-                <Text style={mode === 'login' ? styles.chipTextActive : styles.chipText}>Login</Text>
+                <Text style={mode === 'login' ? styles.chipTextActive : styles.chipText}>{t('mobile.loginTab')}</Text>
               </Pressable>
               <Pressable style={[styles.chip, mode === 'register' && styles.chipActive]} onPress={() => setMode('register')}>
-                <Text style={mode === 'register' ? styles.chipTextActive : styles.chipText}>Registro</Text>
+                <Text style={mode === 'register' ? styles.chipTextActive : styles.chipText}>{t('mobile.registerTab')}</Text>
               </Pressable>
             </View>
             {mode === 'register' && (
               <View style={styles.row}>
                 <Pressable style={[styles.chip, role === 'passenger' && styles.chipActive]} onPress={() => setRole('passenger')}>
-                  <Text style={role === 'passenger' ? styles.chipTextActive : styles.chipText}>Pasajero</Text>
+                  <Text style={role === 'passenger' ? styles.chipTextActive : styles.chipText}>{t('mobile.passenger')}</Text>
                 </Pressable>
                 <Pressable style={[styles.chip, role === 'driver' && styles.chipActive]} onPress={() => setRole('driver')}>
-                  <Text style={role === 'driver' ? styles.chipTextActive : styles.chipText}>Conductor</Text>
+                  <Text style={role === 'driver' ? styles.chipTextActive : styles.chipText}>{t('mobile.driver')}</Text>
                 </Pressable>
               </View>
             )}
             {mode === 'register' && (
-              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor={placeholderColor} value={form.name} onChangeText={(name) => setForm({ ...form, name })} />
+              <TextInput style={styles.input} placeholder={t('common.name')} placeholderTextColor={placeholderColor} value={form.name} onChangeText={(name) => setForm({ ...form, name })} />
             )}
             {mode === 'register' && role === 'driver' && (
               <View style={styles.row}>
@@ -328,20 +337,20 @@ export default function App() {
                     onPress={() => setForm({ ...form, vehicleType: type })}
                   >
                     <Text style={form.vehicleType === type ? styles.chipTextActive : styles.chipText}>
-                      {VEHICLE_OPTIONS[type].icon} {VEHICLE_OPTIONS[type].label}
+                      {vehicle(type)}
                     </Text>
                   </Pressable>
                 ))}
               </View>
             )}
-            <TextInput style={styles.input} placeholder="Email" placeholderTextColor={placeholderColor} autoCapitalize="none" keyboardType="email-address" value={form.email} onChangeText={(email) => setForm({ ...form, email })} />
-            <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor={placeholderColor} secureTextEntry value={form.password} onChangeText={(password) => setForm({ ...form, password })} />
+            <TextInput style={styles.input} placeholder={t('common.email')} placeholderTextColor={placeholderColor} autoCapitalize="none" keyboardType="email-address" value={form.email} onChangeText={(email) => setForm({ ...form, email })} />
+            <TextInput style={styles.input} placeholder={t('common.password')} placeholderTextColor={placeholderColor} secureTextEntry value={form.password} onChangeText={(password) => setForm({ ...form, password })} />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <Pressable style={[styles.btn, apiConnected === false && styles.btnDisabled]} onPress={submitAuth} disabled={loading || apiConnected === false}>
-              {loading ? <ActivityIndicator color={colors.primaryOnDark} /> : <Text style={styles.btnText}>{mode === 'login' ? 'Entrar' : 'Crear cuenta'}</Text>}
+              {loading ? <ActivityIndicator color={colors.primaryOnDark} /> : <Text style={styles.btnText}>{mode === 'login' ? t('common.login') : t('auth.createAccount')}</Text>}
             </Pressable>
             {apiConnected === false && (
-              <Text style={styles.muted}>Sin conexión al API. Puedes seguir viendo la UI cuando vuelvas a casa.</Text>
+              <Text style={styles.muted}>{t('mobile.offlineHint')}</Text>
             )}
           </ScrollView>
         </KeyboardAvoidingView>
@@ -421,7 +430,7 @@ export default function App() {
               <Text style={styles.muted}>Sin viajes anteriores</Text>
             ) : history.map((h) => (
               <View key={h.id} style={styles.card}>
-                <Text style={styles.cardTitle}>{RIDE_STATUS_LABELS[h.status]}</Text>
+                <Text style={styles.cardTitle}>{rideStatus(h.status)}</Text>
                 <Text style={styles.muted} numberOfLines={1}>{h.pickupAddress}</Text>
                 <Text style={styles.muted} numberOfLines={1}>{h.dropoffAddress}</Text>
                 <Text style={styles.price}>${h.finalPrice ?? h.estimatedPrice}</Text>

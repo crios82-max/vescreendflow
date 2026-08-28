@@ -1,9 +1,10 @@
 import { FormEvent, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { useAuth, BrandMark } from '@ride-app/web-shared';
+import { useAuth, BrandMark, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
 
 export default function Login() {
   const { login, user } = useAuth();
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -18,7 +19,7 @@ export default function Login() {
     try {
       await login(email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -26,14 +27,15 @@ export default function Login() {
 
   return (
     <div className="auth-page">
+      <LanguageSwitcher className="auth-page__lang" />
       <form className="auth-card" onSubmit={onSubmit}>
         <BrandMark size="lg" showTagline />
-        <p>Conduce y gana</p>
-        <label>Email<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
-        <label>Contraseña<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
+        <p>{t('auth.driverSubtitle')}</p>
+        <label>{t('common.email')}<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
+        <label>{t('common.password')}<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
         {error && <p className="error-text">{error}</p>}
-        <button className="btn-primary" disabled={loading}>{loading ? 'Entrando...' : 'Entrar'}</button>
-        <Link to="/register" className="link-btn">Crear cuenta conductor</Link>
+        <button className="btn-primary" disabled={loading}>{loading ? t('common.loggingIn') : t('common.login')}</button>
+        <Link to="/register" className="link-btn">{t('auth.driverCreateAccount')}</Link>
       </form>
     </div>
   );

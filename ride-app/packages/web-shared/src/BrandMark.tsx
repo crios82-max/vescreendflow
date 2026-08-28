@@ -1,4 +1,5 @@
 import { BRAND } from '@ride-app/shared';
+import { useI18n } from './I18nProvider';
 
 type BrandMarkProps = {
   size?: 'sm' | 'md' | 'lg';
@@ -10,6 +11,7 @@ const iconSizes = { sm: 28, md: 40, lg: 56 } as const;
 const wordmarkHeights = { sm: 32, md: 40, lg: 52 } as const;
 
 export function BrandMark({ size = 'md', showTagline = false, variant }: BrandMarkProps) {
+  const { tagline } = useI18n();
   const useWordmark = variant === 'wordmark' || (variant !== 'icon' && size === 'lg' && showTagline);
 
   if (useWordmark) {
@@ -21,7 +23,7 @@ export function BrandMark({ size = 'md', showTagline = false, variant }: BrandMa
           style={{ height: wordmarkHeights[size], width: 'auto', maxWidth: '100%', objectFit: 'contain' }}
         />
         {showTagline ? (
-          <p style={{ margin: 0, color: '#aaa', fontSize: '0.95rem' }}>{BRAND.tagline}</p>
+          <p style={{ margin: 0, color: '#aaa', fontSize: '0.95rem' }}>{tagline}</p>
         ) : null}
       </div>
     );
@@ -49,7 +51,7 @@ export function BrandMark({ size = 'md', showTagline = false, variant }: BrandMa
         </span>
       </div>
       {showTagline ? (
-        <p style={{ margin: 0, color: '#aaa', fontSize: '0.95rem' }}>{BRAND.tagline}</p>
+        <p style={{ margin: 0, color: '#aaa', fontSize: '0.95rem' }}>{tagline}</p>
       ) : null}
     </div>
   );

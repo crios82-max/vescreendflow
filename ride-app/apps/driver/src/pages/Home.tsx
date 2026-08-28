@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Ride, VehicleType } from '@ride-app/shared';
-import { RIDE_STATUS_LABELS, vehicleTypeLabel } from '@ride-app/shared';
-import { api, getSocket, GoogleMapsProvider, HistoryPanel, MapView, RatingForm, ChatPanel, useAuth } from '@ride-app/web-shared';
+import { api, getSocket, GoogleMapsProvider, HistoryPanel, MapView, RatingForm, ChatPanel, useAuth, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
 
 interface PendingRide {
   id: string;
@@ -18,6 +17,7 @@ type Tab = 'rides' | 'history';
 
 export default function Home() {
   const { user, logout } = useAuth();
+  const { t, rideStatus, vehicle } = useI18n();
   const [tab, setTab] = useState<Tab>('rides');
   const [online, setOnline] = useState(false);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
@@ -87,7 +87,7 @@ export default function Home() {
       await api.goOnline(next.lat, next.lng);
       setOnline(true);
       loadPending();
-    }, () => setError('Activa la ubicación'));
+    }, () => setError(t('common.enableLocation')));
   };
 
   const acceptRide = async (id: string) => {
@@ -127,82 +127,83 @@ export default function Home() {
             target="_blank"
             rel="noreferrer"
           >
-            Navegar
+            {t('common.navigate')}
           </a>
         )}
         <div className="top-bar">
-          <span className={`badge${online ? ' badge--accent' : ''}`}>{online ? '🟢 En línea' : '⚫ Offline'} — {user?.name}</span>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <span className={`badge${online ? ' badge--accent' : ''}`}>{online ? t('driver.online') : t('driver.offline')} — {user?.name}</span>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <LanguageSwitcher />
             <button className="btn-secondary" onClick={() => setTab(tab === 'rides' ? 'history' : 'rides')}>
-              {tab === 'rides' ? 'Historial' : 'Viajes'}
+              {tab === 'rides' ? t('common.history') : t('driver.rides')}
             </button>
-            <button className="btn-secondary" onClick={logout}>Salir</button>
+            <button className="btn-secondary" onClick={logout}>{t('common.logout')}</button>
           </div>
         </div>
         <div className="bottom-sheet">
           {tab === 'history' ? (
             <>
-              <h2>Historial</h2>
+              <h2>{t('driver.rideHistory')}</h2>
               <HistoryPanel />
             </>
           ) : !ride ? (
             <>
-              <h2>{online ? 'Viajes disponibles' : 'Ponte en línea para recibir viajes'}</h2>
+              <h2>{online ? t('driver.availableRides') : t('driver.goOnlineHint')}</h2>
               {earnings && (
-                <div className="meta-row"><span>Ganancias hoy</span><span>${earnings.today.total.toFixed(2)}</span></div>
+                <div className="meta-row"><span>{t('driver.todayEarnings')}</span><span>${earnings.today.total.toFixed(2)}</span></div>
               )}
               {connectStatus && !connectStatus.onboarded && (
                 <button className="btn-secondary" onClick={async () => {
                   const r = await api.startConnectOnboarding();
                   if (r.url) window.location.href = r.url;
-                  else alert(r.message ?? 'Stripe Connect no configurado');
+                  else alert(r.message ?? t('common.stripeNotConfigured'));
                 }}>
-                  Configurar cobros (Stripe)
+                  {t('driver.setupStripe')}
                 </button>
               )}
               <button className="btn-primary" onClick={toggleOnline}>
-                {online ? 'Ir offline' : 'Ir online'}
+                {online ? t('driver.goOffline') : t('driver.goOnline')}
               </button>
               {error && <p className="error-text">{error}</p>}
               <div className="ride-list">
                 {pending.map((p) => (
                   <div className="ride-card" key={p.id}>
-                    <strong>${p.estimatedPrice} — {p.distanceKm} km · {vehicleTypeLabel(p.vehicleType as VehicleType)}</strong>
-                    <div className="meta-row"><span>Origen</span><span>{p.pickupAddress}</span></div>
-                    <div className="meta-row"><span>Destino</span><span>{p.dropoffAddress}</span></div>
-                    <button className="btn-primary" onClick={() => acceptRide(p.id)}>Aceptar</button>
+                    <strong>${p.estimatedPrice} — {p.distanceKm} {t('common.km')} · {vehicle(p.vehicleType as VehicleType)}</strong>
+                    <div className="meta-row"><span>{t('common.origin')}</span><span>{p.pickupAddress}</span></div>
+                    <div className="meta-row"><span>{t('common.destination')}</span><span>{p.dropoffAddress}</span></div>
+                    <button className="btn-primary" onClick={() => acceptRide(p.id)}>{t('common.accept')}</button>
                   </div>
                 ))}
               </div>
             </>
           ) : (
             <>
-              <div className="status-pill">{RIDE_STATUS_LABELS[ride.status]}</div>
-              <div className="meta-row"><span>Tipo</span><span>{vehicleTypeLabel(ride.vehicleType)}</span></div>
-              <div className="meta-row"><span>Ganancia</span><span>${ride.estimatedPrice}</span></div>
+              <div className="status-pill">{rideStatus(ride.status)}</div>
+              <div className="meta-row"><span>{t('common.type')}</span><span>{vehicle(ride.vehicleType)}</span></div>
+              <div className="meta-row"><span>{t('common.earnings')}</span><span>${ride.estimatedPrice}</span></div>
               {ride.status === 'accepted' && (
-                <button className="btn-primary" onClick={() => updateStatus('arriving')}>Voy en camino</button>
+                <button className="btn-primary" onClick={() => updateStatus('arriving')}>{t('driver.onTheWay')}</button>
               )}
               {ride.status === 'arriving' && (
-                <button className="btn-primary" onClick={() => updateStatus('in_progress')}>Iniciar viaje</button>
+                <button className="btn-primary" onClick={() => updateStatus('in_progress')}>{t('driver.startRide')}</button>
               )}
               {ride.status === 'in_progress' && (
-                <button className="btn-primary" onClick={() => updateStatus('completed')}>Completar viaje</button>
+                <button className="btn-primary" onClick={() => updateStatus('completed')}>{t('driver.completeRide')}</button>
               )}
               {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                 <>
                   <button className="btn-secondary" type="button" onClick={async () => {
                     const c = await api.initiateMaskedCall(ride.id);
-                    if (c.initiated) alert(c.message ?? 'Te llamamos para conectar');
+                    if (c.initiated) alert(c.message ?? t('common.callConnecting'));
                     else if (c.dialUrl) window.location.href = c.dialUrl;
-                    else alert(c.hint ?? 'No se pudo llamar');
-                  }}>Llamar pasajero</button>
+                    else alert(c.hint ?? t('common.callFailed'));
+                  }}>{t('driver.callPassenger')}</button>
                   <ChatPanel rideId={ride.id} />
                 </>
               )}
               {showRating && (
                 <RatingForm
-                  title="Califica al pasajero"
+                  title={t('common.ratePassenger')}
                   onSubmit={async (stars, comment) => {
                     await api.rateRide(ride.id, stars, comment);
                     setRated(true);
@@ -210,7 +211,7 @@ export default function Home() {
                 />
               )}
               {ride.status === 'completed' && rated && (
-                <button className="btn-primary" onClick={() => { setRide(null); setRated(false); }}>Listo</button>
+                <button className="btn-primary" onClick={() => { setRide(null); setRated(false); }}>{t('common.done')}</button>
               )}
             </>
           )}

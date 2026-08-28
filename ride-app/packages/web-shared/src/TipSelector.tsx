@@ -1,3 +1,5 @@
+import { useI18n } from './I18nProvider';
+
 interface Props {
   value: number;
   onChange: (tip: number) => void;
@@ -6,13 +8,14 @@ interface Props {
 const TIPS = [0, 1, 2, 5];
 
 export function TipSelector({ value, onChange }: Props) {
+  const { t } = useI18n();
   return (
     <div className="tip-selector">
-      <span className="muted-text">Propina</span>
+      <span className="muted-text">{t('common.tip')}</span>
       <div className="tab-row">
-        {TIPS.map((t) => (
-          <button key={t} type="button" className={`tab-btn${value === t ? ' tab-btn--active' : ''}`} onClick={() => onChange(t)}>
-            {t === 0 ? 'Sin propina' : `$${t}`}
+        {TIPS.map((tip) => (
+          <button key={tip} type="button" className={`tab-btn${value === tip ? ' tab-btn--active' : ''}`} onClick={() => onChange(tip)}>
+            {tip === 0 ? t('common.noTip') : `$${tip}`}
           </button>
         ))}
       </div>
