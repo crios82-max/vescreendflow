@@ -1,6 +1,7 @@
 import type { Locale, TranslationParams } from './types.js';
 import { es } from './es.js';
 import { en } from './en.js';
+import { it } from './it.js';
 
 export type { Locale, TranslationParams } from './types.js';
 export { LOCALES, LOCALE_LABELS } from './types.js';
@@ -13,7 +14,7 @@ type RideStatus =
 
 type VehicleType = 'standard' | 'comfort' | 'xl' | 'vans';
 
-const dictionaries = { es, en } as const;
+const dictionaries = { es, en, it } as const;
 
 export type TranslationKey = string;
 
@@ -43,13 +44,15 @@ export function detectLocale(): Locale {
   if (typeof navigator !== 'undefined') {
     const lang = navigator.language.toLowerCase();
     if (lang.startsWith('en')) return 'en';
+    if (lang.startsWith('it')) return 'it';
   }
   return 'es';
 }
 
 export function getStoredLocale(read: (key: string) => string | null): Locale {
   const stored = read(LOCALE_STORAGE_KEY);
-  return stored === 'en' || stored === 'es' ? stored : detectLocale();
+  if (stored === 'en' || stored === 'es' || stored === 'it') return stored;
+  return detectLocale();
 }
 
 export function setStoredLocale(write: (key: string, value: string) => void, locale: Locale): void {

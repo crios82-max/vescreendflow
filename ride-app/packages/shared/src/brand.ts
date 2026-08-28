@@ -25,10 +25,11 @@ export function brandTitle(suffix?: string): string {
   return suffix ? `${BRAND.name} — ${suffix}` : BRAND.name;
 }
 
-export function brandAppLabel(role: 'passenger' | 'driver' | 'admin', locale: 'es' | 'en' = 'es'): string {
+export function brandAppLabel(role: 'passenger' | 'driver' | 'admin', locale: 'es' | 'en' | 'it' = 'es'): string {
   const labels = {
     es: { passenger: 'Pasajero', driver: 'Conductor', admin: 'Admin' },
     en: { passenger: 'Passenger', driver: 'Driver', admin: 'Admin' },
+    it: { passenger: 'Passeggero', driver: 'Autista', admin: 'Admin' },
   };
   return `${BRAND.name} ${labels[locale][role]}`;
 }
