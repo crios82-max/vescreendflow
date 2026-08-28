@@ -32,13 +32,16 @@ pm2 restart ride-api ride-passenger ride-driver ride-admin --update-env
 
 ## Assets
 
+Fuente de diseño en `ride-app/brand/`:
+
 | Archivo | Uso |
 |---------|-----|
-| `apps/mobile/assets/icon.png` | App Store / Play (1024×1024) |
+| `brand/movify-icon.png` | Ícono app (master 1024×1024) |
+| `brand/movify-wordmark.png` | Logo horizontal (web, marketing) |
+| `apps/mobile/assets/icon.png` | App Store / Play |
 | `apps/mobile/assets/adaptive-icon.png` | Android adaptive |
-| `apps/*/public/favicon.png` | Web pasajero / conductor / admin |
-
-Reemplaza los PNG cuando tengas logo final de diseño.
+| `apps/*/public/favicon.png` | Favicon web |
+| `apps/*/public/logo.png` | Wordmark en pantallas login |
 
 ## Colores
 
