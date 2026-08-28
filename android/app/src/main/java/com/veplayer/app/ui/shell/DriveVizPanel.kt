@@ -112,6 +112,11 @@ import com.veplayer.app.vehicle.CatalystB2S7Monitor
 import com.veplayer.app.vehicle.FuelTypeMonitor
 import com.veplayer.app.vehicle.MaxEquivRatioMonitor
 import com.veplayer.app.vehicle.MaxMafGpsMonitor
+import com.veplayer.app.vehicle.CatalystB1S8Monitor
+import com.veplayer.app.vehicle.CatalystB2S8Monitor
+import com.veplayer.app.vehicle.MaxAvailTorqueMonitor
+import com.veplayer.app.vehicle.MafSensorIatMonitor
+import com.veplayer.app.vehicle.AuxInputStatusMonitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -220,6 +225,11 @@ fun DriveVizPanel(
     val fuelType by FuelTypeMonitor.state.collectAsState()
     val maxEquiv by MaxEquivRatioMonitor.state.collectAsState()
     val maxMaf by MaxMafGpsMonitor.state.collectAsState()
+    val catB1s8 by CatalystB1S8Monitor.state.collectAsState()
+    val catB2s8 by CatalystB2S8Monitor.state.collectAsState()
+    val maxAvailTorque by MaxAvailTorqueMonitor.state.collectAsState()
+    val mafIat by MafSensorIatMonitor.state.collectAsState()
+    val auxInput by AuxInputStatusMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -314,6 +324,11 @@ fun DriveVizPanel(
             FuelTypeMonitor.tick(prefs, snap)
             MaxEquivRatioMonitor.tick(prefs, snap)
             MaxMafGpsMonitor.tick(prefs, snap)
+            CatalystB1S8Monitor.tick(prefs, snap)
+            CatalystB2S8Monitor.tick(prefs, snap)
+            MaxAvailTorqueMonitor.tick(prefs, snap)
+            MafSensorIatMonitor.tick(prefs, snap)
+            AuxInputStatusMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -921,6 +936,21 @@ fun DriveVizPanel(
                 }
                 if (maxMaf.showWarn || (prefs.maxMafEnabled && maxMaf.band == "ok" && maxMaf.label.isNotBlank())) {
                     Text(maxMaf.label, color = Color(com.veplayer.app.vehicle.MaxMafGps.accentArgb(maxMaf.band)), fontSize = 11.sp)
+                }
+                if (catB1s8.showWarn || (prefs.catB1s8Enabled && catB1s8.band == "ok" && catB1s8.label.isNotBlank())) {
+                    Text(catB1s8.label, color = Color(com.veplayer.app.vehicle.CatalystB1S8.accentArgb(catB1s8.band)), fontSize = 11.sp)
+                }
+                if (catB2s8.showWarn || (prefs.catB2s8Enabled && catB2s8.band == "ok" && catB2s8.label.isNotBlank())) {
+                    Text(catB2s8.label, color = Color(com.veplayer.app.vehicle.CatalystB2S8.accentArgb(catB2s8.band)), fontSize = 11.sp)
+                }
+                if (maxAvailTorque.showWarn || (prefs.maxAvailTorqueEnabled && maxAvailTorque.band == "ok" && maxAvailTorque.label.isNotBlank())) {
+                    Text(maxAvailTorque.label, color = Color(com.veplayer.app.vehicle.MaxAvailTorque.accentArgb(maxAvailTorque.band)), fontSize = 11.sp)
+                }
+                if (mafIat.showWarn || (prefs.mafIatEnabled && mafIat.band == "ok" && mafIat.label.isNotBlank())) {
+                    Text(mafIat.label, color = Color(com.veplayer.app.vehicle.MafSensorIat.accentArgb(mafIat.band)), fontSize = 11.sp)
+                }
+                if (auxInput.showWarn || (prefs.auxInputEnabled && auxInput.label.isNotBlank())) {
+                    Text(auxInput.label, color = Color(com.veplayer.app.vehicle.AuxInputStatus.accentArgb(auxInput.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

@@ -189,6 +189,16 @@ data class VehicleSignals(
         val maxEquivRatio: Float? = null,
         /** Max MAF g/s (OBD PID 0150). */
         val maxMafGps: Float? = null,
+        /** Catalyst temp bank 1 sensor 8 °C (OBD PID 017D). */
+        val catalystB1s8TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 8 °C (OBD PID 017E). */
+        val catalystB2s8TempC: Float? = null,
+        /** Max available engine torque % (OBD PID 0164). */
+        val maxAvailTorquePct: Float? = null,
+        /** MAF sensor intake air °C (OBD PID 0166). */
+        val mafSensorIatC: Float? = null,
+        /** Auxiliary input status (OBD PID 0165). */
+        val auxInputStatus: Int? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -318,6 +328,11 @@ data class VehicleSignals(
             "fuel_type_code" to fuelTypeCode,
             "max_equiv_ratio" to maxEquivRatio?.toDouble(),
             "max_maf_gps" to maxMafGps?.toDouble(),
+            "catalyst_b1s8_temp_c" to catalystB1s8TempC?.toDouble(),
+            "catalyst_b2s8_temp_c" to catalystB2s8TempC?.toDouble(),
+            "max_avail_torque_pct" to maxAvailTorquePct?.toDouble(),
+            "maf_sensor_iat_c" to mafSensorIatC?.toDouble(),
+            "aux_input_status" to auxInputStatus,
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),

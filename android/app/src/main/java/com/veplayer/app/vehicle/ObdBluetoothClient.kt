@@ -292,6 +292,11 @@ class ObdBluetoothClient(private val context: Context) {
                 "0151", // fuel type
                 "014F", // max equiv ratio
                 "0150", // max MAF
+                "017D", // catalyst B1S8 temp
+                "017E", // catalyst B2S8 temp
+                "0164", // max avail torque
+                "0166", // MAF sensor IAT
+                "0165", // aux input status
                 "0104", // calculated engine load
                 "0106", // short-term fuel trim
                 "0107", // long-term fuel trim

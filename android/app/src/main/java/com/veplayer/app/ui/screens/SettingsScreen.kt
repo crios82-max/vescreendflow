@@ -3968,6 +3968,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 24 OBD (017D/7E/64/66/65):", color = Mist)
+            val catB1s8St by com.veplayer.app.vehicle.CatalystB1S8Monitor.state.collectAsState()
+            val catB2s8St by com.veplayer.app.vehicle.CatalystB2S8Monitor.state.collectAsState()
+            val maxAvailTorqueSt by com.veplayer.app.vehicle.MaxAvailTorqueMonitor.state.collectAsState()
+            val mafIatSt by com.veplayer.app.vehicle.MafSensorIatMonitor.state.collectAsState()
+            val auxInputSt by com.veplayer.app.vehicle.AuxInputStatusMonitor.state.collectAsState()
+            var f24B1s8 by remember {
+                mutableStateOf(if (prefs.catB1s8SimC > 0f) prefs.catB1s8SimC.toInt().toString() else "0")
+            }
+            var f24B2s8 by remember {
+                mutableStateOf(if (prefs.catB2s8SimC > 0f) prefs.catB2s8SimC.toInt().toString() else "0")
+            }
+            var f24MaxTq by remember {
+                mutableStateOf(if (prefs.maxAvailTorqueSimPct != 0f) prefs.maxAvailTorqueSimPct.toInt().toString() else "0")
+            }
+            var f24MafIat by remember {
+                mutableStateOf(if (prefs.mafIatSimC > 0f) prefs.mafIatSimC.toInt().toString() else "0")
+            }
+            var f24Aux by remember {
+                mutableStateOf(if (prefs.auxInputSimCode > 0) prefs.auxInputSimCode.toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f24B1s8,
+                    onValueChange = { f24B1s8 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S8 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f24B2s8,
+                    onValueChange = { f24B2s8 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S8 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f24MaxTq,
+                    onValueChange = { f24MaxTq = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("MaxTq %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f24MafIat,
+                    onValueChange = { f24MafIat = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("MafIAT °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f24Aux,
+                    onValueChange = { f24Aux = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("Aux code") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s8SimC = f24B1s8.toFloatOrNull() ?: 0f
+                    prefs.catB2s8SimC = f24B2s8.toFloatOrNull() ?: 0f
+                    prefs.maxAvailTorqueSimPct = f24MaxTq.toFloatOrNull() ?: 0f
+                    prefs.mafIatSimC = f24MafIat.toFloatOrNull() ?: 0f
+                    prefs.auxInputSimCode = f24Aux.toIntOrNull() ?: 0
+                    status = "Fase 24 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 24") }
+            Text(
+                listOfNotNull(
+                    catB1s8St.label.takeIf { it.isNotBlank() },
+                    catB2s8St.label.takeIf { it.isNotBlank() },
+                    maxAvailTorqueSt.label.takeIf { it.isNotBlank() },
+                    mafIatSt.label.takeIf { it.isNotBlank() },
+                    auxInputSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 24 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {
