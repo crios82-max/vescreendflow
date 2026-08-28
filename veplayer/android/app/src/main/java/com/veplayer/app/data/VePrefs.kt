@@ -2048,6 +2048,97 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("max_maf_sim_gps", 0f)
         set(value) = sp.edit().putFloat("max_maf_sim_gps", value.coerceIn(0f, 400f)).apply()
 
+    /** Catalyst temp B1S8 °C (OBD 017D). */
+    var catB1s8Enabled: Boolean
+        get() = sp.getBoolean("cat_b1s8", true)
+        set(value) = sp.edit().putBoolean("cat_b1s8", value).apply()
+    var catB1s8Tts: Boolean
+        get() = sp.getBoolean("cat_b1s8_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b1s8_tts", value).apply()
+    var catB1s8WarnC: Float
+        get() = sp.getFloat("cat_b1s8_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b1s8_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB1s8AlertC: Float
+        get() = sp.getFloat("cat_b1s8_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b1s8_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB1s8SimC: Float
+        get() = sp.getFloat("cat_b1s8_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b1s8_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Catalyst temp B2S8 °C (OBD 017E). */
+    var catB2s8Enabled: Boolean
+        get() = sp.getBoolean("cat_b2s8", true)
+        set(value) = sp.edit().putBoolean("cat_b2s8", value).apply()
+    var catB2s8Tts: Boolean
+        get() = sp.getBoolean("cat_b2s8_tts", true)
+        set(value) = sp.edit().putBoolean("cat_b2s8_tts", value).apply()
+    var catB2s8WarnC: Float
+        get() = sp.getFloat("cat_b2s8_warn_c", 750f)
+        set(value) = sp.edit().putFloat("cat_b2s8_warn_c", value.coerceAtLeast(400f)).apply()
+    var catB2s8AlertC: Float
+        get() = sp.getFloat("cat_b2s8_alert_c", 850f)
+        set(value) = sp.edit().putFloat("cat_b2s8_alert_c", value.coerceAtLeast(450f)).apply()
+    var catB2s8SimC: Float
+        get() = sp.getFloat("cat_b2s8_sim_c", 0f)
+        set(value) = sp.edit().putFloat("cat_b2s8_sim_c", value.coerceIn(0f, 1200f)).apply()
+
+    /** Max available torque % (OBD 0164). */
+    var maxAvailTorqueEnabled: Boolean
+        get() = sp.getBoolean("max_avail_torque", true)
+        set(value) = sp.edit().putBoolean("max_avail_torque", value).apply()
+    var maxAvailTorqueTts: Boolean
+        get() = sp.getBoolean("max_avail_torque_tts", true)
+        set(value) = sp.edit().putBoolean("max_avail_torque_tts", value).apply()
+    var maxAvailTorqueWarnLow: Float
+        get() = sp.getFloat("max_avail_torque_warn_low", 30f)
+        set(value) = sp.edit().putFloat("max_avail_torque_warn_low", value.coerceIn(10f, 80f)).apply()
+    var maxAvailTorqueAlertLow: Float
+        get() = sp.getFloat("max_avail_torque_alert_low", 20f)
+        set(value) = sp.edit().putFloat("max_avail_torque_alert_low", value.coerceIn(5f, 70f)).apply()
+    var maxAvailTorqueSpeedMinKmh: Float
+        get() = sp.getFloat("max_avail_torque_speed_min", 10f)
+        set(value) = sp.edit().putFloat("max_avail_torque_speed_min", value.coerceIn(0f, 60f)).apply()
+    var maxAvailTorqueSimPct: Float
+        get() = sp.getFloat("max_avail_torque_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("max_avail_torque_sim_pct", value.coerceIn(-125f, 125f)).apply()
+
+    /** MAF sensor IAT °C (OBD 0166). */
+    var mafIatEnabled: Boolean
+        get() = sp.getBoolean("maf_iat", true)
+        set(value) = sp.edit().putBoolean("maf_iat", value).apply()
+    var mafIatTts: Boolean
+        get() = sp.getBoolean("maf_iat_tts", true)
+        set(value) = sp.edit().putBoolean("maf_iat_tts", value).apply()
+    var mafIatWarnC: Float
+        get() = sp.getFloat("maf_iat_warn_c", 70f)
+        set(value) = sp.edit().putFloat("maf_iat_warn_c", value.coerceIn(40f, 100f)).apply()
+    var mafIatAlertC: Float
+        get() = sp.getFloat("maf_iat_alert_c", 85f)
+        set(value) = sp.edit().putFloat("maf_iat_alert_c", value.coerceAtLeast(45f)).apply()
+    var mafIatSpeedMinKmh: Float
+        get() = sp.getFloat("maf_iat_speed_min", 15f)
+        set(value) = sp.edit().putFloat("maf_iat_speed_min", value.coerceIn(0f, 60f)).apply()
+    var mafIatSimC: Float
+        get() = sp.getFloat("maf_iat_sim_c", 0f)
+        set(value) = sp.edit().putFloat("maf_iat_sim_c", value.coerceIn(0f, 120f)).apply()
+
+    /** Aux input status (OBD 0165). */
+    var auxInputEnabled: Boolean
+        get() = sp.getBoolean("aux_input", true)
+        set(value) = sp.edit().putBoolean("aux_input", value).apply()
+    var auxInputTts: Boolean
+        get() = sp.getBoolean("aux_input_tts", true)
+        set(value) = sp.edit().putBoolean("aux_input_tts", value).apply()
+    var auxInputAlertMask: Int
+        get() = sp.getInt("aux_input_alert_mask", 0x0F)
+        set(value) = sp.edit().putInt("aux_input_alert_mask", value and 0xFF).apply()
+    var auxInputSpeedMinKmh: Float
+        get() = sp.getFloat("aux_input_speed_min", 10f)
+        set(value) = sp.edit().putFloat("aux_input_speed_min", value.coerceIn(0f, 60f)).apply()
+    var auxInputSimCode: Int
+        get() = sp.getInt("aux_input_sim_code", 0)
+        set(value) = sp.edit().putInt("aux_input_sim_code", value.coerceIn(0, 255)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

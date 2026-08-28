@@ -747,6 +747,63 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.MaxMafGps.toJsonMap(
                                             com.veplayer.app.vehicle.MaxMafGpsMonitor.state.value,
                                         ),
+                                    "cat_b1s8_warn_c" to prefs.catB1s8WarnC.toDouble(),
+                                    "cat_b1s8_alert_c" to prefs.catB1s8AlertC.toDouble(),
+                                    "catalyst_b1s8_temp_c" to
+                                        (if (prefs.catB1s8SimC > 0f) prefs.catB1s8SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S8Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s8TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s8" to
+                                        com.veplayer.app.vehicle.CatalystB1S8.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S8Monitor.state.value,
+                                        ),
+                                    "cat_b2s8_warn_c" to prefs.catB2s8WarnC.toDouble(),
+                                    "cat_b2s8_alert_c" to prefs.catB2s8AlertC.toDouble(),
+                                    "catalyst_b2s8_temp_c" to
+                                        (if (prefs.catB2s8SimC > 0f) prefs.catB2s8SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S8Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s8TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s8" to
+                                        com.veplayer.app.vehicle.CatalystB2S8.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S8Monitor.state.value,
+                                        ),
+                                    "max_avail_torque_warn_low" to prefs.maxAvailTorqueWarnLow.toDouble(),
+                                    "max_avail_torque_alert_low" to prefs.maxAvailTorqueAlertLow.toDouble(),
+                                    "max_avail_torque_speed_min_kmh" to prefs.maxAvailTorqueSpeedMinKmh.toDouble(),
+                                    "max_avail_torque_pct" to
+                                        (if (prefs.maxAvailTorqueSimPct != 0f) prefs.maxAvailTorqueSimPct
+                                        else com.veplayer.app.vehicle.MaxAvailTorqueMonitor.state.value.torquePct
+                                            ?: snap.maxAvailTorquePct
+                                        )?.toDouble(),
+                                    "max_avail_torque" to
+                                        com.veplayer.app.vehicle.MaxAvailTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.MaxAvailTorqueMonitor.state.value,
+                                        ),
+                                    "maf_iat_warn_c" to prefs.mafIatWarnC.toDouble(),
+                                    "maf_iat_alert_c" to prefs.mafIatAlertC.toDouble(),
+                                    "maf_iat_speed_min_kmh" to prefs.mafIatSpeedMinKmh.toDouble(),
+                                    "maf_sensor_iat_c" to
+                                        (if (prefs.mafIatSimC > 0f) prefs.mafIatSimC
+                                        else com.veplayer.app.vehicle.MafSensorIatMonitor.state.value.tempC
+                                            ?: snap.mafSensorIatC
+                                        )?.toDouble(),
+                                    "maf_iat" to
+                                        com.veplayer.app.vehicle.MafSensorIat.toJsonMap(
+                                            com.veplayer.app.vehicle.MafSensorIatMonitor.state.value,
+                                        ),
+                                    "aux_input_alert_mask" to prefs.auxInputAlertMask,
+                                    "aux_input_speed_min_kmh" to prefs.auxInputSpeedMinKmh.toDouble(),
+                                    "aux_input_status" to
+                                        (if (prefs.auxInputSimCode > 0) prefs.auxInputSimCode
+                                        else com.veplayer.app.vehicle.AuxInputStatusMonitor.state.value.statusCode
+                                            ?: snap.auxInputStatus
+                                        ),
+                                    "aux_input" to
+                                        com.veplayer.app.vehicle.AuxInputStatus.toJsonMap(
+                                            com.veplayer.app.vehicle.AuxInputStatusMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -1635,6 +1692,63 @@ class SenseBridgeService : Service() {
                                     "max_maf" to
                                         com.veplayer.app.vehicle.MaxMafGps.toJsonMap(
                                             com.veplayer.app.vehicle.MaxMafGpsMonitor.state.value,
+                                        ),
+                                    "cat_b1s8_warn_c" to prefs.catB1s8WarnC.toDouble(),
+                                    "cat_b1s8_alert_c" to prefs.catB1s8AlertC.toDouble(),
+                                    "catalyst_b1s8_temp_c" to
+                                        (if (prefs.catB1s8SimC > 0f) prefs.catB1s8SimC
+                                        else com.veplayer.app.vehicle.CatalystB1S8Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB1s8TempC
+                                        )?.toDouble(),
+                                    "catalyst_b1s8" to
+                                        com.veplayer.app.vehicle.CatalystB1S8.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB1S8Monitor.state.value,
+                                        ),
+                                    "cat_b2s8_warn_c" to prefs.catB2s8WarnC.toDouble(),
+                                    "cat_b2s8_alert_c" to prefs.catB2s8AlertC.toDouble(),
+                                    "catalyst_b2s8_temp_c" to
+                                        (if (prefs.catB2s8SimC > 0f) prefs.catB2s8SimC
+                                        else com.veplayer.app.vehicle.CatalystB2S8Monitor.state.value.catalystTempC
+                                            ?: snap.catalystB2s8TempC
+                                        )?.toDouble(),
+                                    "catalyst_b2s8" to
+                                        com.veplayer.app.vehicle.CatalystB2S8.toJsonMap(
+                                            com.veplayer.app.vehicle.CatalystB2S8Monitor.state.value,
+                                        ),
+                                    "max_avail_torque_warn_low" to prefs.maxAvailTorqueWarnLow.toDouble(),
+                                    "max_avail_torque_alert_low" to prefs.maxAvailTorqueAlertLow.toDouble(),
+                                    "max_avail_torque_speed_min_kmh" to prefs.maxAvailTorqueSpeedMinKmh.toDouble(),
+                                    "max_avail_torque_pct" to
+                                        (if (prefs.maxAvailTorqueSimPct != 0f) prefs.maxAvailTorqueSimPct
+                                        else com.veplayer.app.vehicle.MaxAvailTorqueMonitor.state.value.torquePct
+                                            ?: snap.maxAvailTorquePct
+                                        )?.toDouble(),
+                                    "max_avail_torque" to
+                                        com.veplayer.app.vehicle.MaxAvailTorque.toJsonMap(
+                                            com.veplayer.app.vehicle.MaxAvailTorqueMonitor.state.value,
+                                        ),
+                                    "maf_iat_warn_c" to prefs.mafIatWarnC.toDouble(),
+                                    "maf_iat_alert_c" to prefs.mafIatAlertC.toDouble(),
+                                    "maf_iat_speed_min_kmh" to prefs.mafIatSpeedMinKmh.toDouble(),
+                                    "maf_sensor_iat_c" to
+                                        (if (prefs.mafIatSimC > 0f) prefs.mafIatSimC
+                                        else com.veplayer.app.vehicle.MafSensorIatMonitor.state.value.tempC
+                                            ?: snap.mafSensorIatC
+                                        )?.toDouble(),
+                                    "maf_iat" to
+                                        com.veplayer.app.vehicle.MafSensorIat.toJsonMap(
+                                            com.veplayer.app.vehicle.MafSensorIatMonitor.state.value,
+                                        ),
+                                    "aux_input_alert_mask" to prefs.auxInputAlertMask,
+                                    "aux_input_speed_min_kmh" to prefs.auxInputSpeedMinKmh.toDouble(),
+                                    "aux_input_status" to
+                                        (if (prefs.auxInputSimCode > 0) prefs.auxInputSimCode
+                                        else com.veplayer.app.vehicle.AuxInputStatusMonitor.state.value.statusCode
+                                            ?: snap.auxInputStatus
+                                        ),
+                                    "aux_input" to
+                                        com.veplayer.app.vehicle.AuxInputStatus.toJsonMap(
+                                            com.veplayer.app.vehicle.AuxInputStatusMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

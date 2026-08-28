@@ -3147,6 +3147,187 @@ export function evaluateFleetAlerts(
       }
     }
 
+    // Catalyst B1S8 (OBD PID 017D)
+    const catalystB1s8Obj = signals.catalyst_b1s8 as Record<string, unknown> | undefined
+    const catalystB1s8TempC =
+      typeof catalystB1s8Obj?.catalyst_temp_c === 'number'
+        ? (catalystB1s8Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b1s8_temp_c === 'number'
+          ? (signals.catalyst_b1s8_temp_c as number)
+          : null
+    if (typeof catalystB1s8TempC === 'number') {
+      const warnC = typeof signals.cat_b1s8_warn_c === 'number' ? (signals.cat_b1s8_warn_c as number) : 750
+      const alertC = typeof signals.cat_b1s8_alert_c === 'number' ? (signals.cat_b1s8_alert_c as number) : 850
+      if (catalystB1s8TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b1s8_alert', 300)) {
+        insertAlert(deviceId, 'cat_b1s8_alert', 'critical', `Catalizador B1S8 crítico · ${Math.round(catalystB1s8TempC)} °C`, {
+          catalyst_b1s8_temp_c: catalystB1s8TempC,
+          catalyst_b1s8: catalystB1s8Obj ?? null,
+        })
+        raised.push('cat_b1s8_alert')
+      } else if (
+        catalystB1s8TempC >= warnC &&
+        catalystB1s8TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b1s8_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b1s8_warn', 'warn', `Catalizador B1S8 caliente · ${Math.round(catalystB1s8TempC)} °C`, {
+          catalyst_b1s8_temp_c: catalystB1s8TempC,
+          catalyst_b1s8: catalystB1s8Obj ?? null,
+        })
+        raised.push('cat_b1s8_warn')
+      }
+    }
+
+    // Catalyst B2S8 (OBD PID 017E)
+    const catalystB2s8Obj = signals.catalyst_b2s8 as Record<string, unknown> | undefined
+    const catalystB2s8TempC =
+      typeof catalystB2s8Obj?.catalyst_temp_c === 'number'
+        ? (catalystB2s8Obj.catalyst_temp_c as number)
+        : typeof signals.catalyst_b2s8_temp_c === 'number'
+          ? (signals.catalyst_b2s8_temp_c as number)
+          : null
+    if (typeof catalystB2s8TempC === 'number') {
+      const warnC = typeof signals.cat_b2s8_warn_c === 'number' ? (signals.cat_b2s8_warn_c as number) : 750
+      const alertC = typeof signals.cat_b2s8_alert_c === 'number' ? (signals.cat_b2s8_alert_c as number) : 850
+      if (catalystB2s8TempC >= alertC && !recentlyAlerted(deviceId, 'cat_b2s8_alert', 300)) {
+        insertAlert(deviceId, 'cat_b2s8_alert', 'critical', `Catalizador B2S8 crítico · ${Math.round(catalystB2s8TempC)} °C`, {
+          catalyst_b2s8_temp_c: catalystB2s8TempC,
+          catalyst_b2s8: catalystB2s8Obj ?? null,
+        })
+        raised.push('cat_b2s8_alert')
+      } else if (
+        catalystB2s8TempC >= warnC &&
+        catalystB2s8TempC < alertC &&
+        !recentlyAlerted(deviceId, 'cat_b2s8_warn', 300)
+      ) {
+        insertAlert(deviceId, 'cat_b2s8_warn', 'warn', `Catalizador B2S8 caliente · ${Math.round(catalystB2s8TempC)} °C`, {
+          catalyst_b2s8_temp_c: catalystB2s8TempC,
+          catalyst_b2s8: catalystB2s8Obj ?? null,
+        })
+        raised.push('cat_b2s8_warn')
+      }
+    }
+
+    // Max available torque (OBD PID 0164)
+    const maxAvailTorqueObj = signals.max_avail_torque as Record<string, unknown> | undefined
+    const maxAvailTorquePct =
+      typeof maxAvailTorqueObj?.torque_pct === 'number'
+        ? (maxAvailTorqueObj.torque_pct as number)
+        : typeof signals.max_avail_torque_pct === 'number'
+          ? (signals.max_avail_torque_pct as number)
+          : null
+    const maxAvailTorqueSpeed =
+      typeof maxAvailTorqueObj?.speed_kmh === 'number'
+        ? (maxAvailTorqueObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const maxAvailTorqueMinSpd =
+      typeof signals.max_avail_torque_speed_min_kmh === 'number'
+        ? (signals.max_avail_torque_speed_min_kmh as number)
+        : 10
+    if (
+      typeof maxAvailTorquePct === 'number' &&
+      typeof maxAvailTorqueSpeed === 'number' &&
+      maxAvailTorqueSpeed >= maxAvailTorqueMinSpd
+    ) {
+      const warnLo =
+        typeof signals.max_avail_torque_warn_low === 'number' ? (signals.max_avail_torque_warn_low as number) : 30
+      const alertLo =
+        typeof signals.max_avail_torque_alert_low === 'number' ? (signals.max_avail_torque_alert_low as number) : 20
+      if (maxAvailTorquePct <= alertLo && !recentlyAlerted(deviceId, 'max_avail_torque_alert', 120)) {
+        insertAlert(deviceId, 'max_avail_torque_alert', 'critical', `Torque máx crítico · ${Math.round(maxAvailTorquePct)}%`, {
+          max_avail_torque_pct: maxAvailTorquePct,
+          max_avail_torque: maxAvailTorqueObj ?? null,
+        })
+        raised.push('max_avail_torque_alert')
+      } else if (
+        maxAvailTorquePct <= warnLo &&
+        maxAvailTorquePct > alertLo &&
+        !recentlyAlerted(deviceId, 'max_avail_torque_warn', 120)
+      ) {
+        insertAlert(deviceId, 'max_avail_torque_warn', 'warn', `Torque máx bajo · ${Math.round(maxAvailTorquePct)}%`, {
+          max_avail_torque_pct: maxAvailTorquePct,
+          max_avail_torque: maxAvailTorqueObj ?? null,
+        })
+        raised.push('max_avail_torque_warn')
+      }
+    }
+
+    // MAF sensor IAT (OBD PID 0166)
+    const mafIatObj = signals.maf_iat as Record<string, unknown> | undefined
+    const mafSensorIatC =
+      typeof mafIatObj?.temp_c === 'number'
+        ? (mafIatObj.temp_c as number)
+        : typeof signals.maf_sensor_iat_c === 'number'
+          ? (signals.maf_sensor_iat_c as number)
+          : null
+    const mafIatSpeed =
+      typeof mafIatObj?.speed_kmh === 'number'
+        ? (mafIatObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const mafIatMinSpd =
+      typeof signals.maf_iat_speed_min_kmh === 'number' ? (signals.maf_iat_speed_min_kmh as number) : 15
+    if (
+      typeof mafSensorIatC === 'number' &&
+      typeof mafIatSpeed === 'number' &&
+      mafIatSpeed >= mafIatMinSpd
+    ) {
+      const warnC = typeof signals.maf_iat_warn_c === 'number' ? (signals.maf_iat_warn_c as number) : 70
+      const alertC = typeof signals.maf_iat_alert_c === 'number' ? (signals.maf_iat_alert_c as number) : 85
+      if (mafSensorIatC >= alertC && !recentlyAlerted(deviceId, 'maf_iat_alert', 120)) {
+        insertAlert(deviceId, 'maf_iat_alert', 'critical', `MAF IAT crítica · ${Math.round(mafSensorIatC)} °C`, {
+          maf_sensor_iat_c: mafSensorIatC,
+          maf_iat: mafIatObj ?? null,
+        })
+        raised.push('maf_iat_alert')
+      } else if (
+        mafSensorIatC >= warnC &&
+        mafSensorIatC < alertC &&
+        !recentlyAlerted(deviceId, 'maf_iat_warn', 120)
+      ) {
+        insertAlert(deviceId, 'maf_iat_warn', 'warn', `MAF IAT caliente · ${Math.round(mafSensorIatC)} °C`, {
+          maf_sensor_iat_c: mafSensorIatC,
+          maf_iat: mafIatObj ?? null,
+        })
+        raised.push('maf_iat_warn')
+      }
+    }
+
+    // Aux input status (OBD PID 0165)
+    const auxInputObj = signals.aux_input as Record<string, unknown> | undefined
+    const auxInputStatus =
+      typeof auxInputObj?.status_code === 'number'
+        ? (auxInputObj.status_code as number)
+        : typeof signals.aux_input_status === 'number'
+          ? (signals.aux_input_status as number)
+          : null
+    const auxInputSpeed =
+      typeof auxInputObj?.speed_kmh === 'number'
+        ? (auxInputObj.speed_kmh as number)
+        : typeof signals.speed_kmh === 'number'
+          ? (signals.speed_kmh as number)
+          : null
+    const auxInputMinSpd =
+      typeof signals.aux_input_speed_min_kmh === 'number' ? (signals.aux_input_speed_min_kmh as number) : 10
+    const auxInputMask =
+      typeof signals.aux_input_alert_mask === 'number' ? (signals.aux_input_alert_mask as number) : 0x0f
+    if (
+      typeof auxInputStatus === 'number' &&
+      auxInputStatus > 0 &&
+      typeof auxInputSpeed === 'number' &&
+      auxInputSpeed >= auxInputMinSpd &&
+      (auxInputStatus & auxInputMask) !== 0 &&
+      !recentlyAlerted(deviceId, 'aux_input_alert', 300)
+    ) {
+      insertAlert(deviceId, 'aux_input_alert', 'critical', `Entrada auxiliar · 0x${auxInputStatus.toString(16).toUpperCase().padStart(2, '0')}`, {
+        aux_input_status: auxInputStatus,
+        aux_input: auxInputObj ?? null,
+      })
+      raised.push('aux_input_alert')
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
