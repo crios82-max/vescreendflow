@@ -4360,6 +4360,87 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 29 OBD (187/88/8B/8D/8E):", color = Mist)
+            val catB1s13St by com.veplayer.app.vehicle.CatalystB1S13Monitor.state.collectAsState()
+            val catB2s13St by com.veplayer.app.vehicle.CatalystB2S13Monitor.state.collectAsState()
+            val dpfTrigSt by com.veplayer.app.vehicle.DpfAftertreatmentMonitor.state.collectAsState()
+            val thrGSt by com.veplayer.app.vehicle.ThrottleGMonitor.state.collectAsState()
+            val engFrictionSt by com.veplayer.app.vehicle.EngineFrictionTorqueMonitor.state.collectAsState()
+            var f29B1s13 by remember {
+                mutableStateOf(if (prefs.catB1s13SimC > 0f) prefs.catB1s13SimC.toInt().toString() else "0")
+            }
+            var f29B2s13 by remember {
+                mutableStateOf(if (prefs.catB2s13SimC > 0f) prefs.catB2s13SimC.toInt().toString() else "0")
+            }
+            var f29Dpf by remember {
+                mutableStateOf(if (prefs.dpfTrigSimPct > 0f) prefs.dpfTrigSimPct.toInt().toString() else "0")
+            }
+            var f29ThrG by remember {
+                mutableStateOf(if (prefs.thrGSimPct > 0f) prefs.thrGSimPct.toInt().toString() else "0")
+            }
+            var f29Frict by remember {
+                mutableStateOf(if (prefs.engFrictionSimPct != 0f) prefs.engFrictionSimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f29B1s13,
+                    onValueChange = { f29B1s13 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S13 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f29B2s13,
+                    onValueChange = { f29B2s13 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S13 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f29Dpf,
+                    onValueChange = { f29Dpf = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("DpfTrig %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f29ThrG,
+                    onValueChange = { f29ThrG = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("ThrG %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f29Frict,
+                    onValueChange = { f29Frict = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("Frict %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s13SimC = f29B1s13.toFloatOrNull() ?: 0f
+                    prefs.catB2s13SimC = f29B2s13.toFloatOrNull() ?: 0f
+                    prefs.dpfTrigSimPct = f29Dpf.toFloatOrNull() ?: 0f
+                    prefs.thrGSimPct = f29ThrG.toFloatOrNull() ?: 0f
+                    prefs.engFrictionSimPct = f29Frict.toFloatOrNull() ?: 0f
+                    status = "Fase 29 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 29") }
+            Text(
+                listOfNotNull(
+                    catB1s13St.label.takeIf { it.isNotBlank() },
+                    catB2s13St.label.takeIf { it.isNotBlank() },
+                    dpfTrigSt.label.takeIf { it.isNotBlank() },
+                    thrGSt.label.takeIf { it.isNotBlank() },
+                    engFrictionSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 29 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

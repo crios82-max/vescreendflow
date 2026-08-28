@@ -1349,6 +1349,20 @@ npm run veplayer:fase27-smoke
 npm run veplayer:fase28-smoke
 ```
 
+## Cat B1S13/B2S13 · DPF · Thr G · friction (v1.54 · Fase 29)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0187 | Catalyst B1S13 | `cat_b1s13_warn` / `cat_b1s13_alert` | `CatB1S13 · XXX°C` |
+| 0188 | Catalyst B2S13 | `cat_b2s13_warn` / `cat_b2s13_alert` | `CatB2S13 · XXX°C` |
+| 018B | DPF trigger | `dpf_trigger_warn` / `dpf_trigger_alert` | `DpfTrig · XX%` |
+| 018D | Throttle G | `thr_g_warn` / `thr_g_alert` | `ThrG · XX%` |
+| 018E | Engine friction | `eng_friction_warn` / `eng_friction_alert` | `Frict · XX%` |
+
+```bash
+npm run veplayer:fase29-smoke
+```
+
 ## Validation gate (pre-fase · v1.15)
 
 Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
@@ -1358,7 +1372,7 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 | `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
 | `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
 | `dbc-smoke` | DBC decode (Kotlin mirror) |
-| `fase16–28-smoke` | Alertas `fleetPro.ts` con heartbeats |
+| `fase16–29-smoke` | Alertas `fleetPro.ts` con heartbeats |
 
 ```bash
 # SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)

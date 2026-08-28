@@ -237,6 +237,16 @@ data class VehicleSignals(
         val fuelTrimStftB2Pct: Float? = null,
         /** LTFT bank 2 % (OBD PID 0109), signed. */
         val fuelTrimLtftB2Pct: Float? = null,
+        /** Catalyst temp bank 1 sensor 13 °C (OBD PID 0187). */
+        val catalystB1s13TempC: Float? = null,
+        /** Catalyst temp bank 2 sensor 13 °C (OBD PID 0188). */
+        val catalystB2s13TempC: Float? = null,
+        /** DPF regen trigger % (OBD PID 018B). */
+        val dpfTriggerPct: Float? = null,
+        /** Absolute throttle G % (OBD PID 018D). */
+        val throttleGPct: Float? = null,
+        /** Engine friction torque % (OBD PID 018E), signed. */
+        val engineFrictionPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
     val runtimeSec: Int? = null,
     /** Distance with MIL on (OBD PID 0121), km. */
@@ -390,6 +400,11 @@ data class VehicleSignals(
             "catalyst_b2s12_temp_c" to catalystB2s12TempC?.toDouble(),
             "fuel_trim_stft_b2_pct" to fuelTrimStftB2Pct?.toDouble(),
             "fuel_trim_ltft_b2_pct" to fuelTrimLtftB2Pct?.toDouble(),
+            "catalyst_b1s13_temp_c" to catalystB1s13TempC?.toDouble(),
+            "catalyst_b2s13_temp_c" to catalystB2s13TempC?.toDouble(),
+            "dpf_trigger_pct" to dpfTriggerPct?.toDouble(),
+            "throttle_g_pct" to throttleGPct?.toDouble(),
+            "engine_friction_pct" to engineFrictionPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
             "dist_since_clear_km" to distSinceClearKm?.toDouble(),
