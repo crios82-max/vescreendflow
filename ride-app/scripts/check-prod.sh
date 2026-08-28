@@ -6,15 +6,15 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 API_LOCAL="${API_LOCAL:-http://localhost:4001}"
-API_PUBLIC="${API_PUBLIC:-https://movi-api.vescreenflow.com}"
-WEB_PUBLIC="${WEB_PUBLIC:-https://movi.vescreenflow.com}"
+API_PUBLIC="${API_PUBLIC:-https://movify-api.vescreenflow.com}"
+WEB_PUBLIC="${WEB_PUBLIC:-https://movify.vescreenflow.com}"
 
 pass() { echo "  OK  $*"; }
 fail() { echo "  FAIL $*"; FAIL=1; }
 
 FAIL=0
 
-echo "== Movi — check producción =="
+echo "== Movify — check producción =="
 echo ""
 
 echo "Local (PM2 + docker):"
@@ -44,13 +44,13 @@ echo "Público (Cloudflare DNS + tunnel):"
 if curl -sf "${API_PUBLIC}/health" >/dev/null 2>&1; then
   pass "${API_PUBLIC}/health"
 else
-  fail "${API_PUBLIC}/health — ¿CNAME movi-api + cloudflared reiniciado?"
+  fail "${API_PUBLIC}/health — ¿CNAME movify-api + cloudflared reiniciado?"
 fi
 
 if curl -sf -o /dev/null "${WEB_PUBLIC}" 2>/dev/null; then
   pass "${WEB_PUBLIC}"
 else
-  fail "${WEB_PUBLIC} — ¿CNAME movi + npm run build con VITE_API_URL?"
+  fail "${WEB_PUBLIC} — ¿CNAME movify + npm run build con VITE_API_URL?"
 fi
 
 echo ""

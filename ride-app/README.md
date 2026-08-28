@@ -1,4 +1,4 @@
-# Movi — app de viajes (tipo Uber)
+# Movify — app de viajes (tipo Uber)
 
 Monorepo con backend Node/Express, apps web (pasajero + conductor + admin), app móvil Expo, Google Directions, matching automático, calificaciones, push y pagos Stripe/mock.
 

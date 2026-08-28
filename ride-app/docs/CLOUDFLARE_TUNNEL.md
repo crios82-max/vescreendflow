@@ -1,20 +1,20 @@
-# Ride App — Cloudflare Tunnel (API + web pasajero)
+# Movify — Cloudflare Tunnel (API + web pasajero)
 
 Expone:
 
 | Hostname | Servicio local |
 |----------|----------------|
-| `movi-api.vescreenflow.com` | API `:4001` |
-| `movi.vescreenflow.com` | Web pasajero `:5174` |
+| `movify-api.vescreenflow.com` | API `:4001` |
+| `movify.vescreenflow.com` | Web pasajero `:5174` |
 
 ## Opción A — Mismo túnel que vescreenflow (recomendado)
 
 El repo ya tiene túnel `55818726-7a1f-459c-a904-00f5487e6aad`. Ingress en `cloudflared/config.yml`:
 
 ```yaml
-  - hostname: movi-api.vescreenflow.com
+  - hostname: movify-api.vescreenflow.com
     service: http://127.0.0.1:4001
-  - hostname: movi.vescreenflow.com
+  - hostname: movify.vescreenflow.com
     service: http://127.0.0.1:5174
 ```
 
@@ -22,8 +22,8 @@ DNS (Cloudflare → vescreenflow.com):
 
 | Type | Name | Content | Proxy |
 |------|------|---------|-------|
-| CNAME | `movi-api` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
-| CNAME | `ride` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
+| CNAME | `movify-api` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
+| CNAME | `movify` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
 
 Reinicia cloudflared en el Mac mini (`npm run tunnel` o LaunchAgent del túnel maestro).
 
@@ -39,11 +39,11 @@ chmod +x macmini-stacks/install-ride-tunnel.sh
 ## `.env` producción (`ride-app/.env`)
 
 ```bash
-API_PUBLIC_URL=https://movi-api.vescreenflow.com
-VITE_API_URL=https://movi-api.vescreenflow.com
-EXPO_PUBLIC_API_URL=https://movi-api.vescreenflow.com
-PASSENGER_WEB_URL=https://movi.vescreenflow.com
-CORS_ORIGINS=https://movi-api.vescreenflow.com,https://movi.vescreenflow.com,http://localhost:5174,http://localhost:5175,http://localhost:5176
+API_PUBLIC_URL=https://movify-api.vescreenflow.com
+VITE_API_URL=https://movify-api.vescreenflow.com
+EXPO_PUBLIC_API_URL=https://movify-api.vescreenflow.com
+PASSENGER_WEB_URL=https://movify.vescreenflow.com
+CORS_ORIGINS=https://movify-api.vescreenflow.com,https://movify.vescreenflow.com,http://localhost:5174,http://localhost:5175,http://localhost:5176
 STRIPE_CONNECT_REFRESH_URL=http://localhost:5175
 STRIPE_CONNECT_RETURN_URL=http://localhost:5175
 ```
@@ -60,18 +60,18 @@ pm2 restart ride-api ride-passenger --update-env
 ```bash
 ./scripts/check-prod.sh
 # o manual:
-curl -sf https://movi-api.vescreenflow.com/health && echo OK
-curl -sf -o /dev/null https://movi.vescreenflow.com && echo OK
+curl -sf https://movify-api.vescreenflow.com/health && echo OK
+curl -sf -o /dev/null https://movify.vescreenflow.com && echo OK
 ```
 
 ## Twilio Voice
 
 Con `API_PUBLIC_URL` HTTPS:
 
-`POST https://movi-api.vescreenflow.com/webhooks/twilio/voice/connect`
+`POST https://movify-api.vescreenflow.com/webhooks/twilio/voice/connect`
 
 ## Móvil en iPhone (fuera de casa)
 
 1. API público arriba
-2. EAS secret `EXPO_PUBLIC_API_URL=https://movi-api.vescreenflow.com`
+2. EAS secret `EXPO_PUBLIC_API_URL=https://movify-api.vescreenflow.com`
 3. O en la app → Configurar servidor API

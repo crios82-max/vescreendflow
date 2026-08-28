@@ -1,6 +1,6 @@
-# Movi — Marca
+# Movify — Marca
 
-Nombre comercial: **Movi** · Tagline: *Muévete fácil.*
+Nombre comercial: **Movify** · Tagline: *Muévete fácil.*
 
 ## Cambiar marca
 
@@ -22,13 +22,13 @@ pm2 restart ride-api ride-passenger ride-driver ride-admin --update-env
 
 | CNAME | Target |
 |-------|--------|
-| `movi-api` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` |
-| `movi` | mismo |
+| `movify-api` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` |
+| `movify` | mismo |
 
 ## Bundle ID (antes de TestFlight)
 
-- iOS: `com.movi.app`
-- Android: `com.movi.app`
+- iOS: `com.movify.app`
+- Android: `com.movify.app`
 
 ## Assets
 
