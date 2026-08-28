@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ENV_FILE="${1:-$ROOT/.env}"
 
 cat <<'EOF'
-# === Ride App — bloque producción (copia a ride-app/.env) ===
+# === Movify — bloque producción (copia a ride-app/.env) ===
 
 API_PUBLIC_URL=https://movify-api.vescreenflow.com
 VITE_API_URL=https://movify-api.vescreenflow.com
@@ -35,7 +35,7 @@ TWILIO_PHONE_NUMBER=
 SMTP_HOST=
 SMTP_USER=
 SMTP_PASS=
-SMTP_FROM=ride@vescreenflow.com
+SMTP_FROM=hola@vescreenflow.com
 
 REQUIRE_PHONE_VERIFY=true
 
@@ -44,7 +44,7 @@ EOF
 echo ""
 echo "DNS Cloudflare (Proxied CNAME → 55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com):"
 echo "  movify-api"
-echo "  ride"
+echo "  movify"
 echo ""
 echo "Stripe webhook: https://movify-api.vescreenflow.com/webhooks/stripe"
 echo "Twilio voice:   https://movify-api.vescreenflow.com/webhooks/twilio/voice/connect"

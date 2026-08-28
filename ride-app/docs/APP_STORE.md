@@ -1,6 +1,6 @@
 # Ride App — App Store / Play Store / TestFlight
 
-Ver también: [CLOUDFLARE_TUNNEL.md](./CLOUDFLARE_TUNNEL.md), [STRIPE_LIVE.md](./STRIPE_LIVE.md).
+Ver también: [GO_LIVE.md](./GO_LIVE.md) (checklist DNS + TestFlight).
 
 ## Requisitos previos
 
@@ -75,7 +75,7 @@ eas submit --platform android --profile production
 
 ## 6. Metadata App Store Connect
 
-- **Nombre:** Ride
+- **Nombre:** Movify
 - **Categoría:** Travel
 - **Privacy Policy URL:** `https://movify.vescreenflow.com/privacy`
 - **Terms:** `https://movify.vescreenflow.com/terms`
