@@ -4128,6 +4128,97 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("hv_chg_sim_speed", 0f)
         set(value) = sp.edit().putFloat("hv_chg_sim_speed", value.coerceIn(0f, 160f)).apply()
 
+    /** HEV min cell temp °C (OBD 01B7 byte A). */
+    var hvCellMinTEnabled: Boolean
+        get() = sp.getBoolean("hv_cell_min_t", true)
+        set(value) = sp.edit().putBoolean("hv_cell_min_t", value).apply()
+    var hvCellMinTTts: Boolean
+        get() = sp.getBoolean("hv_cell_min_t_tts", true)
+        set(value) = sp.edit().putBoolean("hv_cell_min_t_tts", value).apply()
+    var hvCellMinTWarnC: Float
+        get() = sp.getFloat("hv_cell_min_t_warn_c", 0f)
+        set(value) = sp.edit().putFloat("hv_cell_min_t_warn_c", value.coerceIn(-30f, 20f)).apply()
+    var hvCellMinTAlertC: Float
+        get() = sp.getFloat("hv_cell_min_t_alert_c", -5f)
+        set(value) = sp.edit().putFloat("hv_cell_min_t_alert_c", value.coerceIn(-40f, 15f)).apply()
+    var hvCellMinTSimC: Float
+        get() = sp.getFloat("hv_cell_min_t_sim_c", 0f)
+        set(value) = sp.edit().putFloat("hv_cell_min_t_sim_c", value.coerceIn(-40f, 120f)).apply()
+
+    /** HEV discharge current limit A (OBD 01BA bytes D/E). */
+    var hvDisEnabled: Boolean
+        get() = sp.getBoolean("hv_dis", true)
+        set(value) = sp.edit().putBoolean("hv_dis", value).apply()
+    var hvDisTts: Boolean
+        get() = sp.getBoolean("hv_dis_tts", true)
+        set(value) = sp.edit().putBoolean("hv_dis_tts", value).apply()
+    var hvDisWarnA: Float
+        get() = sp.getFloat("hv_dis_warn_a", 50f)
+        set(value) = sp.edit().putFloat("hv_dis_warn_a", value.coerceIn(5f, 200f)).apply()
+    var hvDisAlertA: Float
+        get() = sp.getFloat("hv_dis_alert_a", 25f)
+        set(value) = sp.edit().putFloat("hv_dis_alert_a", value.coerceIn(1f, 150f)).apply()
+    var hvDisSpeedMinKmh: Float
+        get() = sp.getFloat("hv_dis_speed_min", 15f)
+        set(value) = sp.edit().putFloat("hv_dis_speed_min", value.coerceIn(0f, 60f)).apply()
+    var hvDisSimA: Float
+        get() = sp.getFloat("hv_dis_sim_a", 0f)
+        set(value) = sp.edit().putFloat("hv_dis_sim_a", value.coerceIn(0f, 500f)).apply()
+    var hvDisSimSpeedKmh: Float
+        get() = sp.getFloat("hv_dis_sim_speed", 0f)
+        set(value) = sp.edit().putFloat("hv_dis_sim_speed", value.coerceIn(0f, 160f)).apply()
+
+    /** Cumulative energy into HVESS kWh (OBD 01BB). */
+    var hvEnrgInEnabled: Boolean
+        get() = sp.getBoolean("hv_enrg_in", true)
+        set(value) = sp.edit().putBoolean("hv_enrg_in", value).apply()
+    var hvEnrgInTts: Boolean
+        get() = sp.getBoolean("hv_enrg_in_tts", true)
+        set(value) = sp.edit().putBoolean("hv_enrg_in_tts", value).apply()
+    var hvEnrgInWarnKwh: Float
+        get() = sp.getFloat("hv_enrg_in_warn_kwh", 15000f)
+        set(value) = sp.edit().putFloat("hv_enrg_in_warn_kwh", value.coerceIn(100f, 1e7f)).apply()
+    var hvEnrgInAlertKwh: Float
+        get() = sp.getFloat("hv_enrg_in_alert_kwh", 25000f)
+        set(value) = sp.edit().putFloat("hv_enrg_in_alert_kwh", value.coerceIn(500f, 1e7f)).apply()
+    var hvEnrgInSimKwh: Float
+        get() = sp.getFloat("hv_enrg_in_sim_kwh", 0f)
+        set(value) = sp.edit().putFloat("hv_enrg_in_sim_kwh", value.coerceIn(0f, 1e8f)).apply()
+
+    /** Cumulative energy from HVESS kWh (OBD 01BC). */
+    var hvEnrgOutEnabled: Boolean
+        get() = sp.getBoolean("hv_enrg_out", true)
+        set(value) = sp.edit().putBoolean("hv_enrg_out", value).apply()
+    var hvEnrgOutTts: Boolean
+        get() = sp.getBoolean("hv_enrg_out_tts", true)
+        set(value) = sp.edit().putBoolean("hv_enrg_out_tts", value).apply()
+    var hvEnrgOutWarnKwh: Float
+        get() = sp.getFloat("hv_enrg_out_warn_kwh", 15000f)
+        set(value) = sp.edit().putFloat("hv_enrg_out_warn_kwh", value.coerceIn(100f, 1e7f)).apply()
+    var hvEnrgOutAlertKwh: Float
+        get() = sp.getFloat("hv_enrg_out_alert_kwh", 25000f)
+        set(value) = sp.edit().putFloat("hv_enrg_out_alert_kwh", value.coerceIn(500f, 1e7f)).apply()
+    var hvEnrgOutSimKwh: Float
+        get() = sp.getFloat("hv_enrg_out_sim_kwh", 0f)
+        set(value) = sp.edit().putFloat("hv_enrg_out_sim_kwh", value.coerceIn(0f, 1e8f)).apply()
+
+    /** HVESS total energy throughput Wh (OBD 01BD). */
+    var hvEnrgTputEnabled: Boolean
+        get() = sp.getBoolean("hv_enrg_tput", true)
+        set(value) = sp.edit().putBoolean("hv_enrg_tput", value).apply()
+    var hvEnrgTputTts: Boolean
+        get() = sp.getBoolean("hv_enrg_tput_tts", true)
+        set(value) = sp.edit().putBoolean("hv_enrg_tput_tts", value).apply()
+    var hvEnrgTputWarnWh: Float
+        get() = sp.getFloat("hv_enrg_tput_warn_wh", 3e7f)
+        set(value) = sp.edit().putFloat("hv_enrg_tput_warn_wh", value.coerceIn(1e6f, 1e9f)).apply()
+    var hvEnrgTputAlertWh: Float
+        get() = sp.getFloat("hv_enrg_tput_alert_wh", 5e7f)
+        set(value) = sp.edit().putFloat("hv_enrg_tput_alert_wh", value.coerceIn(2e6f, 1e9f)).apply()
+    var hvEnrgTputSimWh: Float
+        get() = sp.getFloat("hv_enrg_tput_sim_wh", 0f)
+        set(value) = sp.edit().putFloat("hv_enrg_tput_sim_wh", value.coerceIn(0f, 1e10f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

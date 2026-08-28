@@ -365,6 +365,12 @@ data class VehicleSignals(
         val hvCellMaxVoltageV: Float? = null,
         val hvPwrAvailPct: Float? = null,
         val hvChgLimitA: Float? = null,
+        /** HEV min cell temperature °C (OBD PID 01B7 byte A). */
+        val hvCellMinTempC: Float? = null,
+        val hvDisLimitA: Float? = null,
+        val hvEnrgInKwh: Float? = null,
+        val hvEnrgOutKwh: Float? = null,
+        val hvEnrgTputWh: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -599,6 +605,11 @@ data class VehicleSignals(
             "hv_cell_max_voltage_v" to hvCellMaxVoltageV?.toDouble(),
             "hv_pwr_avail_pct" to hvPwrAvailPct?.toDouble(),
             "hv_chg_limit_a" to hvChgLimitA?.toDouble(),
+            "hv_cell_min_temp_c" to hvCellMinTempC?.toDouble(),
+            "hv_dis_limit_a" to hvDisLimitA?.toDouble(),
+            "hv_enrg_in_kwh" to hvEnrgInKwh?.toDouble(),
+            "hv_enrg_out_kwh" to hvEnrgOutKwh?.toDouble(),
+            "hv_enrg_tput_wh" to hvEnrgTputWh?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
