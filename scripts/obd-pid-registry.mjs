@@ -252,8 +252,8 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 50 03 E8', expect: { maxMafGps: 10 } },
   { raw: '41 7D 24 54', expect: { catalystB1s8TempC: 890 } },
   { raw: '41 7E 24 54', expect: { catalystB2s8TempC: 890 } },
-  { raw: '41 64 2D', expect: { maxAvailTorquePct: 20 } },
-  { raw: '41 66 75', expect: { mafSensorIatC: 85 } },
+  { raw: '41 64 91', expect: { maxAvailTorquePct: 20 } },
+  { raw: '41 66 7D', expect: { mafSensorIatC: 85 } },
   { raw: '41 65 0F', expect: { auxInputStatus: 0x0f } },
   { raw: '41 1F 01 2C', expect: { runtimeSec: 300 } },
   { raw: '41 21 00 64', expect: { milDistanceKm: 100 } },
@@ -335,8 +335,8 @@ export function runFaseFormulaChecks(fase, assert) {
     case 24:
       assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 017D')
       assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 017E')
-      assert(0x2d - 125 === 20, 'pid 0164')
-      assert(0x75 - 40 === 85, 'pid 0166')
+      assert(0x91 - 125 === 20, 'pid 0164')
+      assert(0x7d - 40 === 85, 'pid 0166')
       assert(0x0f === 15, 'pid 0165')
       break
     default:
