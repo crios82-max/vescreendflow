@@ -4292,6 +4292,74 @@ fun SettingsScreen() {
                 color = Mute,
                 fontSize = 12.sp,
             )
+            Text("Fase 28 OBD (185/86/08/09):", color = Mist)
+            val catB1s12St by com.veplayer.app.vehicle.CatalystB1S12Monitor.state.collectAsState()
+            val catB2s12St by com.veplayer.app.vehicle.CatalystB2S12Monitor.state.collectAsState()
+            val stftB2St by com.veplayer.app.vehicle.FuelTrimStftB2Monitor.state.collectAsState()
+            val ltftB2St by com.veplayer.app.vehicle.FuelTrimLtftB2Monitor.state.collectAsState()
+            var f28B1s12 by remember {
+                mutableStateOf(if (prefs.catB1s12SimC > 0f) prefs.catB1s12SimC.toInt().toString() else "0")
+            }
+            var f28B2s12 by remember {
+                mutableStateOf(if (prefs.catB2s12SimC > 0f) prefs.catB2s12SimC.toInt().toString() else "0")
+            }
+            var f28StB2 by remember {
+                mutableStateOf(if (prefs.stftB2SimPct != 0f) prefs.stftB2SimPct.toInt().toString() else "0")
+            }
+            var f28LtB2 by remember {
+                mutableStateOf(if (prefs.ltftB2SimPct != 0f) prefs.ltftB2SimPct.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f28B1s12,
+                    onValueChange = { f28B1s12 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B1S12 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f28B2s12,
+                    onValueChange = { f28B2s12 = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("B2S12 °C") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f28StB2,
+                    onValueChange = { f28StB2 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("STB2 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f28LtB2,
+                    onValueChange = { f28LtB2 = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("LTB2 %") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.catB1s12SimC = f28B1s12.toFloatOrNull() ?: 0f
+                    prefs.catB2s12SimC = f28B2s12.toFloatOrNull() ?: 0f
+                    prefs.stftB2SimPct = f28StB2.toFloatOrNull() ?: 0f
+                    prefs.ltftB2SimPct = f28LtB2.toFloatOrNull() ?: 0f
+                    status = "Fase 28 sim aplicado"
+                },
+            ) { Text("Aplicar sim Fase 28") }
+            Text(
+                listOfNotNull(
+                    catB1s12St.label.takeIf { it.isNotBlank() },
+                    catB2s12St.label.takeIf { it.isNotBlank() },
+                    stftB2St.label.takeIf { it.isNotBlank() },
+                    ltftB2St.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 28 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

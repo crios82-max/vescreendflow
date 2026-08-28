@@ -132,6 +132,10 @@ import com.veplayer.app.vehicle.CatalystB2S11Monitor
 import com.veplayer.app.vehicle.ActualEgrMonitor
 import com.veplayer.app.vehicle.InjectPressureControlMonitor
 import com.veplayer.app.vehicle.FuelPressureControlMonitor
+import com.veplayer.app.vehicle.CatalystB1S12Monitor
+import com.veplayer.app.vehicle.CatalystB2S12Monitor
+import com.veplayer.app.vehicle.FuelTrimStftB2Monitor
+import com.veplayer.app.vehicle.FuelTrimLtftB2Monitor
 import com.veplayer.app.vehicle.Gear
 import com.veplayer.app.vehicle.GearRollMonitor
 import com.veplayer.app.vehicle.IdleAlert
@@ -260,6 +264,10 @@ fun DriveVizPanel(
     val egrActual by ActualEgrMonitor.state.collectAsState()
     val injectCtrl by InjectPressureControlMonitor.state.collectAsState()
     val fuelCtrl by FuelPressureControlMonitor.state.collectAsState()
+    val catB1s12 by CatalystB1S12Monitor.state.collectAsState()
+    val catB2s12 by CatalystB2S12Monitor.state.collectAsState()
+    val stftB2 by FuelTrimStftB2Monitor.state.collectAsState()
+    val ltftB2 by FuelTrimLtftB2Monitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -374,6 +382,10 @@ fun DriveVizPanel(
             ActualEgrMonitor.tick(prefs, snap)
             InjectPressureControlMonitor.tick(prefs, snap)
             FuelPressureControlMonitor.tick(prefs, snap)
+            CatalystB1S12Monitor.tick(prefs, snap)
+            CatalystB2S12Monitor.tick(prefs, snap)
+            FuelTrimStftB2Monitor.tick(prefs, snap)
+            FuelTrimLtftB2Monitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1041,6 +1053,18 @@ fun DriveVizPanel(
                 }
                 if (fuelCtrl.showWarn || (prefs.fuelCtrlEnabled && fuelCtrl.band == "ok" && fuelCtrl.label.isNotBlank())) {
                     Text(fuelCtrl.label, color = Color(com.veplayer.app.vehicle.FuelPressureControl.accentArgb(fuelCtrl.band)), fontSize = 11.sp)
+                }
+                if (catB1s12.showWarn || (prefs.catB1s12Enabled && catB1s12.band == "ok" && catB1s12.label.isNotBlank())) {
+                    Text(catB1s12.label, color = Color(com.veplayer.app.vehicle.CatalystB1S12.accentArgb(catB1s12.band)), fontSize = 11.sp)
+                }
+                if (catB2s12.showWarn || (prefs.catB2s12Enabled && catB2s12.band == "ok" && catB2s12.label.isNotBlank())) {
+                    Text(catB2s12.label, color = Color(com.veplayer.app.vehicle.CatalystB2S12.accentArgb(catB2s12.band)), fontSize = 11.sp)
+                }
+                if (stftB2.showWarn || (prefs.stftB2Enabled && stftB2.band == "ok" && stftB2.label.isNotBlank())) {
+                    Text(stftB2.label, color = Color(com.veplayer.app.vehicle.FuelTrimStftB2.accentArgb(stftB2.band)), fontSize = 11.sp)
+                }
+                if (ltftB2.showWarn || (prefs.ltftB2Enabled && ltftB2.band == "ok" && ltftB2.label.isNotBlank())) {
+                    Text(ltftB2.label, color = Color(com.veplayer.app.vehicle.FuelTrimLtftB2.accentArgb(ltftB2.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

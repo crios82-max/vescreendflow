@@ -49,6 +49,10 @@ export function parseMode01(raw) {
       return { engineLoadPct: (data[0] * 100) / 255 }
     case 0x06:
       return { fuelTrimStftPct: ((data[0] - 128) * 100) / 128 }
+    case 0x08:
+      return { fuelTrimStftB2Pct: ((data[0] - 128) * 100) / 128 }
+    case 0x09:
+      return { fuelTrimLtftB2Pct: ((data[0] - 128) * 100) / 128 }
     case 0x0a:
       return { fuelPressureKpa: data[0] * 3 }
     case 0x0e:
@@ -193,6 +197,10 @@ export function parseMode01(raw) {
       return data.length < 2 ? {} : { injectCtrlKpa: (data[0] * 256 + data[1]) / 10 }
     case 0x6d:
       return data.length < 2 ? {} : { fuelCtrlKpa: (data[0] * 256 + data[1]) / 10 }
+    case 0x85:
+      return data.length < 2 ? {} : { catalystB1s12TempC: (data[0] * 256 + data[1]) / 10 - 40 }
+    case 0x86:
+      return data.length < 2 ? {} : { catalystB2s12TempC: (data[0] * 256 + data[1]) / 10 - 40 }
     case 0x1f:
       return data.length < 2 ? {} : { runtimeSec: data[0] * 256 + data[1] }
     case 0x21:
@@ -211,7 +219,7 @@ export const POLL_PID_HEX = [
   '010D', '010C', '0110', '010A', '0133', '010E', '014A', '0143', '0145', '0149', '014B', '014D',
   '0144', '014E', '0152', '0153', '0159', '014C', '015A', '0161', '0162', '0170', '0171', '0172',
   '0173', '0174', '0175', '0176', '0155', '0156', '0157', '0158', '0177', '0178', '015D', '015B',
-  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
+  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
   '011F', '0121', '0131', '0134', '0142',
 ]
 
@@ -300,6 +308,10 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 69 F2', expect: { actualEgrPct: (0xf2 * 100) / 255 } },
   { raw: '41 6E FD E8', expect: { injectCtrlKpa: 6500 } },
   { raw: '41 6D FD E8', expect: { fuelCtrlKpa: 6500 } },
+  { raw: '41 85 24 54', expect: { catalystB1s12TempC: 890 } },
+  { raw: '41 86 24 54', expect: { catalystB2s12TempC: 890 } },
+  { raw: '41 08 9C', expect: { fuelTrimStftB2Pct: 21.875 } },
+  { raw: '41 09 9C', expect: { fuelTrimLtftB2Pct: 21.875 } },
   { raw: '41 1F 01 2C', expect: { runtimeSec: 300 } },
   { raw: '41 21 00 64', expect: { milDistanceKm: 100 } },
   { raw: '41 31 00 C8', expect: { distSinceClearKm: 200 } },
@@ -404,6 +416,12 @@ export function runFaseFormulaChecks(fase, assert) {
       assert((0xf2 * 100) / 255 > 94, 'pid 0169')
       assert((0xfd * 256 + 0xe8) / 10 === 6500, 'pid 016E')
       assert((0xfd * 256 + 0xe8) / 10 === 6500, 'pid 016D')
+      break
+    case 28:
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0185')
+      assert(((0x24 * 256 + 0x54) / 10) - 40 === 890, 'pid 0186')
+      assert(((0x9c - 128) * 100) / 128 === 21.875, 'pid 0108')
+      assert(((0x9c - 128) * 100) / 128 === 21.875, 'pid 0109')
       break
     default:
       throw new Error(`unknown fase ${fase}`)
