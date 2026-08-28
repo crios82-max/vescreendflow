@@ -30,8 +30,8 @@ android {
         applicationId = "com.veplayer.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 206
-        versionName = "2.04.0"
+        versionCode = 211
+        versionName = "2.09.0"
         buildConfigField(
             "String",
             "SENSEFLOW_URL",
@@ -48,6 +48,8 @@ android {
             "SPOTIFY_REDIRECT_URI",
             "\"${propOrEnv("SPOTIFY_REDIRECT_URI", "veplayer://callback")}\"",
         )
+        manifestPlaceholders["redirectSchemeName"] = "veplayer"
+        manifestPlaceholders["redirectHostName"] = "callback"
     }
 
     signingConfigs {

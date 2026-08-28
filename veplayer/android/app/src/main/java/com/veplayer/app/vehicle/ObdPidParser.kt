@@ -270,6 +270,14 @@ object ObdPidParser {
         val reagentInjectionFailCounter: Float? = null,
         /** Particulate monitor malfunction counter (OBD PID 01C6 bytes F/G). */
         val particulateMonitorMalfunctionCounter: Float? = null,
+        /** Engine fuel rate g/s (OBD PID 019D bytes A/B). */
+        val engineFuelRateGps: Float? = null,
+        /** Engine exhaust flow kg/h (OBD PID 019E). */
+        val engineExhaustFlowKgh: Float? = null,
+        /** Fuel system use % 1–3 (OBD PID 019F bytes B–D). */
+        val fuelSysUsePct1: Float? = null,
+        val fuelSysUsePct2: Float? = null,
+        val fuelSysUsePct3: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -726,6 +734,22 @@ object ObdPidParser {
                     particulateMonitorMalfunctionCounter = (data[5] * 256 + data[6]).toFloat(),
                 )
             }
+            0x9D -> {
+                if (data.size < 2) PidValues()
+                else PidValues(engineFuelRateGps = (data[0] * 256 + data[1]) / 200f)
+            }
+            0x9E -> {
+                if (data.size < 2) PidValues()
+                else PidValues(engineExhaustFlowKgh = (data[0] * 256 + data[1]) / 20f)
+            }
+            0x9F -> {
+                if (data.size < 4) PidValues()
+                else PidValues(
+                    fuelSysUsePct1 = data[1] * 100f / 255f,
+                    fuelSysUsePct2 = data[2] * 100f / 255f,
+                    fuelSysUsePct3 = data[3] * 100f / 255f,
+                )
+            }
             0x9B -> {
                 if (data.size < 4) PidValues()
                 else PidValues(defFluidPct = data[3] * 100f / 255f)
@@ -904,6 +928,11 @@ object ObdPidParser {
             dpfRemovalCounter = add.dpfRemovalCounter ?: base.dpfRemovalCounter,
             reagentInjectionFailCounter = add.reagentInjectionFailCounter ?: base.reagentInjectionFailCounter,
             particulateMonitorMalfunctionCounter = add.particulateMonitorMalfunctionCounter ?: base.particulateMonitorMalfunctionCounter,
+            engineFuelRateGps = add.engineFuelRateGps ?: base.engineFuelRateGps,
+            engineExhaustFlowKgh = add.engineExhaustFlowKgh ?: base.engineExhaustFlowKgh,
+            fuelSysUsePct1 = add.fuelSysUsePct1 ?: base.fuelSysUsePct1,
+            fuelSysUsePct2 = add.fuelSysUsePct2 ?: base.fuelSysUsePct2,
+            fuelSysUsePct3 = add.fuelSysUsePct3 ?: base.fuelSysUsePct3,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
