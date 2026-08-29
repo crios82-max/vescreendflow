@@ -26,7 +26,10 @@ export function HistoryPanel() {
             <span>{new Date(ride.createdAt).toLocaleDateString()}</span>
             <span>{rideStatus(ride.status)}</span>
           </div>
-          <div className="meta-row"><span>{t('common.type')}</span><span>{vehicle(ride.vehicleType)}</span></div>
+          <div className="meta-row"><span>{t('common.type')}</span><span>{vehicle(ride.vehicleType)}{ride.serviceMode === 'delivery' ? ` · ${t('service.foodDelivery')}` : ''}</span></div>
+          {ride.deliveryNotes && (
+            <div className="meta-row"><span>{t('service.foodOrder')}</span><span>{ride.deliveryNotes}</span></div>
+          )}
           <div className="meta-row"><span>{t('common.origin')}</span><span>{ride.pickupAddress}</span></div>
           <div className="meta-row"><span>{t('common.destination')}</span><span>{ride.dropoffAddress}</span></div>
           <div className="meta-row">

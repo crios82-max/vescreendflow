@@ -45,6 +45,8 @@ export function mapRide(row: Record<string, unknown>): Ride {
     dropoffLat: Number(row.dropoff_lat),
     dropoffLng: Number(row.dropoff_lng),
     vehicleType: (row.vehicle_type as Ride['vehicleType']) ?? 'standard',
+    serviceMode: (row.service_mode as Ride['serviceMode']) ?? 'ride',
+    deliveryNotes: (row.delivery_notes as string) ?? null,
     estimatedPrice: Number(row.estimated_price),
     finalPrice: row.final_price != null ? Number(row.final_price) : null,
     paymentStatus: (row.payment_status as Ride['paymentStatus']) ?? 'pending',

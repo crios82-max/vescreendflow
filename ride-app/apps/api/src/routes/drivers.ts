@@ -113,6 +113,8 @@ export function createDriversRouter(io: SocketServer) {
       pickupLng: Number(r.pickup_lng),
       dropoffAddress: r.dropoff_address,
       vehicleType: r.vehicle_type,
+      serviceMode: r.service_mode ?? 'ride',
+      deliveryNotes: r.delivery_notes ?? null,
       estimatedPrice: Number(r.estimated_price),
       distanceKm: Number(r.distance_km),
     }))});

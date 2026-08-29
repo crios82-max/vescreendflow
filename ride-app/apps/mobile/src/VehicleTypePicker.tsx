@@ -1,5 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import type { RideEstimateOption, VehicleType } from '@ride-app/shared';
+import { VEHICLE_OPTIONS } from '@ride-app/shared';
 import { colors } from './theme';
 import { useMobileI18n } from './i18n';
 
@@ -15,6 +16,7 @@ export function VehicleTypePicker({ options, selected, onSelect }: Props) {
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.row}>
       {options.map((option) => {
         const active = option.vehicleType === selected;
+        const isDelivery = VEHICLE_OPTIONS[option.vehicleType].category === 'delivery';
         return (
           <Pressable
             key={option.vehicleType}
@@ -23,7 +25,9 @@ export function VehicleTypePicker({ options, selected, onSelect }: Props) {
           >
             <Text style={styles.icon}>{option.icon}</Text>
             <Text style={styles.label}>{vehicle(option.vehicleType)}</Text>
-            <Text style={styles.meta}>{option.seats} {t('common.pax')}</Text>
+            <Text style={styles.meta}>
+              {isDelivery ? t('service.courier') : `${option.seats} ${t('common.pax')}`}
+            </Text>
             <Text style={[styles.price, active && styles.priceActive]}>${option.estimatedPrice}</Text>
           </Pressable>
         );

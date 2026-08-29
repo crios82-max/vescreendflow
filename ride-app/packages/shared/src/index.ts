@@ -53,6 +53,16 @@ export const VEHICLE_TYPES = ['standard', 'moto', 'bicicleta', 'comfort', 'xl', 
 
 export type VehicleType = (typeof VEHICLE_TYPES)[number];
 
+export type ServiceMode = 'ride' | 'delivery';
+
+export const SERVICE_MODES = ['ride', 'delivery'] as const;
+
+/** Passenger cars for normal rides */
+export const RIDE_VEHICLE_TYPES: VehicleType[] = ['standard', 'comfort', 'xl', 'vans'];
+
+/** Moto / bike couriers for food delivery */
+export const DELIVERY_VEHICLE_TYPES: VehicleType[] = ['moto', 'bicicleta'];
+
 export interface VehicleOption {
   type: VehicleType;
   label: string;
@@ -60,6 +70,7 @@ export interface VehicleOption {
   seats: number;
   multiplier: number;
   icon: string;
+  category: ServiceMode;
 }
 
 export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
@@ -70,22 +81,25 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
     seats: 4,
     multiplier: 1,
     icon: '🚗',
+    category: 'ride',
   },
   moto: {
     type: 'moto',
     label: 'Moto',
-    description: 'Rápido y económico',
+    description: 'Entrega de comida rápida',
     seats: 1,
     multiplier: 0.7,
     icon: '🏍️',
+    category: 'delivery',
   },
   bicicleta: {
     type: 'bicicleta',
     label: 'Bicicleta',
-    description: 'Eco y barato',
+    description: 'Entrega eco de comida',
     seats: 1,
     multiplier: 0.45,
     icon: '🚲',
+    category: 'delivery',
   },
   comfort: {
     type: 'comfort',
@@ -94,6 +108,7 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
     seats: 4,
     multiplier: 1.35,
     icon: '✨',
+    category: 'ride',
   },
   xl: {
     type: 'xl',
@@ -102,6 +117,7 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
     seats: 6,
     multiplier: 1.55,
     icon: '🚙',
+    category: 'ride',
   },
   vans: {
     type: 'vans',
@@ -110,8 +126,21 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
     seats: 8,
     multiplier: 1.85,
     icon: '🚐',
+    category: 'ride',
   },
 };
+
+export function isDeliveryVehicle(type: VehicleType): boolean {
+  return VEHICLE_OPTIONS[type].category === 'delivery';
+}
+
+export function vehiclesForMode(mode: ServiceMode): VehicleType[] {
+  return mode === 'delivery' ? DELIVERY_VEHICLE_TYPES : RIDE_VEHICLE_TYPES;
+}
+
+export function serviceModeForVehicle(type: VehicleType): ServiceMode {
+  return VEHICLE_OPTIONS[type].category;
+}
 
 export interface RideEstimateOption {
   vehicleType: VehicleType;
@@ -168,6 +197,8 @@ export interface Ride {
   dropoffLat: number;
   dropoffLng: number;
   vehicleType: VehicleType;
+  serviceMode: ServiceMode;
+  deliveryNotes: string | null;
   estimatedPrice: number;
   finalPrice: number | null;
   paymentStatus: PaymentStatus;

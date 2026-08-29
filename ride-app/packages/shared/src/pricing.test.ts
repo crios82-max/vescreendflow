@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildRideEstimate, estimateFare, haversineKm } from './index.ts';
+import { buildRideEstimate, estimateFare, haversineKm, isDeliveryVehicle, vehiclesForMode } from './index.ts';
 
 describe('haversineKm', () => {
   it('returns 0 for same point', () => {
@@ -38,5 +38,12 @@ describe('buildRideEstimate', () => {
     const normal = buildRideEstimate(5, 15, 2.5, 1.2, 0.25, null, 1);
     const surge = buildRideEstimate(5, 15, 2.5, 1.2, 0.25, null, 1.5);
     assert.ok(surge.options[0].estimatedPrice > normal.options[0].estimatedPrice);
+  });
+
+  it('splits ride vs delivery vehicles', () => {
+    assert.deepEqual(vehiclesForMode('delivery'), ['moto', 'bicicleta']);
+    assert.ok(isDeliveryVehicle('moto'));
+    assert.ok(isDeliveryVehicle('bicicleta'));
+    assert.equal(isDeliveryVehicle('standard'), false);
   });
 });

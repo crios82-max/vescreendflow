@@ -66,7 +66,7 @@ post_register "$(jq -n --arg p "$PASS" '{
 post_register "$(jq -n --arg p "$PASS" '{
   email: "moto@movify.demo",
   password: $p,
-  name: "Moto Demo",
+  name: "Repartidor Moto",
   role: "driver",
   phone: "+584121000004",
   vehicleMake: "Yamaha",
@@ -78,7 +78,7 @@ post_register "$(jq -n --arg p "$PASS" '{
 post_register "$(jq -n --arg p "$PASS" '{
   email: "bici@movify.demo",
   password: $p,
-  name: "Bici Demo",
+  name: "Repartidor Bici",
   role: "driver",
   phone: "+584121000005",
   vehicleMake: "Trek",
@@ -137,12 +137,12 @@ echo " Credenciales demo (password: $PASS)"
 echo "=============================================="
 echo "  Pasajero   pasajero@movify.demo   :5174"
 echo "  Conductor  conductor@movify.demo  :5175"
-echo "  Moto       moto@movify.demo       :5175"
-echo "  Bici       bici@movify.demo       :5175"
+echo "  Moto       moto@movify.demo       :5175  (entrega comida)"
+echo "  Bici       bici@movify.demo       :5175  (entrega comida)"
 echo "  Admin      admin@movify.demo      :5176"
 echo ""
 echo " Flujo rápido:"
 echo "  1) Conductor → login → Ir online"
-echo "  2) Pasajero → login → pedir viaje (Standard / Moto / Bicicleta)"
+echo "  2) Pasajero → Viaje (auto) o Entrega de comida (moto/bici)"
 echo "  3) Admin → ver stats"
 echo "=============================================="

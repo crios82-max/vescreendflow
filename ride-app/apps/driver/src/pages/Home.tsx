@@ -11,6 +11,8 @@ interface PendingRide {
   estimatedPrice: number;
   distanceKm: number;
   vehicleType: string;
+  serviceMode?: string;
+  deliveryNotes?: string | null;
 }
 
 type Tab = 'rides' | 'history';
@@ -180,9 +182,15 @@ export default function Home() {
               <div className="ride-list">
                 {pending.map((p) => (
                   <div className="ride-card" key={p.id}>
-                    <strong>${p.estimatedPrice} — {p.distanceKm} {t('common.km')} · {vehicle(p.vehicleType as VehicleType)}</strong>
-                    <div className="meta-row"><span>{t('common.origin')}</span><span>{p.pickupAddress}</span></div>
-                    <div className="meta-row"><span>{t('common.destination')}</span><span>{p.dropoffAddress}</span></div>
+                    <strong>
+                      {p.serviceMode === 'delivery' ? `${t('service.foodDelivery')} · ` : ''}
+                      ${p.estimatedPrice} — {p.distanceKm} {t('common.km')} · {vehicle(p.vehicleType as VehicleType)}
+                    </strong>
+                    <div className="meta-row"><span>{p.serviceMode === 'delivery' ? t('service.restaurant') : t('common.origin')}</span><span>{p.pickupAddress}</span></div>
+                    <div className="meta-row"><span>{p.serviceMode === 'delivery' ? t('service.customer') : t('common.destination')}</span><span>{p.dropoffAddress}</span></div>
+                    {p.deliveryNotes && (
+                      <div className="meta-row"><span>{t('service.foodOrder')}</span><span>{p.deliveryNotes}</span></div>
+                    )}
                     <button className="btn-primary" onClick={() => acceptRide(p.id)}>{t('common.accept')}</button>
                   </div>
                 ))}
@@ -191,7 +199,13 @@ export default function Home() {
           ) : (
             <>
               <div className="status-pill">{rideStatus(ride.status)}</div>
+              {ride.serviceMode === 'delivery' && (
+                <div className="eta-badge">{t('service.foodDelivery')}</div>
+              )}
               <div className="meta-row"><span>{t('common.type')}</span><span>{vehicle(ride.vehicleType)}</span></div>
+              {ride.deliveryNotes && (
+                <div className="meta-row"><span>{t('service.foodOrder')}</span><span>{ride.deliveryNotes}</span></div>
+              )}
               <div className="meta-row"><span>{t('common.earnings')}</span><span>${ride.estimatedPrice}</span></div>
               {ride.status === 'accepted' && (
                 <button className="btn-primary" onClick={() => updateStatus('arriving')}>{t('driver.onTheWay')}</button>
