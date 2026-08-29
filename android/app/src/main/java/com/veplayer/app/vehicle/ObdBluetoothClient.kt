@@ -355,6 +355,8 @@ class ObdBluetoothClient(private val context: Context) {
                 "01DA", // HVESS current rate Ah/s
                 "01CC", // electric motor A RPM
                 "01CD", // electric motor A torque
+                "01D5", // fuel cell volt/fuel/curr/ener
+                "01D6", // propulsion system active trips
                 "0194", // NOx reagent quality
                 "019B", // DEF fluid level
                 "01A1", // NOx corrected B1S1
