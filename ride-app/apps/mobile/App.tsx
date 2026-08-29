@@ -22,6 +22,8 @@ import { mobileApi } from './src/api';
 import { getMobileSocket, reconnectSocket } from './src/socket';
 import { PlaceSearch } from './src/PlaceSearch';
 import { VehicleTypePicker } from './src/VehicleTypePicker';
+import { SavedPlacesBar } from './src/SavedPlacesBar';
+import { FareBreakdownView } from './src/FareBreakdownView';
 import { defaultApiUrl, getApiUrl } from './src/storage';
 import { registerForPushNotifications } from './src/push';
 import { decodePolyline } from './src/polyline';
@@ -72,6 +74,16 @@ export default function App() {
   const [banner, setBanner] = useState<{ message: string; error?: boolean } | null>(null);
   const [forgotMsg, setForgotMsg] = useState('');
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [useWallet, setUseWallet] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+  const [splitEmails, setSplitEmails] = useState('');
+  const [splitResult, setSplitResult] = useState('');
+  const [scheduledHours, setScheduledHours] = useState(0);
+  const [rateComment, setRateComment] = useState('');
+  const [connectStatus, setConnectStatus] = useState<{ onboarded: boolean } | null>(null);
+  const [docs, setDocs] = useState({ licenseUrl: '', idUrl: '', vehiclePhotoUrl: '' });
+  const [approvalStatus, setApprovalStatus] = useState('approved');
+  const [earnings, setEarnings] = useState<{ today: { total: number } } | null>(null);
 
   const showBanner = (message: string, error = false) => {
     setBanner({ message, error });
@@ -191,6 +203,12 @@ export default function App() {
       }
       mobileApi.getPhoneVerifyStatus().then((s) => setPhoneVerified(s.verified)).catch(() => {});
       void mobileApi.setPreferredLocale(locale);
+      mobileApi.getWalletBalance().then((w) => setWalletBalance(w.balance)).catch(() => {});
+      if (data.user.role === 'driver') {
+        mobileApi.getConnectStatus().then(setConnectStatus).catch(() => {});
+        mobileApi.getOnboardingStatus().then((r) => setApprovalStatus(r.approvalStatus)).catch(() => {});
+        mobileApi.getDriverEarnings().then(setEarnings).catch(() => {});
+      }
     } catch (err) {
       setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
@@ -212,9 +230,42 @@ export default function App() {
         dropoffLng: dropoff.longitude,
         vehicleType,
         rideForName: rideForName || undefined,
+        promoCode: promoCode || undefined,
+        scheduledAt: scheduledHours > 0 ? new Date(Date.now() + scheduledHours * 3600_000).toISOString() : undefined,
         stops: stop ? [{ address: stop.address, lat: stop.latitude, lng: stop.longitude }] : undefined,
       });
       setRide(created);
+      setScheduledHours(0);
+    } catch (err) {
+      setError(te(err instanceof Error ? err.message : t('common.error')));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const payRide = async () => {
+    if (!ride) return;
+    setLoading(true);
+    setError('');
+    try {
+      if (useWallet) {
+        const r = await mobileApi.payRideOptions(ride.id, { tipAmount, useWallet: true });
+        setRide(r.ride);
+        const w = await mobileApi.getWalletBalance();
+        setWalletBalance(w.balance);
+        return;
+      }
+      const intent = await mobileApi.createPaymentIntent(ride.id, tipAmount);
+      if (intent.mock) {
+        const r = await mobileApi.payRideOptions(ride.id, { tipAmount });
+        setRide(r.ride);
+        showBanner(t('mobile.paidMock'));
+        return;
+      }
+      // Stripe configured: server confirms test Visa (same as API processRidePayment)
+      const r = await mobileApi.payRideOptions(ride.id, { tipAmount });
+      setRide(r.ride);
+      showBanner(t('mobile.paidCard'));
     } catch (err) {
       setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
@@ -421,6 +472,7 @@ export default function App() {
           <PlaceSearch placeholder={t('passenger.whereTo')} bias={pickup ?? position} language={locale} onSelect={(p) => setDropoff(p)} />
           <TextInput style={styles.input} placeholder={t('passenger.optionalStop')} placeholderTextColor={placeholderColor} value={stop?.address ?? ''} editable={false} />
           <PlaceSearch placeholder={t('passenger.addStop')} bias={pickup ?? position} language={locale} onSelect={(p) => setStop(p)} />
+          <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
           <TextInput style={styles.input} placeholder={t('passenger.rideForName')} placeholderTextColor={placeholderColor} value={rideForName} onChangeText={setRideForName} />
         </SafeAreaView>
       )}
@@ -480,7 +532,9 @@ export default function App() {
           <ScrollView keyboardShouldPersistTaps="handled">
             {!ride ? (
               <>
-                {dropoff && <Text style={styles.muted} numberOfLines={2}>{dropoff.address}</Text>}
+                {estimate && estimate.surgeMultiplier > 1 && (
+                  <Text style={styles.etaText}>{t('common.surgeActive', { multiplier: estimate.surgeMultiplier })}</Text>
+                )}
                 {estimate && (
                   <Text style={styles.muted}>{estimate.distanceKm} km · ~{Math.round(estimate.durationMin)} min</Text>
                 )}
@@ -490,6 +544,20 @@ export default function App() {
                     selected={vehicleType}
                     onSelect={setVehicleType}
                   />
+                )}
+                <View style={styles.row}>
+                  {[0, 1, 2].map((h) => (
+                    <Pressable key={h} style={[styles.chip, scheduledHours === h && styles.chipActive]} onPress={() => setScheduledHours(h)}>
+                      <Text style={scheduledHours === h ? styles.chipTextActive : styles.chipText}>
+                        {h === 0 ? t('mobile.now') : `+${h}h`}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+                {scheduledHours > 0 && (
+                  <Text style={styles.muted}>
+                    {t('passenger.scheduleRide')}: {new Date(Date.now() + scheduledHours * 3600_000).toLocaleString()}
+                  </Text>
                 )}
                 <TextInput style={styles.input} placeholder={t('common.promoPlaceholder')} placeholderTextColor={placeholderColor} value={promoCode} onChangeText={setPromoCode} autoCapitalize="characters" />
                 {promoCode ? (
@@ -517,6 +585,7 @@ export default function App() {
                   <Text style={styles.etaText}>{t('common.arriveIn', { min: etaPickup })}</Text>
                 )}
                 <Text style={styles.muted}>{vehicle(ride.vehicleType)}</Text>
+                <FareBreakdownView breakdown={ride.fareBreakdown} surgeMultiplier={ride.surgeMultiplier} />
                 <Text style={styles.price}>${ride.finalPrice ?? ride.estimatedPrice}</Text>
                 {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
                   <>
@@ -527,11 +596,38 @@ export default function App() {
                         </Pressable>
                       ))}
                     </View>
-                    <Pressable style={styles.btn} onPress={async () => {
-                      const r = await mobileApi.payRide(ride.id, tipAmount);
-                      setRide(r.ride);
+                    <Pressable style={[styles.chip, useWallet && styles.chipActive]} onPress={() => setUseWallet(!useWallet)}>
+                      <Text style={useWallet ? styles.chipTextActive : styles.chipText}>
+                        {t('common.payWithWallet')}{walletBalance != null ? ` ($${walletBalance.toFixed(2)})` : ''}
+                      </Text>
+                    </Pressable>
+                    <TextInput
+                      style={styles.input}
+                      placeholder={t('common.emailsComma')}
+                      placeholderTextColor={placeholderColor}
+                      value={splitEmails}
+                      onChangeText={setSplitEmails}
+                      autoCapitalize="none"
+                    />
+                    <Pressable style={styles.btnSecondary} onPress={async () => {
+                      const emails = splitEmails.split(',').map((e) => e.trim()).filter(Boolean);
+                      if (emails.length === 0) return;
+                      try {
+                        const r = await mobileApi.splitFare(ride.id, emails);
+                        setSplitResult(t('common.splitShare', { amount: r.yourShare }));
+                        showBanner(t('common.splitAndInvite'));
+                      } catch (err) {
+                        showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                      }
                     }}>
-                      <Text style={styles.btnText}>{t('common.payAmount', { amount: (ride.finalPrice ?? ride.estimatedPrice) + tipAmount })}</Text>
+                      <Text style={styles.btnSecondaryText}>{t('common.splitFare')}</Text>
+                    </Pressable>
+                    {splitResult ? <Text style={styles.muted}>{splitResult}</Text> : null}
+                    {error ? <Text style={styles.error}>{error}</Text> : null}
+                    <Pressable style={[styles.btn, loading && styles.btnDisabled]} onPress={payRide} disabled={loading}>
+                      <Text style={styles.btnText}>
+                        {loading ? t('common.processing') : t('common.payAmount', { amount: (ride.finalPrice ?? ride.estimatedPrice) + tipAmount })}
+                      </Text>
                     </Pressable>
                   </>
                 )}
@@ -589,13 +685,21 @@ export default function App() {
                         key={stars}
                         style={styles.btnSecondary}
                         onPress={async () => {
-                          await mobileApi.rateRide(ride.id, stars);
+                          await mobileApi.rateRide(ride.id, stars, rateComment || undefined);
                           setRated(true);
+                          setRateComment('');
                         }}
                       >
                         <Text style={styles.btnSecondaryText}>{'★'.repeat(stars)}</Text>
                       </Pressable>
                     ))}
+                    <TextInput
+                      style={styles.input}
+                      placeholder={t('common.commentOptional')}
+                      placeholderTextColor={placeholderColor}
+                      value={rateComment}
+                      onChangeText={setRateComment}
+                    />
                   </View>
                 )}
                 {ride.status === 'completed' && ride.paymentStatus === 'paid' && rated && (
@@ -618,7 +722,45 @@ export default function App() {
           <ScrollView>
             {!ride ? (
               <>
-                <Pressable style={styles.btn} onPress={toggleOnline}>
+                {earnings && (
+                  <Text style={styles.muted}>{t('driver.todayEarnings')}: ${earnings.today.total.toFixed(2)}</Text>
+                )}
+                {approvalStatus !== 'approved' && (
+                  <View style={styles.settingsBox}>
+                    <Text style={styles.muted}>{t('driver.docsTitle')}</Text>
+                    <TextInput style={styles.input} placeholder={t('driver.licenseUrl')} placeholderTextColor={placeholderColor} value={docs.licenseUrl} onChangeText={(licenseUrl) => setDocs({ ...docs, licenseUrl })} autoCapitalize="none" />
+                    <TextInput style={styles.input} placeholder={t('driver.idUrl')} placeholderTextColor={placeholderColor} value={docs.idUrl} onChangeText={(idUrl) => setDocs({ ...docs, idUrl })} autoCapitalize="none" />
+                    <TextInput style={styles.input} placeholder={t('driver.vehiclePhotoUrl')} placeholderTextColor={placeholderColor} value={docs.vehiclePhotoUrl} onChangeText={(vehiclePhotoUrl) => setDocs({ ...docs, vehiclePhotoUrl })} autoCapitalize="none" />
+                    <Pressable style={styles.btnSecondary} onPress={async () => {
+                      await mobileApi.submitDriverDocs({
+                        licenseUrl: docs.licenseUrl || undefined,
+                        idUrl: docs.idUrl || undefined,
+                        vehiclePhotoUrl: docs.vehiclePhotoUrl || undefined,
+                      });
+                      const s = await mobileApi.getOnboardingStatus();
+                      setApprovalStatus(s.approvalStatus);
+                      showBanner(t('driver.docsSubmitted'));
+                    }}>
+                      <Text style={styles.btnSecondaryText}>{t('common.save')}</Text>
+                    </Pressable>
+                  </View>
+                )}
+                {connectStatus && !connectStatus.onboarded && (
+                  <Pressable style={styles.btnSecondary} onPress={async () => {
+                    const r = await mobileApi.startConnectOnboarding();
+                    if (r.url) Linking.openURL(r.url);
+                    else showBanner(te(r.message ?? t('common.stripeNotConfigured')), true);
+                  }}>
+                    <Text style={styles.btnSecondaryText}>{t('driver.setupStripe')}</Text>
+                  </Pressable>
+                )}
+                <Pressable style={styles.btn} onPress={async () => {
+                  if (approvalStatus !== 'approved') {
+                    showBanner(t('driver.docsRequired'), true);
+                    return;
+                  }
+                  await toggleOnline();
+                }}>
                   <Text style={styles.btnText}>{online ? t('driver.goOffline') : t('driver.goOnline')}</Text>
                 </Pressable>
                 {pending.map((p) => (
@@ -681,13 +823,21 @@ export default function App() {
                         key={stars}
                         style={styles.btnSecondary}
                         onPress={async () => {
-                          await mobileApi.rateRide(ride.id, stars);
+                          await mobileApi.rateRide(ride.id, stars, rateComment || undefined);
                           setRated(true);
+                          setRateComment('');
                         }}
                       >
                         <Text style={styles.btnSecondaryText}>{'★'.repeat(stars)}</Text>
                       </Pressable>
                     ))}
+                    <TextInput
+                      style={styles.input}
+                      placeholder={t('common.commentOptional')}
+                      placeholderTextColor={placeholderColor}
+                      value={rateComment}
+                      onChangeText={setRateComment}
+                    />
                   </View>
                 )}
                 {ride.status === 'completed' && rated && (

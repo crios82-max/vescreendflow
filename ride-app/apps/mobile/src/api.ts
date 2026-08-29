@@ -86,6 +86,51 @@ class MobileApi {
     });
   }
 
+  payRideOptions(id: string, body: { tipAmount?: number; useWallet?: boolean; paymentIntentId?: string }) {
+    return this.request<{ ride: Ride }>(`/rides/${id}/pay`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  createPaymentIntent(rideId: string, tipAmount = 0) {
+    return this.request<{ clientSecret?: string; mock?: boolean; amount?: number; paymentIntentId?: string }>(
+      `/rides/${rideId}/payment-intent`,
+      { method: 'POST', body: JSON.stringify({ tipAmount }) },
+    );
+  }
+
+  getSavedPlaces() {
+    return this.request<{ places: Array<{ id: string; label: string; name: string; address: string; lat: number; lng: number }> }>('/places');
+  }
+
+  savePlace(body: { label: string; name: string; address: string; lat: number; lng: number }) {
+    return this.request('/places', { method: 'POST', body: JSON.stringify(body) });
+  }
+
+  splitFare(rideId: string, emails: string[]) {
+    return this.request<{ perPerson: number; yourShare: number; participants: number; invites?: Array<{ email: string; payUrl: string }> }>(
+      `/split/ride/${rideId}`,
+      { method: 'POST', body: JSON.stringify({ emails }) },
+    );
+  }
+
+  getMe() {
+    return this.request<{ user: User }>('/users/me');
+  }
+
+  getDriverEarnings() {
+    return this.request<{ totalEarnings: number; today: { total: number; rides: number } }>('/onboarding/earnings');
+  }
+
+  submitDriverDocs(body: { licenseUrl?: string; idUrl?: string; vehiclePhotoUrl?: string }) {
+    return this.request('/onboarding/documents', { method: 'POST', body: JSON.stringify(body) });
+  }
+
+  getOnboardingStatus() {
+    return this.request<{ approvalStatus: string; rejectionReason: string | null }>('/onboarding/status');
+  }
+
   acceptRide(id: string) {
     return this.request<Ride>(`/rides/${id}/accept`, { method: 'POST' });
   }

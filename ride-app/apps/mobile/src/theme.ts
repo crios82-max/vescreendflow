@@ -98,7 +98,7 @@ export const appStyles = StyleSheet.create({
     borderTopColor: colors.primary,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '42%',
+    maxHeight: '48%',
   },
   sheetHeader: { marginBottom: 10 },
   sheetTitle: { color: colors.text, fontSize: 20, fontWeight: '700' },

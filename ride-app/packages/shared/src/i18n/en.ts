@@ -272,6 +272,9 @@ export const en = {
     connectedApi: 'Connected to API',
     disconnectedApi: 'No API connection',
     offlineHint: 'No API connection. You can still preview the UI until you are back home.',
+    now: 'Now',
+    paidMock: 'Demo payment confirmed',
+    paidCard: 'Card payment confirmed',
   },
   apiErrors: {
     invalidCredentials: 'Invalid credentials',

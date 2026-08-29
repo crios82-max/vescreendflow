@@ -272,6 +272,9 @@ export const it = {
     connectedApi: 'Connesso all\'API',
     disconnectedApi: 'Nessuna connessione API',
     offlineHint: 'Nessuna connessione API. Puoi comunque vedere l\'interfaccia finché non torni a casa.',
+    now: 'Ora',
+    paidMock: 'Pagamento demo confermato',
+    paidCard: 'Pagamento con carta confermato',
   },
   apiErrors: {
     invalidCredentials: 'Credenziali non valide',
