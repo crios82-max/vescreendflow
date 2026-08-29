@@ -5781,6 +5781,60 @@ private fun SettingsVehicleSignalsObdFase41_45(
                 fontSize = 12.sp,
             )
 
+            Text("Fase 50 OBD (01DA/CC/CD Curr/Em):", color = Mist)
+            val hvCurrRateSt by com.veplayer.app.vehicle.HvCurrRateMonitor.state.collectAsState()
+            val emRpmSt by com.veplayer.app.vehicle.EmRpmMonitor.state.collectAsState()
+            val emTqSt by com.veplayer.app.vehicle.EmTqMonitor.state.collectAsState()
+            var f50Curr by remember {
+                mutableStateOf(if (prefs.hvCurrRateSimAhs != 0f) prefs.hvCurrRateSimAhs.toInt().toString() else "0")
+            }
+            var f50Rpm by remember {
+                mutableStateOf(if (prefs.emRpmSim > 0f) prefs.emRpmSim.toInt().toString() else "0")
+            }
+            var f50Tq by remember {
+                mutableStateOf(if (prefs.emTqSimNm != 0f) prefs.emTqSimNm.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f50Curr,
+                    onValueChange = { f50Curr = it.filter { c -> c.isDigit() || c == '-' }.take(5) },
+                    label = { Text("HvCurr") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f50Rpm,
+                    onValueChange = { f50Rpm = it.filter { c -> c.isDigit() }.take(6) },
+                    label = { Text("EmRpm") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f50Tq,
+                    onValueChange = { f50Tq = it.filter { c -> c.isDigit() || c == '-' }.take(5) },
+                    label = { Text("EmTq") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.hvCurrRateSimAhs = f50Curr.toFloatOrNull() ?: 0f
+                    prefs.emRpmSim = f50Rpm.toFloatOrNull() ?: 0f
+                    prefs.emTqSimNm = f50Tq.toFloatOrNull() ?: 0f
+                    onStatus("Fase 50 sim aplicado")
+                },
+            ) { Text("Aplicar sim Fase 50") }
+            Text(
+                listOfNotNull(
+                    hvCurrRateSt.label.takeIf { it.isNotBlank() },
+                    emRpmSt.label.takeIf { it.isNotBlank() },
+                    emTqSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 50 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

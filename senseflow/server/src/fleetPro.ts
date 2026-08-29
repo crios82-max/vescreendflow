@@ -7417,6 +7417,95 @@ export function evaluateFleetAlerts(
       }
     }
 
+    const hvCurrRateObj = signals.hv_curr_rate as Record<string, unknown> | undefined
+    const hvCurrRateAhs =
+      typeof hvCurrRateObj?.ahs === 'number'
+        ? (hvCurrRateObj.ahs as number)
+        : typeof signals.hv_curr_rate_ahs === 'number'
+          ? (signals.hv_curr_rate_ahs as number)
+          : null
+    if (typeof hvCurrRateAhs === 'number') {
+      const absA = Math.abs(hvCurrRateAhs)
+      const warnA = typeof signals.hv_curr_rate_warn_ahs === 'number' ? (signals.hv_curr_rate_warn_ahs as number) : 15
+      const alertA = typeof signals.hv_curr_rate_alert_ahs === 'number' ? (signals.hv_curr_rate_alert_ahs as number) : 30
+      if (absA >= alertA && !recentlyAlerted(deviceId, 'hv_curr_rate_alert', 120)) {
+        insertAlert(deviceId, 'hv_curr_rate_alert', 'critical', `Tasa corriente HV crítica · ${hvCurrRateAhs.toFixed(2)}Ah/s`, {
+          hv_curr_rate_ahs: hvCurrRateAhs,
+          hv_curr_rate: hvCurrRateObj ?? null,
+        })
+        raised.push('hv_curr_rate_alert')
+      } else if (
+        absA >= warnA &&
+        absA < alertA &&
+        !recentlyAlerted(deviceId, 'hv_curr_rate_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hv_curr_rate_warn', 'warn', `Tasa corriente HV alta · ${hvCurrRateAhs.toFixed(2)}Ah/s`, {
+          hv_curr_rate_ahs: hvCurrRateAhs,
+          hv_curr_rate: hvCurrRateObj ?? null,
+        })
+        raised.push('hv_curr_rate_warn')
+      }
+    }
+
+    const emRpmObj = signals.em_rpm as Record<string, unknown> | undefined
+    const emRpmVal =
+      typeof emRpmObj?.rpm === 'number'
+        ? (emRpmObj.rpm as number)
+        : typeof signals.em_rpm_a === 'number'
+          ? (signals.em_rpm_a as number)
+          : null
+    if (typeof emRpmVal === 'number' && emRpmVal > 0) {
+      const warnR = typeof signals.em_rpm_warn === 'number' ? (signals.em_rpm_warn as number) : 12000
+      const alertR = typeof signals.em_rpm_alert === 'number' ? (signals.em_rpm_alert as number) : 16000
+      if (emRpmVal >= alertR && !recentlyAlerted(deviceId, 'em_rpm_alert', 120)) {
+        insertAlert(deviceId, 'em_rpm_alert', 'critical', `RPM motor eléctrico críticas · ${Math.round(emRpmVal)}`, {
+          em_rpm_a: emRpmVal,
+          em_rpm: emRpmObj ?? null,
+        })
+        raised.push('em_rpm_alert')
+      } else if (
+        emRpmVal >= warnR &&
+        emRpmVal < alertR &&
+        !recentlyAlerted(deviceId, 'em_rpm_warn', 120)
+      ) {
+        insertAlert(deviceId, 'em_rpm_warn', 'warn', `RPM motor eléctrico altas · ${Math.round(emRpmVal)}`, {
+          em_rpm_a: emRpmVal,
+          em_rpm: emRpmObj ?? null,
+        })
+        raised.push('em_rpm_warn')
+      }
+    }
+
+    const emTqObj = signals.em_tq as Record<string, unknown> | undefined
+    const emTqNm =
+      typeof emTqObj?.nm === 'number'
+        ? (emTqObj.nm as number)
+        : typeof signals.em_tq_a_nm === 'number'
+          ? (signals.em_tq_a_nm as number)
+          : null
+    if (typeof emTqNm === 'number') {
+      const absN = Math.abs(emTqNm)
+      const warnN = typeof signals.em_tq_warn_nm === 'number' ? (signals.em_tq_warn_nm as number) : 250
+      const alertN = typeof signals.em_tq_alert_nm === 'number' ? (signals.em_tq_alert_nm as number) : 400
+      if (absN >= alertN && !recentlyAlerted(deviceId, 'em_tq_alert', 120)) {
+        insertAlert(deviceId, 'em_tq_alert', 'critical', `Par motor eléctrico crítico · ${emTqNm.toFixed(0)}Nm`, {
+          em_tq_a_nm: emTqNm,
+          em_tq: emTqObj ?? null,
+        })
+        raised.push('em_tq_alert')
+      } else if (
+        absN >= warnN &&
+        absN < alertN &&
+        !recentlyAlerted(deviceId, 'em_tq_warn', 120)
+      ) {
+        insertAlert(deviceId, 'em_tq_warn', 'warn', `Par motor eléctrico alto · ${emTqNm.toFixed(0)}Nm`, {
+          em_tq_a_nm: emTqNm,
+          em_tq: emTqObj ?? null,
+        })
+        raised.push('em_tq_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
