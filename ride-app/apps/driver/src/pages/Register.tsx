@@ -1,11 +1,12 @@
 import { FormEvent, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import type { VehicleType } from '@ride-app/shared';
-import { VEHICLE_OPTIONS, VEHICLE_TYPES } from '@ride-app/shared';
-import { useAuth } from '@ride-app/web-shared';
+import { VEHICLE_TYPES } from '@ride-app/shared';
+import { useAuth, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
 
 export default function Register() {
   const { register, user } = useAuth();
+  const { t, vehicle } = useI18n();
   const [form, setForm] = useState({
     name: '', email: '', password: '', phone: '',
     vehicleMake: '', vehicleModel: '', vehiclePlate: '',
@@ -23,7 +24,7 @@ export default function Register() {
     try {
       await register({ ...form, role: 'driver' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -31,16 +32,17 @@ export default function Register() {
 
   return (
     <div className="auth-page">
+      <LanguageSwitcher className="auth-page__lang" />
       <form className="auth-card" onSubmit={onSubmit}>
-        <h1>Registro conductor</h1>
-        <label>Nombre<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></label>
-        <label>Email<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></label>
-        <label>Teléfono<input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
-        <label>Marca<input value={form.vehicleMake} onChange={(e) => setForm({ ...form, vehicleMake: e.target.value })} /></label>
-        <label>Modelo<input value={form.vehicleModel} onChange={(e) => setForm({ ...form, vehicleModel: e.target.value })} /></label>
-        <label>Placa<input value={form.vehiclePlate} onChange={(e) => setForm({ ...form, vehiclePlate: e.target.value })} /></label>
+        <h1>{t('auth.driverRegister')}</h1>
+        <label>{t('common.name')}<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></label>
+        <label>{t('common.email')}<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></label>
+        <label>{t('common.phone')}<input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
+        <label>{t('auth.vehicleMake')}<input value={form.vehicleMake} onChange={(e) => setForm({ ...form, vehicleMake: e.target.value })} /></label>
+        <label>{t('auth.vehicleModel')}<input value={form.vehicleModel} onChange={(e) => setForm({ ...form, vehicleModel: e.target.value })} /></label>
+        <label>{t('auth.vehiclePlate')}<input value={form.vehiclePlate} onChange={(e) => setForm({ ...form, vehiclePlate: e.target.value })} /></label>
         <label>
-          Tipo de vehículo
+          {t('auth.vehicleType')}
           <select
             value={form.vehicleType}
             onChange={(e) => setForm({ ...form, vehicleType: e.target.value as VehicleType })}
@@ -48,15 +50,15 @@ export default function Register() {
           >
             {VEHICLE_TYPES.map((type) => (
               <option key={type} value={type}>
-                {VEHICLE_OPTIONS[type].icon} {VEHICLE_OPTIONS[type].label}
+                {vehicle(type)}
               </option>
             ))}
           </select>
         </label>
-        <label>Contraseña<input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required /></label>
+        <label>{t('common.password')}<input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required /></label>
         {error && <p className="error-text">{error}</p>}
-        <button className="btn-primary" disabled={loading}>{loading ? 'Creando...' : 'Registrarme'}</button>
-        <Link to="/login" className="link-btn">Ya tengo cuenta</Link>
+        <button className="btn-primary" disabled={loading}>{loading ? t('common.registering') : t('common.register')}</button>
+        <Link to="/login" className="link-btn">{t('auth.haveAccount')}</Link>
       </form>
     </div>
   );

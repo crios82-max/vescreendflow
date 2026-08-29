@@ -64,6 +64,7 @@ describe('API E2E', { skip: !runE2e }, () => {
   });
 
   it('POST /webhooks/twilio/voice/connect returns TwiML', async () => {
+    process.env.TWILIO_PHONE_NUMBER = '+15550001111';
     const res = await request(app)
       .post('/webhooks/twilio/voice/connect?callee=%2B15559876543')
       .type('form')

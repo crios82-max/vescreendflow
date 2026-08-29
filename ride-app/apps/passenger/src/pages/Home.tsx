@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import type { Ride, RideEstimate, VehicleType } from '@ride-app/shared';
-import { RIDE_STATUS_LABELS } from '@ride-app/shared';
 import {
   api,
   getSocket,
@@ -10,8 +9,9 @@ import {
   PlaceAutocomplete,
   RatingForm,
   useAuth,
+  useI18n,
+  LanguageSwitcher,
   VehicleTypePicker,
-  vehicleTypeLabel,
   FareBreakdownView,
   TipSelector,
   PromoInput,
@@ -30,6 +30,7 @@ type Tab = 'ride' | 'history';
 
 export default function Home() {
   const { user, logout } = useAuth();
+  const { t, rideStatus, vehicle } = useI18n();
   const [tab, setTab] = useState<Tab>('ride');
   const [pickup, setPickup] = useState<Point | null>(null);
   const [dropoff, setDropoff] = useState<Point | null>(null);
@@ -58,7 +59,7 @@ export default function Home() {
     navigator.geolocation.getCurrentPosition((pos) => {
       const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
       setLocationBias(coords);
-      setPickup({ ...coords, address: 'Mi ubicación' });
+      setPickup({ ...coords, address: t('common.myLocation') });
     });
     api.getActiveRide().then((r) => r.ride && setRide(r.ride)).catch(() => {});
   }, []);
@@ -189,17 +190,18 @@ export default function Home() {
           follow={driverPos ?? pickup ?? locationBias}
         />
         <div className="top-bar">
-          <span className="badge badge--accent">Hola, {user?.name}</span>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <span className="badge badge--accent">{t('common.greeting', { name: user?.name ?? '' })}</span>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <LanguageSwitcher />
             <button className="btn-secondary" onClick={() => setTab(tab === 'ride' ? 'history' : 'ride')}>
-              {tab === 'ride' ? 'Historial' : 'Viaje'}
+              {tab === 'ride' ? t('common.history') : t('passenger.ride')}
             </button>
-            <button className="btn-secondary" onClick={logout}>Salir</button>
+            <button className="btn-secondary" onClick={logout}>{t('common.logout')}</button>
           </div>
         </div>
         {tab === 'history' ? (
           <div className="bottom-sheet">
-            <h2>Historial de viajes</h2>
+            <h2>{t('passenger.rideHistory')}</h2>
             <HistoryPanel />
           </div>
         ) : (
@@ -207,44 +209,44 @@ export default function Home() {
             {!ride && (
               <div className="search-panel">
                 <PlaceAutocomplete
-                  label="Origen"
-                  placeholder="Buscar dirección de origen"
+                  label={t('common.origin')}
+                  placeholder={t('passenger.searchOrigin')}
                   defaultValue={pickup?.address}
                   bias={locationBias}
                   onSelect={onPickupSelect}
                 />
                 <PlaceAutocomplete
-                  label="Destino"
-                  placeholder="¿A dónde vas?"
+                  label={t('common.destination')}
+                  placeholder={t('passenger.whereTo')}
                   defaultValue={dropoff?.address}
                   bias={pickup ?? locationBias}
                   onSelect={onDropoffSelect}
                 />
                 <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
                 <PlaceAutocomplete
-                  label="Parada intermedia (opcional)"
-                  placeholder="Agregar parada"
+                  label={t('passenger.optionalStop')}
+                  placeholder={t('passenger.addStop')}
                   bias={pickup ?? locationBias}
                   onSelect={(p) => setStop(p)}
                 />
-                <input className="place-input" placeholder="Viaje para: nombre" value={rideForName} onChange={(e) => setRideForName(e.target.value)} />
-                <input className="place-input" placeholder="Teléfono contacto" value={rideForPhone} onChange={(e) => setRideForPhone(e.target.value)} />
+                <input className="place-input" placeholder={t('passenger.rideForName')} value={rideForName} onChange={(e) => setRideForName(e.target.value)} />
+                <input className="place-input" placeholder={t('passenger.contactPhone')} value={rideForPhone} onChange={(e) => setRideForPhone(e.target.value)} />
               </div>
             )}
             <div className="bottom-sheet">
               <PhoneVerifyBanner />
               {!ride ? (
                 <>
-                  <h2>{readyToBook ? 'Confirmar viaje' : 'Busca origen y destino'}</h2>
-                  {pickup && <div className="meta-row"><span>Origen</span><span>{pickup.address}</span></div>}
-                  {dropoff && <div className="meta-row"><span>Destino</span><span>{dropoff.address}</span></div>}
+                  <h2>{readyToBook ? t('passenger.confirmRide') : t('passenger.searchPickupDropoff')}</h2>
+                  {pickup && <div className="meta-row"><span>{t('common.origin')}</span><span>{pickup.address}</span></div>}
+                  {dropoff && <div className="meta-row"><span>{t('common.destination')}</span><span>{dropoff.address}</span></div>}
                   {estimate && (
                     <>
                       {estimate.surgeMultiplier > 1 && (
-                        <div className="eta-badge">⚡ Surge {estimate.surgeMultiplier}x activo</div>
+                        <div className="eta-badge">{t('common.surgeActive', { multiplier: estimate.surgeMultiplier })}</div>
                       )}
-                      <div className="meta-row"><span>Distancia</span><span>{estimate.distanceKm} km</span></div>
-                      <div className="meta-row"><span>Tiempo est.</span><span>{estimate.durationMin} min</span></div>
+                      <div className="meta-row"><span>{t('common.distance')}</span><span>{estimate.distanceKm} {t('common.km')}</span></div>
+                      <div className="meta-row"><span>{t('common.estTime')}</span><span>{estimate.durationMin} {t('common.min')}</span></div>
                       <PromoInput
                         subtotal={selectedOption?.estimatedPrice ?? estimate.options[0]?.estimatedPrice ?? 0}
                         onApplied={(code, discount) => { setPromoCode(code); setPromoDiscount(discount); }}
@@ -254,7 +256,7 @@ export default function Home() {
                         type="datetime-local"
                         value={scheduledAt}
                         onChange={(e) => setScheduledAt(e.target.value)}
-                        placeholder="Programar viaje"
+                        placeholder={t('passenger.scheduleRide')}
                       />
                       <VehicleTypePicker
                         options={estimate.options}
@@ -266,53 +268,53 @@ export default function Home() {
                   {error && <p className="error-text">{error}</p>}
                   {readyToBook && (
                     <button className="btn-primary" onClick={requestRide} disabled={loading || phoneVerified === false}>
-                      {phoneVerified === false ? 'Verifica tu teléfono' : loading ? 'Solicitando...' : `Pedir ${vehicleTypeLabel(vehicleType)} · $${selectedOption?.estimatedPrice}`}
+                      {phoneVerified === false ? t('common.verifyPhone') : loading ? t('common.requesting') : t('common.requestVehicle', { vehicle: vehicle(vehicleType), price: selectedOption?.estimatedPrice ?? 0 })}
                     </button>
                   )}
                 </>
               ) : (
                 <>
-                  <div className="status-pill">{RIDE_STATUS_LABELS[ride.status]}</div>
+                  <div className="status-pill">{rideStatus(ride.status)}</div>
                   {(etaPickup != null || ride.etaPickupMin != null) && ['accepted', 'arriving'].includes(ride.status) && (
-                    <div className="eta-badge">Llega en ~{etaPickup ?? ride.etaPickupMin} min</div>
+                    <div className="eta-badge">{t('common.arriveIn', { min: etaPickup ?? ride.etaPickupMin ?? 0 })}</div>
                   )}
                   {(etaDropoff != null || ride.etaDropoffMin != null) && ride.status === 'in_progress' && (
-                    <div className="eta-badge">Destino en ~{etaDropoff ?? ride.etaDropoffMin} min</div>
+                    <div className="eta-badge">{t('common.dropoffIn', { min: etaDropoff ?? ride.etaDropoffMin ?? 0 })}</div>
                   )}
-                  <div className="meta-row"><span>Vehículo</span><span>{vehicleTypeLabel(ride.vehicleType)}</span></div>
+                  <div className="meta-row"><span>{t('common.vehicle')}</span><span>{vehicle(ride.vehicleType)}</span></div>
                   <FareBreakdownView breakdown={ride.fareBreakdown} surgeMultiplier={ride.surgeMultiplier} />
-                  <div className="meta-row"><span>Precio</span><span>${ride.finalPrice ?? ride.estimatedPrice}</span></div>
+                  <div className="meta-row"><span>{t('common.price')}</span><span>${ride.finalPrice ?? ride.estimatedPrice}</span></div>
                   <div className="extras-row">
                     <button className="btn-secondary" type="button" onClick={async () => {
                       const s = await api.shareRide(ride.id);
                       const url = `${window.location.origin}/share/${s.shareToken}`;
                       navigator.clipboard.writeText(url).catch(() => {});
-                      alert('Link copiado');
-                    }}>Compartir</button>
-                    <button className="btn-danger" type="button" onClick={() => api.triggerSos(ride.id, pickup?.lat, pickup?.lng)}>SOS</button>
+                      alert(t('common.linkCopied'));
+                    }}>{t('common.share')}</button>
+                    <button className="btn-danger" type="button" onClick={() => api.triggerSos(ride.id, pickup?.lat, pickup?.lng)}>{t('common.sos')}</button>
                     {ride.driverId && ['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                       <button className="btn-secondary" type="button" onClick={async () => {
                         const c = await api.initiateMaskedCall(ride.id);
-                        if (c.initiated) alert(c.message ?? 'Te llamamos para conectar');
+                        if (c.initiated) alert(c.message ?? t('common.callConnecting'));
                         else if (c.dialUrl) window.location.href = c.dialUrl;
-                        else alert(c.hint ?? 'No se pudo llamar');
-                      }}>Llamar</button>
+                        else alert(c.hint ?? t('common.callFailed'));
+                      }}>{t('passenger.callDriver')}</button>
                     )}
                   </div>
                   {ride.driverId && <ChatPanel rideId={ride.id} />}
                   <div className="meta-row">
-                    <span>Pago</span>
-                    <span>{ride.paymentStatus === 'paid' ? 'Pagado' : 'Pendiente'}</span>
+                    <span>{t('common.payment')}</span>
+                    <span>{ride.paymentStatus === 'paid' ? t('common.paid') : t('common.pending')}</span>
                   </div>
                   {ride.status === 'requested' && (
-                    <button className="btn-danger" onClick={cancelRide}>Cancelar</button>
+                    <button className="btn-danger" onClick={cancelRide}>{t('common.cancel')}</button>
                   )}
                   {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
                     <>
                       <SplitFareForm rideId={ride.id} />
                       <TipSelector value={tipAmount} onChange={setTipAmount} />
                       <label className="meta-row">
-                        <span>Pagar con wallet</span>
+                        <span>{t('common.payWithWallet')}</span>
                         <input type="checkbox" checked={useWallet} onChange={(e) => setUseWallet(e.target.checked)} />
                       </label>
                       {stripeSecret ? (
@@ -326,7 +328,7 @@ export default function Home() {
                         />
                       ) : (
                         <button className="btn-primary" onClick={payRide} disabled={loading}>
-                          {loading ? 'Procesando...' : `Pagar $${(ride.finalPrice ?? ride.estimatedPrice) + tipAmount}`}
+                          {loading ? t('common.processing') : t('common.payAmount', { amount: (ride.finalPrice ?? ride.estimatedPrice) + tipAmount })}
                         </button>
                       )}
                     </>
@@ -340,7 +342,7 @@ export default function Home() {
                     />
                   )}
                   {ride.status === 'completed' && ride.paymentStatus === 'paid' && rated && (
-                    <button className="btn-primary" onClick={reset}>Nuevo viaje</button>
+                    <button className="btn-primary" onClick={reset}>{t('common.newRide')}</button>
                   )}
                 </>
               )}

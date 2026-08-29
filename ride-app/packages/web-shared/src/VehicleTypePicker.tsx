@@ -1,5 +1,6 @@
 import type { RideEstimateOption, VehicleType } from '@ride-app/shared';
-import { VEHICLE_OPTIONS, vehicleTypeLabel } from '@ride-app/shared';
+import { VEHICLE_OPTIONS } from '@ride-app/shared';
+import { useI18n } from './I18nProvider';
 
 interface VehicleTypePickerProps {
   options: RideEstimateOption[];
@@ -8,6 +9,7 @@ interface VehicleTypePickerProps {
 }
 
 export function VehicleTypePicker({ options, selected, onSelect }: VehicleTypePickerProps) {
+  const { t, vehicle } = useI18n();
   return (
     <div className="vehicle-picker">
       {options.map((option) => {
@@ -22,8 +24,8 @@ export function VehicleTypePicker({ options, selected, onSelect }: VehicleTypePi
           >
             <span className="vehicle-card__icon">{meta.icon}</span>
             <span className="vehicle-card__body">
-              <strong>{option.label}</strong>
-              <span>{option.description} · {option.seats} pax</span>
+              <strong>{vehicle(option.vehicleType)}</strong>
+              <span>{t(`vehicle.${option.vehicleType}.description`)} · {option.seats} pax</span>
             </span>
             <span className="vehicle-card__price">${option.estimatedPrice}</span>
           </button>

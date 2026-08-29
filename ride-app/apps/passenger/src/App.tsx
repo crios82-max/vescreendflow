@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { useAuth } from '@ride-app/web-shared';
+import { useAuth, useI18n } from '@ride-app/web-shared';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
@@ -11,9 +11,10 @@ import Privacy from './pages/Privacy';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="auth-page">Cargando...</div>;
+  const { t } = useI18n();
+  if (loading) return <div className="auth-page">{t('common.loading')}</div>;
   if (!user) return <Navigate to="/login" replace />;
-  if (user.role !== 'passenger') return <div className="auth-page">Esta app es solo para pasajeros</div>;
+  if (user.role !== 'passenger') return <div className="auth-page">{t('common.passengersOnly')}</div>;
   return <>{children}</>;
 }
 

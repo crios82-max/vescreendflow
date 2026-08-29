@@ -16,7 +16,7 @@ import * as Location from 'expo-location';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StatusBar } from 'expo-status-bar';
 import type { Ride, RideEstimate, User, VehicleType } from '@ride-app/shared';
-import { BRAND, RIDE_STATUS_LABELS, VEHICLE_OPTIONS, VEHICLE_TYPES } from '@ride-app/shared';
+import { BRAND, VEHICLE_TYPES } from '@ride-app/shared';
 import { mobileApi } from './src/api';
 import { getMobileSocket, reconnectSocket } from './src/socket';
 import { PlaceSearch } from './src/PlaceSearch';
@@ -26,11 +26,13 @@ import { registerForPushNotifications } from './src/push';
 import { decodePolyline } from './src/polyline';
 import { openTurnByTurnNavigation } from './src/navigation';
 import { appStyles as styles, colors, placeholderColor } from './src/theme';
+import { LOCALES, useMobileI18n } from './src/i18n';
 
 type Screen = 'auth' | 'home';
 type Tab = 'ride' | 'history';
 
 export default function App() {
+  const { t, tagline, locale, setLocale, vehicle, rideStatus } = useMobileI18n();
   const [ready, setReady] = useState(false);
   const [screen, setScreen] = useState<Screen>('auth');
   const [user, setUser] = useState<User | null>(null);
@@ -101,7 +103,7 @@ export default function App() {
       const loc = await Location.getCurrentPositionAsync({});
       const coords = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
       setPosition(coords);
-      setPickup({ ...coords, address: 'Mi ubicación' });
+      setPickup({ ...coords, address: t('common.myLocation') });
     })();
   }, [ready]);
 
@@ -192,7 +194,7 @@ export default function App() {
     setLoading(true);
     try {
       const created = await mobileApi.createRide({
-        pickupAddress: pickup?.address ?? 'Mi ubicación',
+        pickupAddress: pickup?.address ?? t('common.myLocation'),
         pickupLat: origin.latitude,
         pickupLng: origin.longitude,
         dropoffAddress: dropoff.address,
@@ -261,7 +263,7 @@ export default function App() {
     );
   }
 
-  const connectionBadge = apiConnected === null ? '…' : apiConnected ? 'Conectado al API' : 'Sin conexión al API';
+  const connectionBadge = apiConnected === null ? '…' : apiConnected ? t('mobile.connectedApi') : t('mobile.disconnectedApi');
 
   if (screen === 'auth') {
     return (
@@ -269,17 +271,24 @@ export default function App() {
         <StatusBar style="light" />
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
           <ScrollView contentContainerStyle={styles.authScroll} keyboardShouldPersistTaps="handled">
+            <View style={styles.row}>
+              {LOCALES.map((code) => (
+                <Pressable key={code} style={[styles.chip, locale === code && styles.chipActive]} onPress={() => setLocale(code)}>
+                  <Text style={locale === code ? styles.chipTextActive : styles.chipText}>{code.toUpperCase()}</Text>
+                </Pressable>
+              ))}
+            </View>
             <Image source={require('./assets/icon.png')} style={styles.authLogo} accessibilityLabel={BRAND.name} />
             <Text style={styles.brandName}>
               Movi<Text style={styles.brandNameAccent}>fy</Text>
             </Text>
-            <Text style={styles.tagline}>{BRAND.tagline}</Text>
+            <Text style={styles.tagline}>{tagline}</Text>
             <Text style={apiConnected ? styles.connectionOk : apiConnected === false ? styles.connectionBad : styles.muted}>
               {connectionBadge}
             </Text>
 
             <Pressable onPress={() => setShowSettings(!showSettings)}>
-              <Text style={styles.link}>Configurar servidor API</Text>
+              <Text style={styles.link}>{t('mobile.configureApi')}</Text>
             </Pressable>
             {showSettings && (
               <View style={styles.settingsBox}>
@@ -293,31 +302,31 @@ export default function App() {
                   placeholderTextColor={placeholderColor}
                 />
                 <Pressable style={styles.btnSmall} onPress={saveApiUrl}>
-                  <Text style={styles.btnText}>Guardar y probar</Text>
+                  <Text style={styles.btnText}>{t('mobile.saveAndTest')}</Text>
                 </Pressable>
               </View>
             )}
 
             <View style={styles.row}>
               <Pressable style={[styles.chip, mode === 'login' && styles.chipActive]} onPress={() => setMode('login')}>
-                <Text style={mode === 'login' ? styles.chipTextActive : styles.chipText}>Login</Text>
+                <Text style={mode === 'login' ? styles.chipTextActive : styles.chipText}>{t('mobile.loginTab')}</Text>
               </Pressable>
               <Pressable style={[styles.chip, mode === 'register' && styles.chipActive]} onPress={() => setMode('register')}>
-                <Text style={mode === 'register' ? styles.chipTextActive : styles.chipText}>Registro</Text>
+                <Text style={mode === 'register' ? styles.chipTextActive : styles.chipText}>{t('mobile.registerTab')}</Text>
               </Pressable>
             </View>
             {mode === 'register' && (
               <View style={styles.row}>
                 <Pressable style={[styles.chip, role === 'passenger' && styles.chipActive]} onPress={() => setRole('passenger')}>
-                  <Text style={role === 'passenger' ? styles.chipTextActive : styles.chipText}>Pasajero</Text>
+                  <Text style={role === 'passenger' ? styles.chipTextActive : styles.chipText}>{t('mobile.passenger')}</Text>
                 </Pressable>
                 <Pressable style={[styles.chip, role === 'driver' && styles.chipActive]} onPress={() => setRole('driver')}>
-                  <Text style={role === 'driver' ? styles.chipTextActive : styles.chipText}>Conductor</Text>
+                  <Text style={role === 'driver' ? styles.chipTextActive : styles.chipText}>{t('mobile.driver')}</Text>
                 </Pressable>
               </View>
             )}
             {mode === 'register' && (
-              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor={placeholderColor} value={form.name} onChangeText={(name) => setForm({ ...form, name })} />
+              <TextInput style={styles.input} placeholder={t('common.name')} placeholderTextColor={placeholderColor} value={form.name} onChangeText={(name) => setForm({ ...form, name })} />
             )}
             {mode === 'register' && role === 'driver' && (
               <View style={styles.row}>
@@ -328,20 +337,20 @@ export default function App() {
                     onPress={() => setForm({ ...form, vehicleType: type })}
                   >
                     <Text style={form.vehicleType === type ? styles.chipTextActive : styles.chipText}>
-                      {VEHICLE_OPTIONS[type].icon} {VEHICLE_OPTIONS[type].label}
+                      {vehicle(type)}
                     </Text>
                   </Pressable>
                 ))}
               </View>
             )}
-            <TextInput style={styles.input} placeholder="Email" placeholderTextColor={placeholderColor} autoCapitalize="none" keyboardType="email-address" value={form.email} onChangeText={(email) => setForm({ ...form, email })} />
-            <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor={placeholderColor} secureTextEntry value={form.password} onChangeText={(password) => setForm({ ...form, password })} />
+            <TextInput style={styles.input} placeholder={t('common.email')} placeholderTextColor={placeholderColor} autoCapitalize="none" keyboardType="email-address" value={form.email} onChangeText={(email) => setForm({ ...form, email })} />
+            <TextInput style={styles.input} placeholder={t('common.password')} placeholderTextColor={placeholderColor} secureTextEntry value={form.password} onChangeText={(password) => setForm({ ...form, password })} />
             {error ? <Text style={styles.error}>{error}</Text> : null}
             <Pressable style={[styles.btn, apiConnected === false && styles.btnDisabled]} onPress={submitAuth} disabled={loading || apiConnected === false}>
-              {loading ? <ActivityIndicator color={colors.primaryOnDark} /> : <Text style={styles.btnText}>{mode === 'login' ? 'Entrar' : 'Crear cuenta'}</Text>}
+              {loading ? <ActivityIndicator color={colors.primaryOnDark} /> : <Text style={styles.btnText}>{mode === 'login' ? t('common.login') : t('auth.createAccount')}</Text>}
             </Pressable>
             {apiConnected === false && (
-              <Text style={styles.muted}>Sin conexión al API. Puedes seguir viendo la UI cuando vuelvas a casa.</Text>
+              <Text style={styles.muted}>{t('mobile.offlineHint')}</Text>
             )}
           </ScrollView>
         </KeyboardAvoidingView>
@@ -370,58 +379,58 @@ export default function App() {
           showsUserLocation
           showsMyLocationButton
         >
-          {(pickup ?? position) && <Marker coordinate={(pickup ?? position)!} title="Origen" pinColor={colors.mapPickup} />}
-          {dropoff && <Marker coordinate={dropoff} title="Destino" pinColor={colors.primary} />}
-          {driverPos && <Marker coordinate={driverPos} title="Conductor" pinColor={colors.mapDriver} />}
+          {(pickup ?? position) && <Marker coordinate={(pickup ?? position)!} title={t('common.origin')} pinColor={colors.mapPickup} />}
+          {dropoff && <Marker coordinate={dropoff} title={t('common.destination')} pinColor={colors.primary} />}
+          {driverPos && <Marker coordinate={driverPos} title={t('mobile.driver')} pinColor={colors.mapDriver} />}
           {routeCoords.length > 0 && <Polyline coordinates={routeCoords} strokeColor={colors.mapRoute} strokeWidth={4} />}
         </MapView>
       )}
       {user?.role === 'passenger' && !ride && (
         <SafeAreaView style={styles.searchOverlay}>
-          <PlaceSearch placeholder="Origen" bias={position} onSelect={(p) => setPickup(p)} />
-          <PlaceSearch placeholder="¿A dónde vas?" bias={pickup ?? position} onSelect={(p) => setDropoff(p)} />
-          <TextInput style={styles.input} placeholder="Parada opcional" placeholderTextColor={placeholderColor} value={stop?.address ?? ''} editable={false} />
-          <PlaceSearch placeholder="Agregar parada" bias={pickup ?? position} onSelect={(p) => setStop(p)} />
-          <TextInput style={styles.input} placeholder="Viaje para (nombre)" placeholderTextColor={placeholderColor} value={rideForName} onChangeText={setRideForName} />
+          <PlaceSearch placeholder={t('common.origin')} bias={position} onSelect={(p) => setPickup(p)} />
+          <PlaceSearch placeholder={t('passenger.whereTo')} bias={pickup ?? position} onSelect={(p) => setDropoff(p)} />
+          <TextInput style={styles.input} placeholder={t('passenger.optionalStop')} placeholderTextColor={placeholderColor} value={stop?.address ?? ''} editable={false} />
+          <PlaceSearch placeholder={t('passenger.addStop')} bias={pickup ?? position} onSelect={(p) => setStop(p)} />
+          <TextInput style={styles.input} placeholder={t('passenger.rideForName')} placeholderTextColor={placeholderColor} value={rideForName} onChangeText={setRideForName} />
         </SafeAreaView>
       )}
       <SafeAreaView style={styles.sheet}>
         {user?.role === 'passenger' && !phoneVerified && (
           <View style={styles.settingsBox}>
-            <Text style={styles.muted}>Verifica tu teléfono</Text>
+            <Text style={styles.muted}>{t('common.verifyPhone')}</Text>
             <TextInput style={styles.input} placeholder="+58..." value={phoneInput} onChangeText={setPhoneInput} placeholderTextColor={placeholderColor} />
-            <TextInput style={styles.input} placeholder="Código 6 dígitos" value={otpInput} onChangeText={setOtpInput} placeholderTextColor={placeholderColor} keyboardType="number-pad" />
+            <TextInput style={styles.input} placeholder={t('common.otpPlaceholder')} value={otpInput} onChangeText={setOtpInput} placeholderTextColor={placeholderColor} keyboardType="number-pad" />
             <View style={styles.row}>
               <Pressable style={styles.btnSmall} onPress={async () => {
                 const r = await mobileApi.sendPhoneOtp(phoneInput);
-                if (r.devHint) alert(`Dev OTP: ${r.devHint}`);
-              }}><Text style={styles.btnText}>Enviar OTP</Text></Pressable>
+                if (r.devHint) alert(t('common.devOtp', { code: r.devHint }));
+              }}><Text style={styles.btnText}>{t('common.sendCode')}</Text></Pressable>
               <Pressable style={styles.btnSmall} onPress={async () => {
                 await mobileApi.confirmPhoneOtp(phoneInput, otpInput);
                 setPhoneVerified(true);
-              }}><Text style={styles.btnText}>Verificar</Text></Pressable>
+              }}><Text style={styles.btnText}>{t('common.verify')}</Text></Pressable>
             </View>
           </View>
         )}
         <View style={styles.sheetHeader}>
           <Text style={styles.sheetTitle}>{user?.name}</Text>
-          <Text style={styles.roleBadge}>{user?.role === 'passenger' ? 'Pasajero' : 'Conductor'} · {connectionBadge}</Text>
+          <Text style={styles.roleBadge}>{user?.role === 'passenger' ? t('mobile.passenger') : t('mobile.driver')} · {connectionBadge}</Text>
           <View style={styles.row}>
             <Pressable style={[styles.chip, tab === 'ride' && styles.chipActive]} onPress={() => setTab('ride')}>
-              <Text style={tab === 'ride' ? styles.chipTextActive : styles.chipText}>Viaje</Text>
+              <Text style={tab === 'ride' ? styles.chipTextActive : styles.chipText}>{t('passenger.ride')}</Text>
             </Pressable>
             <Pressable style={[styles.chip, tab === 'history' && styles.chipActive]} onPress={() => setTab('history')}>
-              <Text style={tab === 'history' ? styles.chipTextActive : styles.chipText}>Historial</Text>
+              <Text style={tab === 'history' ? styles.chipTextActive : styles.chipText}>{t('common.history')}</Text>
             </Pressable>
           </View>
         </View>
         {tab === 'history' ? (
           <ScrollView>
             {history.length === 0 ? (
-              <Text style={styles.muted}>Sin viajes anteriores</Text>
+              <Text style={styles.muted}>{t('common.noPastRides')}</Text>
             ) : history.map((h) => (
               <View key={h.id} style={styles.card}>
-                <Text style={styles.cardTitle}>{RIDE_STATUS_LABELS[h.status]}</Text>
+                <Text style={styles.cardTitle}>{rideStatus(h.status)}</Text>
                 <Text style={styles.muted} numberOfLines={1}>{h.pickupAddress}</Text>
                 <Text style={styles.muted} numberOfLines={1}>{h.dropoffAddress}</Text>
                 <Text style={styles.price}>${h.finalPrice ?? h.estimatedPrice}</Text>
@@ -443,39 +452,39 @@ export default function App() {
                     onSelect={setVehicleType}
                   />
                 )}
-                <TextInput style={styles.input} placeholder="Código promo" placeholderTextColor={placeholderColor} value={promoCode} onChangeText={setPromoCode} autoCapitalize="characters" />
+                <TextInput style={styles.input} placeholder={t('common.promoPlaceholder')} placeholderTextColor={placeholderColor} value={promoCode} onChangeText={setPromoCode} autoCapitalize="characters" />
                 {promoCode ? (
                   <Pressable style={styles.btnSmall} onPress={async () => {
                     const sub = selectedOption?.estimatedPrice ?? 0;
                     const r = await mobileApi.validatePromo(promoCode, sub);
                     setPromoDiscount(r.valid ? r.discount : 0);
                   }}>
-                    <Text style={styles.btnText}>{promoDiscount > 0 ? `-$${promoDiscount} aplicado` : 'Aplicar promo'}</Text>
+                    <Text style={styles.btnText}>{promoDiscount > 0 ? `-$${promoDiscount}` : t('common.apply')}</Text>
                   </Pressable>
                 ) : null}
                 {error ? <Text style={styles.error}>{error}</Text> : null}
                 <Pressable style={[styles.btn, (!dropoff || loading || !phoneVerified) && styles.btnDisabled]} onPress={requestRide} disabled={!dropoff || loading || !phoneVerified}>
                   <Text style={styles.btnText}>
-                    {!phoneVerified ? 'Verifica tu teléfono' : loading ? 'Solicitando…' : `Pedir ${selectedOption?.label ?? 'Ride'} · $${selectedOption?.estimatedPrice ?? ''}`}
+                    {!phoneVerified ? t('common.verifyPhone') : loading ? t('common.requesting') : t('common.requestVehicle', { vehicle: selectedOption ? vehicle(selectedOption.vehicleType) : 'Ride', price: selectedOption?.estimatedPrice ?? '' })}
                   </Text>
                 </Pressable>
               </>
             ) : (
               <>
                 <View style={styles.statusPill}>
-                  <Text style={styles.statusPillText}>{RIDE_STATUS_LABELS[ride.status]}</Text>
+                  <Text style={styles.statusPillText}>{rideStatus(ride.status)}</Text>
                 </View>
                 {etaPickup != null && ['accepted', 'arriving'].includes(ride.status) && (
-                  <Text style={styles.etaText}>Llega en ~{etaPickup} min</Text>
+                  <Text style={styles.etaText}>{t('common.arriveIn', { min: etaPickup })}</Text>
                 )}
-                <Text style={styles.muted}>{VEHICLE_OPTIONS[ride.vehicleType].label}</Text>
+                <Text style={styles.muted}>{vehicle(ride.vehicleType)}</Text>
                 <Text style={styles.price}>${ride.finalPrice ?? ride.estimatedPrice}</Text>
                 {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
                   <>
                     <View style={styles.row}>
-                      {[0, 1, 2, 5].map((t) => (
-                        <Pressable key={t} style={[styles.chip, tipAmount === t && styles.chipActive]} onPress={() => setTipAmount(t)}>
-                          <Text style={tipAmount === t ? styles.chipTextActive : styles.chipText}>{t === 0 ? 'Sin tip' : `$${t}`}</Text>
+                      {[0, 1, 2, 5].map((tipVal) => (
+                        <Pressable key={tipVal} style={[styles.chip, tipAmount === tipVal && styles.chipActive]} onPress={() => setTipAmount(tipVal)}>
+                          <Text style={tipAmount === tipVal ? styles.chipTextActive : styles.chipText}>{tipVal === 0 ? t('common.noTip') : `$${tipVal}`}</Text>
                         </Pressable>
                       ))}
                     </View>
@@ -483,28 +492,28 @@ export default function App() {
                       const r = await mobileApi.payRide(ride.id, tipAmount);
                       setRide(r.ride);
                     }}>
-                      <Text style={styles.btnText}>Pagar ${(ride.finalPrice ?? ride.estimatedPrice) + tipAmount}</Text>
+                      <Text style={styles.btnText}>{t('common.payAmount', { amount: (ride.finalPrice ?? ride.estimatedPrice) + tipAmount })}</Text>
                     </Pressable>
                   </>
                 )}
                 <View style={styles.row}>
                   <Pressable style={styles.btnSecondary} onPress={async () => {
                     const s = await mobileApi.shareRide(ride.id);
-                    alert('Comparte: ' + s.shareToken);
+                    alert(t('common.share') + ': ' + s.shareToken);
                   }}>
-                    <Text style={styles.btnSecondaryText}>Compartir</Text>
+                    <Text style={styles.btnSecondaryText}>{t('common.share')}</Text>
                   </Pressable>
                   <Pressable style={styles.btnSecondary} onPress={() => mobileApi.triggerSos(ride.id, position?.latitude, position?.longitude)}>
-                    <Text style={styles.btnSecondaryText}>SOS</Text>
+                    <Text style={styles.btnSecondaryText}>{t('common.sos')}</Text>
                   </Pressable>
                   {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                     <Pressable style={styles.btnSecondary} onPress={async () => {
                       const c = await mobileApi.initiateMaskedCall(ride.id);
-                      if (c.initiated) alert(c.message ?? 'Te llamamos para conectar');
+                      if (c.initiated) alert(c.message ?? t('common.callConnecting'));
                       else if (c.dialUrl) Linking.openURL(c.dialUrl);
-                      else alert(c.hint ?? 'No se pudo llamar');
+                      else alert(c.hint ?? t('common.callFailed'));
                     }}>
-                      <Text style={styles.btnSecondaryText}>Llamar</Text>
+                      <Text style={styles.btnSecondaryText}>{t('common.call')}</Text>
                     </Pressable>
                   )}
                 </View>
@@ -517,7 +526,7 @@ export default function App() {
                 )}
                 {ride.driverId && ['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                   <View style={styles.row}>
-                    <TextInput style={[styles.input, { flex: 1 }]} placeholder="Chat..." value={chatText} onChangeText={setChatText} placeholderTextColor={placeholderColor} />
+                    <TextInput style={[styles.input, { flex: 1 }]} placeholder={t('common.message')} value={chatText} onChangeText={setChatText} placeholderTextColor={placeholderColor} />
                     <Pressable style={styles.btnSmall} onPress={async () => {
                       if (!chatText.trim()) return;
                       await mobileApi.sendChatMessage(ride.id, chatText.trim());
@@ -527,7 +536,7 @@ export default function App() {
                 )}
                 {ride.status === 'completed' && ride.paymentStatus === 'paid' && !rated && (
                   <View style={styles.ratingBox}>
-                    <Text style={styles.statusPillText}>Califica tu viaje</Text>
+                    <Text style={styles.statusPillText}>{t('common.rateDriver')}</Text>
                     {[1, 2, 3, 4, 5].map((stars) => (
                       <Pressable
                         key={stars}
@@ -544,7 +553,7 @@ export default function App() {
                 )}
                 {ride.status === 'completed' && ride.paymentStatus === 'paid' && rated && (
                   <Pressable style={styles.btn} onPress={() => { setRide(null); setRated(false); }}>
-                    <Text style={styles.btnText}>Nuevo viaje</Text>
+                    <Text style={styles.btnText}>{t('common.newRide')}</Text>
                   </Pressable>
                 )}
                 {ride.status === 'requested' && (
@@ -552,7 +561,7 @@ export default function App() {
                     await mobileApi.updateRideStatus(ride.id, 'cancelled');
                     setRide(null);
                   }}>
-                    <Text style={styles.btnSecondaryText}>Cancelar</Text>
+                    <Text style={styles.btnSecondaryText}>{t('common.cancel')}</Text>
                   </Pressable>
                 )}
               </>
@@ -563,14 +572,14 @@ export default function App() {
             {!ride ? (
               <>
                 <Pressable style={styles.btn} onPress={toggleOnline}>
-                  <Text style={styles.btnText}>{online ? 'Ir offline' : 'Ir online'}</Text>
+                  <Text style={styles.btnText}>{online ? t('driver.goOffline') : t('driver.goOnline')}</Text>
                 </Pressable>
                 {pending.map((p) => (
                   <View key={p.id} style={styles.card}>
-                    <Text style={styles.cardTitle}>${p.estimatedPrice} · {VEHICLE_OPTIONS[p.vehicleType as VehicleType]?.label ?? p.vehicleType}</Text>
+                    <Text style={styles.cardTitle}>${p.estimatedPrice} · {vehicle(p.vehicleType as VehicleType)}</Text>
                     <Text style={styles.muted} numberOfLines={2}>{p.pickupAddress}</Text>
                     <Pressable style={styles.btn} onPress={async () => setRide(await mobileApi.acceptRide(p.id))}>
-                      <Text style={styles.btnText}>Aceptar</Text>
+                      <Text style={styles.btnText}>{t('common.accept')}</Text>
                     </Pressable>
                   </View>
                 ))}
@@ -578,38 +587,38 @@ export default function App() {
             ) : (
               <>
                 <View style={styles.statusPill}>
-                  <Text style={styles.statusPillText}>{RIDE_STATUS_LABELS[ride.status]}</Text>
+                  <Text style={styles.statusPillText}>{rideStatus(ride.status)}</Text>
                 </View>
                 {ride.status === 'accepted' && (
                   <Pressable style={styles.btn} onPress={async () => {
                     openTurnByTurnNavigation(ride.pickupLat, ride.pickupLng, ride.pickupAddress, false);
                     setRide(await mobileApi.updateRideStatus(ride.id, 'arriving'));
                   }}>
-                    <Text style={styles.btnText}>Navegar al pickup</Text>
+                    <Text style={styles.btnText}>{t('driver.onTheWay')}</Text>
                   </Pressable>
                 )}
                 {ride.status === 'arriving' && (
                   <Pressable style={styles.btn} onPress={async () => setRide(await mobileApi.updateRideStatus(ride.id, 'in_progress'))}>
-                    <Text style={styles.btnText}>Iniciar viaje</Text>
+                    <Text style={styles.btnText}>{t('driver.startRide')}</Text>
                   </Pressable>
                 )}
                 {ride.status === 'in_progress' && (
                   <>
                     <Pressable style={styles.btnSecondary} onPress={() => openTurnByTurnNavigation(ride.dropoffLat, ride.dropoffLng, ride.dropoffAddress, true)}>
-                      <Text style={styles.btnSecondaryText}>Navegar al destino</Text>
+                      <Text style={styles.btnSecondaryText}>{t('common.navigate')}</Text>
                     </Pressable>
                     <Pressable style={styles.btn} onPress={async () => {
                       const updated = await mobileApi.updateRideStatus(ride.id, 'completed');
                       setRide(updated);
                       setRated(false);
                     }}>
-                      <Text style={styles.btnText}>Completar</Text>
+                      <Text style={styles.btnText}>{t('driver.completeRide')}</Text>
                     </Pressable>
                   </>
                 )}
                 {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                   <View style={styles.row}>
-                    <TextInput style={[styles.input, { flex: 1 }]} placeholder="Chat pasajero..." value={chatText} onChangeText={setChatText} placeholderTextColor={placeholderColor} />
+                    <TextInput style={[styles.input, { flex: 1 }]} placeholder={t('common.message')} value={chatText} onChangeText={setChatText} placeholderTextColor={placeholderColor} />
                     <Pressable style={styles.btnSmall} onPress={async () => {
                       if (!chatText.trim()) return;
                       await mobileApi.sendChatMessage(ride.id, chatText.trim());
@@ -619,7 +628,7 @@ export default function App() {
                 )}
                 {ride.status === 'completed' && !rated && (
                   <View style={styles.ratingBox}>
-                    <Text style={styles.statusPillText}>Califica al pasajero</Text>
+                    <Text style={styles.statusPillText}>{t('common.ratePassenger')}</Text>
                     {[5, 4, 3].map((stars) => (
                       <Pressable
                         key={stars}
@@ -636,7 +645,7 @@ export default function App() {
                 )}
                 {ride.status === 'completed' && rated && (
                   <Pressable style={styles.btn} onPress={() => { setRide(null); setRated(false); }}>
-                    <Text style={styles.btnText}>Listo</Text>
+                    <Text style={styles.btnText}>{t('common.done')}</Text>
                   </Pressable>
                 )}
               </>
@@ -644,7 +653,7 @@ export default function App() {
           </ScrollView>
         )}
         <Pressable style={styles.btnSecondary} onPress={() => { mobileApi.setToken(null); setUser(null); setScreen('auth'); setRide(null); }}>
-          <Text style={styles.btnSecondaryText}>Salir</Text>
+          <Text style={styles.btnSecondaryText}>{t('common.logout')}</Text>
         </Pressable>
       </SafeAreaView>
     </View>

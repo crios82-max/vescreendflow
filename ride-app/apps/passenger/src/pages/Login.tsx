@@ -1,9 +1,10 @@
 import { FormEvent, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { api, useAuth, BrandMark } from '@ride-app/web-shared';
+import { api, useAuth, BrandMark, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
 
 export default function Login() {
   const { login, user } = useAuth();
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +20,7 @@ export default function Login() {
     try {
       await login(email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(err instanceof Error ? err.message : t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -27,28 +28,29 @@ export default function Login() {
 
   return (
     <div className="auth-page">
+      <LanguageSwitcher className="auth-page__lang" />
       <form className="auth-card" onSubmit={onSubmit}>
         <BrandMark size="lg" showTagline />
         <label>
-          Email
+          {t('common.email')}
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </label>
         <label>
-          Contraseña
+          {t('common.password')}
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </label>
         {error && <p className="error-text">{error}</p>}
         {forgotMsg && <p className="muted-text">{forgotMsg}</p>}
-        <button className="btn-primary" disabled={loading}>{loading ? 'Entrando...' : 'Entrar'}</button>
+        <button className="btn-primary" disabled={loading}>{loading ? t('common.loggingIn') : t('common.login')}</button>
         <button type="button" className="link-btn" onClick={async () => {
-          if (!email) { setError('Ingresa tu email'); return; }
+          if (!email) { setError(t('common.enterEmail')); return; }
           const r = await api.forgotPassword(email);
-          setForgotMsg(r.devResetUrl ? `Dev: ${r.devResetUrl}` : 'Revisa tu email');
-        }}>¿Olvidaste tu contraseña?</button>
+          setForgotMsg(r.devResetUrl ? t('common.devReset', { url: r.devResetUrl }) : t('common.checkEmail'));
+        }}>{t('auth.forgotPassword')}</button>
         <button type="button" className="link-btn" onClick={() => {}}>
-          <Link to="/register">Crear cuenta</Link>
+          <Link to="/register">{t('auth.createAccount')}</Link>
         </button>
-        <p className="muted-text"><Link to="/terms">Términos</Link> · <Link to="/privacy">Privacidad</Link></p>
+        <p className="muted-text"><Link to="/terms">{t('auth.terms')}</Link> · <Link to="/privacy">{t('auth.privacy')}</Link></p>
       </form>
     </div>
   );

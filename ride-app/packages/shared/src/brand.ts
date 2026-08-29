@@ -1,3 +1,6 @@
+import type { Locale } from './i18n/locales.js';
+import { brandRoleLabel } from './i18n/index.js';
+
 /** Marca central — cambia aquí para renombrar toda la app */
 export const BRAND = {
   name: 'Movify',
@@ -25,7 +28,6 @@ export function brandTitle(suffix?: string): string {
   return suffix ? `${BRAND.name} — ${suffix}` : BRAND.name;
 }
 
-export function brandAppLabel(role: 'passenger' | 'driver' | 'admin'): string {
-  const labels = { passenger: 'Pasajero', driver: 'Conductor', admin: 'Admin' };
-  return `${BRAND.name} ${labels[role]}`;
+export function brandAppLabel(role: 'passenger' | 'driver' | 'admin', locale: Locale = 'es'): string {
+  return `${BRAND.name} ${brandRoleLabel(locale, role)}`;
 }
