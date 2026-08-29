@@ -5835,6 +5835,60 @@ private fun SettingsVehicleSignalsObdFase41_45(
                 fontSize = 12.sp,
             )
 
+            Text("Fase 51 OBD (01D5/01D6 FC/PsTrips):", color = Mist)
+            val fcVoltSt by com.veplayer.app.vehicle.FcVoltMonitor.state.collectAsState()
+            val fcFuelRateSt by com.veplayer.app.vehicle.FcFuelRateMonitor.state.collectAsState()
+            val psTripsSt by com.veplayer.app.vehicle.PsTripsMonitor.state.collectAsState()
+            var f51Volt by remember {
+                mutableStateOf(if (prefs.fcVoltSimV > 0f) prefs.fcVoltSimV.toInt().toString() else "0")
+            }
+            var f51Fuel by remember {
+                mutableStateOf(if (prefs.fcFuelRateSimGps > 0f) prefs.fcFuelRateSimGps.toString() else "0")
+            }
+            var f51Trips by remember {
+                mutableStateOf(if (prefs.psTripsSim > 0f) prefs.psTripsSim.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f51Volt,
+                    onValueChange = { f51Volt = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("FcV") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f51Fuel,
+                    onValueChange = { f51Fuel = it.filter { c -> c.isDigit() || c == '.' }.take(5) },
+                    label = { Text("FcFuel") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f51Trips,
+                    onValueChange = { f51Trips = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("PsTrips") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.fcVoltSimV = f51Volt.toFloatOrNull() ?: 0f
+                    prefs.fcFuelRateSimGps = f51Fuel.toFloatOrNull() ?: 0f
+                    prefs.psTripsSim = f51Trips.toFloatOrNull() ?: 0f
+                    onStatus("Fase 51 sim aplicado")
+                },
+            ) { Text("Aplicar sim Fase 51") }
+            Text(
+                listOfNotNull(
+                    fcVoltSt.label.takeIf { it.isNotBlank() },
+                    fcFuelRateSt.label.takeIf { it.isNotBlank() },
+                    psTripsSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 51 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

@@ -362,6 +362,16 @@ object ObdPidParser {
         val emRpmA: Float? = null,
         /** Electric motor A torque Nm (OBD PID 01CD bytes A/B signed /10). */
         val emTqANm: Float? = null,
+        /** Fuel cell voltage V (OBD PID 01D5 bytes A/B /10). */
+        val fcVoltV: Float? = null,
+        /** Fuel cell fuel rate g/s (OBD PID 01D5 bytes C/D /100). */
+        val fcFuelRateGps: Float? = null,
+        /** Fuel cell cumulative current mAh/s (OBD PID 01D5 bytes E/F /10). */
+        val fcCumulCurrMahs: Float? = null,
+        /** Fuel cell cumulative energy Wh/s (OBD PID 01D5 bytes G/H /10). */
+        val fcCumulEnerWhs: Float? = null,
+        /** Propulsion system active trips since clear (OBD PID 01D6 bytes A/B). */
+        val psTrips: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -1035,6 +1045,25 @@ object ObdPidParser {
                     PidValues(emTqANm = signed / 10f)
                 }
             }
+            0xD5 -> {
+                if (data.size < 2) PidValues()
+                else {
+                    val volt = ((data[0] * 256) + data[1]) / 10f
+                    val fuel = if (data.size >= 4) ((data[2] * 256) + data[3]) / 100f else null
+                    val curr = if (data.size >= 6) ((data[4] * 256) + data[5]) / 10f else null
+                    val ener = if (data.size >= 8) ((data[6] * 256) + data[7]) / 10f else null
+                    PidValues(
+                        fcVoltV = volt,
+                        fcFuelRateGps = fuel,
+                        fcCumulCurrMahs = curr,
+                        fcCumulEnerWhs = ener,
+                    )
+                }
+            }
+            0xD6 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(psTrips = ((data[0] * 256) + data[1]).toFloat())
+            }
             0x9D -> {
                 if (data.size < 2) PidValues()
                 else PidValues(engineFuelRateGps = (data[0] * 256 + data[1]) / 200f)
@@ -1275,6 +1304,11 @@ object ObdPidParser {
             hvCurrRateAhs = add.hvCurrRateAhs ?: base.hvCurrRateAhs,
             emRpmA = add.emRpmA ?: base.emRpmA,
             emTqANm = add.emTqANm ?: base.emTqANm,
+            fcVoltV = add.fcVoltV ?: base.fcVoltV,
+            fcFuelRateGps = add.fcFuelRateGps ?: base.fcFuelRateGps,
+            fcCumulCurrMahs = add.fcCumulCurrMahs ?: base.fcCumulCurrMahs,
+            fcCumulEnerWhs = add.fcCumulEnerWhs ?: base.fcCumulEnerWhs,
+            psTrips = add.psTrips ?: base.psTrips,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

@@ -4469,6 +4469,57 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("em_tq_sim_nm", 0f)
         set(value) = sp.edit().putFloat("em_tq_sim_nm", value.coerceIn(-5000f, 5000f)).apply()
 
+    /** Fuel cell voltage V (OBD 01D5). */
+    var fcVoltEnabled: Boolean
+        get() = sp.getBoolean("fc_volt", true)
+        set(value) = sp.edit().putBoolean("fc_volt", value).apply()
+    var fcVoltTts: Boolean
+        get() = sp.getBoolean("fc_volt_tts", true)
+        set(value) = sp.edit().putBoolean("fc_volt_tts", value).apply()
+    var fcVoltWarnV: Float
+        get() = sp.getFloat("fc_volt_warn_v", 200f)
+        set(value) = sp.edit().putFloat("fc_volt_warn_v", value.coerceIn(50f, 500f)).apply()
+    var fcVoltAlertV: Float
+        get() = sp.getFloat("fc_volt_alert_v", 150f)
+        set(value) = sp.edit().putFloat("fc_volt_alert_v", value.coerceIn(20f, 400f)).apply()
+    var fcVoltSimV: Float
+        get() = sp.getFloat("fc_volt_sim_v", 0f)
+        set(value) = sp.edit().putFloat("fc_volt_sim_v", value.coerceIn(0f, 1000f)).apply()
+
+    /** Fuel cell fuel rate g/s (OBD 01D5). */
+    var fcFuelRateEnabled: Boolean
+        get() = sp.getBoolean("fc_fuel_rate", true)
+        set(value) = sp.edit().putBoolean("fc_fuel_rate", value).apply()
+    var fcFuelRateTts: Boolean
+        get() = sp.getBoolean("fc_fuel_rate_tts", true)
+        set(value) = sp.edit().putBoolean("fc_fuel_rate_tts", value).apply()
+    var fcFuelRateWarnGps: Float
+        get() = sp.getFloat("fc_fuel_rate_warn_gps", 2f)
+        set(value) = sp.edit().putFloat("fc_fuel_rate_warn_gps", value.coerceIn(0.2f, 20f)).apply()
+    var fcFuelRateAlertGps: Float
+        get() = sp.getFloat("fc_fuel_rate_alert_gps", 4f)
+        set(value) = sp.edit().putFloat("fc_fuel_rate_alert_gps", value.coerceIn(0.5f, 40f)).apply()
+    var fcFuelRateSimGps: Float
+        get() = sp.getFloat("fc_fuel_rate_sim_gps", 0f)
+        set(value) = sp.edit().putFloat("fc_fuel_rate_sim_gps", value.coerceIn(0f, 100f)).apply()
+
+    /** Propulsion system active trips (OBD 01D6). */
+    var psTripsEnabled: Boolean
+        get() = sp.getBoolean("ps_trips", true)
+        set(value) = sp.edit().putBoolean("ps_trips", value).apply()
+    var psTripsTts: Boolean
+        get() = sp.getBoolean("ps_trips_tts", true)
+        set(value) = sp.edit().putBoolean("ps_trips_tts", value).apply()
+    var psTripsWarn: Float
+        get() = sp.getFloat("ps_trips_warn", 800f)
+        set(value) = sp.edit().putFloat("ps_trips_warn", value.coerceIn(50f, 30000f)).apply()
+    var psTripsAlert: Float
+        get() = sp.getFloat("ps_trips_alert", 1500f)
+        set(value) = sp.edit().putFloat("ps_trips_alert", value.coerceIn(100f, 50000f)).apply()
+    var psTripsSim: Float
+        get() = sp.getFloat("ps_trips_sim", 0f)
+        set(value) = sp.edit().putFloat("ps_trips_sim", value.coerceIn(0f, 65535f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

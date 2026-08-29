@@ -405,6 +405,16 @@ data class VehicleSignals(
         val emRpmA: Float? = null,
         /** Electric motor A torque Nm (OBD PID 01CD). */
         val emTqANm: Float? = null,
+        /** Fuel cell voltage V (OBD PID 01D5 A/B). */
+        val fcVoltV: Float? = null,
+        /** Fuel cell fuel rate g/s (OBD PID 01D5 C/D). */
+        val fcFuelRateGps: Float? = null,
+        /** Fuel cell cumulative current mAh/s (OBD PID 01D5 E/F). */
+        val fcCumulCurrMahs: Float? = null,
+        /** Fuel cell cumulative energy Wh/s (OBD PID 01D5 G/H). */
+        val fcCumulEnerWhs: Float? = null,
+        /** Propulsion system active trips since clear (OBD PID 01D6). */
+        val psTrips: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -661,6 +671,11 @@ data class VehicleSignals(
             "hv_curr_rate_ahs" to hvCurrRateAhs?.toDouble(),
             "em_rpm_a" to emRpmA?.toDouble(),
             "em_tq_a_nm" to emTqANm?.toDouble(),
+            "fc_volt_v" to fcVoltV?.toDouble(),
+            "fc_fuel_rate_gps" to fcFuelRateGps?.toDouble(),
+            "fc_cumul_curr_mahs" to fcCumulCurrMahs?.toDouble(),
+            "fc_cumul_ener_whs" to fcCumulEnerWhs?.toDouble(),
+            "ps_trips" to psTrips?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
