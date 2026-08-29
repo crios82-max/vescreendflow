@@ -267,6 +267,16 @@ data class VehicleSignals(
         val o2LambdaB2s3: Float? = null,
         /** NOx reagent quality counter hours (OBD PID 0194). */
         val noxReagentQualHours: Float? = null,
+        /** NOx warning system active (OBD PID 0194). */
+        val noxWarningActive: Int? = null,
+        /** NOx level-one inducement status (OBD PID 0194). */
+        val noxInduceLevel1: Int? = null,
+        /** NOx level-two inducement status (OBD PID 0194). */
+        val noxInduceLevel2: Int? = null,
+        /** NOx EGR valve counter hours (OBD PID 0194). */
+        val noxEgrValveCounterHours: Float? = null,
+        /** NOx monitor malfunction counter hours (OBD PID 0194). */
+        val noxMonitorMalfunctionHours: Float? = null,
         /** EGT bank 1 sensor 6 °C (OBD PID 0198). */
         val egtB1s6TempC: Float? = null,
         /** EGT bank 2 sensor 6 °C (OBD PID 0199). */
@@ -330,6 +340,47 @@ data class VehicleSignals(
         val fuelSysUsePct1: Float? = null,
         val fuelSysUsePct2: Float? = null,
         val fuelSysUsePct3: Float? = null,
+        /** WWH-OBD continuous MI counter hours (OBD PID 0190). */
+        val wwhObdContinuousMiHours: Float? = null,
+        /** WWH-OBD ECU B1 counter hours (OBD PID 0191). */
+        val wwhObdEcuB1Hours: Float? = null,
+        /** Fuel system closed-loop control count (OBD PID 0192). */
+        val fuelSysCtlClosedCount: Float? = null,
+        /** WWH-OBD cumulative MI counter hours (OBD PID 0193). */
+        val wwhObdCumulativeMiHours: Float? = null,
+        /** Hybrid/EV pack voltage V (OBD PID 019A). */
+        val hybridEvBattVoltageV: Float? = null,
+        /** Traction battery SOH % (OBD PID 01B2). */
+        val hvBattSohPct: Float? = null,
+        /** HVESS temperature °C (OBD PID 01B4). */
+        val hvessTempC: Float? = null,
+        /** HVESS current A (OBD PID 01B5). */
+        val hvessCurrentA: Float? = null,
+        /** HVESS pack voltage V (OBD PID 01B6). */
+        val hvessVoltageV: Float? = null,
+        /** HEV max cell temperature °C (OBD PID 01B7). */
+        val hvCellMaxTempC: Float? = null,
+        val hvBalHours: Float? = null,
+        val hvCellMinVoltageV: Float? = null,
+        val hvCellMaxVoltageV: Float? = null,
+        val hvPwrAvailPct: Float? = null,
+        val hvChgLimitA: Float? = null,
+        /** HEV min cell temperature °C (OBD PID 01B7 byte A). */
+        val hvCellMinTempC: Float? = null,
+        val hvDisLimitA: Float? = null,
+        val hvEnrgInKwh: Float? = null,
+        val hvEnrgOutKwh: Float? = null,
+        val hvEnrgTputWh: Float? = null,
+        /** HVESS actual charge rate kW (OBD PID 01B3). */
+        val hvAcrKw: Float? = null,
+        /** HVESS SOH % (OBD PID 01BE). */
+        val hvessSohPct: Float? = null,
+        /** Recommended min SOC % (OBD PID 01BF). */
+        val hvMinSocPct: Float? = null,
+        /** Recommended max SOC % (OBD PID 01C1). */
+        val hvMaxSocPct: Float? = null,
+        /** Discharge energy capacity kWh (OBD PID 01C2). */
+        val hvDcapKwh: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -500,6 +551,11 @@ data class VehicleSignals(
             "o2_lambda_b1s3" to o2LambdaB1s3?.toDouble(),
             "o2_lambda_b2s3" to o2LambdaB2s3?.toDouble(),
             "nox_reagent_qual_hours" to noxReagentQualHours?.toDouble(),
+            "nox_warning_active" to noxWarningActive,
+            "nox_induce_level1" to noxInduceLevel1,
+            "nox_induce_level2" to noxInduceLevel2,
+            "nox_egr_valve_counter_hours" to noxEgrValveCounterHours?.toDouble(),
+            "nox_monitor_malfunction_hours" to noxMonitorMalfunctionHours?.toDouble(),
             "egt_b1s6_temp_c" to egtB1s6TempC?.toDouble(),
             "egt_b2s6_temp_c" to egtB2s6TempC?.toDouble(),
             "egt_b1s7_temp_c" to egtB1s7TempC?.toDouble(),
@@ -544,6 +600,31 @@ data class VehicleSignals(
             "fuel_sys_use_pct1" to fuelSysUsePct1?.toDouble(),
             "fuel_sys_use_pct2" to fuelSysUsePct2?.toDouble(),
             "fuel_sys_use_pct3" to fuelSysUsePct3?.toDouble(),
+            "wwh_obd_continuous_mi_hours" to wwhObdContinuousMiHours?.toDouble(),
+            "wwh_obd_ecu_b1_hours" to wwhObdEcuB1Hours?.toDouble(),
+            "fuel_sys_ctl_closed_count" to fuelSysCtlClosedCount?.toDouble(),
+            "wwh_obd_cumulative_mi_hours" to wwhObdCumulativeMiHours?.toDouble(),
+            "hybrid_ev_batt_voltage_v" to hybridEvBattVoltageV?.toDouble(),
+            "hv_batt_soh_pct" to hvBattSohPct?.toDouble(),
+            "hvess_temp_c" to hvessTempC?.toDouble(),
+            "hvess_current_a" to hvessCurrentA?.toDouble(),
+            "hvess_voltage_v" to hvessVoltageV?.toDouble(),
+            "hv_cell_max_temp_c" to hvCellMaxTempC?.toDouble(),
+            "hv_bal_hours" to hvBalHours?.toDouble(),
+            "hv_cell_min_voltage_v" to hvCellMinVoltageV?.toDouble(),
+            "hv_cell_max_voltage_v" to hvCellMaxVoltageV?.toDouble(),
+            "hv_pwr_avail_pct" to hvPwrAvailPct?.toDouble(),
+            "hv_chg_limit_a" to hvChgLimitA?.toDouble(),
+            "hv_cell_min_temp_c" to hvCellMinTempC?.toDouble(),
+            "hv_dis_limit_a" to hvDisLimitA?.toDouble(),
+            "hv_enrg_in_kwh" to hvEnrgInKwh?.toDouble(),
+            "hv_enrg_out_kwh" to hvEnrgOutKwh?.toDouble(),
+            "hv_enrg_tput_wh" to hvEnrgTputWh?.toDouble(),
+            "hv_acr_kw" to hvAcrKw?.toDouble(),
+            "hvess_soh_pct" to hvessSohPct?.toDouble(),
+            "hv_min_soc_pct" to hvMinSocPct?.toDouble(),
+            "hv_max_soc_pct" to hvMaxSocPct?.toDouble(),
+            "hv_dcap_kwh" to hvDcapKwh?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),

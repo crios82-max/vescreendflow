@@ -325,6 +325,27 @@ class ObdBluetoothClient(private val context: Context) {
                 "0198", // EGT B1S5
                 "0199", // EGT B2S5
                 "019C", // O2 lambda B1S3/B2S3
+                "0190", // WWH-OBD continuous MI counter
+                "0191", // WWH-OBD ECU B1 counter
+                "0192", // fuel system control status
+                "0193", // WWH-OBD cumulative MI counter
+                "019A", // hybrid/EV battery voltage
+                "01B2", // traction battery SOH
+                "01B3", // HVESS actual charge rate
+                "01B4", // HVESS temperature
+                "01B5", // HVESS current
+                "01B6", // HVESS pack voltage
+                "01B7", // max cell temperature
+                "01B8", // time since cell balancing
+                "01B9", // min/max cell voltage
+                "01BA", // power available / charge / discharge limit
+                "01BB", // cumulative energy into HVESS
+                "01BC", // cumulative energy from HVESS
+                "01BD", // HVESS energy throughput
+                "01BE", // HVESS SOH
+                "01BF", // recommended min SOC
+                "01C1", // recommended max SOC
+                "01C2", // discharge energy capacity
                 "0194", // NOx reagent quality
                 "019B", // DEF fluid level
                 "01A1", // NOx corrected B1S1

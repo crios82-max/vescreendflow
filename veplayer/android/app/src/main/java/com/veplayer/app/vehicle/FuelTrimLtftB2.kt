@@ -3,7 +3,7 @@ package com.veplayer.app.vehicle
 /**
  * Long-term fuel trim bands (OBD PID 0109), signed %.
  */
-object FuelTrimLtft {
+object FuelTrimLtftB2 {
     data class State(
         val trimPct: Float? = null,
         val speedKmh: Float = 0f,

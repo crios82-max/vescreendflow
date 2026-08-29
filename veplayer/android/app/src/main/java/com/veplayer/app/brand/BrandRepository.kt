@@ -69,7 +69,7 @@ object BrandRepository {
             "brand_id" to prefs.brandId.ifBlank { null },
             "name" to prefs.brandName.ifBlank { null },
             "accent" to prefs.brandAccentArgb,
-            "has_logo" to logoFile(prefs) != null,
+            "has_logo" to (logoFile(prefs) != null),
         )
 
     private fun downloadLogo(context: Context, url: String, key: String): String {

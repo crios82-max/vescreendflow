@@ -192,6 +192,16 @@ object ObdPidParser {
         val o2LambdaB2s3: Float? = null,
         /** NOx reagent quality counter hours (OBD PID 0194 bytes C/D). */
         val noxReagentQualHours: Float? = null,
+        /** NOx warning system active (OBD PID 0194 byte B bit0). */
+        val noxWarningActive: Int? = null,
+        /** NOx level-one inducement status (OBD PID 0194 byte B bits 2–1). */
+        val noxInduceLevel1: Int? = null,
+        /** NOx level-two inducement status (OBD PID 0194 byte B bits 4–3). */
+        val noxInduceLevel2: Int? = null,
+        /** NOx EGR valve counter hours (OBD PID 0194 bytes I/J). */
+        val noxEgrValveCounterHours: Float? = null,
+        /** NOx monitor malfunction counter hours (OBD PID 0194 bytes K/L). */
+        val noxMonitorMalfunctionHours: Float? = null,
         /** EGT bank 1 sensor 6 °C (OBD PID 0198 bytes D/E). */
         val egtB1s6TempC: Float? = null,
         /** EGT bank 2 sensor 6 °C (OBD PID 0199 bytes D/E). */
@@ -278,6 +288,56 @@ object ObdPidParser {
         val fuelSysUsePct1: Float? = null,
         val fuelSysUsePct2: Float? = null,
         val fuelSysUsePct3: Float? = null,
+        /** WWH-OBD continuous MI counter hours (OBD PID 0190 bytes B/C). */
+        val wwhObdContinuousMiHours: Float? = null,
+        /** WWH-OBD ECU B1 counter hours (OBD PID 0191 bytes D/E). */
+        val wwhObdEcuB1Hours: Float? = null,
+        /** Fuel system closed-loop control count (OBD PID 0192 byte B). */
+        val fuelSysCtlClosedCount: Float? = null,
+        /** WWH-OBD cumulative MI counter hours (OBD PID 0193 bytes B/C). */
+        val wwhObdCumulativeMiHours: Float? = null,
+        /** Hybrid/EV pack voltage V (OBD PID 019A bytes A/B). */
+        val hybridEvBattVoltageV: Float? = null,
+        /** Traction battery SOH % (OBD PID 01B2 byte A). */
+        val hvBattSohPct: Float? = null,
+        /** HVESS temperature °C (OBD PID 01B4 byte A). */
+        val hvessTempC: Float? = null,
+        /** HVESS current A (OBD PID 01B5 bytes A/B). */
+        val hvessCurrentA: Float? = null,
+        /** HVESS pack voltage V (OBD PID 01B6 bytes A/B). */
+        val hvessVoltageV: Float? = null,
+        /** HEV max cell temperature °C (OBD PID 01B7 byte B). */
+        val hvCellMaxTempC: Float? = null,
+        /** Hours since last cell balancing (OBD PID 01B8 bytes A/B). */
+        val hvBalHours: Float? = null,
+        /** HEV min cell voltage V (OBD PID 01B9 bytes A/B). */
+        val hvCellMinVoltageV: Float? = null,
+        /** HEV max cell voltage V (OBD PID 01B9 bytes C/D). */
+        val hvCellMaxVoltageV: Float? = null,
+        /** HEV continuous rated power available % (OBD PID 01BA byte A). */
+        val hvPwrAvailPct: Float? = null,
+        /** HEV charge current limit A (OBD PID 01BA bytes B/C). */
+        val hvChgLimitA: Float? = null,
+        /** HEV min cell temperature °C (OBD PID 01B7 byte A). */
+        val hvCellMinTempC: Float? = null,
+        /** HEV discharge current limit A (OBD PID 01BA bytes D/E). */
+        val hvDisLimitA: Float? = null,
+        /** Cumulative energy into HVESS kWh (OBD PID 01BB bytes A–D). */
+        val hvEnrgInKwh: Float? = null,
+        /** Cumulative energy from HVESS kWh (OBD PID 01BC bytes A–D). */
+        val hvEnrgOutKwh: Float? = null,
+        /** HVESS total energy throughput Wh (OBD PID 01BD bytes A–D). */
+        val hvEnrgTputWh: Float? = null,
+        /** HVESS actual charge rate kW (OBD PID 01B3 bytes A/B signed /10). */
+        val hvAcrKw: Float? = null,
+        /** HVESS SOH % (OBD PID 01BE byte A). */
+        val hvessSohPct: Float? = null,
+        /** Recommended min SOC % (OBD PID 01BF byte A). */
+        val hvMinSocPct: Float? = null,
+        /** Recommended max SOC % (OBD PID 01C1 byte A). */
+        val hvMaxSocPct: Float? = null,
+        /** Discharge energy capacity kWh (OBD PID 01C2 bytes A/B /10). */
+        val hvDcapKwh: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -285,6 +345,16 @@ object ObdPidParser {
         val distSinceClearKm: Float? = null,
         val batteryVoltageV: Float? = null,
     )
+
+    private fun u32Scaled(data: List<Int>, offset: Int, scale: Float): Float? {
+        if (data.size < offset + 4) return null
+        val raw =
+            (data[offset].toLong() shl 24) or
+                (data[offset + 1].toLong() shl 16) or
+                (data[offset + 2].toLong() shl 8) or
+                data[offset + 3].toLong()
+        return raw / scale
+    }
 
     fun extractPayloadBytes(raw: String): List<Int>? {
         val cleaned =
@@ -318,7 +388,20 @@ object ObdPidParser {
         if (bytes.size < 3 || bytes[0] != 0x41) return PidValues()
         val pid = bytes[1]
         val data = bytes.drop(2)
-        return when (pid) {
+        return parseMode01Pid(pid, data)
+    }
+
+    private fun parseMode01Pid(pid: Int, data: List<Int>): PidValues {
+        return when {
+            pid == 0x21 || pid == 0x31 || pid == 0x42 || pid >= 0xB0 -> parseMode01Part4(pid, data)
+            pid < 0x60 -> parseMode01Part1(pid, data)
+            pid < 0x90 -> parseMode01Part2(pid, data)
+            pid < 0xB0 -> parseMode01Part3(pid, data)
+            else -> parseMode01Part4(pid, data)
+        }
+    }
+
+    private fun parseMode01Part1(pid: Int, data: List<Int>): PidValues = when (pid) {
             0x0D -> PidValues(speedKmh = data.getOrNull(0)?.toFloat())
             0x0C -> {
                 if (data.size < 2) PidValues()
@@ -413,6 +496,9 @@ object ObdPidParser {
                 PidValues(
                     driverTorquePct = data.getOrNull(0)?.let { (it - 125).toFloat() },
                 )
+        else -> PidValues()
+    }
+    private fun parseMode01Part2(pid: Int, data: List<Int>): PidValues = when (pid) {
             0x62 ->
                 PidValues(
                     actualTorquePct = data.getOrNull(0)?.let { (it - 125).toFloat() },
@@ -532,6 +618,9 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(catalystB2s9TempC = ((data[0] * 256) + data[1]) / 10f - 40f)
             }
+        else -> PidValues()
+    }
+    private fun parseMode01Part3(pid: Int, data: List<Int>): PidValues = when (pid) {
             0x67 -> {
                 if (data.size < 3) PidValues()
                 else PidValues(coolantEct2C = (data[2].minus(40)).toFloat())
@@ -598,7 +687,19 @@ object ObdPidParser {
             }
             0x94 -> {
                 if (data.size < 4) PidValues()
-                else PidValues(noxReagentQualHours = ((data[2] * 256) + data[3]).toFloat())
+                else {
+                    val b = data[1]
+                    PidValues(
+                        noxWarningActive = if ((b and 0x01) != 0) 1 else 0,
+                        noxInduceLevel1 = (b shr 1) and 0x03,
+                        noxInduceLevel2 = (b shr 3) and 0x03,
+                        noxReagentQualHours = ((data[2] * 256) + data[3]).toFloat(),
+                        noxEgrValveCounterHours =
+                            if (data.size >= 10) (data[8] * 256 + data[9]).toFloat() else null,
+                        noxMonitorMalfunctionHours =
+                            if (data.size >= 12) (data[10] * 256 + data[11]).toFloat() else null,
+                    )
+                }
             }
             0x98 -> {
                 val s5 = if (data.size >= 3) ((data[1] * 256) + data[2]) / 10f - 40f else null
@@ -714,6 +815,9 @@ object ObdPidParser {
                     fuelLevelInputBPct = data[1] * 100f / 255f,
                 )
             }
+        else -> PidValues()
+    }
+    private fun parseMode01Part4(pid: Int, data: List<Int>): PidValues = when (pid) {
             0xC4 -> {
                 if (data.size < 2) PidValues()
                 else PidValues(
@@ -733,6 +837,117 @@ object ObdPidParser {
                     reagentInjectionFailCounter = (data[3] * 256 + data[4]).toFloat(),
                     particulateMonitorMalfunctionCounter = (data[5] * 256 + data[6]).toFloat(),
                 )
+            }
+            0x90 -> {
+                if (data.size < 3) PidValues()
+                else PidValues(wwhObdContinuousMiHours = (data[1] * 256 + data[2]).toFloat())
+            }
+            0x91 -> {
+                if (data.size < 5) PidValues()
+                else PidValues(wwhObdEcuB1Hours = (data[3] * 256 + data[4]).toFloat())
+            }
+            0x92 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(fuelSysCtlClosedCount = Integer.bitCount(data[1] and 0xFF).toFloat())
+            }
+            0x93 -> {
+                if (data.size < 3) PidValues()
+                else PidValues(wwhObdCumulativeMiHours = (data[1] * 256 + data[2]).toFloat())
+            }
+            0x9A -> {
+                if (data.size < 2) PidValues()
+                else PidValues(hybridEvBattVoltageV = (data[0] * 256 + data[1]) / 10f)
+            }
+            0xB2 -> {
+                if (data.isEmpty()) PidValues()
+                else PidValues(hvBattSohPct = data[0] * 100f / 255f)
+            }
+            0xB3 -> {
+                if (data.size < 2) PidValues()
+                else {
+                    val raw = (data[0] shl 8) or data[1]
+                    val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                    PidValues(hvAcrKw = signed / 10f)
+                }
+            }
+            0xB4 -> {
+                if (data.isEmpty()) PidValues()
+                else PidValues(hvessTempC = data[0] - 40f)
+            }
+            0xB5 -> {
+                if (data.size < 2) PidValues()
+                else {
+                    val raw = (data[0] shl 8) or data[1]
+                    val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                    PidValues(hvessCurrentA = signed / 10f)
+                }
+            }
+            0xB6 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(hvessVoltageV = (data[0] * 256 + data[1]) / 10f)
+            }
+            0xB7 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(hvCellMinTempC = data[0] - 40f, hvCellMaxTempC = data[1] - 40f)
+            }
+            0xB8 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(hvBalHours = (data[0] * 256 + data[1]).toFloat())
+            }
+            0xB9 -> {
+                val minV = if (data.size >= 2) ((data[0] * 256) + data[1]) / 1666.666f else null
+                val maxV = if (data.size >= 4) ((data[2] * 256) + data[3]) / 1666.666f else null
+                PidValues(hvCellMinVoltageV = minV, hvCellMaxVoltageV = maxV)
+            }
+            0xBA -> {
+                if (data.isEmpty()) PidValues()
+                else {
+                    val chg =
+                        if (data.size >= 3) {
+                            val raw = (data[1] shl 8) or data[2]
+                            val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                            signed / 10f
+                        } else null
+                    val dis =
+                        if (data.size >= 5) {
+                            val raw = (data[3] shl 8) or data[4]
+                            val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                            signed / 10f
+                        } else null
+                    PidValues(
+                        hvPwrAvailPct = data[0] * 100f / 255f,
+                        hvChgLimitA = chg,
+                        hvDisLimitA = dis,
+                    )
+                }
+            }
+            0xBB -> {
+                val kwh = u32Scaled(data, 0, 10f)
+                if (kwh == null) PidValues() else PidValues(hvEnrgInKwh = kwh)
+            }
+            0xBC -> {
+                val kwh = u32Scaled(data, 0, 10f)
+                if (kwh == null) PidValues() else PidValues(hvEnrgOutKwh = kwh)
+            }
+            0xBD -> {
+                val wh = u32Scaled(data, 0, 10f)
+                if (wh == null) PidValues() else PidValues(hvEnrgTputWh = wh)
+            }
+            0xBE -> {
+                if (data.isEmpty()) PidValues()
+                else PidValues(hvessSohPct = data[0] * 100f / 255f)
+            }
+            0xBF -> {
+                if (data.isEmpty()) PidValues()
+                else PidValues(hvMinSocPct = data[0] * 100f / 255f)
+            }
+            0xC1 -> {
+                if (data.isEmpty()) PidValues()
+                else PidValues(hvMaxSocPct = data[0] * 100f / 255f)
+            }
+            0xC2 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(hvDcapKwh = ((data[0] * 256) + data[1]) / 10f)
             }
             0x9D -> {
                 if (data.size < 2) PidValues()
@@ -786,7 +1001,6 @@ object ObdPidParser {
                 else PidValues(batteryVoltageV = ((data[0] * 256) + data[1]) / 1000f)
             }
             else -> PidValues()
-        }
     }
 
     fun merge(base: PidValues, add: PidValues): PidValues =
@@ -889,6 +1103,11 @@ object ObdPidParser {
             o2LambdaB1s3 = add.o2LambdaB1s3 ?: base.o2LambdaB1s3,
             o2LambdaB2s3 = add.o2LambdaB2s3 ?: base.o2LambdaB2s3,
             noxReagentQualHours = add.noxReagentQualHours ?: base.noxReagentQualHours,
+            noxWarningActive = add.noxWarningActive ?: base.noxWarningActive,
+            noxInduceLevel1 = add.noxInduceLevel1 ?: base.noxInduceLevel1,
+            noxInduceLevel2 = add.noxInduceLevel2 ?: base.noxInduceLevel2,
+            noxEgrValveCounterHours = add.noxEgrValveCounterHours ?: base.noxEgrValveCounterHours,
+            noxMonitorMalfunctionHours = add.noxMonitorMalfunctionHours ?: base.noxMonitorMalfunctionHours,
             egtB1s6TempC = add.egtB1s6TempC ?: base.egtB1s6TempC,
             egtB2s6TempC = add.egtB2s6TempC ?: base.egtB2s6TempC,
             egtB1s7TempC = add.egtB1s7TempC ?: base.egtB1s7TempC,
@@ -933,6 +1152,31 @@ object ObdPidParser {
             fuelSysUsePct1 = add.fuelSysUsePct1 ?: base.fuelSysUsePct1,
             fuelSysUsePct2 = add.fuelSysUsePct2 ?: base.fuelSysUsePct2,
             fuelSysUsePct3 = add.fuelSysUsePct3 ?: base.fuelSysUsePct3,
+            wwhObdContinuousMiHours = add.wwhObdContinuousMiHours ?: base.wwhObdContinuousMiHours,
+            wwhObdEcuB1Hours = add.wwhObdEcuB1Hours ?: base.wwhObdEcuB1Hours,
+            fuelSysCtlClosedCount = add.fuelSysCtlClosedCount ?: base.fuelSysCtlClosedCount,
+            wwhObdCumulativeMiHours = add.wwhObdCumulativeMiHours ?: base.wwhObdCumulativeMiHours,
+            hybridEvBattVoltageV = add.hybridEvBattVoltageV ?: base.hybridEvBattVoltageV,
+            hvBattSohPct = add.hvBattSohPct ?: base.hvBattSohPct,
+            hvessTempC = add.hvessTempC ?: base.hvessTempC,
+            hvessCurrentA = add.hvessCurrentA ?: base.hvessCurrentA,
+            hvessVoltageV = add.hvessVoltageV ?: base.hvessVoltageV,
+            hvCellMaxTempC = add.hvCellMaxTempC ?: base.hvCellMaxTempC,
+            hvBalHours = add.hvBalHours ?: base.hvBalHours,
+            hvCellMinVoltageV = add.hvCellMinVoltageV ?: base.hvCellMinVoltageV,
+            hvCellMaxVoltageV = add.hvCellMaxVoltageV ?: base.hvCellMaxVoltageV,
+            hvPwrAvailPct = add.hvPwrAvailPct ?: base.hvPwrAvailPct,
+            hvChgLimitA = add.hvChgLimitA ?: base.hvChgLimitA,
+            hvCellMinTempC = add.hvCellMinTempC ?: base.hvCellMinTempC,
+            hvDisLimitA = add.hvDisLimitA ?: base.hvDisLimitA,
+            hvEnrgInKwh = add.hvEnrgInKwh ?: base.hvEnrgInKwh,
+            hvEnrgOutKwh = add.hvEnrgOutKwh ?: base.hvEnrgOutKwh,
+            hvEnrgTputWh = add.hvEnrgTputWh ?: base.hvEnrgTputWh,
+            hvAcrKw = add.hvAcrKw ?: base.hvAcrKw,
+            hvessSohPct = add.hvessSohPct ?: base.hvessSohPct,
+            hvMinSocPct = add.hvMinSocPct ?: base.hvMinSocPct,
+            hvMaxSocPct = add.hvMaxSocPct ?: base.hvMaxSocPct,
+            hvDcapKwh = add.hvDcapKwh ?: base.hvDcapKwh,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

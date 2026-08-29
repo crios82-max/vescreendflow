@@ -193,6 +193,56 @@ import com.veplayer.app.vehicle.EngineExhaustFlowMonitor
 import com.veplayer.app.vehicle.FuelSysUsePct1Monitor
 import com.veplayer.app.vehicle.FuelSysUsePct2Monitor
 import com.veplayer.app.vehicle.FuelSysUsePct3Monitor
+import com.veplayer.app.vehicle.WwhObdContinuousMiMonitor
+import com.veplayer.app.vehicle.WwhObdEcuB1HoursMonitor
+import com.veplayer.app.vehicle.WwhObdCumulativeMiMonitor
+import com.veplayer.app.vehicle.FuelSysCtlClosedMonitor
+import com.veplayer.app.vehicle.HybridEvBattVoltageMonitor
+import com.veplayer.app.vehicle.NoxWarnActiveMonitor
+import com.veplayer.app.vehicle.NoxInduceLevel1Monitor
+import com.veplayer.app.vehicle.NoxInduceLevel2Monitor
+import com.veplayer.app.vehicle.NoxEgrCounterMonitor
+import com.veplayer.app.vehicle.NoxMonitorMalfunctionMonitor
+import com.veplayer.app.vehicle.HvBattSoh
+import com.veplayer.app.vehicle.HvBattSohMonitor
+import com.veplayer.app.vehicle.HvessTemp
+import com.veplayer.app.vehicle.HvessTempMonitor
+import com.veplayer.app.vehicle.HvessCurrent
+import com.veplayer.app.vehicle.HvessCurrentMonitor
+import com.veplayer.app.vehicle.HvessPackVoltage
+import com.veplayer.app.vehicle.HvessPackVoltageMonitor
+import com.veplayer.app.vehicle.HvCellMaxTemp
+import com.veplayer.app.vehicle.HvCellMaxTempMonitor
+import com.veplayer.app.vehicle.HvBalHours
+import com.veplayer.app.vehicle.HvBalHoursMonitor
+import com.veplayer.app.vehicle.HvCellMinVolt
+import com.veplayer.app.vehicle.HvCellMinVoltMonitor
+import com.veplayer.app.vehicle.HvCellMaxVolt
+import com.veplayer.app.vehicle.HvCellMaxVoltMonitor
+import com.veplayer.app.vehicle.HvPwrAvail
+import com.veplayer.app.vehicle.HvPwrAvailMonitor
+import com.veplayer.app.vehicle.HvChgLimit
+import com.veplayer.app.vehicle.HvChgLimitMonitor
+import com.veplayer.app.vehicle.HvCellMinTemp
+import com.veplayer.app.vehicle.HvCellMinTempMonitor
+import com.veplayer.app.vehicle.HvDisLimit
+import com.veplayer.app.vehicle.HvDisLimitMonitor
+import com.veplayer.app.vehicle.HvEnrgIn
+import com.veplayer.app.vehicle.HvEnrgInMonitor
+import com.veplayer.app.vehicle.HvEnrgOut
+import com.veplayer.app.vehicle.HvEnrgOutMonitor
+import com.veplayer.app.vehicle.HvEnrgTput
+import com.veplayer.app.vehicle.HvEnrgTputMonitor
+import com.veplayer.app.vehicle.HvAcr
+import com.veplayer.app.vehicle.HvAcrMonitor
+import com.veplayer.app.vehicle.HvessSoh
+import com.veplayer.app.vehicle.HvessSohMonitor
+import com.veplayer.app.vehicle.HvMinSoc
+import com.veplayer.app.vehicle.HvMinSocMonitor
+import com.veplayer.app.vehicle.HvMaxSoc
+import com.veplayer.app.vehicle.HvMaxSocMonitor
+import com.veplayer.app.vehicle.HvDcap
+import com.veplayer.app.vehicle.HvDcapMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -251,8 +301,8 @@ fun DriveVizPanel(
 ) {
     val surround by SurroundEngine.snapshot.collectAsState()
     val media by VeMediaHub.nowPlaying.collectAsState()
-    val prefs = remember { VePrefs(LocalContext.current) }
     val context = LocalContext.current
+    val prefs = remember { VePrefs(context) }
     val fleet = remember { FleetClient(prefs) }
     val scope = rememberCoroutineScope()
     val hud by SpeedHudMonitor.state.collectAsState()
@@ -388,6 +438,36 @@ fun DriveVizPanel(
     val fuelSysUse1 by FuelSysUsePct1Monitor.state.collectAsState()
     val fuelSysUse2 by FuelSysUsePct2Monitor.state.collectAsState()
     val fuelSysUse3 by FuelSysUsePct3Monitor.state.collectAsState()
+    val wwhContMi by WwhObdContinuousMiMonitor.state.collectAsState()
+    val wwhEcuB1 by WwhObdEcuB1HoursMonitor.state.collectAsState()
+    val wwhCumMi by WwhObdCumulativeMiMonitor.state.collectAsState()
+    val fuelSysCtl by FuelSysCtlClosedMonitor.state.collectAsState()
+    val hevVolt by HybridEvBattVoltageMonitor.state.collectAsState()
+    val noxWarn by NoxWarnActiveMonitor.state.collectAsState()
+    val noxIndL1 by NoxInduceLevel1Monitor.state.collectAsState()
+    val noxIndL2 by NoxInduceLevel2Monitor.state.collectAsState()
+    val noxEgr by NoxEgrCounterMonitor.state.collectAsState()
+    val noxMal by NoxMonitorMalfunctionMonitor.state.collectAsState()
+    val hvSoh by HvBattSohMonitor.state.collectAsState()
+    val hvessTemp by HvessTempMonitor.state.collectAsState()
+    val hvessCur by HvessCurrentMonitor.state.collectAsState()
+    val hvessVolt by HvessPackVoltageMonitor.state.collectAsState()
+    val hvCellMax by HvCellMaxTempMonitor.state.collectAsState()
+    val hvBal by HvBalHoursMonitor.state.collectAsState()
+    val hvCellMinV by HvCellMinVoltMonitor.state.collectAsState()
+    val hvCellMaxV by HvCellMaxVoltMonitor.state.collectAsState()
+    val hvPwr by HvPwrAvailMonitor.state.collectAsState()
+    val hvChg by HvChgLimitMonitor.state.collectAsState()
+    val hvCellMinT by HvCellMinTempMonitor.state.collectAsState()
+    val hvDis by HvDisLimitMonitor.state.collectAsState()
+    val hvEnrgIn by HvEnrgInMonitor.state.collectAsState()
+    val hvEnrgOut by HvEnrgOutMonitor.state.collectAsState()
+    val hvEnrgTput by HvEnrgTputMonitor.state.collectAsState()
+    val hvAcr by HvAcrMonitor.state.collectAsState()
+    val hvessSoh by HvessSohMonitor.state.collectAsState()
+    val hvMinSoc by HvMinSocMonitor.state.collectAsState()
+    val hvMaxSoc by HvMaxSocMonitor.state.collectAsState()
+    val hvDcap by HvDcapMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -566,6 +646,36 @@ fun DriveVizPanel(
             FuelSysUsePct1Monitor.tick(prefs, snap)
             FuelSysUsePct2Monitor.tick(prefs, snap)
             FuelSysUsePct3Monitor.tick(prefs, snap)
+            WwhObdContinuousMiMonitor.tick(prefs, snap)
+            WwhObdEcuB1HoursMonitor.tick(prefs, snap)
+            WwhObdCumulativeMiMonitor.tick(prefs, snap)
+            FuelSysCtlClosedMonitor.tick(prefs, snap)
+            HybridEvBattVoltageMonitor.tick(prefs, snap)
+            NoxWarnActiveMonitor.tick(prefs, snap)
+            NoxInduceLevel1Monitor.tick(prefs, snap)
+            NoxInduceLevel2Monitor.tick(prefs, snap)
+            NoxEgrCounterMonitor.tick(prefs, snap)
+            NoxMonitorMalfunctionMonitor.tick(prefs, snap)
+            HvBattSohMonitor.tick(prefs, snap)
+            HvessTempMonitor.tick(prefs, snap)
+            HvessCurrentMonitor.tick(prefs, snap)
+            HvessPackVoltageMonitor.tick(prefs, snap)
+            HvCellMaxTempMonitor.tick(prefs, snap)
+            HvBalHoursMonitor.tick(prefs, snap)
+            HvCellMinVoltMonitor.tick(prefs, snap)
+            HvCellMaxVoltMonitor.tick(prefs, snap)
+            HvPwrAvailMonitor.tick(prefs, snap)
+            HvChgLimitMonitor.tick(prefs, snap)
+            HvCellMinTempMonitor.tick(prefs, snap)
+            HvDisLimitMonitor.tick(prefs, snap)
+            HvEnrgInMonitor.tick(prefs, snap)
+            HvEnrgOutMonitor.tick(prefs, snap)
+            HvEnrgTputMonitor.tick(prefs, snap)
+            HvAcrMonitor.tick(prefs, snap)
+            HvessSohMonitor.tick(prefs, snap)
+            HvMinSocMonitor.tick(prefs, snap)
+            HvMaxSocMonitor.tick(prefs, snap)
+            HvDcapMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1426,6 +1536,96 @@ fun DriveVizPanel(
                 if (fuelSysUse3.showWarn || (prefs.fuelSysUse3Enabled && fuelSysUse3.band == "ok" && fuelSysUse3.label.isNotBlank())) {
                     Text(fuelSysUse3.label, color = Color(com.veplayer.app.vehicle.FuelSysUsePct3.accentArgb(fuelSysUse3.band)), fontSize = 11.sp)
                 }
+                if (wwhContMi.showWarn || (prefs.wwhContMiEnabled && wwhContMi.band == "ok" && wwhContMi.label.isNotBlank())) {
+                    Text(wwhContMi.label, color = Color(com.veplayer.app.vehicle.WwhObdContinuousMi.accentArgb(wwhContMi.band)), fontSize = 11.sp)
+                }
+                if (wwhEcuB1.showWarn || (prefs.wwhEcuB1Enabled && wwhEcuB1.band == "ok" && wwhEcuB1.label.isNotBlank())) {
+                    Text(wwhEcuB1.label, color = Color(com.veplayer.app.vehicle.WwhObdEcuB1Hours.accentArgb(wwhEcuB1.band)), fontSize = 11.sp)
+                }
+                if (wwhCumMi.showWarn || (prefs.wwhCumMiEnabled && wwhCumMi.band == "ok" && wwhCumMi.label.isNotBlank())) {
+                    Text(wwhCumMi.label, color = Color(com.veplayer.app.vehicle.WwhObdCumulativeMi.accentArgb(wwhCumMi.band)), fontSize = 11.sp)
+                }
+                if (fuelSysCtl.showWarn || (prefs.fuelSysCtlEnabled && fuelSysCtl.band == "ok" && fuelSysCtl.label.isNotBlank())) {
+                    Text(fuelSysCtl.label, color = Color(com.veplayer.app.vehicle.FuelSysCtlClosed.accentArgb(fuelSysCtl.band)), fontSize = 11.sp)
+                }
+                if (hevVolt.showWarn || (prefs.hevVoltEnabled && hevVolt.band == "ok" && hevVolt.label.isNotBlank())) {
+                    Text(hevVolt.label, color = Color(com.veplayer.app.vehicle.HybridEvBattVoltage.accentArgb(hevVolt.band)), fontSize = 11.sp)
+                }
+                if (noxWarn.showWarn || (prefs.noxWarnEnabled && noxWarn.band == "ok" && noxWarn.label.isNotBlank())) {
+                    Text(noxWarn.label, color = Color(com.veplayer.app.vehicle.NoxWarnActive.accentArgb(noxWarn.band)), fontSize = 11.sp)
+                }
+                if (noxIndL1.showWarn || (prefs.noxIndL1Enabled && noxIndL1.band == "ok" && noxIndL1.label.isNotBlank())) {
+                    Text(noxIndL1.label, color = Color(com.veplayer.app.vehicle.NoxInduceLevel1.accentArgb(noxIndL1.band)), fontSize = 11.sp)
+                }
+                if (noxIndL2.showWarn || (prefs.noxIndL2Enabled && noxIndL2.band == "ok" && noxIndL2.label.isNotBlank())) {
+                    Text(noxIndL2.label, color = Color(com.veplayer.app.vehicle.NoxInduceLevel2.accentArgb(noxIndL2.band)), fontSize = 11.sp)
+                }
+                if (noxEgr.showWarn || (prefs.noxEgrEnabled && noxEgr.band == "ok" && noxEgr.label.isNotBlank())) {
+                    Text(noxEgr.label, color = Color(com.veplayer.app.vehicle.NoxEgrCounter.accentArgb(noxEgr.band)), fontSize = 11.sp)
+                }
+                if (noxMal.showWarn || (prefs.noxMalEnabled && noxMal.band == "ok" && noxMal.label.isNotBlank())) {
+                    Text(noxMal.label, color = Color(com.veplayer.app.vehicle.NoxMonitorMalfunction.accentArgb(noxMal.band)), fontSize = 11.sp)
+                }
+                if (hvSoh.showWarn || (prefs.hvSohEnabled && hvSoh.band == "ok" && hvSoh.label.isNotBlank())) {
+                    Text(hvSoh.label, color = Color(HvBattSoh.accentArgb(hvSoh.band)), fontSize = 11.sp)
+                }
+                if (hvessTemp.showWarn || (prefs.hvessTempEnabled && hvessTemp.band == "ok" && hvessTemp.label.isNotBlank())) {
+                    Text(hvessTemp.label, color = Color(HvessTemp.accentArgb(hvessTemp.band)), fontSize = 11.sp)
+                }
+                if (hvessCur.showWarn || (prefs.hvessCurEnabled && hvessCur.band == "ok" && hvessCur.label.isNotBlank())) {
+                    Text(hvessCur.label, color = Color(HvessCurrent.accentArgb(hvessCur.band)), fontSize = 11.sp)
+                }
+                if (hvessVolt.showWarn || (prefs.hvessVoltEnabled && hvessVolt.band == "ok" && hvessVolt.label.isNotBlank())) {
+                    Text(hvessVolt.label, color = Color(HvessPackVoltage.accentArgb(hvessVolt.band)), fontSize = 11.sp)
+                }
+                if (hvCellMax.showWarn || (prefs.hvCellMaxEnabled && hvCellMax.band == "ok" && hvCellMax.label.isNotBlank())) {
+                    Text(hvCellMax.label, color = Color(HvCellMaxTemp.accentArgb(hvCellMax.band)), fontSize = 11.sp)
+                }
+                if (hvBal.showWarn || (prefs.hvBalEnabled && hvBal.band == "ok" && hvBal.label.isNotBlank())) {
+                    Text(hvBal.label, color = Color(HvBalHours.accentArgb(hvBal.band)), fontSize = 11.sp)
+                }
+                if (hvCellMinV.showWarn || (prefs.hvCellMinVEnabled && hvCellMinV.band == "ok" && hvCellMinV.label.isNotBlank())) {
+                    Text(hvCellMinV.label, color = Color(HvCellMinVolt.accentArgb(hvCellMinV.band)), fontSize = 11.sp)
+                }
+                if (hvCellMaxV.showWarn || (prefs.hvCellMaxVEnabled && hvCellMaxV.band == "ok" && hvCellMaxV.label.isNotBlank())) {
+                    Text(hvCellMaxV.label, color = Color(HvCellMaxVolt.accentArgb(hvCellMaxV.band)), fontSize = 11.sp)
+                }
+                if (hvPwr.showWarn || (prefs.hvPwrEnabled && hvPwr.band == "ok" && hvPwr.label.isNotBlank())) {
+                    Text(hvPwr.label, color = Color(HvPwrAvail.accentArgb(hvPwr.band)), fontSize = 11.sp)
+                }
+                if (hvChg.showWarn || (prefs.hvChgEnabled && hvChg.band == "ok" && hvChg.label.isNotBlank())) {
+                    Text(hvChg.label, color = Color(HvChgLimit.accentArgb(hvChg.band)), fontSize = 11.sp)
+                }
+                if (hvCellMinT.showWarn || (prefs.hvCellMinTEnabled && hvCellMinT.band == "ok" && hvCellMinT.label.isNotBlank())) {
+                    Text(hvCellMinT.label, color = Color(HvCellMinTemp.accentArgb(hvCellMinT.band)), fontSize = 11.sp)
+                }
+                if (hvDis.showWarn || (prefs.hvDisEnabled && hvDis.band == "ok" && hvDis.label.isNotBlank())) {
+                    Text(hvDis.label, color = Color(HvDisLimit.accentArgb(hvDis.band)), fontSize = 11.sp)
+                }
+                if (hvEnrgIn.showWarn || (prefs.hvEnrgInEnabled && hvEnrgIn.band == "ok" && hvEnrgIn.label.isNotBlank())) {
+                    Text(hvEnrgIn.label, color = Color(HvEnrgIn.accentArgb(hvEnrgIn.band)), fontSize = 11.sp)
+                }
+                if (hvEnrgOut.showWarn || (prefs.hvEnrgOutEnabled && hvEnrgOut.band == "ok" && hvEnrgOut.label.isNotBlank())) {
+                    Text(hvEnrgOut.label, color = Color(HvEnrgOut.accentArgb(hvEnrgOut.band)), fontSize = 11.sp)
+                }
+                if (hvEnrgTput.showWarn || (prefs.hvEnrgTputEnabled && hvEnrgTput.band == "ok" && hvEnrgTput.label.isNotBlank())) {
+                    Text(hvEnrgTput.label, color = Color(HvEnrgTput.accentArgb(hvEnrgTput.band)), fontSize = 11.sp)
+                }
+                if (hvAcr.showWarn || (prefs.hvAcrEnabled && hvAcr.band == "ok" && hvAcr.label.isNotBlank())) {
+                    Text(hvAcr.label, color = Color(HvAcr.accentArgb(hvAcr.band)), fontSize = 11.sp)
+                }
+                if (hvessSoh.showWarn || (prefs.hvessSohEnabled && hvessSoh.band == "ok" && hvessSoh.label.isNotBlank())) {
+                    Text(hvessSoh.label, color = Color(HvessSoh.accentArgb(hvessSoh.band)), fontSize = 11.sp)
+                }
+                if (hvMinSoc.showWarn || (prefs.hvMinSocEnabled && hvMinSoc.band == "ok" && hvMinSoc.label.isNotBlank())) {
+                    Text(hvMinSoc.label, color = Color(HvMinSoc.accentArgb(hvMinSoc.band)), fontSize = 11.sp)
+                }
+                if (hvMaxSoc.showWarn || (prefs.hvMaxSocEnabled && hvMaxSoc.band == "ok" && hvMaxSoc.label.isNotBlank())) {
+                    Text(hvMaxSoc.label, color = Color(HvMaxSoc.accentArgb(hvMaxSoc.band)), fontSize = 11.sp)
+                }
+                if (hvDcap.showWarn || (prefs.hvDcapEnabled && hvDcap.band == "ok" && hvDcap.label.isNotBlank())) {
+                    Text(hvDcap.label, color = Color(HvDcap.accentArgb(hvDcap.band)), fontSize = 11.sp)
+                }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(
                         milDist.label,
@@ -1676,6 +1876,7 @@ fun DriveVizPanel(
                     MediaSource.RADIO -> "RADIO"
                     MediaSource.FM -> "FM"
                     MediaSource.SPOTIFY -> "SPOTIFY"
+                    MediaSource.PHONE -> "PHONE"
                     MediaSource.NONE -> "MEDIA"
                 }
             Text(media.title, color = Mist, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)

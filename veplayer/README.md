@@ -1517,6 +1517,100 @@ npm run veplayer:fase39-smoke
 npm run veplayer:fase40-smoke
 ```
 
+## WwhCMI · WwhB1 · FSCctl · WwhCum · HevV (v2.14 · Fase 41)
+
+| PID | Monitor | Alertas | HUD |
+|-----|---------|---------|-----|
+| 0190 | WWH continuous MI | `wwh_continuous_mi_warn` / `wwh_continuous_mi_alert` | `WwhCMI · XXh` |
+| 0191 | WWH ECU B1 counter | `wwh_ecu_b1_warn` / `wwh_ecu_b1_alert` | `WwhB1 · XXh` |
+| 0192 | Fuel sys closed-loop count | `fuel_sys_ctl_warn` / `fuel_sys_ctl_alert` | `FSCctl · X` |
+| 0193 | WWH cumulative MI | `wwh_cumulative_mi_warn` / `wwh_cumulative_mi_alert` | `WwhCum · XXh` |
+| 019A | Hybrid/EV pack voltage | `hybrid_ev_batt_warn` / `hybrid_ev_batt_alert` | `HevV · XXXV` |
+
+```bash
+npm run veplayer:fase41-smoke
+```
+
+## NOxWarn · IndL1/L2 · EGRcnt · NOxMal (v2.19 · Fase 42)
+
+Extiende **PID 0194** (bytes adicionales del bloque inducement NOx).
+
+| Campo | Monitor | Alertas | HUD |
+|-------|---------|---------|-----|
+| 0194 B bit0 | NOx warning | `nox_warn_alert` | `NOxWarn` |
+| 0194 B bits 2–1 | Inducement L1 | `nox_ind_l1_warn` / `nox_ind_l1_alert` | `IndL1 · X` |
+| 0194 B bits 4–3 | Inducement L2 | `nox_ind_l2_warn` / `nox_ind_l2_alert` | `IndL2 · X` |
+| 0194 I/J | EGR counter | `nox_egr_counter_warn` / `nox_egr_counter_alert` | `EGRcnt · XXh` |
+| 0194 K/L | Monitor malf | `nox_monitor_malf_warn` / `nox_monitor_malf_alert` | `NOxMal · XXh` |
+
+```bash
+npm run veplayer:fase42-smoke
+```
+
+## HySOH · HvTemp · HvCur · HvV6 · HvMax (v2.24 · Fase 43)
+
+Bloque HEV **01B2–B7** (HVESS / tracción).
+
+| PID | Señal | Alertas | HUD |
+|-----|-------|---------|-----|
+| 01B2 | Traction SOH % | `hv_batt_soh_warn` / `hv_batt_soh_alert` | `HySOH · XX%` |
+| 01B4 | HVESS temp °C | `hvess_temp_warn` / `hvess_temp_alert` | `HvTemp · XX°` |
+| 01B5 | HVESS current A | `hvess_current_warn` / `hvess_current_alert` | `HvCur · XXA` |
+| 01B6 | HVESS pack voltage V | `hvess_voltage_warn` / `hvess_voltage_alert` | `HvV6 · XXXV` |
+| 01B7 | Max cell temp °C | `hv_cell_max_warn` / `hv_cell_max_alert` | `HvMax · XX°` |
+
+```bash
+npm run veplayer:fase43-smoke
+```
+
+## HvBal · HvMinV/MaxV · HvPwr · HvChg (v2.29 · Fase 44)
+
+Extiende bloque HEV **01B8–BA** (balanceo, celdas V, potencia, límite carga).
+
+| PID | Señal | Alertas | HUD |
+|-----|-------|---------|-----|
+| 01B8 | Horas sin balanceo | `hv_bal_hours_warn` / `hv_bal_hours_alert` | `HvBal · XXh` |
+| 01B9 A/B | Min cell V | `hv_cell_min_volt_warn` / `hv_cell_min_volt_alert` | `HvMinV · X.XXV` |
+| 01B9 C/D | Max cell V | `hv_cell_max_volt_warn` / `hv_cell_max_volt_alert` | `HvMaxV · X.XXV` |
+| 01BA A | Power available % | `hv_pwr_avail_warn` / `hv_pwr_avail_alert` | `HvPwr · XX%` |
+| 01BA B/C | Charge limit A | `hv_chg_limit_warn` / `hv_chg_limit_alert` | `HvChg · XXA` |
+
+```bash
+npm run veplayer:fase44-smoke
+```
+
+## HvMin · HvDis · HvIn/Out · HvTput (v2.34 · Fase 45)
+
+Cierra bloque HEV **01B7/BA/BB–BD** (min temp, descarga, energía acumulada, throughput).
+
+| PID | Señal | Alertas | HUD |
+|-----|-------|---------|-----|
+| 01B7 A | Min cell temp °C | `hv_cell_min_temp_warn` / `hv_cell_min_temp_alert` | `HvMin · XX°` |
+| 01BA D/E | Discharge limit A | `hv_dis_limit_warn` / `hv_dis_limit_alert` | `HvDis · XXA` |
+| 01BB | Energy into HVESS kWh | `hv_enrg_in_warn` / `hv_enrg_in_alert` | `HvIn · XXkWh` |
+| 01BC | Energy out HVESS kWh | `hv_enrg_out_warn` / `hv_enrg_out_alert` | `HvOut · XXkWh` |
+| 01BD | Total throughput Wh | `hv_enrg_tput_warn` / `hv_enrg_tput_alert` | `HvTput · XXkWh` |
+
+```bash
+npm run veplayer:fase45-smoke
+```
+
+## HvAcr · HvSOH · Min/MaxSOC · HvDcap (v2.39 · Fase 46)
+
+Continúa bloque HEV **01B3 / 01BE / 01BF / 01C1 / 01C2**.
+
+| PID | Señal | Alertas | HUD |
+|-----|-------|---------|-----|
+| 01B3 | Actual charge rate kW | `hv_acr_warn` / `hv_acr_alert` | `HvAcr · XXkW` |
+| 01BE | HVESS SOH % | `hvess_soh_warn` / `hvess_soh_alert` | `HvSOH · XX%` |
+| 01BF | Recommended min SOC % | `hv_min_soc_warn` / `hv_min_soc_alert` | `HvMinSOC · XX%` |
+| 01C1 | Recommended max SOC % | `hv_max_soc_warn` / `hv_max_soc_alert` | `HvMaxSOC · XX%` |
+| 01C2 | Discharge energy capacity kWh | `hv_dcap_warn` / `hv_dcap_alert` | `HvDcap · XXkWh` |
+
+```bash
+npm run veplayer:fase46-smoke
+```
+
 ## Validation gate (pre-fase · v1.15)
 
 Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
@@ -1526,7 +1620,7 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 | `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
 | `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
 | `dbc-smoke` | DBC decode (Kotlin mirror) |
-| `fase16–40-smoke` | Alertas `fleetPro.ts` con heartbeats |
+| `fase16–46-smoke` | Alertas `fleetPro.ts` con heartbeats |
 
 ```bash
 # SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)
