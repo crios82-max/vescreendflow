@@ -37,8 +37,7 @@ export default function Login() {
         <button className="btn-primary" disabled={loading}>{loading ? t('common.loggingIn') : t('common.login')}</button>
         <Link to="/reset-password" className="link-btn">{t('auth.forgotPassword')}</Link>
         <Link to="/register" className="link-btn">{t('auth.driverCreateAccount')}</Link>
-        <Link to="/terms" className="link-btn">{t('auth.terms')}</Link>
-        <Link to="/privacy" className="link-btn">{t('auth.privacy')}</Link>
+        <p className="muted-text"><Link to="/terms">{t('auth.terms')}</Link> · <Link to="/privacy">{t('auth.privacy')}</Link></p>
       </form>
     </div>
   );

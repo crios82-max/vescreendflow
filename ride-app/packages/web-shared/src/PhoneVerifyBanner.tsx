@@ -31,7 +31,7 @@ export function PhoneVerifyBanner() {
       <div className="extras-row">
         <button type="button" className="btn-secondary" onClick={async () => {
           const r = await api.sendPhoneOtp(phone);
-          if (r.devHint) setHint(`Dev: ${r.devHint}`);
+          if (r.devHint) setHint(t('common.devOtp', { code: r.devHint }));
         }}>{t('common.sendCode')}</button>
         <button type="button" className="btn-primary" onClick={async () => {
           await api.confirmPhoneOtp(phone, code);

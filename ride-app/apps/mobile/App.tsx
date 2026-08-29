@@ -634,19 +634,33 @@ export default function App() {
                 <View style={styles.row}>
                   <Pressable style={styles.btnSecondary} onPress={async () => {
                     const s = await mobileApi.shareRide(ride.id);
-                    let shareBase = 'http://localhost:5174';
+                    let shareBase =
+                      (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_PASSENGER_WEB_URL) ||
+                      'http://localhost:5174';
                     try {
                       const u = new URL(apiUrlInput);
-                      u.port = '5174';
-                      u.pathname = '';
-                      shareBase = u.origin;
+                      if (u.hostname.includes('movify-api')) {
+                        u.hostname = u.hostname.replace('movify-api', 'movify');
+                        u.port = '';
+                        shareBase = u.origin;
+                      } else if (u.port === '4001') {
+                        u.port = '5174';
+                        shareBase = u.origin;
+                      }
                     } catch { /* keep default */ }
                     const url = `${shareBase}/share/${s.shareToken}`;
                     await Share.share({ message: url, url });
                   }}>
                     <Text style={styles.btnSecondaryText}>{t('common.share')}</Text>
                   </Pressable>
-                  <Pressable style={styles.btnSecondary} onPress={() => mobileApi.triggerSos(ride.id, position?.latitude, position?.longitude)}>
+                  <Pressable style={styles.btnSecondary} onPress={async () => {
+                    try {
+                      await mobileApi.triggerSos(ride.id, ride.pickupLat ?? position?.latitude, ride.pickupLng ?? position?.longitude);
+                      showBanner(t('common.sosSent'));
+                    } catch (err) {
+                      showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                    }
+                  }}>
                     <Text style={styles.btnSecondaryText}>{t('common.sos')}</Text>
                   </Pressable>
                   {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
@@ -763,6 +777,9 @@ export default function App() {
                 }}>
                   <Text style={styles.btnText}>{online ? t('driver.goOffline') : t('driver.goOnline')}</Text>
                 </Pressable>
+                {pending.length === 0 && online && (
+                  <Text style={styles.muted}>{t('common.noAvailableRides')}</Text>
+                )}
                 {pending.map((p) => (
                   <View key={p.id} style={styles.card}>
                     <Text style={styles.cardTitle}>${p.estimatedPrice} · {vehicle(p.vehicleType as VehicleType)}</Text>
@@ -818,7 +835,7 @@ export default function App() {
                 {ride.status === 'completed' && !rated && (
                   <View style={styles.ratingBox}>
                     <Text style={styles.statusPillText}>{t('common.ratePassenger')}</Text>
-                    {[5, 4, 3].map((stars) => (
+                    {[5, 4, 3, 2, 1].map((stars) => (
                       <Pressable
                         key={stars}
                         style={styles.btnSecondary}

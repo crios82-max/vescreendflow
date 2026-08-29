@@ -51,7 +51,7 @@ API_PUBLIC_URL=https://movify-api.vescreenflow.com
 VITE_API_URL=https://movify-api.vescreenflow.com
 EXPO_PUBLIC_API_URL=https://movify-api.vescreenflow.com
 PASSENGER_WEB_URL=https://movify.vescreenflow.com
-CORS_ORIGINS=https://movify-api.vescreenflow.com,https://movify.vescreenflow.com,http://localhost:5174,http://localhost:5175,http://localhost:5176
+CORS_ORIGINS=https://movify-api.vescreenflow.com,https://movify.vescreenflow.com,https://movify-driver.vescreenflow.com,https://movify-admin.vescreenflow.com,http://localhost:5174,http://localhost:5175,http://localhost:5176
 STRIPE_CONNECT_REFRESH_URL=http://localhost:5175
 STRIPE_CONNECT_RETURN_URL=http://localhost:5175
 ```

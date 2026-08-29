@@ -269,7 +269,7 @@ class ApiClient {
   }
 
   getAdminSos() {
-    return this.request<{ events: Array<{ id: string; user_id: string; ride_id: string; name: string; pickup_address: string; lat: number | null; lng: number | null; created_at: string }> }>('/admin/sos');
+    return this.request<{ events: Array<{ id: string; user_id: string; ride_id: string; name: string; pickup_address: string; lat: number | null; lng: number | null; created_at: string; acknowledged_at: string | null }> }>('/admin/sos');
   }
 
   getAdminPromos() {
@@ -278,6 +278,14 @@ class ApiClient {
 
   createPromo(body: { code: string; discountType: 'percent' | 'fixed'; discountValue: number; maxUses?: number }) {
     return this.request('/admin/promos', { method: 'POST', body: JSON.stringify(body) });
+  }
+
+  deactivatePromo(code: string) {
+    return this.request(`/admin/promos/${encodeURIComponent(code)}/deactivate`, { method: 'POST' });
+  }
+
+  acknowledgeSos(id: string) {
+    return this.request(`/admin/sos/${id}/ack`, { method: 'POST' });
   }
 
   getPendingDrivers() {

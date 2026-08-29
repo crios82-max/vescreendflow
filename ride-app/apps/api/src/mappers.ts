@@ -8,6 +8,7 @@ export function mapUser(row: Record<string, unknown>): User {
     phone: (row.phone as string) ?? null,
     role: row.role as User['role'],
     walletBalance: row.wallet_balance != null ? Number(row.wallet_balance) : undefined,
+    isAdmin: Boolean(row.is_admin),
   };
 }
 

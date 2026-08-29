@@ -37,6 +37,7 @@ export default function Home() {
   const [pickup, setPickup] = useState<Point | null>(null);
   const [dropoff, setDropoff] = useState<Point | null>(null);
   const [estimate, setEstimate] = useState<RideEstimate | null>(null);
+  const [estimating, setEstimating] = useState(false);
   const [vehicleType, setVehicleType] = useState<VehicleType>('standard');
   const [ride, setRide] = useState<Ride | null>(null);
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
@@ -51,6 +52,7 @@ export default function Home() {
   const [etaPickup, setEtaPickup] = useState<number | null>(null);
   const [etaDropoff, setEtaDropoff] = useState<number | null>(null);
   const [useWallet, setUseWallet] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [stop, setStop] = useState<Point | null>(null);
   const [rideForName, setRideForName] = useState('');
   const [rideForPhone, setRideForPhone] = useState('');
@@ -64,6 +66,7 @@ export default function Home() {
       setPickup({ ...coords, address: t('common.myLocation') });
     });
     api.getActiveRide().then((r) => r.ride && setRide(r.ride)).catch(() => {});
+    api.getWalletBalance().then((w) => setWalletBalance(w.balance)).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -91,6 +94,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!pickup || !dropoff || ride) return;
+    setEstimating(true);
     api.estimateRide({
       pickupAddress: pickup.address,
       pickupLat: pickup.lat,
@@ -102,7 +106,8 @@ export default function Home() {
     }).then((data) => {
       setEstimate(data);
       setVehicleType(data.options[0]?.vehicleType ?? 'standard');
-    }).catch(() => setEstimate(null));
+    }).catch(() => setEstimate(null))
+      .finally(() => setEstimating(false));
   }, [pickup, dropoff, ride, promoCode]);
 
   const onPickupSelect = (place: PlaceResult) => {
@@ -145,9 +150,14 @@ export default function Home() {
 
   const cancelRide = async () => {
     if (!ride) return;
-    await api.updateRideStatus(ride.id, 'cancelled');
-    setRide(null);
-    setDriverPos(null);
+    try {
+      await api.updateRideStatus(ride.id, 'cancelled');
+      setRide(null);
+      setDriverPos(null);
+    } catch (err) {
+      setError(te(err instanceof Error ? err.message : t('common.cancelFailed')));
+      showFlash(te(err instanceof Error ? err.message : t('common.cancelFailed')), 'error');
+    }
   };
 
   const payRide = async () => {
@@ -237,9 +247,10 @@ export default function Home() {
             )}
             <div className="bottom-sheet">
               <PhoneVerifyBanner />
-              {!ride ? (
+                  {!ride ? (
                 <>
                   <h2>{readyToBook ? t('passenger.confirmRide') : t('passenger.searchPickupDropoff')}</h2>
+                  {estimating && <p className="muted-text">{t('common.estimating')}</p>}
                   {pickup && <div className="meta-row"><span>{t('common.origin')}</span><span>{pickup.address}</span></div>}
                   {dropoff && <div className="meta-row"><span>{t('common.destination')}</span><span>{dropoff.address}</span></div>}
                   {estimate && (
@@ -293,7 +304,14 @@ export default function Home() {
                       navigator.clipboard.writeText(url).catch(() => {});
                       showFlash(t('common.linkCopiedBanner'));
                     }}>{t('common.share')}</button>
-                    <button className="btn-danger" type="button" onClick={() => api.triggerSos(ride.id, pickup?.lat, pickup?.lng)}>{t('common.sos')}</button>
+                    <button className="btn-danger" type="button" onClick={async () => {
+                      try {
+                        await api.triggerSos(ride.id, ride.pickupLat ?? pickup?.lat, ride.pickupLng ?? pickup?.lng);
+                        showFlash(t('common.sosSent'));
+                      } catch (err) {
+                        showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                      }
+                    }}>{t('common.sos')}</button>
                     {ride.driverId && ['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                       <button className="btn-secondary" type="button" onClick={async () => {
                       const c = await api.initiateMaskedCall(ride.id);
@@ -317,7 +335,7 @@ export default function Home() {
                       <SplitFareForm rideId={ride.id} />
                       <TipSelector value={tipAmount} onChange={setTipAmount} />
                       <label className="meta-row">
-                        <span>{t('common.payWithWallet')}</span>
+                        <span>{t('common.payWithWallet')}{walletBalance != null ? ` ($${walletBalance.toFixed(2)})` : ''}</span>
                         <input type="checkbox" checked={useWallet} onChange={(e) => setUseWallet(e.target.checked)} />
                       </label>
                       {stripeSecret ? (

@@ -36,4 +36,9 @@ export const API_ERROR_MAP: Record<string, string> = {
   'Twilio no configurado — llamada directa': 'apiErrors.twilioDirectCall',
   'Usa el botón Llamar — te conectamos sin mostrar números': 'apiErrors.useCallButton',
   'No se pudo cargar': 'common.loadFailed',
+  'Pago no confirmado': 'apiErrors.paymentNotConfirmed',
+  'Solo durante viaje activo': 'apiErrors.activeRideOnly',
+  'Sin contraparte asignada': 'apiErrors.noCounterpart',
+  'Idioma no soportado': 'apiErrors.unsupportedLocale',
+  'Alerta SOS no encontrada': 'apiErrors.sosNotFound',
 };

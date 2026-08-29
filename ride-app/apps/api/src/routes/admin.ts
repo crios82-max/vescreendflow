@@ -25,7 +25,7 @@ router.get('/stats', async (_req, res) => {
     pool.query('SELECT COUNT(*)::int AS c FROM rides'),
     pool.query('SELECT COALESCE(SUM(amount),0)::float AS t FROM payments WHERE status = \'paid\''),
     pool.query('SELECT COUNT(*)::int AS c FROM driver_profiles WHERE approval_status = \'pending\''),
-    pool.query('SELECT COUNT(*)::int AS c FROM sos_events WHERE created_at >= NOW() - INTERVAL \'24 hours\''),
+    pool.query('SELECT COUNT(*)::int AS c FROM sos_events WHERE created_at >= NOW() - INTERVAL \'24 hours\' AND acknowledged_at IS NULL'),
   ]);
   res.json({
     users: users.rows[0].c,
@@ -131,6 +131,15 @@ router.post('/promos', async (req, res) => {
   res.json({ ok: true });
 });
 
+router.post('/promos/:code/deactivate', async (req, res) => {
+  const result = await pool.query(
+    `UPDATE promo_codes SET active = FALSE WHERE code = $1 RETURNING code`,
+    [req.params.code.toUpperCase()],
+  );
+  if (result.rows.length === 0) return res.status(404).json({ error: 'Código inválido o expirado' });
+  res.json({ ok: true });
+});
+
 router.post('/rides/:id/refund', async (req, res) => {
   const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
   if (rideResult.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
@@ -165,7 +174,29 @@ router.get('/sos', async (_req, res) => {
      JOIN users u ON u.id = s.user_id JOIN rides r ON r.id = s.ride_id
      ORDER BY s.created_at DESC LIMIT 50`,
   );
-  res.json({ events: result.rows });
+  res.json({
+    events: result.rows.map((row) => ({
+      id: row.id,
+      user_id: row.user_id,
+      ride_id: row.ride_id,
+      name: row.name,
+      pickup_address: row.pickup_address,
+      lat: row.lat,
+      lng: row.lng,
+      created_at: row.created_at,
+      acknowledged_at: row.acknowledged_at ?? null,
+    })),
+  });
+});
+
+router.post('/sos/:id/ack', async (req, res) => {
+  const result = await pool.query(
+    `UPDATE sos_events SET acknowledged_at = NOW(), acknowledged_by = $1
+     WHERE id = $2 RETURNING id`,
+    [req.auth!.userId, req.params.id],
+  );
+  if (result.rows.length === 0) return res.status(404).json({ error: 'Alerta SOS no encontrada' });
+  res.json({ ok: true });
 });
 
 export default router;

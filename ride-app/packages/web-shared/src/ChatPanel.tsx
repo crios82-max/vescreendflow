@@ -32,7 +32,9 @@ export function ChatPanel({ rideId }: Props) {
   return (
     <div className="chat-panel">
       <div className="chat-messages">
-        {messages.map((m) => (
+        {messages.length === 0 ? (
+          <p className="muted-text">{t('common.emptyChat')}</p>
+        ) : messages.map((m) => (
           <div key={m.id} className="chat-msg"><strong>{m.senderName ?? t('common.user')}:</strong> {m.message}</div>
         ))}
       </div>

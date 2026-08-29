@@ -13,6 +13,7 @@ Todo el **código** ya está en `main`. Al volver solo ejecutas esto en orden (~
 - Pulido pre-prod: Share/Split i18n, docs conductor, admin, tunnel driver/admin
 - UX pack: toast global, te() en auth, push/recibos i18n, móvil forgot password
 - Paridad móvil: wallet, split, lugares, schedule, fare breakdown, docs/Stripe conductor
+- Admin ops: gate isAdmin, SOS ack, desactivar promos, errores en acciones
 - Túnel configurado en `cloudflared/config.yml` (`movify` + `movify-api` + driver/admin)
 - Scripts: `prep-local`, `go-live`, `check-prod`, TestFlight
 - CI + tests API
@@ -72,7 +73,7 @@ API_PUBLIC_URL=https://movify-api.vescreenflow.com
 VITE_API_URL=https://movify-api.vescreenflow.com
 EXPO_PUBLIC_API_URL=https://movify-api.vescreenflow.com
 PASSENGER_WEB_URL=https://movify.vescreenflow.com
-CORS_ORIGINS=https://movify-api.vescreenflow.com,https://movify.vescreenflow.com,http://localhost:5174,http://localhost:5175,http://localhost:5176
+CORS_ORIGINS=https://movify-api.vescreenflow.com,https://movify.vescreenflow.com,https://movify-driver.vescreenflow.com,https://movify-admin.vescreenflow.com,http://localhost:5174,http://localhost:5175,http://localhost:5176
 ```
 
 ```bash
