@@ -1,6 +1,7 @@
 import { Map, Marker, useMap } from '@vis.gl/react-google-maps';
 import { useEffect, useMemo } from 'react';
 import { decodePolyline } from './polyline.js';
+import { hasMapsApiKey } from './mapsConfig.js';
 
 const DEFAULT_CENTER = { lat: 10.4806, lng: -66.9036 };
 
@@ -56,6 +57,29 @@ function RoutePolyline({ encoded }: { encoded: string }) {
 
 export function MapView({ pickup, dropoff, driver, routePolyline, onMapClick, follow }: MapViewProps) {
   const center = pickup ?? follow ?? DEFAULT_CENTER;
+
+  if (!hasMapsApiKey()) {
+    return (
+      <div
+        className="map-canvas"
+        style={{
+          background: 'radial-gradient(ellipse at 35% 25%, #1a2e1a 0%, #0a0a0a 60%)',
+          minHeight: '100%',
+          position: 'relative',
+        }}
+      >
+        {pickup && (
+          <span style={{ position: 'absolute', left: '30%', top: '40%', color: '#fff', fontWeight: 700 }}>A</span>
+        )}
+        {dropoff && (
+          <span style={{ position: 'absolute', left: '60%', top: '55%', color: '#A3E635', fontWeight: 700 }}>B</span>
+        )}
+        {driver && (
+          <span style={{ position: 'absolute', left: '45%', top: '48%' }}>🚗</span>
+        )}
+      </div>
+    );
+  }
 
   return (
     <Map
