@@ -146,12 +146,21 @@ Ver `docs/macmini-autostart.md` y `../macmini-stacks/README.md`.
 
 ## Flujo demo
 
-1. Registra **pasajero** (:5174) y **conductor** (:5175) con el mismo tipo de vehículo
-2. Conductor → **Ir online**
-3. Pasajero → origen/destino → **Pedir ride** (auto-asigna si hay conductor cerca)
-4. Conductor → estados hasta **Completar**
-5. Pasajero → **Pagar** → **Calificar**
-6. Admin (:5176) → ver stats e historial global
+```bash
+npm run seed:demo   # o viene incluido en prep:local
+```
+
+| Rol | Email | Password |
+|-----|-------|----------|
+| Pasajero | pasajero@movify.demo | movify123 |
+| Conductor | conductor@movify.demo | movify123 |
+| Admin | admin@movify.demo | movify123 |
+
+1. Conductor (:5175) → login → **Ir online**
+2. Pasajero (:5174) → origen/destino → **Pedir ride** (mismo tipo Standard)
+3. Conductor → estados hasta **Completar**
+4. Pasajero → **Pagar** → **Calificar**
+5. Admin (:5176) → stats e historial
 
 ## Estructura
 

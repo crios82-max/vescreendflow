@@ -66,6 +66,18 @@ for url in "http://localhost:4001/health" "http://localhost:5174" "http://localh
 done
 echo ""
 
+echo "5b) Usuarios demo"
+if curl -sf "http://localhost:4001/health" >/dev/null 2>&1; then
+  if ./scripts/seed-demo.sh; then
+    ok "seed demo (pasajero / conductor / admin)"
+  else
+    warn "seed-demo falló — puedes correr: npm run seed:demo"
+  fi
+else
+  warn "API down — seed omitido"
+fi
+echo ""
+
 echo "6) .env (rellenar antes de pruebas reales)"
 if [[ -f .env ]]; then
   need=()
@@ -97,10 +109,11 @@ echo ""
 if [[ "${FAIL:-0}" -eq 0 ]]; then
   echo "=============================================="
   echo " Stack LOCAL listo — prueba en LAN:"
-  echo "   Pasajero  http://localhost:5174"
-  echo "   Conductor http://localhost:5175"
-  echo "   Admin     http://localhost:5176"
+  echo "   Pasajero  http://localhost:5174  (pasajero@movify.demo / movify123)"
+  echo "   Conductor http://localhost:5175  (conductor@movify.demo / movify123)"
+  echo "   Admin     http://localhost:5176  (admin@movify.demo / movify123)"
   echo "   Móvil     npm run dev:mobile (misma WiFi)"
+  echo "   Re-seed   npm run seed:demo"
   echo "=============================================="
   exit 0
 fi
