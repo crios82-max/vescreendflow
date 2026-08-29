@@ -22,11 +22,12 @@ export interface RestaurantPick {
 interface Props {
   selectedId?: string | null;
   onSelect: (pick: RestaurantPick) => void;
+  onCountryChange?: (country: DeliveryCountry) => void;
 }
 
 type CategoryFilter = RestaurantCategory | 'all';
 
-export function RestaurantPicker({ selectedId, onSelect }: Props) {
+export function RestaurantPicker({ selectedId, onSelect, onCountryChange }: Props) {
   const { t } = useMobileI18n();
   const [country, setCountry] = useState<DeliveryCountry>('ES');
   const [city, setCity] = useState(DELIVERY_COUNTRY_META.ES.defaultCity);
@@ -34,6 +35,11 @@ export function RestaurantPicker({ selectedId, onSelect }: Props) {
   const [q, setQ] = useState('');
 
   const cities = useMemo(() => deliveryCities(country), [country]);
+
+  const changeCountry = (code: DeliveryCountry) => {
+    setCountry(code);
+    onCountryChange?.(code);
+  };
 
   useEffect(() => {
     setCity(DELIVERY_COUNTRY_META[country].defaultCity);
@@ -50,7 +56,7 @@ export function RestaurantPicker({ selectedId, onSelect }: Props) {
       <Text style={styles.hint}>{t('service.pickRestaurant')}</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.row}>
         {DELIVERY_COUNTRIES.map((code) => (
-          <Pressable key={code} style={[styles.chip, country === code && styles.chipActive]} onPress={() => setCountry(code)}>
+          <Pressable key={code} style={[styles.chip, country === code && styles.chipActive]} onPress={() => changeCountry(code)}>
             <Text style={country === code ? styles.chipTextActive : styles.chipText}>{t(DELIVERY_COUNTRY_META[code].labelKey)}</Text>
           </Pressable>
         ))}

@@ -17,7 +17,7 @@ import * as Location from 'expo-location';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StatusBar } from 'expo-status-bar';
 import type { Ride, RideEstimate, ServiceMode, User, VehicleType } from '@ride-app/shared';
-import { BRAND, VEHICLE_TYPES, vehiclesForMode } from '@ride-app/shared';
+import { BRAND, VEHICLE_TYPES, preferredDeliveryVehicle, vehiclesForMode } from '@ride-app/shared';
 import { mobileApi } from './src/api';
 import { getMobileSocket, reconnectSocket } from './src/socket';
 import { PlaceSearch } from './src/PlaceSearch';
@@ -59,6 +59,7 @@ export default function App() {
   const [serviceMode, setServiceMode] = useState<ServiceMode>('ride');
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
+  const [deliveryCountry, setDeliveryCountry] = useState('ES');
   const [online, setOnline] = useState(false);
   const [pending, setPending] = useState<Array<{ id: string; pickupAddress: string; estimatedPrice: number; vehicleType: string; serviceMode?: string; deliveryNotes?: string | null }>>([]);
   const [tab, setTab] = useState<Tab>('ride');
@@ -292,11 +293,13 @@ export default function App() {
       dropoffLng: dropoff.longitude,
     }).then((data) => {
       setEstimate(data);
-      const allowed = vehiclesForMode(serviceMode);
-      const first = data.options.find((o) => allowed.includes(o.vehicleType));
-      setVehicleType(first?.vehicleType ?? allowed[0] ?? 'standard');
+      const allowed = vehiclesForMode(serviceMode, serviceMode === 'delivery' ? deliveryCountry : null);
+      const preferred = serviceMode === 'delivery' ? preferredDeliveryVehicle(deliveryCountry) : allowed[0];
+      const first = data.options.find((o) => o.vehicleType === preferred)
+        ?? data.options.find((o) => allowed.includes(o.vehicleType));
+      setVehicleType(first?.vehicleType ?? preferred ?? 'standard');
     }).catch(() => setEstimate(null));
-  }, [pickup, position, dropoff, user?.role, serviceMode]);
+  }, [pickup, position, dropoff, user?.role, serviceMode, deliveryCountry]);
 
   const loadHistory = async () => {
     setHistoryLoading(true);
@@ -445,7 +448,12 @@ export default function App() {
   }
 
   const mapCenter = driverPos ?? dropoff ?? pickup ?? position;
-  const filteredOptions = estimate?.options.filter((o) => vehiclesForMode(serviceMode).includes(o.vehicleType)) ?? [];
+  const filteredOptions = (estimate?.options.filter((o) => vehiclesForMode(serviceMode, serviceMode === 'delivery' ? deliveryCountry : null).includes(o.vehicleType)) ?? [])
+    .slice()
+    .sort((a, b) => {
+      const order = vehiclesForMode(serviceMode, serviceMode === 'delivery' ? deliveryCountry : null);
+      return order.indexOf(a.vehicleType) - order.indexOf(b.vehicleType);
+    });
   const selectedOption = filteredOptions.find((o) => o.vehicleType === vehicleType) ?? filteredOptions[0];
   const routeCoords = ride?.routePolyline ? decodePolyline(ride.routePolyline) : estimate?.polyline ? decodePolyline(estimate.polyline) : [];
 
@@ -482,7 +490,7 @@ export default function App() {
             <Pressable style={[styles.chip, serviceMode === 'ride' && styles.chipActive]} onPress={() => { setServiceMode('ride'); setVehicleType('standard'); setRestaurantId(null); }}>
               <Text style={serviceMode === 'ride' ? styles.chipTextActive : styles.chipText}>{t('service.ride')}</Text>
             </Pressable>
-            <Pressable style={[styles.chip, serviceMode === 'delivery' && styles.chipActive]} onPress={() => { setServiceMode('delivery'); setVehicleType('moto'); setStop(null); }}>
+            <Pressable style={[styles.chip, serviceMode === 'delivery' && styles.chipActive]} onPress={() => { setServiceMode('delivery'); setVehicleType(preferredDeliveryVehicle(deliveryCountry)); setStop(null); }}>
               <Text style={serviceMode === 'delivery' ? styles.chipTextActive : styles.chipText}>{t('service.foodDelivery')}</Text>
             </Pressable>
           </View>
@@ -490,8 +498,11 @@ export default function App() {
             <>
               <RestaurantPicker
                 selectedId={restaurantId}
+                onCountryChange={setDeliveryCountry}
                 onSelect={(pick) => {
                   setRestaurantId(pick.restaurant.id);
+                  setDeliveryCountry(pick.restaurant.country);
+                  setVehicleType(preferredDeliveryVehicle(pick.restaurant.country));
                   setPickup({ latitude: pick.latitude, longitude: pick.longitude, address: pick.address });
                 }}
               />

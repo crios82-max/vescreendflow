@@ -14,11 +14,12 @@ export interface RestaurantPick {
 interface Props {
   selectedId?: string | null;
   onSelect: (pick: RestaurantPick) => void;
+  onCountryChange?: (country: DeliveryCountry) => void;
 }
 
 type CategoryFilter = RestaurantCategory | 'all';
 
-export function RestaurantPicker({ selectedId, onSelect }: Props) {
+export function RestaurantPicker({ selectedId, onSelect, onCountryChange }: Props) {
   const { t } = useI18n();
   const [country, setCountry] = useState<DeliveryCountry>('ES');
   const [cities, setCities] = useState<string[]>([]);
@@ -27,6 +28,11 @@ export function RestaurantPicker({ selectedId, onSelect }: Props) {
   const [q, setQ] = useState('');
   const [restaurants, setRestaurants] = useState<DeliveryRestaurant[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const changeCountry = (code: DeliveryCountry) => {
+    setCountry(code);
+    onCountryChange?.(code);
+  };
 
   useEffect(() => {
     setCity(DELIVERY_COUNTRY_META[country].defaultCity);
@@ -68,7 +74,7 @@ export function RestaurantPicker({ selectedId, onSelect }: Props) {
               key={code}
               type="button"
               className={`tab-btn${country === code ? ' tab-btn--active' : ''}`}
-              onClick={() => setCountry(code)}
+              onClick={() => changeCountry(code)}
             >
               {countryLabel(code)}
             </button>

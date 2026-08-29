@@ -252,8 +252,8 @@ export const pt = {
   },
   vehicle: {
     standard: { label: 'Standard', description: 'Viagens econômicas' },
-    moto: { label: 'Moto', description: 'Entrega de comida rápida' },
-    bicicleta: { label: 'Bicicleta', description: 'Entrega eco de comida' },
+    moto: { label: 'Moto', description: 'Entrega rápida na cidade' },
+    bicicleta: { label: 'Bicicleta', description: 'A mais usada para entrega na Espanha' },
     comfort: { label: 'Conforto', description: 'Carros mais amplos' },
     xl: { label: 'XL', description: 'Até 6 passageiros' },
     vans: { label: 'Vans', description: 'Grupos e bagagem' },

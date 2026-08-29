@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildRideEstimate, estimateFare, haversineKm, isDeliveryVehicle, vehiclesForMode } from './index.ts';
+import { buildRideEstimate, estimateFare, haversineKm, isDeliveryVehicle, preferredDeliveryVehicle, vehiclesForMode } from './index.ts';
 
 describe('haversineKm', () => {
   it('returns 0 for same point', () => {
@@ -41,7 +41,11 @@ describe('buildRideEstimate', () => {
   });
 
   it('splits ride vs delivery vehicles', () => {
-    assert.deepEqual(vehiclesForMode('delivery'), ['moto', 'bicicleta']);
+    assert.deepEqual(vehiclesForMode('delivery'), ['bicicleta', 'moto']);
+    assert.deepEqual(vehiclesForMode('delivery', 'ES'), ['bicicleta', 'moto']);
+    assert.deepEqual(vehiclesForMode('delivery', 'VE'), ['moto', 'bicicleta']);
+    assert.equal(preferredDeliveryVehicle('ES'), 'bicicleta');
+    assert.equal(preferredDeliveryVehicle('VE'), 'moto');
     assert.ok(isDeliveryVehicle('moto'));
     assert.ok(isDeliveryVehicle('bicicleta'));
     assert.equal(isDeliveryVehicle('standard'), false);

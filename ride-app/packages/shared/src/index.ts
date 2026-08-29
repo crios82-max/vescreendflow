@@ -60,8 +60,8 @@ export const SERVICE_MODES = ['ride', 'delivery'] as const;
 /** Passenger cars for normal rides */
 export const RIDE_VEHICLE_TYPES: VehicleType[] = ['standard', 'comfort', 'xl', 'vans'];
 
-/** Moto / bike couriers for food delivery */
-export const DELIVERY_VEHICLE_TYPES: VehicleType[] = ['moto', 'bicicleta'];
+/** Moto / bike couriers for food delivery — bicicleta first (Spain urban default) */
+export const DELIVERY_VEHICLE_TYPES: VehicleType[] = ['bicicleta', 'moto'];
 
 export interface VehicleOption {
   type: VehicleType;
@@ -95,7 +95,7 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
   bicicleta: {
     type: 'bicicleta',
     label: 'Bicicleta',
-    description: 'Entrega eco de comida',
+    description: 'La más usada en ciudad (ES)',
     seats: 1,
     multiplier: 0.45,
     icon: '🚲',
@@ -134,8 +134,16 @@ export function isDeliveryVehicle(type: VehicleType): boolean {
   return VEHICLE_OPTIONS[type].category === 'delivery';
 }
 
-export function vehiclesForMode(mode: ServiceMode): VehicleType[] {
-  return mode === 'delivery' ? DELIVERY_VEHICLE_TYPES : RIDE_VEHICLE_TYPES;
+/** Preferred courier by market — Spain leans bike; Venezuela leans moto. */
+export function preferredDeliveryVehicle(country?: string | null): VehicleType {
+  if (country === 'VE') return 'moto';
+  return 'bicicleta';
+}
+
+export function vehiclesForMode(mode: ServiceMode, country?: string | null): VehicleType[] {
+  if (mode !== 'delivery') return RIDE_VEHICLE_TYPES;
+  const preferred = preferredDeliveryVehicle(country);
+  return [preferred, ...DELIVERY_VEHICLE_TYPES.filter((t) => t !== preferred)];
 }
 
 export function serviceModeForVehicle(type: VehicleType): ServiceMode {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Ride, RideEstimate, ServiceMode, VehicleType } from '@ride-app/shared';
-import { vehiclesForMode } from '@ride-app/shared';
+import { preferredDeliveryVehicle, vehiclesForMode } from '@ride-app/shared';
 import {
   api,
   getSocket,
@@ -59,11 +59,14 @@ export default function Home() {
   const [rideForPhone, setRideForPhone] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
+  const [deliveryCountry, setDeliveryCountry] = useState<string>('ES');
   const [stripeSecret, setStripeSecret] = useState<string | null>(null);
   const { verified: phoneVerified } = usePhoneVerified();
 
-  const modeVehicles = vehiclesForMode(serviceMode);
-  const filteredOptions = estimate?.options.filter((o) => modeVehicles.includes(o.vehicleType)) ?? [];
+  const modeVehicles = vehiclesForMode(serviceMode, serviceMode === 'delivery' ? deliveryCountry : null);
+  const filteredOptions = (estimate?.options.filter((o) => modeVehicles.includes(o.vehicleType)) ?? [])
+    .slice()
+    .sort((a, b) => modeVehicles.indexOf(a.vehicleType) - modeVehicles.indexOf(b.vehicleType));
   const selectedOption = filteredOptions.find((o) => o.vehicleType === vehicleType) ?? filteredOptions[0];
 
   useEffect(() => {
@@ -76,14 +79,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const next = vehiclesForMode(serviceMode)[0] ?? 'standard';
-    setVehicleType(next);
     if (serviceMode === 'delivery') {
+      setVehicleType(preferredDeliveryVehicle(deliveryCountry));
       setStop(null);
     } else {
+      setVehicleType(vehiclesForMode('ride')[0] ?? 'standard');
       setRestaurantId(null);
     }
-  }, [serviceMode]);
+  }, [serviceMode, deliveryCountry]);
 
   useEffect(() => {
     if (!ride) return;
@@ -120,11 +123,13 @@ export default function Home() {
       promoCode: promoCode || undefined,
     }).then((data) => {
       setEstimate(data);
-      const allowed = vehiclesForMode(serviceMode);
-      const first = data.options.find((o) => allowed.includes(o.vehicleType));
-      setVehicleType(first?.vehicleType ?? allowed[0] ?? 'standard');
+      const allowed = vehiclesForMode(serviceMode, serviceMode === 'delivery' ? deliveryCountry : null);
+      const preferred = serviceMode === 'delivery' ? preferredDeliveryVehicle(deliveryCountry) : allowed[0];
+      const first = data.options.find((o) => o.vehicleType === preferred)
+        ?? data.options.find((o) => allowed.includes(o.vehicleType));
+      setVehicleType(first?.vehicleType ?? preferred ?? 'standard');
     }).catch(() => setEstimate(null));
-  }, [pickup, dropoff, ride, promoCode, serviceMode]);
+  }, [pickup, dropoff, ride, promoCode, serviceMode, deliveryCountry]);
 
   const onPickupSelect = (place: PlaceResult) => {
     setPickup(place);
@@ -259,8 +264,11 @@ export default function Home() {
                     <p className="muted-text" style={{ margin: '0 0 4px' }}>{t('service.pickRestaurant')}</p>
                     <RestaurantPicker
                       selectedId={restaurantId}
+                      onCountryChange={setDeliveryCountry}
                       onSelect={(pick) => {
                         setRestaurantId(pick.restaurant.id);
+                        setDeliveryCountry(pick.restaurant.country);
+                        setVehicleType(preferredDeliveryVehicle(pick.restaurant.country));
                         setPickup({ lat: pick.lat, lng: pick.lng, address: pick.address });
                         setEstimate(null);
                       }}
