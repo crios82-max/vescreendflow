@@ -9,6 +9,7 @@ Todo el **código** ya está en `main`. Al volver solo ejecutas esto en orden (~
 - App pasajero / conductor / admin / móvil
 - Marca Movify + logo
 - Tema negro + lima
+- Multi-idioma ES · EN · IT · PT (auto-detect por ubicación)
 - Túnel configurado en `cloudflared/config.yml` (`movify` + `movify-api`)
 - Scripts: `prep-local`, `go-live`, `check-prod`, TestFlight
 - CI + tests API
