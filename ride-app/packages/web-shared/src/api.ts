@@ -168,7 +168,7 @@ class ApiClient {
   }
 
   startConnectOnboarding() {
-    return this.request<{ url?: string; mock?: boolean; message?: string }>('/connect/onboard', { method: 'POST' });
+    return this.request<{ url?: string; mock?: boolean; message?: string; errorCode?: string }>('/connect/onboard', { method: 'POST' });
   }
 
   getPhoneVerifyStatus() {

@@ -51,7 +51,7 @@ export function createSplitRouter(io: SocketServer) {
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
     const outcome = await confirmSplitPayment(req.params.token, parsed.data.paymentIntentId, io);
-    if (!outcome.ok) return res.status(400).json({ error: outcome.error });
+    if (!outcome.ok) return sendError(res, 400, outcome.error ?? 'Pago no confirmado', 'PAYMENT_NOT_CONFIRMED');
     res.json(outcome);
   });
 

@@ -125,6 +125,13 @@ export default function Home() {
 
   const requestRide = async () => {
     if (!pickup || !dropoff) return;
+    if (scheduledAt) {
+      const when = new Date(scheduledAt);
+      if (!(when.getTime() > Date.now() + 60_000)) {
+        setError(t('common.scheduleInFuture'));
+        return;
+      }
+    }
     setLoading(true);
     setError('');
     try {
@@ -144,6 +151,9 @@ export default function Home() {
       });
       setRide(created);
       setRated(false);
+      if (created.status === 'scheduled') {
+        showFlash(t('common.rideScheduled'));
+      }
     } catch (err) {
       setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
@@ -267,13 +277,22 @@ export default function Home() {
                         subtotal={selectedOption?.estimatedPrice ?? estimate.options[0]?.estimatedPrice ?? 0}
                         onApplied={(code, discount) => { setPromoCode(code); setPromoDiscount(discount); }}
                       />
-                      <input
-                        className="place-input"
-                        type="datetime-local"
-                        value={scheduledAt}
-                        onChange={(e) => setScheduledAt(e.target.value)}
-                        placeholder={t('passenger.scheduleRide')}
-                      />
+                      <label className="meta-row">
+                        <span>{t('passenger.scheduleRide')}</span>
+                        <input
+                          className="place-input"
+                          type="datetime-local"
+                          value={scheduledAt}
+                          min={new Date(Date.now() + 5 * 60_000).toISOString().slice(0, 16)}
+                          onChange={(e) => setScheduledAt(e.target.value)}
+                          aria-label={t('passenger.scheduleRide')}
+                        />
+                      </label>
+                      {scheduledAt && (
+                        <button type="button" className="link-btn" onClick={() => setScheduledAt('')}>
+                          {t('common.clearSchedule')}
+                        </button>
+                      )}
                       <VehicleTypePicker
                         options={estimate.options}
                         selected={vehicleType}
@@ -302,10 +321,18 @@ export default function Home() {
                   <div className="meta-row"><span>{t('common.price')}</span><span>${ride.finalPrice ?? ride.estimatedPrice}</span></div>
                   <div className="extras-row">
                     <button className="btn-secondary" type="button" onClick={async () => {
-                      const s = await api.shareRide(ride.id);
-                      const url = `${window.location.origin}/share/${s.shareToken}`;
-                      navigator.clipboard.writeText(url).catch(() => {});
-                      showFlash(t('common.linkCopiedBanner'));
+                      try {
+                        const s = await api.shareRide(ride.id);
+                        const url = `${window.location.origin}/share/${s.shareToken}`;
+                        try {
+                          await navigator.clipboard.writeText(url);
+                          showFlash(t('common.linkCopiedBanner'));
+                        } catch {
+                          showFlash(url);
+                        }
+                      } catch (err) {
+                        showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                      }
                     }}>{t('common.share')}</button>
                     <button className="btn-danger" type="button" onClick={async () => {
                       try {
@@ -317,10 +344,14 @@ export default function Home() {
                     }}>{t('common.sos')}</button>
                     {ride.driverId && ['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                       <button className="btn-secondary" type="button" onClick={async () => {
-                      const c = await api.initiateMaskedCall(ride.id);
-                      if (c.initiated) showFlash(te(c.message ?? t('common.callConnecting')));
-                      else if (c.dialUrl) window.location.href = c.dialUrl;
-                      else showFlash(te(c.hint ?? t('common.callFailed')), 'error');
+                      try {
+                        const c = await api.initiateMaskedCall(ride.id);
+                        if (c.initiated) showFlash(te(c.message ?? t('common.callConnecting')));
+                        else if (c.dialUrl) window.location.href = c.dialUrl;
+                        else showFlash(te(c.hint ?? t('common.callFailed')), 'error');
+                      } catch (err) {
+                        showFlash(te(err instanceof Error ? err.message : t('common.callFailed')), 'error');
+                      }
                     }}>{t('passenger.callDriver')}</button>
                     )}
                   </div>
@@ -366,9 +397,13 @@ export default function Home() {
                         <StripeCheckout
                           clientSecret={stripeSecret}
                           onSuccess={async (paymentIntentId) => {
-                            const result = await api.payRide(ride.id, { tipAmount, paymentIntentId });
-                            setRide(result.ride);
-                            setStripeSecret(null);
+                            try {
+                              const result = await api.payRide(ride.id, { tipAmount, paymentIntentId });
+                              setRide(result.ride);
+                              setStripeSecret(null);
+                            } catch (err) {
+                              showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                            }
                           }}
                         />
                       ) : (

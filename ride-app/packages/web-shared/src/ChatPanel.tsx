@@ -13,6 +13,7 @@ export function ChatPanel({ rideId }: Props) {
   const [text, setText] = useState('');
   const [error, setError] = useState('');
   const [loadFailed, setLoadFailed] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const load = () =>
     api.getChatMessages(rideId)
@@ -54,17 +55,20 @@ export function ChatPanel({ rideId }: Props) {
       {error && <p className="error-text">{error}</p>}
       <div style={{ display: 'flex', gap: 8 }}>
         <input className="place-input" value={text} onChange={(e) => setText(e.target.value)} placeholder={t('common.message')} aria-label={t('common.message')} />
-        <button className="btn-secondary" type="button" aria-label={t('common.send')} onClick={async () => {
-          if (!text.trim()) return;
+        <button className="btn-secondary" type="button" disabled={sending} aria-label={t('common.send')} onClick={async () => {
+          if (!text.trim() || sending) return;
           setError('');
+          setSending(true);
           try {
             await api.sendChatMessage(rideId, text.trim());
             setText('');
             load();
           } catch (err) {
             setError(te(err instanceof Error ? err.message : t('common.error')));
+          } finally {
+            setSending(false);
           }
-        }}>{t('common.send')}</button>
+        }}>{sending ? t('common.sending') : t('common.send')}</button>
       </div>
     </div>
   );

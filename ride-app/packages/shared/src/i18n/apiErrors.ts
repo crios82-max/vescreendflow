@@ -42,6 +42,7 @@ export const API_ERROR_MAP: Record<string, string> = {
   'Idioma no soportado': 'apiErrors.unsupportedLocale',
   'Alerta SOS no encontrada': 'apiErrors.sosNotFound',
   'Error al iniciar llamada': 'apiErrors.callFailed',
+  'Stripe no configurado — payouts simulados en DB': 'common.stripeNotConfigured',
 };
 
 /** Stable machine codes → i18n keys (preferred over Spanish strings). */
@@ -80,4 +81,6 @@ export const API_ERROR_CODES: Record<string, string> = {
   SOS_NOT_FOUND: 'apiErrors.sosNotFound',
   INVALID_URL: 'apiErrors.invalidUrl',
   CALL_FAILED: 'apiErrors.callFailed',
+  STRIPE_NOT_CONFIGURED: 'common.stripeNotConfigured',
+  PAYMENT_NOT_CONFIRMED: 'apiErrors.paymentNotConfirmed',
 };

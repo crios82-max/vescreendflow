@@ -178,9 +178,13 @@ export default function Home() {
               )}
               {connectStatus && !connectStatus.onboarded && (
                 <button className="btn-secondary" onClick={async () => {
-                  const r = await api.startConnectOnboarding();
-                  if (r.url) window.location.href = r.url;
-                  else showFlash(te(r.message ?? t('common.stripeNotConfigured')), 'error');
+                  try {
+                    const r = await api.startConnectOnboarding();
+                    if (r.url) window.location.href = r.url;
+                    else showFlash(te(r.errorCode ?? r.message ?? t('common.stripeNotConfigured')), 'error');
+                  } catch (err) {
+                    showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                  }
                 }}>
                   {t('driver.setupStripe')}
                 </button>
@@ -220,10 +224,14 @@ export default function Home() {
               {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                 <>
                   <button className="btn-secondary" type="button" onClick={async () => {
-                    const c = await api.initiateMaskedCall(ride.id);
-                    if (c.initiated) showFlash(te(c.message ?? t('common.callConnecting')));
-                    else if (c.dialUrl) window.location.href = c.dialUrl;
-                    else showFlash(te(c.hint ?? t('common.callFailed')), 'error');
+                    try {
+                      const c = await api.initiateMaskedCall(ride.id);
+                      if (c.initiated) showFlash(te(c.message ?? t('common.callConnecting')));
+                      else if (c.dialUrl) window.location.href = c.dialUrl;
+                      else showFlash(te(c.hint ?? t('common.callFailed')), 'error');
+                    } catch (err) {
+                      showFlash(te(err instanceof Error ? err.message : t('common.callFailed')), 'error');
+                    }
                   }}>{t('driver.callPassenger')}</button>
                   <button className="btn-danger" type="button" aria-label={t('common.sos')} onClick={async () => {
                     try {

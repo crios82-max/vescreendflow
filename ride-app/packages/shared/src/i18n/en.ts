@@ -150,6 +150,9 @@ export const en = {
     topUp: 'Top up wallet',
     topUpOk: 'Wallet topped up',
     starRating: '{n} stars',
+    clearSchedule: 'Clear schedule',
+    scheduleInFuture: 'Pick a future date and time',
+    rideScheduled: 'Ride scheduled',
   },
   share: {
     loading: 'Loading shared ride...',

@@ -150,6 +150,9 @@ export const es = {
     topUp: 'Recargar wallet',
     topUpOk: 'Wallet recargada',
     starRating: '{n} estrellas',
+    clearSchedule: 'Quitar programación',
+    scheduleInFuture: 'Elige una fecha futura',
+    rideScheduled: 'Viaje programado',
   },
   share: {
     loading: 'Cargando viaje compartido...',

@@ -101,7 +101,7 @@ router.post('/forgot-password', async (req, res) => {
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  const result = await pool.query('SELECT id FROM users WHERE email = $1', [parsed.data.email]);
+  const result = await pool.query('SELECT id, role, preferred_locale FROM users WHERE email = $1', [parsed.data.email]);
   if (result.rows.length === 0) {
     return res.json({ ok: true, message: 'Si el email existe, recibirás instrucciones' });
   }
@@ -113,13 +113,30 @@ router.post('/forgot-password', async (req, res) => {
     [result.rows[0].id, token, expires],
   );
 
-  const baseUrl = process.env.PASSENGER_WEB_URL ?? 'http://localhost:5174';
+  const role = result.rows[0].role as string;
+  const locale = (result.rows[0].preferred_locale as string) || 'es';
+  const baseUrl =
+    role === 'driver'
+      ? (process.env.DRIVER_WEB_URL ?? 'http://localhost:5175')
+      : (process.env.PASSENGER_WEB_URL ?? 'http://localhost:5174');
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
-  await sendEmail(
-    parsed.data.email,
-    `Restablecer contraseña — ${BRAND.name}`,
-    `<p>Usa este enlace para restablecer tu contraseña (válido 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
-  );
+  const subject =
+    locale === 'en'
+      ? `Reset password — ${BRAND.name}`
+      : locale === 'it'
+        ? `Reimposta password — ${BRAND.name}`
+        : locale === 'pt'
+          ? `Redefinir senha — ${BRAND.name}`
+          : `Restablecer contraseña — ${BRAND.name}`;
+  const body =
+    locale === 'en'
+      ? `<p>Use this link to reset your password (valid 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`
+      : locale === 'it'
+        ? `<p>Usa questo link per reimpostare la password (valido 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`
+        : locale === 'pt'
+          ? `<p>Use este link para redefinir sua senha (válido 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`
+          : `<p>Usa este enlace para restablecer tu contraseña (válido 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`;
+  await sendEmail(parsed.data.email, subject, body);
 
   res.json({ ok: true, message: 'Si el email existe, recibirás instrucciones', devResetUrl: process.env.NODE_ENV !== 'production' ? resetUrl : undefined });
 });

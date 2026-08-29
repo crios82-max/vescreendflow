@@ -60,7 +60,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('ride');
   const [history, setHistory] = useState<Ride[]>([]);
   const [rated, setRated] = useState(false);
-  const [tipAmount, setTipAmount] = useState(2);
+  const [tipAmount, setTipAmount] = useState(0);
   const [etaPickup, setEtaPickup] = useState<number | null>(null);
   const [rideForName, setRideForName] = useState('');
   const [stop, setStop] = useState<{ latitude: number; longitude: number; address: string } | null>(null);
@@ -237,6 +237,9 @@ export default function App() {
       });
       setRide(created);
       setScheduledHours(0);
+      if (created.status === 'scheduled') {
+        showBanner(t('common.rideScheduled'));
+      }
     } catch (err) {
       setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
@@ -428,15 +431,28 @@ export default function App() {
               {loading ? <ActivityIndicator color={colors.primaryOnDark} /> : <Text style={styles.btnText}>{mode === 'login' ? t('common.login') : t('auth.createAccount')}</Text>}
             </Pressable>
             {mode === 'login' && (
-              <Pressable onPress={async () => {
+              <Pressable disabled={loading} onPress={async () => {
                 if (!form.email) { setError(t('common.enterEmail')); return; }
-                const r = await mobileApi.forgotPassword(form.email);
-                setForgotMsg(r.devResetUrl ? t('common.devReset', { url: r.devResetUrl }) : t('common.checkEmail'));
+                try {
+                  const r = await mobileApi.forgotPassword(form.email);
+                  setForgotMsg(r.devResetUrl ? t('common.devReset', { url: r.devResetUrl }) : t('common.checkEmail'));
+                } catch (err) {
+                  setError(te(err instanceof Error ? err.message : t('common.error')));
+                }
               }}>
                 <Text style={styles.link}>{t('auth.forgotPassword')}</Text>
               </Pressable>
             )}
             {forgotMsg ? <Text style={styles.muted}>{forgotMsg}</Text> : null}
+            <View style={styles.row}>
+              <Pressable onPress={() => Linking.openURL(`${passengerWebUrl()}/terms`)}>
+                <Text style={styles.link}>{t('auth.terms')}</Text>
+              </Pressable>
+              <Text style={styles.muted}> · </Text>
+              <Pressable onPress={() => Linking.openURL(`${passengerWebUrl()}/privacy`)}>
+                <Text style={styles.link}>{t('auth.privacy')}</Text>
+              </Pressable>
+            </View>
             {apiConnected === false && (
               <Text style={styles.muted}>{t('mobile.offlineHint')}</Text>
             )}
@@ -587,7 +603,7 @@ export default function App() {
                 )}
                 <TextInput style={styles.input} placeholder={t('common.promoPlaceholder')} placeholderTextColor={placeholderColor} value={promoCode} onChangeText={setPromoCode} autoCapitalize="characters" />
                 {promoCode ? (
-                  <Pressable style={styles.btnSmall} onPress={async () => {
+                  <Pressable style={[styles.btnSmall, loading && styles.btnDisabled]} disabled={loading} onPress={async () => {
                     try {
                       const sub = selectedOption?.estimatedPrice ?? 0;
                       const r = await mobileApi.validatePromo(promoCode, sub);
@@ -615,6 +631,9 @@ export default function App() {
                 </View>
                 {etaPickup != null && ['accepted', 'arriving'].includes(ride.status) && (
                   <Text style={styles.etaText}>{t('common.arriveIn', { min: etaPickup })}</Text>
+                )}
+                {ride.status === 'in_progress' && (ride.etaDropoffMin != null || etaPickup != null) && (
+                  <Text style={styles.etaText}>{t('common.dropoffIn', { min: ride.etaDropoffMin ?? etaPickup ?? 0 })}</Text>
                 )}
                 <Text style={styles.muted}>{vehicle(ride.vehicleType)}</Text>
                 <FareBreakdownView breakdown={ride.fareBreakdown} surgeMultiplier={ride.surgeMultiplier} />
