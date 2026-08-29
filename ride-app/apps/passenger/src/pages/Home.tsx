@@ -256,7 +256,7 @@ export default function Home() {
                 </div>
                 {serviceMode === 'delivery' ? (
                   <>
-                    <p className="muted-text" style={{ margin: '0 0 4px' }}>{t('service.pickRestaurant')} ({t('service.spainFirst')})</p>
+                    <p className="muted-text" style={{ margin: '0 0 4px' }}>{t('service.pickRestaurant')}</p>
                     <RestaurantPicker
                       selectedId={restaurantId}
                       onSelect={(pick) => {

@@ -278,8 +278,12 @@ export const it = {
     category: 'Categoria',
     searchRestaurant: 'Cerca McDonald\'s, pizza, Goiko…',
     noRestaurants: 'Nessun locale in questa città',
-    pickRestaurant: 'Scegli un locale in Spagna',
+    pickRestaurant: 'Scegli ristorante o fast food',
     spainFirst: 'Spagna',
+    country: 'Paese',
+    countryES: 'Spagna',
+    countryVE: 'Venezuela',
+    countryIT: 'Italia',
   },
   mobile: {
     passenger: 'Passeggero',

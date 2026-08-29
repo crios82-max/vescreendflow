@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { DeliveryRestaurant, RestaurantCategory } from '@ride-app/shared';
+import type { DeliveryCountry, DeliveryRestaurant, RestaurantCategory } from '@ride-app/shared';
+import { DELIVERY_COUNTRIES, DELIVERY_COUNTRY_META } from '@ride-app/shared';
 import { api } from './api';
 import { useI18n } from './I18nProvider';
 
@@ -19,17 +20,23 @@ type CategoryFilter = RestaurantCategory | 'all';
 
 export function RestaurantPicker({ selectedId, onSelect }: Props) {
   const { t } = useI18n();
+  const [country, setCountry] = useState<DeliveryCountry>('ES');
   const [cities, setCities] = useState<string[]>([]);
-  const [city, setCity] = useState('Madrid');
+  const [city, setCity] = useState(DELIVERY_COUNTRY_META.ES.defaultCity);
   const [category, setCategory] = useState<CategoryFilter>('all');
   const [q, setQ] = useState('');
   const [restaurants, setRestaurants] = useState<DeliveryRestaurant[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setCity(DELIVERY_COUNTRY_META[country].defaultCity);
+    setQ('');
+  }, [country]);
+
+  useEffect(() => {
     setLoading(true);
     api
-      .listRestaurants({ country: 'ES', city, category, q: q || undefined })
+      .listRestaurants({ country, city, category, q: q || undefined })
       .then((r) => {
         setCities(r.cities);
         setRestaurants(r.restaurants);
@@ -39,7 +46,7 @@ export function RestaurantPicker({ selectedId, onSelect }: Props) {
       })
       .catch(() => setRestaurants([]))
       .finally(() => setLoading(false));
-  }, [city, category, q]);
+  }, [country, city, category, q]);
 
   const labelFor = useMemo(
     () => ({
@@ -50,16 +57,30 @@ export function RestaurantPicker({ selectedId, onSelect }: Props) {
     [t],
   );
 
+  const countryLabel = (code: DeliveryCountry) => t(DELIVERY_COUNTRY_META[code].labelKey);
+
   return (
     <div className="restaurant-picker">
       <div className="restaurant-picker__filters">
+        <div className="tab-row" role="tablist" aria-label={t('service.country')}>
+          {DELIVERY_COUNTRIES.map((code) => (
+            <button
+              key={code}
+              type="button"
+              className={`tab-btn${country === code ? ' tab-btn--active' : ''}`}
+              onClick={() => setCountry(code)}
+            >
+              {countryLabel(code)}
+            </button>
+          ))}
+        </div>
         <select
           className="place-input"
           value={city}
           onChange={(e) => setCity(e.target.value)}
           aria-label={t('service.city')}
         >
-          {(cities.length ? cities : ['Madrid']).map((c) => (
+          {(cities.length ? cities : [DELIVERY_COUNTRY_META[country].defaultCity]).map((c) => (
             <option key={c} value={c}>{c}</option>
           ))}
         </select>

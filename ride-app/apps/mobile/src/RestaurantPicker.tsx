@@ -1,8 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import {
+  DELIVERY_COUNTRIES,
+  DELIVERY_COUNTRY_META,
   deliveryCities,
   listDeliveryRestaurants,
+  type DeliveryCountry,
   type DeliveryRestaurant,
   type RestaurantCategory,
 } from '@ride-app/shared';
@@ -25,19 +28,33 @@ type CategoryFilter = RestaurantCategory | 'all';
 
 export function RestaurantPicker({ selectedId, onSelect }: Props) {
   const { t } = useMobileI18n();
-  const cities = useMemo(() => deliveryCities('ES'), []);
-  const [city, setCity] = useState(cities[0] ?? 'Madrid');
+  const [country, setCountry] = useState<DeliveryCountry>('ES');
+  const [city, setCity] = useState(DELIVERY_COUNTRY_META.ES.defaultCity);
   const [category, setCategory] = useState<CategoryFilter>('all');
   const [q, setQ] = useState('');
 
+  const cities = useMemo(() => deliveryCities(country), [country]);
+
+  useEffect(() => {
+    setCity(DELIVERY_COUNTRY_META[country].defaultCity);
+    setQ('');
+  }, [country]);
+
   const restaurants = useMemo(
-    () => listDeliveryRestaurants({ country: 'ES', city, category, q: q || undefined }),
-    [city, category, q],
+    () => listDeliveryRestaurants({ country, city, category, q: q || undefined }),
+    [country, city, category, q],
   );
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.hint}>{t('service.pickRestaurant')} ({t('service.spainFirst')})</Text>
+      <Text style={styles.hint}>{t('service.pickRestaurant')}</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.row}>
+        {DELIVERY_COUNTRIES.map((code) => (
+          <Pressable key={code} style={[styles.chip, country === code && styles.chipActive]} onPress={() => setCountry(code)}>
+            <Text style={country === code ? styles.chipTextActive : styles.chipText}>{t(DELIVERY_COUNTRY_META[code].labelKey)}</Text>
+          </Pressable>
+        ))}
+      </ScrollView>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.row}>
         {cities.map((c) => (
           <Pressable key={c} style={[styles.chip, city === c && styles.chipActive]} onPress={() => setCity(c)}>

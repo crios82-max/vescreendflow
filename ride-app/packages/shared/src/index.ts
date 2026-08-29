@@ -331,14 +331,20 @@ export { BRAND, brandTitle, brandAppLabel } from './brand.js';
 export {
   DELIVERY_RESTAURANTS,
   DELIVERY_COUNTRIES,
+  DELIVERY_COUNTRY_META,
   SPAIN_CITIES,
+  VENEZUELA_CITIES,
+  ITALY_CITIES,
   listDeliveryRestaurants,
   getDeliveryRestaurant,
   deliveryCities,
+  isDeliveryCountry,
   type DeliveryRestaurant,
   type RestaurantCategory,
   type DeliveryCountry,
   type SpainCity,
+  type VenezuelaCity,
+  type ItalyCity,
   type RestaurantFilter,
 } from './restaurants.js';
 export {

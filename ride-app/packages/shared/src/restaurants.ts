@@ -1,6 +1,8 @@
-/** Delivery restaurant / fast-food catalog — Spain first. */
+/** Delivery restaurant / fast-food catalog — ES, VE, IT. */
 
 export type RestaurantCategory = 'fast_food' | 'restaurant';
+
+export type DeliveryCountry = 'ES' | 'VE' | 'IT';
 
 export interface DeliveryRestaurant {
   id: string;
@@ -8,14 +10,19 @@ export interface DeliveryRestaurant {
   category: RestaurantCategory;
   cuisine: string;
   city: string;
-  country: 'ES';
+  country: DeliveryCountry;
   address: string;
   lat: number;
   lng: number;
 }
 
-export const DELIVERY_COUNTRIES = ['ES'] as const;
-export type DeliveryCountry = (typeof DELIVERY_COUNTRIES)[number];
+export const DELIVERY_COUNTRIES = ['ES', 'VE', 'IT'] as const;
+
+export const DELIVERY_COUNTRY_META: Record<DeliveryCountry, { defaultCity: string; labelKey: string }> = {
+  ES: { defaultCity: 'Madrid', labelKey: 'service.countryES' },
+  VE: { defaultCity: 'Caracas', labelKey: 'service.countryVE' },
+  IT: { defaultCity: 'Roma', labelKey: 'service.countryIT' },
+};
 
 export const SPAIN_CITIES = [
   'Madrid',
@@ -27,9 +34,29 @@ export const SPAIN_CITIES = [
   'Zaragoza',
 ] as const;
 
-export type SpainCity = (typeof SPAIN_CITIES)[number];
+export const VENEZUELA_CITIES = [
+  'Caracas',
+  'Maracaibo',
+  'Valencia',
+  'Barquisimeto',
+  'Maracay',
+  'Mérida',
+] as const;
 
-/** Curated pickup points for food delivery (real neighbourhood coords, illustrative branches). */
+export const ITALY_CITIES = [
+  'Roma',
+  'Milano',
+  'Napoli',
+  'Torino',
+  'Firenze',
+  'Bologna',
+] as const;
+
+export type SpainCity = (typeof SPAIN_CITIES)[number];
+export type VenezuelaCity = (typeof VENEZUELA_CITIES)[number];
+export type ItalyCity = (typeof ITALY_CITIES)[number];
+
+/** Curated pickup points for food delivery (neighbourhood coords, illustrative branches). */
 export const DELIVERY_RESTAURANTS: DeliveryRestaurant[] = [
   // —— Madrid ——
   {
@@ -418,6 +445,547 @@ export const DELIVERY_RESTAURANTS: DeliveryRestaurant[] = [
     lat: 41.6485,
     lng: -0.9102,
   },
+
+  // —— Caracas ——
+  {
+    id: 've-ccs-mcd-chacao',
+    name: "McDonald's Chacao",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Caracas',
+    country: 'VE',
+    address: 'Av. Francisco de Miranda, Chacao, Caracas',
+    lat: 10.4955,
+    lng: -66.8532,
+  },
+  {
+    id: 've-ccs-bk-ccct',
+    name: 'Burger King CCCT',
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Caracas',
+    country: 'VE',
+    address: 'Centro Ciudad Comercial Tamanaco, Caracas',
+    lat: 10.4885,
+    lng: -66.8558,
+  },
+  {
+    id: 've-ccs-wendys-altamira',
+    name: "Wendy's Altamira",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Caracas',
+    country: 'VE',
+    address: 'Av. San Juan Bosco, Altamira, Caracas',
+    lat: 10.4968,
+    lng: -66.8495,
+  },
+  {
+    id: 've-ccs-arturos-lasmercedes',
+    name: "Arturo's Las Mercedes",
+    category: 'fast_food',
+    cuisine: 'chicken',
+    city: 'Caracas',
+    country: 'VE',
+    address: 'Calle París, Las Mercedes, Caracas',
+    lat: 10.4912,
+    lng: -66.8585,
+  },
+  {
+    id: 've-ccs-dominos-sabana',
+    name: "Domino's Pizza Sabana Grande",
+    category: 'fast_food',
+    cuisine: 'pizza',
+    city: 'Caracas',
+    country: 'VE',
+    address: 'Blvd. de Sabana Grande, Caracas',
+    lat: 10.4925,
+    lng: -66.8755,
+  },
+  {
+    id: 've-ccs-pizzahut-chacao',
+    name: 'Pizza Hut Chacao',
+    category: 'fast_food',
+    cuisine: 'pizza',
+    city: 'Caracas',
+    country: 'VE',
+    address: 'Av. Francisco de Miranda, Chacao, Caracas',
+    lat: 10.4942,
+    lng: -66.8518,
+  },
+  {
+    id: 've-ccs-arepera-sambil',
+    name: 'Arepera Sambil',
+    category: 'restaurant',
+    cuisine: 'venezuelan',
+    city: 'Caracas',
+    country: 'VE',
+    address: 'Centro Sambil Chacao, Caracas',
+    lat: 10.4982,
+    lng: -66.8538,
+  },
+  {
+    id: 've-ccs-tropiburger',
+    name: 'Tropi Burger Los Palos Grandes',
+    category: 'restaurant',
+    cuisine: 'burgers',
+    city: 'Caracas',
+    country: 'VE',
+    address: 'Av. Andrés Bello, Los Palos Grandes, Caracas',
+    lat: 10.4988,
+    lng: -66.8465,
+  },
+  {
+    id: 've-ccs-elbus',
+    name: 'El Bus de Chamos Plaza Venezuela',
+    category: 'restaurant',
+    cuisine: 'venezuelan',
+    city: 'Caracas',
+    country: 'VE',
+    address: 'Plaza Venezuela, Caracas',
+    lat: 10.495,
+    lng: -66.898,
+  },
+
+  // —— Maracaibo ——
+  {
+    id: 've-mar-mcd-sambil',
+    name: "McDonald's Sambil Maracaibo",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Maracaibo',
+    country: 'VE',
+    address: 'Sambil Maracaibo, Av. 17, Maracaibo',
+    lat: 10.6665,
+    lng: -71.6155,
+  },
+  {
+    id: 've-mar-bk-bella-vista',
+    name: 'Burger King Bella Vista',
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Maracaibo',
+    country: 'VE',
+    address: 'Av. 15 Delicias, Bella Vista, Maracaibo',
+    lat: 10.6725,
+    lng: -71.6082,
+  },
+  {
+    id: 've-mar-arturos',
+    name: "Arturo's 5 de Julio",
+    category: 'fast_food',
+    cuisine: 'chicken',
+    city: 'Maracaibo',
+    country: 'VE',
+    address: 'Av. 5 de Julio, Maracaibo',
+    lat: 10.6688,
+    lng: -71.6125,
+  },
+  {
+    id: 've-mar-arepera',
+    name: 'Arepera El Fogón del Zulia',
+    category: 'restaurant',
+    cuisine: 'venezuelan',
+    city: 'Maracaibo',
+    country: 'VE',
+    address: 'Calle 77, Maracaibo',
+    lat: 10.6645,
+    lng: -71.6185,
+  },
+
+  // —— Valencia (VE) ——
+  {
+    id: 've-val-mcd-sambil',
+    name: "McDonald's Sambil Valencia",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Valencia',
+    country: 'VE',
+    address: 'Sambil Valencia, Av. Universitaria, Valencia',
+    lat: 10.1655,
+    lng: -68.0085,
+  },
+  {
+    id: 've-val-bk-norte',
+    name: 'Burger King Av. Bolívar Norte',
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Valencia',
+    country: 'VE',
+    address: 'Av. Bolívar Norte, Valencia',
+    lat: 10.1825,
+    lng: -68.0025,
+  },
+  {
+    id: 've-val-dominos',
+    name: "Domino's Pizza Prebo",
+    category: 'fast_food',
+    cuisine: 'pizza',
+    city: 'Valencia',
+    country: 'VE',
+    address: 'Centro Comercial Prebo, Valencia',
+    lat: 10.1785,
+    lng: -67.9985,
+  },
+  {
+    id: 've-val-pollos',
+    name: 'Pollos Mario Naguanagua',
+    category: 'restaurant',
+    cuisine: 'chicken',
+    city: 'Valencia',
+    country: 'VE',
+    address: 'Av. Universidad, Naguanagua, Valencia',
+    lat: 10.2155,
+    lng: -68.0155,
+  },
+
+  // —— Barquisimeto ——
+  {
+    id: 've-brm-mcd',
+    name: "McDonald's Barquisimeto",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Barquisimeto',
+    country: 'VE',
+    address: 'Av. Vargas, Barquisimeto',
+    lat: 10.0675,
+    lng: -69.3225,
+  },
+  {
+    id: 've-brm-bk',
+    name: 'Burger King Lara',
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Barquisimeto',
+    country: 'VE',
+    address: 'CC Sambil Barquisimeto',
+    lat: 10.0725,
+    lng: -69.3155,
+  },
+  {
+    id: 've-brm-arepera',
+    name: 'Arepera El Criollo',
+    category: 'restaurant',
+    cuisine: 'venezuelan',
+    city: 'Barquisimeto',
+    country: 'VE',
+    address: 'Carrera 19, Barquisimeto',
+    lat: 10.0645,
+    lng: -69.3285,
+  },
+
+  // —— Maracay ——
+  {
+    id: 've-my-mcd',
+    name: "McDonald's Maracay",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Maracay',
+    country: 'VE',
+    address: 'Av. Las Delicias, Maracay',
+    lat: 10.2515,
+    lng: -67.5955,
+  },
+  {
+    id: 've-my-arturos',
+    name: "Arturo's Maracay",
+    category: 'fast_food',
+    cuisine: 'chicken',
+    city: 'Maracay',
+    country: 'VE',
+    address: 'Av. Constitución, Maracay',
+    lat: 10.2465,
+    lng: -67.6015,
+  },
+  {
+    id: 've-my-arepera',
+    name: 'Arepera La Aragüeña',
+    category: 'restaurant',
+    cuisine: 'venezuelan',
+    city: 'Maracay',
+    country: 'VE',
+    address: 'Av. Bermúdez, Maracay',
+    lat: 10.2485,
+    lng: -67.5985,
+  },
+
+  // —— Mérida ——
+  {
+    id: 've-mrd-mcd',
+    name: "McDonald's Mérida",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Mérida',
+    country: 'VE',
+    address: 'Av. Las Américas, Mérida',
+    lat: 8.5975,
+    lng: -71.1445,
+  },
+  {
+    id: 've-mrd-pizzahut',
+    name: 'Pizza Hut Mérida',
+    category: 'fast_food',
+    cuisine: 'pizza',
+    city: 'Mérida',
+    country: 'VE',
+    address: 'Av. Urdaneta, Mérida',
+    lat: 8.5925,
+    lng: -71.1525,
+  },
+  {
+    id: 've-mrd-arepera',
+    name: 'Arepera El Teleférico',
+    category: 'restaurant',
+    cuisine: 'venezuelan',
+    city: 'Mérida',
+    country: 'VE',
+    address: 'Plaza Las Heroínas, Mérida',
+    lat: 8.5895,
+    lng: -71.1565,
+  },
+
+  // —— Roma ——
+  {
+    id: 'it-rom-mcd-termini',
+    name: "McDonald's Termini",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Roma',
+    country: 'IT',
+    address: 'Piazza dei Cinquecento, Roma',
+    lat: 41.9015,
+    lng: 12.5008,
+  },
+  {
+    id: 'it-rom-bk-piazza-venezia',
+    name: 'Burger King Piazza Venezia',
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Roma',
+    country: 'IT',
+    address: 'Via del Corso 181, Roma',
+    lat: 41.8965,
+    lng: 12.4825,
+  },
+  {
+    id: 'it-rom-oldwildwest',
+    name: 'Old Wild West Tiburtina',
+    category: 'restaurant',
+    cuisine: 'american',
+    city: 'Roma',
+    country: 'IT',
+    address: 'Via Tiburtina 1113, Roma',
+    lat: 41.9215,
+    lng: 12.5485,
+  },
+  {
+    id: 'it-rom-spontini',
+    name: 'Pizzeria Spontini Prati',
+    category: 'restaurant',
+    cuisine: 'pizza',
+    city: 'Roma',
+    country: 'IT',
+    address: 'Via Cola di Rienzo 50, Roma',
+    lat: 41.9085,
+    lng: 12.4625,
+  },
+  {
+    id: 'it-rom-kfc',
+    name: 'KFC Roma Est',
+    category: 'fast_food',
+    cuisine: 'chicken',
+    city: 'Roma',
+    country: 'IT',
+    address: 'Via Prenestina 180, Roma',
+    lat: 41.8925,
+    lng: 12.5455,
+  },
+
+  // —— Milano ——
+  {
+    id: 'it-mil-mcd-duomo',
+    name: "McDonald's Duomo",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Milano',
+    country: 'IT',
+    address: 'Piazza del Duomo, Milano',
+    lat: 45.4642,
+    lng: 9.1900,
+  },
+  {
+    id: 'it-mil-bk-centrale',
+    name: 'Burger King Stazione Centrale',
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Milano',
+    country: 'IT',
+    address: 'Piazza Duca d\'Aosta, Milano',
+    lat: 45.4865,
+    lng: 9.2045,
+  },
+  {
+    id: 'it-mil-roadhouse',
+    name: 'Roadhouse Grill Porta Nuova',
+    category: 'restaurant',
+    cuisine: 'american',
+    city: 'Milano',
+    country: 'IT',
+    address: 'Piazza Gae Aulenti, Milano',
+    lat: 45.4835,
+    lng: 9.1905,
+  },
+  {
+    id: 'it-mil-pizzikotto',
+    name: 'Pizzikotto Navigli',
+    category: 'restaurant',
+    cuisine: 'pizza',
+    city: 'Milano',
+    country: 'IT',
+    address: 'Alzaia Naviglio Grande 20, Milano',
+    lat: 45.4515,
+    lng: 9.1725,
+  },
+
+  // —— Napoli ——
+  {
+    id: 'it-nap-mcd-garibaldi',
+    name: "McDonald's Garibaldi",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Napoli',
+    country: 'IT',
+    address: 'Piazza Garibaldi, Napoli',
+    lat: 40.8525,
+    lng: 14.2685,
+  },
+  {
+    id: 'it-nap-bk',
+    name: 'Burger King Toledo',
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Napoli',
+    country: 'IT',
+    address: 'Via Toledo 100, Napoli',
+    lat: 40.8415,
+    lng: 14.2485,
+  },
+  {
+    id: 'it-nap-pizzeria',
+    name: "L'Antica Pizzeria da Michele",
+    category: 'restaurant',
+    cuisine: 'pizza',
+    city: 'Napoli',
+    country: 'IT',
+    address: 'Via Cesare Sersale 1, Napoli',
+    lat: 40.8495,
+    lng: 14.2635,
+  },
+
+  // —— Torino ——
+  {
+    id: 'it-tor-mcd',
+    name: "McDonald's Porta Nuova",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Torino',
+    country: 'IT',
+    address: 'Corso Vittorio Emanuele II, Torino',
+    lat: 45.0625,
+    lng: 7.6785,
+  },
+  {
+    id: 'it-tor-bk',
+    name: 'Burger King Lingotto',
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Torino',
+    country: 'IT',
+    address: 'Via Nizza 230, Torino',
+    lat: 45.0325,
+    lng: 7.6655,
+  },
+  {
+    id: 'it-tor-oldwildwest',
+    name: 'Old Wild West Torino',
+    category: 'restaurant',
+    cuisine: 'american',
+    city: 'Torino',
+    country: 'IT',
+    address: 'Corso Francia 15, Torino',
+    lat: 45.0755,
+    lng: 7.6555,
+  },
+
+  // —— Firenze ——
+  {
+    id: 'it-fir-mcd',
+    name: "McDonald's Firenze SMN",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Firenze',
+    country: 'IT',
+    address: 'Piazza della Stazione, Firenze',
+    lat: 43.7765,
+    lng: 11.2485,
+  },
+  {
+    id: 'it-fir-bk',
+    name: 'Burger King Duomo',
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Firenze',
+    country: 'IT',
+    address: 'Via de\' Cerretani, Firenze',
+    lat: 43.7735,
+    lng: 11.2545,
+  },
+  {
+    id: 'it-fir-pizzeria',
+    name: 'Pizzeria Gusta Firenze',
+    category: 'restaurant',
+    cuisine: 'pizza',
+    city: 'Firenze',
+    country: 'IT',
+    address: 'Via dei Neri 10, Firenze',
+    lat: 43.7685,
+    lng: 11.2585,
+  },
+
+  // —— Bologna ——
+  {
+    id: 'it-bol-mcd',
+    name: "McDonald's Bologna Centrale",
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Bologna',
+    country: 'IT',
+    address: 'Piazza Medaglie d\'Oro, Bologna',
+    lat: 44.5055,
+    lng: 11.3425,
+  },
+  {
+    id: 'it-bol-bk',
+    name: 'Burger King Via Rizzoli',
+    category: 'fast_food',
+    cuisine: 'burgers',
+    city: 'Bologna',
+    country: 'IT',
+    address: 'Via Rizzoli 5, Bologna',
+    lat: 44.4945,
+    lng: 11.3465,
+  },
+  {
+    id: 'it-bol-trattoria',
+    name: 'Trattoria da Gianni',
+    category: 'restaurant',
+    cuisine: 'italian',
+    city: 'Bologna',
+    country: 'IT',
+    address: 'Via del Preti 8, Bologna',
+    lat: 44.4925,
+    lng: 11.3415,
+  },
 ];
 
 export interface RestaurantFilter {
@@ -449,5 +1017,10 @@ export function deliveryCities(country: DeliveryCountry | string = 'ES'): string
   const cities = new Set(
     DELIVERY_RESTAURANTS.filter((r) => r.country === country).map((r) => r.city),
   );
-  return [...cities].sort((a, b) => a.localeCompare(b, 'es'));
+  const locale = country === 'IT' ? 'it' : 'es';
+  return [...cities].sort((a, b) => a.localeCompare(b, locale));
+}
+
+export function isDeliveryCountry(code: string): code is DeliveryCountry {
+  return (DELIVERY_COUNTRIES as readonly string[]).includes(code);
 }

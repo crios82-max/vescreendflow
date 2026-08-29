@@ -1,37 +1,48 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  DELIVERY_COUNTRIES,
   DELIVERY_RESTAURANTS,
   deliveryCities,
   getDeliveryRestaurant,
   listDeliveryRestaurants,
 } from './restaurants.ts';
 
-describe('delivery restaurants (Spain)', () => {
-  it('has Spain-only catalog with fast food and restaurants', () => {
-    assert.ok(DELIVERY_RESTAURANTS.length >= 20);
-    assert.ok(DELIVERY_RESTAURANTS.every((r) => r.country === 'ES'));
+describe('delivery restaurants', () => {
+  it('covers ES, VE and IT', () => {
+    assert.deepEqual([...DELIVERY_COUNTRIES], ['ES', 'VE', 'IT']);
+    assert.ok(DELIVERY_RESTAURANTS.some((r) => r.country === 'ES'));
+    assert.ok(DELIVERY_RESTAURANTS.some((r) => r.country === 'VE'));
+    assert.ok(DELIVERY_RESTAURANTS.some((r) => r.country === 'IT'));
     assert.ok(DELIVERY_RESTAURANTS.some((r) => r.category === 'fast_food'));
     assert.ok(DELIVERY_RESTAURANTS.some((r) => r.category === 'restaurant'));
   });
 
-  it('filters by city and category', () => {
+  it('filters Spain Madrid fast food', () => {
     const madridFast = listDeliveryRestaurants({ country: 'ES', city: 'Madrid', category: 'fast_food' });
     assert.ok(madridFast.length >= 3);
     assert.ok(madridFast.every((r) => r.city === 'Madrid' && r.category === 'fast_food'));
   });
 
-  it('searches by name', () => {
-    const hits = listDeliveryRestaurants({ q: 'mcdonald' });
-    assert.ok(hits.length >= 1);
-    assert.ok(hits.every((r) => r.name.toLowerCase().includes('mcdonald')));
+  it('filters Venezuela Caracas', () => {
+    const caracas = listDeliveryRestaurants({ country: 'VE', city: 'Caracas' });
+    assert.ok(caracas.length >= 5);
+    assert.ok(caracas.every((r) => r.country === 'VE' && r.city === 'Caracas'));
+    assert.ok(deliveryCities('VE').includes('Caracas'));
+    assert.ok(deliveryCities('VE').includes('Maracaibo'));
   });
 
-  it('lists cities and gets by id', () => {
-    const cities = deliveryCities('ES');
-    assert.ok(cities.includes('Madrid'));
-    assert.ok(cities.includes('Barcelona'));
-    const one = getDeliveryRestaurant('es-mad-mcd-sol');
-    assert.equal(one?.city, 'Madrid');
+  it('filters Italy Roma', () => {
+    const roma = listDeliveryRestaurants({ country: 'IT', city: 'Roma' });
+    assert.ok(roma.length >= 3);
+    assert.ok(roma.every((r) => r.country === 'IT'));
+    assert.ok(deliveryCities('IT').includes('Milano'));
+  });
+
+  it('searches by name and gets by id', () => {
+    const hits = listDeliveryRestaurants({ country: 'VE', q: 'arepera' });
+    assert.ok(hits.length >= 1);
+    const one = getDeliveryRestaurant('ve-ccs-mcd-chacao');
+    assert.equal(one?.city, 'Caracas');
   });
 });
