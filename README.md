@@ -1639,6 +1639,20 @@ También decodifica init reserve (C/D) y health dist (E/F) en señales.
 npm run veplayer:fase48-smoke
 ```
 
+## EssLim · EssAct · HvEner (v2.45 · Fase 49)
+
+Continúa bloque HEV **01D1 / 01D4**.
+
+| PID | Señal | Alertas | HUD |
+|-----|-------|---------|-----|
+| 01D1 A/B | ESS charge limit kW | `ess_chg_lim_warn` / `ess_chg_lim_alert` | `EssLim · XXkW` |
+| 01D1 C/D | ESS charge actual kW | `ess_chg_act_warn` / `ess_chg_act_alert` | `EssAct · XXkW` |
+| 01D4 | Energy rate Wh/s | `hv_ener_rate_warn` / `hv_ener_rate_alert` | `HvEner · XXWh/s` |
+
+```bash
+npm run veplayer:fase49-smoke
+```
+
 ## Validation gate (pre-fase · v1.15)
 
 Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
@@ -1648,7 +1662,7 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 | `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
 | `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
 | `dbc-smoke` | DBC decode (Kotlin mirror) |
-| `fase16–48-smoke` | Alertas `fleetPro.ts` con heartbeats |
+| `fase16–49-smoke` | Alertas `fleetPro.ts` con heartbeats |
 
 ```bash
 # SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)

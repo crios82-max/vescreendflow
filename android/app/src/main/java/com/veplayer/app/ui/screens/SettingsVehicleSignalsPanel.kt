@@ -5727,6 +5727,60 @@ private fun SettingsVehicleSignalsObdFase41_45(
                 fontSize = 12.sp,
             )
 
+            Text("Fase 49 OBD (01D1/01D4 EssChg/HvEner):", color = Mist)
+            val essChgLimSt by com.veplayer.app.vehicle.EssChgLimMonitor.state.collectAsState()
+            val essChgActSt by com.veplayer.app.vehicle.EssChgActMonitor.state.collectAsState()
+            val hvEnerRateSt by com.veplayer.app.vehicle.HvEnerRateMonitor.state.collectAsState()
+            var f49Lim by remember {
+                mutableStateOf(if (prefs.essChgLimSimKw > 0f) prefs.essChgLimSimKw.toInt().toString() else "0")
+            }
+            var f49Act by remember {
+                mutableStateOf(if (prefs.essChgActSimKw != 0f) prefs.essChgActSimKw.toInt().toString() else "0")
+            }
+            var f49Ener by remember {
+                mutableStateOf(if (prefs.hvEnerRateSimWhs != 0f) prefs.hvEnerRateSimWhs.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f49Lim,
+                    onValueChange = { f49Lim = it.filter { c -> c.isDigit() }.take(4) },
+                    label = { Text("EssLim") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f49Act,
+                    onValueChange = { f49Act = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("EssAct") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f49Ener,
+                    onValueChange = { f49Ener = it.filter { c -> c.isDigit() || c == '-' }.take(5) },
+                    label = { Text("HvEner") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.essChgLimSimKw = f49Lim.toFloatOrNull() ?: 0f
+                    prefs.essChgActSimKw = f49Act.toFloatOrNull() ?: 0f
+                    prefs.hvEnerRateSimWhs = f49Ener.toFloatOrNull() ?: 0f
+                    onStatus("Fase 49 sim aplicado")
+                },
+            ) { Text("Aplicar sim Fase 49") }
+            Text(
+                listOfNotNull(
+                    essChgLimSt.label.takeIf { it.isNotBlank() },
+                    essChgActSt.label.takeIf { it.isNotBlank() },
+                    hvEnerRateSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 49 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {
