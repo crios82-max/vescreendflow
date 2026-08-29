@@ -257,6 +257,12 @@ import com.veplayer.app.vehicle.EssChgAct
 import com.veplayer.app.vehicle.EssChgActMonitor
 import com.veplayer.app.vehicle.HvEnerRate
 import com.veplayer.app.vehicle.HvEnerRateMonitor
+import com.veplayer.app.vehicle.HvCurrRate
+import com.veplayer.app.vehicle.HvCurrRateMonitor
+import com.veplayer.app.vehicle.EmRpm
+import com.veplayer.app.vehicle.EmRpmMonitor
+import com.veplayer.app.vehicle.EmTq
+import com.veplayer.app.vehicle.EmTqMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -489,6 +495,9 @@ fun DriveVizPanel(
     val essChgLim by EssChgLimMonitor.state.collectAsState()
     val essChgAct by EssChgActMonitor.state.collectAsState()
     val hvEnerRate by HvEnerRateMonitor.state.collectAsState()
+    val hvCurrRate by HvCurrRateMonitor.state.collectAsState()
+    val emRpm by EmRpmMonitor.state.collectAsState()
+    val emTq by EmTqMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -704,6 +713,9 @@ fun DriveVizPanel(
             EssChgLimMonitor.tick(prefs, snap)
             EssChgActMonitor.tick(prefs, snap)
             HvEnerRateMonitor.tick(prefs, snap)
+            HvCurrRateMonitor.tick(prefs, snap)
+            EmRpmMonitor.tick(prefs, snap)
+            EmTqMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1674,6 +1686,15 @@ fun DriveVizPanel(
                 }
                 if (hvEnerRate.showWarn || (prefs.hvEnerRateEnabled && hvEnerRate.band == "ok" && hvEnerRate.label.isNotBlank())) {
                     Text(hvEnerRate.label, color = Color(HvEnerRate.accentArgb(hvEnerRate.band)), fontSize = 11.sp)
+                }
+                if (hvCurrRate.showWarn || (prefs.hvCurrRateEnabled && hvCurrRate.band == "ok" && hvCurrRate.label.isNotBlank())) {
+                    Text(hvCurrRate.label, color = Color(HvCurrRate.accentArgb(hvCurrRate.band)), fontSize = 11.sp)
+                }
+                if (emRpm.showWarn || (prefs.emRpmEnabled && emRpm.band == "ok" && emRpm.label.isNotBlank())) {
+                    Text(emRpm.label, color = Color(EmRpm.accentArgb(emRpm.band)), fontSize = 11.sp)
+                }
+                if (emTq.showWarn || (prefs.emTqEnabled && emTq.band == "ok" && emTq.label.isNotBlank())) {
+                    Text(emTq.label, color = Color(EmTq.accentArgb(emTq.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

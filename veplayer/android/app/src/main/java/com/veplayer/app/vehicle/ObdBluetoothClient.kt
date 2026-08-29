@@ -352,6 +352,9 @@ class ObdBluetoothClient(private val context: Context) {
                 "01D0", // ESS reserve remaining/init + health dist
                 "01D1", // ESS charge limit + actual power
                 "01D4", // HVESS energy rate Wh/s
+                "01DA", // HVESS current rate Ah/s
+                "01CC", // electric motor A RPM
+                "01CD", // electric motor A torque
                 "0194", // NOx reagent quality
                 "019B", // DEF fluid level
                 "01A1", // NOx corrected B1S1
