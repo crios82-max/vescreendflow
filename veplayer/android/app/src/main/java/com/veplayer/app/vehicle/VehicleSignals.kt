@@ -393,6 +393,12 @@ data class VehicleSignals(
         val essRsrvInitKwh: Float? = null,
         /** Distance since last SOH update km (OBD PID 01D0 E/F). */
         val essHealthDistKm: Float? = null,
+        /** ESS charging limit kW (OBD PID 01D1 A/B). */
+        val essChgLimKw: Float? = null,
+        /** ESS actual charging power kW (OBD PID 01D1 C/D). */
+        val essChgActKw: Float? = null,
+        /** Battery pack energy rate Wh/s (OBD PID 01D4). */
+        val hvEnerRateWhs: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -643,6 +649,9 @@ data class VehicleSignals(
             "ess_rsrv_rem_kwh" to essRsrvRemKwh?.toDouble(),
             "ess_rsrv_init_kwh" to essRsrvInitKwh?.toDouble(),
             "ess_health_dist_km" to essHealthDistKm?.toDouble(),
+            "ess_chg_lim_kw" to essChgLimKw?.toDouble(),
+            "ess_chg_act_kw" to essChgActKw?.toDouble(),
+            "hv_ener_rate_whs" to hvEnerRateWhs?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),

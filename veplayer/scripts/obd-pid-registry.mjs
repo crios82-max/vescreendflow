@@ -423,6 +423,24 @@ export function parseMode01(raw) {
         ...(data.length >= 4 ? { essRsrvInitKwh: (data[2] * 256 + data[3]) / 10 } : {}),
         ...(data.length >= 6 ? { essHealthDistKm: data[4] * 256 + data[5] } : {}),
       }
+    case 0xd1: {
+      if (data.length < 2) return {}
+      const limRaw = (data[0] << 8) | data[1]
+      const limSigned = limRaw & 0x8000 ? limRaw - 0x10000 : limRaw
+      const out = { essChgLimKw: limSigned / 10 }
+      if (data.length >= 4) {
+        const actRaw = (data[2] << 8) | data[3]
+        const actSigned = actRaw & 0x8000 ? actRaw - 0x10000 : actRaw
+        return { ...out, essChgActKw: actSigned / 10 }
+      }
+      return out
+    }
+    case 0xd4: {
+      if (data.length < 2) return {}
+      const raw = (data[0] << 8) | data[1]
+      const signed = raw & 0x8000 ? raw - 0x10000 : raw
+      return { hvEnerRateWhs: signed / 10 }
+    }
     case 0x9e:
       return data.length < 2 ? {} : { engineExhaustFlowKgh: (data[0] * 256 + data[1]) / 20 }
     case 0x9f:
@@ -459,7 +477,7 @@ export const POLL_PID_HEX = [
   '010D', '010C', '0110', '010A', '0133', '010E', '014A', '0143', '0145', '0149', '014B', '014D',
   '0144', '014E', '0152', '0153', '0159', '014C', '015A', '0161', '0162', '0170', '0171', '0172',
   '0173', '0174', '0175', '0176', '0155', '0156', '0157', '0158', '0177', '0178', '015D', '015B',
-  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0190', '0191', '0192', '0193', '0198', '0199', '019C', '019A', '01B2', '01B3', '01B4', '01B5', '01B6', '01B7', '01B8', '01B9', '01BA', '01BB', '01BC', '01BD', '01BE', '01BF', '01C1', '01C2', '01D2', '01D8', '01D9', '01D0', '0194', '019D', '019E', '019F', '019B', '01A1', '01A5', '01A7', '01A8', '01A2', '01A3', '01A4', '01A6', '01A9', '01C5', '01C7', '01C3', '01C4', '01C8', '01C6', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
+  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0190', '0191', '0192', '0193', '0198', '0199', '019C', '019A', '01B2', '01B3', '01B4', '01B5', '01B6', '01B7', '01B8', '01B9', '01BA', '01BB', '01BC', '01BD', '01BE', '01BF', '01C1', '01C2', '01D2', '01D8', '01D9', '01D0', '01D1', '01D4', '0194', '019D', '019E', '019F', '019B', '01A1', '01A5', '01A7', '01A8', '01A2', '01A3', '01A4', '01A6', '01A9', '01C5', '01C7', '01C3', '01C4', '01C8', '01C6', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
   '011F', '0121', '0131', '0134', '0142',
 ]
 
@@ -886,6 +904,18 @@ export function runFaseFormulaChecks(fase, assert) {
       assert((0x00 * 256 + 0x32) / 10 === 5, 'pid 01D0 rem kWh')
       assert((0x00 * 256 + 0x64) / 10 === 10, 'pid 01D0 init kWh')
       assert(0x04 * 256 + 0xb0 === 1200, 'pid 01D0 health dist')
+      break
+    }
+    case 49: {
+      const limRaw = (0x01 << 8) | 0xf4
+      const limSigned = limRaw & 0x8000 ? limRaw - 0x10000 : limRaw
+      assert(limSigned / 10 === 50, 'pid 01D1 lim kW')
+      const actRaw = (0x00 << 8) | 0xc8
+      const actSigned = actRaw & 0x8000 ? actRaw - 0x10000 : actRaw
+      assert(actSigned / 10 === 20, 'pid 01D1 act kW')
+      const enerRaw = (0x01 << 8) | 0x2c
+      const enerSigned = enerRaw & 0x8000 ? enerRaw - 0x10000 : enerRaw
+      assert(enerSigned / 10 === 30, 'pid 01D4 Wh/s')
       break
     }
     default:

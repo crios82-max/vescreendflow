@@ -102,6 +102,7 @@
     "veplayer:fase46-smoke": "node veplayer/scripts/fase46-smoke.mjs",
     "veplayer:fase47-smoke": "node veplayer/scripts/fase47-smoke.mjs",
     "veplayer:fase48-smoke": "node veplayer/scripts/fase48-smoke.mjs",
+    "veplayer:fase49-smoke": "node veplayer/scripts/fase49-smoke.mjs",
     "veplayer:deploy-mini": "bash veplayer/scripts/deploy-mini.sh",
     "veplayer:poll-parity": "node veplayer/scripts/poll-parity.mjs",
     "veplayer:validate-gate": "node veplayer/scripts/validate-gate.mjs",

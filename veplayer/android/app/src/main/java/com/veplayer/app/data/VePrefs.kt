@@ -4367,6 +4367,57 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("ess_rsrv_sim_kwh", 0f)
         set(value) = sp.edit().putFloat("ess_rsrv_sim_kwh", value.coerceIn(0f, 1e5f)).apply()
 
+    /** ESS charging limit kW (OBD 01D1 A/B). */
+    var essChgLimEnabled: Boolean
+        get() = sp.getBoolean("ess_chg_lim", true)
+        set(value) = sp.edit().putBoolean("ess_chg_lim", value).apply()
+    var essChgLimTts: Boolean
+        get() = sp.getBoolean("ess_chg_lim_tts", true)
+        set(value) = sp.edit().putBoolean("ess_chg_lim_tts", value).apply()
+    var essChgLimWarnKw: Float
+        get() = sp.getFloat("ess_chg_lim_warn_kw", 20f)
+        set(value) = sp.edit().putFloat("ess_chg_lim_warn_kw", value.coerceIn(5f, 200f)).apply()
+    var essChgLimAlertKw: Float
+        get() = sp.getFloat("ess_chg_lim_alert_kw", 8f)
+        set(value) = sp.edit().putFloat("ess_chg_lim_alert_kw", value.coerceIn(1f, 150f)).apply()
+    var essChgLimSimKw: Float
+        get() = sp.getFloat("ess_chg_lim_sim_kw", 0f)
+        set(value) = sp.edit().putFloat("ess_chg_lim_sim_kw", value.coerceIn(0f, 500f)).apply()
+
+    /** ESS actual charging power kW (OBD 01D1 C/D). */
+    var essChgActEnabled: Boolean
+        get() = sp.getBoolean("ess_chg_act", true)
+        set(value) = sp.edit().putBoolean("ess_chg_act", value).apply()
+    var essChgActTts: Boolean
+        get() = sp.getBoolean("ess_chg_act_tts", true)
+        set(value) = sp.edit().putBoolean("ess_chg_act_tts", value).apply()
+    var essChgActWarnKw: Float
+        get() = sp.getFloat("ess_chg_act_warn_kw", 80f)
+        set(value) = sp.edit().putFloat("ess_chg_act_warn_kw", value.coerceIn(10f, 300f)).apply()
+    var essChgActAlertKw: Float
+        get() = sp.getFloat("ess_chg_act_alert_kw", 120f)
+        set(value) = sp.edit().putFloat("ess_chg_act_alert_kw", value.coerceIn(15f, 400f)).apply()
+    var essChgActSimKw: Float
+        get() = sp.getFloat("ess_chg_act_sim_kw", 0f)
+        set(value) = sp.edit().putFloat("ess_chg_act_sim_kw", value.coerceIn(-500f, 500f)).apply()
+
+    /** HVESS energy rate Wh/s (OBD 01D4). */
+    var hvEnerRateEnabled: Boolean
+        get() = sp.getBoolean("hv_ener_rate", true)
+        set(value) = sp.edit().putBoolean("hv_ener_rate", value).apply()
+    var hvEnerRateTts: Boolean
+        get() = sp.getBoolean("hv_ener_rate_tts", true)
+        set(value) = sp.edit().putBoolean("hv_ener_rate_tts", value).apply()
+    var hvEnerRateWarnWhs: Float
+        get() = sp.getFloat("hv_ener_rate_warn_whs", 40f)
+        set(value) = sp.edit().putFloat("hv_ener_rate_warn_whs", value.coerceIn(5f, 500f)).apply()
+    var hvEnerRateAlertWhs: Float
+        get() = sp.getFloat("hv_ener_rate_alert_whs", 70f)
+        set(value) = sp.edit().putFloat("hv_ener_rate_alert_whs", value.coerceIn(10f, 800f)).apply()
+    var hvEnerRateSimWhs: Float
+        get() = sp.getFloat("hv_ener_rate_sim_whs", 0f)
+        set(value) = sp.edit().putFloat("hv_ener_rate_sim_whs", value.coerceIn(-1e5f, 1e5f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
