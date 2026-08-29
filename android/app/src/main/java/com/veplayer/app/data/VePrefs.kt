@@ -4305,6 +4305,40 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("hv_dcap_sim_kwh", 0f)
         set(value) = sp.edit().putFloat("hv_dcap_sim_kwh", value.coerceIn(0f, 1e5f)).apply()
 
+    /** State of Certified Energy % (OBD 01D2). */
+    var hvSoceEnabled: Boolean
+        get() = sp.getBoolean("hv_soce", true)
+        set(value) = sp.edit().putBoolean("hv_soce", value).apply()
+    var hvSoceTts: Boolean
+        get() = sp.getBoolean("hv_soce_tts", true)
+        set(value) = sp.edit().putBoolean("hv_soce_tts", value).apply()
+    var hvSoceWarnPct: Float
+        get() = sp.getFloat("hv_soce_warn_pct", 70f)
+        set(value) = sp.edit().putFloat("hv_soce_warn_pct", value.coerceIn(20f, 90f)).apply()
+    var hvSoceAlertPct: Float
+        get() = sp.getFloat("hv_soce_alert_pct", 50f)
+        set(value) = sp.edit().putFloat("hv_soce_alert_pct", value.coerceIn(10f, 80f)).apply()
+    var hvSoceSimPct: Float
+        get() = sp.getFloat("hv_soce_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("hv_soce_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    /** Calculated ESS energy capacity kWh (OBD 01D9). */
+    var essCapEnabled: Boolean
+        get() = sp.getBoolean("ess_cap", true)
+        set(value) = sp.edit().putBoolean("ess_cap", value).apply()
+    var essCapTts: Boolean
+        get() = sp.getBoolean("ess_cap_tts", true)
+        set(value) = sp.edit().putBoolean("ess_cap_tts", value).apply()
+    var essCapWarnKwh: Float
+        get() = sp.getFloat("ess_cap_warn_kwh", 40f)
+        set(value) = sp.edit().putFloat("ess_cap_warn_kwh", value.coerceIn(5f, 500f)).apply()
+    var essCapAlertKwh: Float
+        get() = sp.getFloat("ess_cap_alert_kwh", 25f)
+        set(value) = sp.edit().putFloat("ess_cap_alert_kwh", value.coerceIn(1f, 400f)).apply()
+    var essCapSimKwh: Float
+        get() = sp.getFloat("ess_cap_sim_kwh", 0f)
+        set(value) = sp.edit().putFloat("ess_cap_sim_kwh", value.coerceIn(0f, 1e5f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
