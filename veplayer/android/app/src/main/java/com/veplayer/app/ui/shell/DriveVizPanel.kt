@@ -263,6 +263,12 @@ import com.veplayer.app.vehicle.EmRpm
 import com.veplayer.app.vehicle.EmRpmMonitor
 import com.veplayer.app.vehicle.EmTq
 import com.veplayer.app.vehicle.EmTqMonitor
+import com.veplayer.app.vehicle.FcVolt
+import com.veplayer.app.vehicle.FcVoltMonitor
+import com.veplayer.app.vehicle.FcFuelRate
+import com.veplayer.app.vehicle.FcFuelRateMonitor
+import com.veplayer.app.vehicle.PsTrips
+import com.veplayer.app.vehicle.PsTripsMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -498,6 +504,9 @@ fun DriveVizPanel(
     val hvCurrRate by HvCurrRateMonitor.state.collectAsState()
     val emRpm by EmRpmMonitor.state.collectAsState()
     val emTq by EmTqMonitor.state.collectAsState()
+    val fcVolt by FcVoltMonitor.state.collectAsState()
+    val fcFuelRate by FcFuelRateMonitor.state.collectAsState()
+    val psTrips by PsTripsMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -716,6 +725,9 @@ fun DriveVizPanel(
             HvCurrRateMonitor.tick(prefs, snap)
             EmRpmMonitor.tick(prefs, snap)
             EmTqMonitor.tick(prefs, snap)
+            FcVoltMonitor.tick(prefs, snap)
+            FcFuelRateMonitor.tick(prefs, snap)
+            PsTripsMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1695,6 +1707,15 @@ fun DriveVizPanel(
                 }
                 if (emTq.showWarn || (prefs.emTqEnabled && emTq.band == "ok" && emTq.label.isNotBlank())) {
                     Text(emTq.label, color = Color(EmTq.accentArgb(emTq.band)), fontSize = 11.sp)
+                }
+                if (fcVolt.showWarn || (prefs.fcVoltEnabled && fcVolt.band == "ok" && fcVolt.label.isNotBlank())) {
+                    Text(fcVolt.label, color = Color(FcVolt.accentArgb(fcVolt.band)), fontSize = 11.sp)
+                }
+                if (fcFuelRate.showWarn || (prefs.fcFuelRateEnabled && fcFuelRate.band == "ok" && fcFuelRate.label.isNotBlank())) {
+                    Text(fcFuelRate.label, color = Color(FcFuelRate.accentArgb(fcFuelRate.band)), fontSize = 11.sp)
+                }
+                if (psTrips.showWarn || (prefs.psTripsEnabled && psTrips.band == "ok" && psTrips.label.isNotBlank())) {
+                    Text(psTrips.label, color = Color(PsTrips.accentArgb(psTrips.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

@@ -2157,6 +2157,41 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.EmTq.toJsonMap(
                                             com.veplayer.app.vehicle.EmTqMonitor.state.value,
                                         ),
+                                    "fc_volt_warn_v" to prefs.fcVoltWarnV.toDouble(),
+                                    "fc_volt_alert_v" to prefs.fcVoltAlertV.toDouble(),
+                                    "fc_volt_v" to
+                                        (if (prefs.fcVoltSimV > 0f) prefs.fcVoltSimV
+                                        else com.veplayer.app.vehicle.FcVoltMonitor.state.value.volts
+                                            ?: snap.fcVoltV
+                                            )?.toDouble(),
+                                    "fc_volt" to
+                                        com.veplayer.app.vehicle.FcVolt.toJsonMap(
+                                            com.veplayer.app.vehicle.FcVoltMonitor.state.value,
+                                        ),
+                                    "fc_fuel_rate_warn_gps" to prefs.fcFuelRateWarnGps.toDouble(),
+                                    "fc_fuel_rate_alert_gps" to prefs.fcFuelRateAlertGps.toDouble(),
+                                    "fc_fuel_rate_gps" to
+                                        (if (prefs.fcFuelRateSimGps > 0f) prefs.fcFuelRateSimGps
+                                        else com.veplayer.app.vehicle.FcFuelRateMonitor.state.value.gps
+                                            ?: snap.fcFuelRateGps
+                                            )?.toDouble(),
+                                    "fc_fuel_rate" to
+                                        com.veplayer.app.vehicle.FcFuelRate.toJsonMap(
+                                            com.veplayer.app.vehicle.FcFuelRateMonitor.state.value,
+                                        ),
+                                    "fc_cumul_curr_mahs" to snap.fcCumulCurrMahs?.toDouble(),
+                                    "fc_cumul_ener_whs" to snap.fcCumulEnerWhs?.toDouble(),
+                                    "ps_trips_warn" to prefs.psTripsWarn.toDouble(),
+                                    "ps_trips_alert" to prefs.psTripsAlert.toDouble(),
+                                    "ps_trips" to
+                                        (if (prefs.psTripsSim > 0f) prefs.psTripsSim
+                                        else com.veplayer.app.vehicle.PsTripsMonitor.state.value.trips
+                                            ?: snap.psTrips
+                                            )?.toDouble(),
+                                    "ps_trips_state" to
+                                        com.veplayer.app.vehicle.PsTrips.toJsonMap(
+                                            com.veplayer.app.vehicle.PsTripsMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -4455,6 +4490,41 @@ class SenseBridgeService : Service() {
                                     "em_tq" to
                                         com.veplayer.app.vehicle.EmTq.toJsonMap(
                                             com.veplayer.app.vehicle.EmTqMonitor.state.value,
+                                        ),
+                                    "fc_volt_warn_v" to prefs.fcVoltWarnV.toDouble(),
+                                    "fc_volt_alert_v" to prefs.fcVoltAlertV.toDouble(),
+                                    "fc_volt_v" to
+                                        (if (prefs.fcVoltSimV > 0f) prefs.fcVoltSimV
+                                        else com.veplayer.app.vehicle.FcVoltMonitor.state.value.volts
+                                            ?: snap.fcVoltV
+                                            )?.toDouble(),
+                                    "fc_volt" to
+                                        com.veplayer.app.vehicle.FcVolt.toJsonMap(
+                                            com.veplayer.app.vehicle.FcVoltMonitor.state.value,
+                                        ),
+                                    "fc_fuel_rate_warn_gps" to prefs.fcFuelRateWarnGps.toDouble(),
+                                    "fc_fuel_rate_alert_gps" to prefs.fcFuelRateAlertGps.toDouble(),
+                                    "fc_fuel_rate_gps" to
+                                        (if (prefs.fcFuelRateSimGps > 0f) prefs.fcFuelRateSimGps
+                                        else com.veplayer.app.vehicle.FcFuelRateMonitor.state.value.gps
+                                            ?: snap.fcFuelRateGps
+                                            )?.toDouble(),
+                                    "fc_fuel_rate" to
+                                        com.veplayer.app.vehicle.FcFuelRate.toJsonMap(
+                                            com.veplayer.app.vehicle.FcFuelRateMonitor.state.value,
+                                        ),
+                                    "fc_cumul_curr_mahs" to snap.fcCumulCurrMahs?.toDouble(),
+                                    "fc_cumul_ener_whs" to snap.fcCumulEnerWhs?.toDouble(),
+                                    "ps_trips_warn" to prefs.psTripsWarn.toDouble(),
+                                    "ps_trips_alert" to prefs.psTripsAlert.toDouble(),
+                                    "ps_trips" to
+                                        (if (prefs.psTripsSim > 0f) prefs.psTripsSim
+                                        else com.veplayer.app.vehicle.PsTripsMonitor.state.value.trips
+                                            ?: snap.psTrips
+                                            )?.toDouble(),
+                                    "ps_trips_state" to
+                                        com.veplayer.app.vehicle.PsTrips.toJsonMap(
+                                            com.veplayer.app.vehicle.PsTripsMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

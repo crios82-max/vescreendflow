@@ -7506,6 +7506,93 @@ export function evaluateFleetAlerts(
       }
     }
 
+    const fcVoltObj = signals.fc_volt as Record<string, unknown> | undefined
+    const fcVoltV =
+      typeof fcVoltObj?.volts === 'number'
+        ? (fcVoltObj.volts as number)
+        : typeof signals.fc_volt_v === 'number'
+          ? (signals.fc_volt_v as number)
+          : null
+    if (typeof fcVoltV === 'number') {
+      const warnV = typeof signals.fc_volt_warn_v === 'number' ? (signals.fc_volt_warn_v as number) : 200
+      const alertV = typeof signals.fc_volt_alert_v === 'number' ? (signals.fc_volt_alert_v as number) : 150
+      if (fcVoltV <= alertV && !recentlyAlerted(deviceId, 'fc_volt_alert', 120)) {
+        insertAlert(deviceId, 'fc_volt_alert', 'critical', `Voltaje FC crítico · ${Math.round(fcVoltV)}V`, {
+          fc_volt_v: fcVoltV,
+          fc_volt: fcVoltObj ?? null,
+        })
+        raised.push('fc_volt_alert')
+      } else if (
+        fcVoltV <= warnV &&
+        fcVoltV > alertV &&
+        !recentlyAlerted(deviceId, 'fc_volt_warn', 120)
+      ) {
+        insertAlert(deviceId, 'fc_volt_warn', 'warn', `Voltaje FC bajo · ${Math.round(fcVoltV)}V`, {
+          fc_volt_v: fcVoltV,
+          fc_volt: fcVoltObj ?? null,
+        })
+        raised.push('fc_volt_warn')
+      }
+    }
+
+    const fcFuelObj = signals.fc_fuel_rate as Record<string, unknown> | undefined
+    const fcFuelGps =
+      typeof fcFuelObj?.gps === 'number'
+        ? (fcFuelObj.gps as number)
+        : typeof signals.fc_fuel_rate_gps === 'number'
+          ? (signals.fc_fuel_rate_gps as number)
+          : null
+    if (typeof fcFuelGps === 'number') {
+      const warnG = typeof signals.fc_fuel_rate_warn_gps === 'number' ? (signals.fc_fuel_rate_warn_gps as number) : 2
+      const alertG = typeof signals.fc_fuel_rate_alert_gps === 'number' ? (signals.fc_fuel_rate_alert_gps as number) : 4
+      if (fcFuelGps >= alertG && !recentlyAlerted(deviceId, 'fc_fuel_rate_alert', 120)) {
+        insertAlert(deviceId, 'fc_fuel_rate_alert', 'critical', `Consumo FC crítico · ${fcFuelGps.toFixed(2)}g/s`, {
+          fc_fuel_rate_gps: fcFuelGps,
+          fc_fuel_rate: fcFuelObj ?? null,
+        })
+        raised.push('fc_fuel_rate_alert')
+      } else if (
+        fcFuelGps >= warnG &&
+        fcFuelGps < alertG &&
+        !recentlyAlerted(deviceId, 'fc_fuel_rate_warn', 120)
+      ) {
+        insertAlert(deviceId, 'fc_fuel_rate_warn', 'warn', `Consumo FC alto · ${fcFuelGps.toFixed(2)}g/s`, {
+          fc_fuel_rate_gps: fcFuelGps,
+          fc_fuel_rate: fcFuelObj ?? null,
+        })
+        raised.push('fc_fuel_rate_warn')
+      }
+    }
+
+    const psTripsObj = signals.ps_trips_state as Record<string, unknown> | undefined
+    const psTripsVal =
+      typeof psTripsObj?.trips === 'number'
+        ? (psTripsObj.trips as number)
+        : typeof signals.ps_trips === 'number'
+          ? (signals.ps_trips as number)
+          : null
+    if (typeof psTripsVal === 'number') {
+      const warnT = typeof signals.ps_trips_warn === 'number' ? (signals.ps_trips_warn as number) : 800
+      const alertT = typeof signals.ps_trips_alert === 'number' ? (signals.ps_trips_alert as number) : 1500
+      if (psTripsVal >= alertT && !recentlyAlerted(deviceId, 'ps_trips_alert', 120)) {
+        insertAlert(deviceId, 'ps_trips_alert', 'critical', `Ciclos propulsión críticos · ${Math.round(psTripsVal)}`, {
+          ps_trips: psTripsVal,
+          ps_trips_state: psTripsObj ?? null,
+        })
+        raised.push('ps_trips_alert')
+      } else if (
+        psTripsVal >= warnT &&
+        psTripsVal < alertT &&
+        !recentlyAlerted(deviceId, 'ps_trips_warn', 120)
+      ) {
+        insertAlert(deviceId, 'ps_trips_warn', 'warn', `Ciclos propulsión altos · ${Math.round(psTripsVal)}`, {
+          ps_trips: psTripsVal,
+          ps_trips_state: psTripsObj ?? null,
+        })
+        raised.push('ps_trips_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
