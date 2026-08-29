@@ -371,6 +371,16 @@ data class VehicleSignals(
         val hvEnrgInKwh: Float? = null,
         val hvEnrgOutKwh: Float? = null,
         val hvEnrgTputWh: Float? = null,
+        /** HVESS actual charge rate kW (OBD PID 01B3). */
+        val hvAcrKw: Float? = null,
+        /** HVESS SOH % (OBD PID 01BE). */
+        val hvessSohPct: Float? = null,
+        /** Recommended min SOC % (OBD PID 01BF). */
+        val hvMinSocPct: Float? = null,
+        /** Recommended max SOC % (OBD PID 01C1). */
+        val hvMaxSocPct: Float? = null,
+        /** Discharge energy capacity kWh (OBD PID 01C2). */
+        val hvDcapKwh: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -610,6 +620,11 @@ data class VehicleSignals(
             "hv_enrg_in_kwh" to hvEnrgInKwh?.toDouble(),
             "hv_enrg_out_kwh" to hvEnrgOutKwh?.toDouble(),
             "hv_enrg_tput_wh" to hvEnrgTputWh?.toDouble(),
+            "hv_acr_kw" to hvAcrKw?.toDouble(),
+            "hvess_soh_pct" to hvessSohPct?.toDouble(),
+            "hv_min_soc_pct" to hvMinSocPct?.toDouble(),
+            "hv_max_soc_pct" to hvMaxSocPct?.toDouble(),
+            "hv_dcap_kwh" to hvDcapKwh?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),
