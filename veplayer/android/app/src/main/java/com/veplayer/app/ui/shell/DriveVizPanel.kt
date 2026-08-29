@@ -247,6 +247,10 @@ import com.veplayer.app.vehicle.HvSoce
 import com.veplayer.app.vehicle.HvSoceMonitor
 import com.veplayer.app.vehicle.EssCap
 import com.veplayer.app.vehicle.EssCapMonitor
+import com.veplayer.app.vehicle.BcapReady
+import com.veplayer.app.vehicle.BcapReadyMonitor
+import com.veplayer.app.vehicle.EssRsrv
+import com.veplayer.app.vehicle.EssRsrvMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -474,6 +478,8 @@ fun DriveVizPanel(
     val hvDcap by HvDcapMonitor.state.collectAsState()
     val hvSoce by HvSoceMonitor.state.collectAsState()
     val essCap by EssCapMonitor.state.collectAsState()
+    val bcapReady by BcapReadyMonitor.state.collectAsState()
+    val essRsrv by EssRsrvMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -684,6 +690,8 @@ fun DriveVizPanel(
             HvDcapMonitor.tick(prefs, snap)
             HvSoceMonitor.tick(prefs, snap)
             EssCapMonitor.tick(prefs, snap)
+            BcapReadyMonitor.tick(prefs, snap)
+            EssRsrvMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1639,6 +1647,12 @@ fun DriveVizPanel(
                 }
                 if (essCap.showWarn || (prefs.essCapEnabled && essCap.band == "ok" && essCap.label.isNotBlank())) {
                     Text(essCap.label, color = Color(EssCap.accentArgb(essCap.band)), fontSize = 11.sp)
+                }
+                if (bcapReady.showWarn || (prefs.bcapReadyEnabled && bcapReady.band == "ok" && bcapReady.label.isNotBlank())) {
+                    Text(bcapReady.label, color = Color(BcapReady.accentArgb(bcapReady.band)), fontSize = 11.sp)
+                }
+                if (essRsrv.showWarn || (prefs.essRsrvEnabled && essRsrv.band == "ok" && essRsrv.label.isNotBlank())) {
+                    Text(essRsrv.label, color = Color(EssRsrv.accentArgb(essRsrv.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

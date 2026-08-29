@@ -4339,6 +4339,34 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("ess_cap_sim_kwh", 0f)
         set(value) = sp.edit().putFloat("ess_cap_sim_kwh", value.coerceIn(0f, 1e5f)).apply()
 
+    /** Battery capacity calculation ready (OBD 01D8). Sim: 0=off, 1=ready, 2=not ready. */
+    var bcapReadyEnabled: Boolean
+        get() = sp.getBoolean("bcap_ready", true)
+        set(value) = sp.edit().putBoolean("bcap_ready", value).apply()
+    var bcapReadyTts: Boolean
+        get() = sp.getBoolean("bcap_ready_tts", true)
+        set(value) = sp.edit().putBoolean("bcap_ready_tts", value).apply()
+    var bcapReadySim: Int
+        get() = sp.getInt("bcap_ready_sim", 0)
+        set(value) = sp.edit().putInt("bcap_ready_sim", value.coerceIn(0, 2)).apply()
+
+    /** Remaining ESS reserve energy kWh (OBD 01D0). */
+    var essRsrvEnabled: Boolean
+        get() = sp.getBoolean("ess_rsrv", true)
+        set(value) = sp.edit().putBoolean("ess_rsrv", value).apply()
+    var essRsrvTts: Boolean
+        get() = sp.getBoolean("ess_rsrv_tts", true)
+        set(value) = sp.edit().putBoolean("ess_rsrv_tts", value).apply()
+    var essRsrvWarnKwh: Float
+        get() = sp.getFloat("ess_rsrv_warn_kwh", 8f)
+        set(value) = sp.edit().putFloat("ess_rsrv_warn_kwh", value.coerceIn(1f, 200f)).apply()
+    var essRsrvAlertKwh: Float
+        get() = sp.getFloat("ess_rsrv_alert_kwh", 3f)
+        set(value) = sp.edit().putFloat("ess_rsrv_alert_kwh", value.coerceIn(0.5f, 150f)).apply()
+    var essRsrvSimKwh: Float
+        get() = sp.getFloat("ess_rsrv_sim_kwh", 0f)
+        set(value) = sp.edit().putFloat("ess_rsrv_sim_kwh", value.coerceIn(0f, 1e5f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
