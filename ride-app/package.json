@@ -27,6 +27,7 @@
     "setup:prod": "./scripts/setup-prod-env.sh",
     "go-live": "./scripts/go-live.sh",
     "prep:local": "./scripts/prep-local.sh",
+    "seed:demo": "./scripts/seed-demo.sh",
     "test": "npm run test -w @ride-app/shared && npm run test -w @ride-app/api",
     "test:e2e": "npm run test:e2e -w @ride-app/api"
   },

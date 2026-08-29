@@ -34,7 +34,19 @@ Prueba en el navegador del Mac:
 - http://localhost:5175 — conductor
 - http://localhost:5176 — admin
 
-Crea usuarios de prueba (pasajero + conductor, mismo `vehicleType`).
+Crea usuarios de prueba (pasajero + conductor, mismo `vehicleType`) — o:
+
+```bash
+npm run seed:demo
+```
+
+| Rol | Email | Password |
+|-----|-------|----------|
+| Pasajero | `pasajero@movify.demo` | `movify123` |
+| Conductor | `conductor@movify.demo` | `movify123` |
+| Admin | `admin@movify.demo` | `movify123` |
+
+(Conductor ya viene **approved** + teléfonos verificados.)
 
 ### B. `.env` producción (20 min)
 
@@ -127,6 +139,7 @@ En la app → **Configurar servidor API** → `http://IP_DEL_MAC:4001` (misma Wi
 | Qué | Comando |
 |-----|---------|
 | Prep local | `npm run prep:local` |
+| Usuarios demo | `npm run seed:demo` |
 | Check prod | `npm run go-live` |
 | Health LAN | `npm run health` |
 | Logs | `npm run pm2:logs` |
