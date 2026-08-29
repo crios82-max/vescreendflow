@@ -10,7 +10,7 @@ export function FareBreakdownView({ breakdown, surgeMultiplier }: { breakdown: F
       <div className="meta-row"><span>{t('common.distance')}</span><span>${breakdown.distanceFare}</span></div>
       <div className="meta-row"><span>{t('common.time')}</span><span>${breakdown.timeFare}</span></div>
       {(surgeMultiplier ?? breakdown.surgeMultiplier) > 1 && (
-        <div className="meta-row"><span>Surge {breakdown.surgeMultiplier}x</span><span>+${breakdown.surgeAmount}</span></div>
+        <div className="meta-row"><span>{t('common.surgeLine', { multiplier: breakdown.surgeMultiplier })}</span><span>+${breakdown.surgeAmount}</span></div>
       )}
       {breakdown.promoDiscount > 0 && (
         <div className="meta-row"><span>{t('common.discount')}</span><span>-${breakdown.promoDiscount}</span></div>

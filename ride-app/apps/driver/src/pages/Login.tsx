@@ -4,7 +4,7 @@ import { useAuth, BrandMark, useI18n, LanguageSwitcher } from '@ride-app/web-sha
 
 export default function Login() {
   const { login, user } = useAuth();
-  const { t } = useI18n();
+  const { t, te } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +19,7 @@ export default function Login() {
     try {
       await login(email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'));
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
       setLoading(false);
     }
@@ -35,7 +35,10 @@ export default function Login() {
         <label>{t('common.password')}<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
         {error && <p className="error-text">{error}</p>}
         <button className="btn-primary" disabled={loading}>{loading ? t('common.loggingIn') : t('common.login')}</button>
+        <Link to="/reset-password" className="link-btn">{t('auth.forgotPassword')}</Link>
         <Link to="/register" className="link-btn">{t('auth.driverCreateAccount')}</Link>
+        <Link to="/terms" className="link-btn">{t('auth.terms')}</Link>
+        <Link to="/privacy" className="link-btn">{t('auth.privacy')}</Link>
       </form>
     </div>
   );

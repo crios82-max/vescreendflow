@@ -248,7 +248,7 @@ export function createRidesRouter(io: SocketServer) {
     if (ride.paymentStatus !== 'paid') return res.status(400).json({ error: 'Viaje no pagado' });
 
     const user = await pool.query('SELECT email FROM users WHERE id = $1', [ride.passengerId]);
-    await sendReceiptEmail(ride, user.rows[0].email as string);
+    await sendReceiptEmail(ride, user.rows[0].email as string, ride.passengerId);
     res.json({ ok: true, ride });
   });
 
@@ -382,7 +382,7 @@ export function createRidesRouter(io: SocketServer) {
       io.to(`ride:${ride.id}`).emit('ride:updated', updated);
       if (finalized) {
         const user = await pool.query('SELECT email FROM users WHERE id = $1', [ride.passengerId]);
-        await sendReceiptEmail(updated, user.rows[0].email as string);
+        await sendReceiptEmail(updated, user.rows[0].email as string, updated.passengerId);
       }
       return res.json({
         payment: { rideId: ride.id, amount: paymentInfo.total, method: paymentInfo.method, status: finalized ? 'paid' : 'partial' },
@@ -416,7 +416,7 @@ export function createRidesRouter(io: SocketServer) {
       io.to(`ride:${ride.id}`).emit('ride:updated', updated);
 
       const user = await pool.query('SELECT email FROM users WHERE id = $1', [ride.passengerId]);
-      await sendReceiptEmail(updated, user.rows[0].email as string);
+      await sendReceiptEmail(updated, user.rows[0].email as string, updated.passengerId);
 
       res.json({
         payment: {

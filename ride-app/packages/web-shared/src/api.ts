@@ -315,6 +315,13 @@ class ApiClient {
       body: JSON.stringify({ token, platform }),
     });
   }
+
+  setPreferredLocale(locale: string) {
+    return this.request<{ ok: boolean }>('/users/me/locale', {
+      method: 'PATCH',
+      body: JSON.stringify({ locale }),
+    });
+  }
 }
 
 export const api = new ApiClient();

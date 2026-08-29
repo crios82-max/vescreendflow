@@ -1,10 +1,10 @@
 import { FormEvent, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { useAuth, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
+import { useAuth, BrandMark, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
 
 export default function Register() {
   const { register, user } = useAuth();
-  const { t } = useI18n();
+  const { t, te } = useI18n();
   const [form, setForm] = useState({ name: '', email: '', password: '', phone: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,7 +18,7 @@ export default function Register() {
     try {
       await register({ ...form, role: 'passenger' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'));
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
       setLoading(false);
     }
@@ -28,6 +28,7 @@ export default function Register() {
     <div className="auth-page">
       <LanguageSwitcher className="auth-page__lang" />
       <form className="auth-card" onSubmit={onSubmit}>
+        <BrandMark size="lg" showTagline />
         <h1>{t('auth.createAccount')}</h1>
         <label>{t('common.name')}<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></label>
         <label>{t('common.email')}<input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required /></label>

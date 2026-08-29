@@ -53,6 +53,21 @@ else
   fail "${WEB_PUBLIC} — ¿CNAME movify + npm run build con VITE_API_URL?"
 fi
 
+DRIVER_PUBLIC="${DRIVER_PUBLIC:-https://movify-driver.vescreenflow.com}"
+ADMIN_PUBLIC="${ADMIN_PUBLIC:-https://movify-admin.vescreenflow.com}"
+
+if curl -sf -o /dev/null "${DRIVER_PUBLIC}" 2>/dev/null; then
+  pass "${DRIVER_PUBLIC}"
+else
+  fail "${DRIVER_PUBLIC} — ¿CNAME movify-driver + tunnel?"
+fi
+
+if curl -sf -o /dev/null "${ADMIN_PUBLIC}" 2>/dev/null; then
+  pass "${ADMIN_PUBLIC}"
+else
+  fail "${ADMIN_PUBLIC} — ¿CNAME movify-admin + tunnel?"
+fi
+
 echo ""
 if [[ -f .env ]]; then
   echo ".env (revisión rápida):"

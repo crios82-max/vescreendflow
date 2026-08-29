@@ -1,4 +1,4 @@
-# Movify — Cloudflare Tunnel (API + web pasajero)
+# Movify — Cloudflare Tunnel (API + webs)
 
 Expone:
 
@@ -6,6 +6,8 @@ Expone:
 |----------|----------------|
 | `movify-api.vescreenflow.com` | API `:4001` |
 | `movify.vescreenflow.com` | Web pasajero `:5174` |
+| `movify-driver.vescreenflow.com` | Web conductor `:5175` |
+| `movify-admin.vescreenflow.com` | Web admin `:5176` |
 
 ## Opción A — Mismo túnel que vescreenflow (recomendado)
 
@@ -16,6 +18,10 @@ El repo ya tiene túnel `55818726-7a1f-459c-a904-00f5487e6aad`. Ingress en `clou
     service: http://127.0.0.1:4001
   - hostname: movify.vescreenflow.com
     service: http://127.0.0.1:5174
+  - hostname: movify-driver.vescreenflow.com
+    service: http://127.0.0.1:5175
+  - hostname: movify-admin.vescreenflow.com
+    service: http://127.0.0.1:5176
 ```
 
 DNS (Cloudflare → vescreenflow.com):
@@ -24,6 +30,8 @@ DNS (Cloudflare → vescreenflow.com):
 |------|------|---------|-------|
 | CNAME | `movify-api` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
 | CNAME | `movify` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
+| CNAME | `movify-driver` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
+| CNAME | `movify-admin` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
 
 Reinicia cloudflared en el Mac mini (`npm run tunnel` o LaunchAgent del túnel maestro).
 

@@ -8,7 +8,7 @@ type Tab = 'overview' | 'drivers' | 'users' | 'sos' | 'promos';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
-  const { t, rideStatus } = useI18n();
+  const { t, rideStatus, te } = useI18n();
   const [tab, setTab] = useState<Tab>('overview');
   const [stats, setStats] = useState<{ users: number; drivers: number; rides: number; revenue: number; pendingDrivers: number; sosLast24h: number } | null>(null);
   const [rides, setRides] = useState<AdminRide[]>([]);
@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [promos, setPromos] = useState<Array<{ code: string; discount_type: string; discount_value: number }>>([]);
   const [promoForm, setPromoForm] = useState({ code: '', discountType: 'percent' as 'percent' | 'fixed', discountValue: 10 });
   const [error, setError] = useState('');
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const reload = () => {
     Promise.all([
@@ -36,10 +37,22 @@ export default function Dashboard() {
         setSosEvents(sos.events);
         setPromos(p.promos);
       })
-      .catch((err) => setError(err instanceof Error ? err.message : t('common.noAdminAccess')));
+      .catch((err) => setError(te(err instanceof Error ? err.message : t('common.noAdminAccess'))));
   };
 
   useEffect(() => { reload(); }, []);
+
+  const runAction = async (key: string, fn: () => Promise<unknown>) => {
+    setActionLoading(key);
+    try {
+      await fn();
+      reload();
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const paymentLabel = (status: string) => (status === 'paid' ? t('common.paid') : t('common.pending'));
 
   if (error) {
     return (
@@ -93,18 +106,25 @@ export default function Dashboard() {
           <h2 className="admin-section-title">{t('admin.recentRides')}</h2>
           <div className="admin-table-wrap">
           <table className="admin-table">
-            <thead><tr><th>{t('common.date')}</th><th>{t('admin.passenger')}</th><th>{t('common.status')}</th><th>{t('common.payment')}</th><th>{t('common.price')}</th><th></th></tr></thead>
+            <thead><tr><th>{t('common.date')}</th><th>{t('admin.passenger')}</th><th>{t('common.driverColumn')}</th><th>{t('common.status')}</th><th>{t('common.payment')}</th><th>{t('common.price')}</th><th></th></tr></thead>
             <tbody>
               {rides.slice(0, 20).map((ride) => (
                 <tr key={ride.id}>
                   <td>{new Date(ride.createdAt).toLocaleString()}</td>
                   <td>{ride.passengerName}</td>
+                  <td>{ride.driverName ?? '—'}</td>
                   <td>{rideStatus(ride.status)}</td>
-                  <td>{ride.paymentStatus}</td>
+                  <td>{paymentLabel(ride.paymentStatus)}</td>
                   <td>${ride.finalPrice ?? ride.estimatedPrice}</td>
                   <td>
                     {ride.paymentStatus === 'paid' && (
-                      <button className="btn-secondary" onClick={() => api.refundRide(ride.id).then(reload)}>{t('common.refund')}</button>
+                      <button
+                        className="btn-secondary"
+                        disabled={actionLoading === `refund-${ride.id}`}
+                        onClick={() => runAction(`refund-${ride.id}`, () => api.refundRide(ride.id))}
+                      >
+                        {actionLoading === `refund-${ride.id}` ? t('common.processing') : t('common.refund')}
+                      </button>
                     )}
                   </td>
                 </tr>
@@ -122,11 +142,23 @@ export default function Dashboard() {
               <strong>{d.name}</strong>
               <span>{d.email}</span>
               {d.licenseUrl && <a href={d.licenseUrl} target="_blank" rel="noreferrer">{t('common.license')}</a>}
-              {d.idUrl && <a href={d.idUrl} target="_blank" rel="noreferrer">ID</a>}
+              {d.idUrl && <a href={d.idUrl} target="_blank" rel="noreferrer">{t('common.idPhoto')}</a>}
               {d.vehiclePhotoUrl && <a href={d.vehiclePhotoUrl} target="_blank" rel="noreferrer">{t('common.vehiclePhoto')}</a>}
               <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn-primary" onClick={() => api.approveDriver(d.userId).then(reload)}>{t('common.approve')}</button>
-                <button className="btn-secondary" onClick={() => api.rejectDriver(d.userId, t('admin.invalidDocs')).then(reload)}>{t('common.reject')}</button>
+                <button
+                  className="btn-primary"
+                  disabled={actionLoading === `approve-${d.userId}`}
+                  onClick={() => runAction(`approve-${d.userId}`, () => api.approveDriver(d.userId))}
+                >
+                  {actionLoading === `approve-${d.userId}` ? t('common.processing') : t('common.approve')}
+                </button>
+                <button
+                  className="btn-secondary"
+                  disabled={actionLoading === `reject-${d.userId}`}
+                  onClick={() => runAction(`reject-${d.userId}`, () => api.rejectDriver(d.userId, t('admin.invalidDocs')))}
+                >
+                  {actionLoading === `reject-${d.userId}` ? t('common.processing') : t('common.reject')}
+                </button>
               </div>
             </div>
           ))}
@@ -145,9 +177,21 @@ export default function Dashboard() {
                 <td>{u.banned ? t('common.banned') : t('common.active')}</td>
                 <td>
                   {u.banned ? (
-                    <button className="btn-secondary" onClick={() => api.unbanUser(u.id).then(reload)}>{t('common.unban')}</button>
+                    <button
+                      className="btn-secondary"
+                      disabled={actionLoading === `unban-${u.id}`}
+                      onClick={() => runAction(`unban-${u.id}`, () => api.unbanUser(u.id))}
+                    >
+                      {actionLoading === `unban-${u.id}` ? t('common.processing') : t('common.unban')}
+                    </button>
                   ) : (
-                    <button className="btn-secondary" onClick={() => api.banUser(u.id).then(reload)}>{t('common.ban')}</button>
+                    <button
+                      className="btn-secondary"
+                      disabled={actionLoading === `ban-${u.id}`}
+                      onClick={() => runAction(`ban-${u.id}`, () => api.banUser(u.id))}
+                    >
+                      {actionLoading === `ban-${u.id}` ? t('common.processing') : t('common.ban')}
+                    </button>
                   )}
                 </td>
               </tr>
@@ -173,7 +217,7 @@ export default function Dashboard() {
         <>
           <form className="auth-card" style={{ marginBottom: 16 }} onSubmit={(ev) => {
             ev.preventDefault();
-            api.createPromo(promoForm).then(reload);
+            runAction('create-promo', () => api.createPromo(promoForm));
           }}>
             <h3>{t('admin.newPromo')}</h3>
             <input placeholder={t('common.code')} value={promoForm.code} onChange={(e) => setPromoForm({ ...promoForm, code: e.target.value })} required />
@@ -182,7 +226,9 @@ export default function Dashboard() {
               <option value="fixed">{t('common.fixedAmount')}</option>
             </select>
             <input type="number" value={promoForm.discountValue} onChange={(e) => setPromoForm({ ...promoForm, discountValue: Number(e.target.value) })} required />
-            <button className="btn-primary" type="submit">{t('common.create')}</button>
+            <button className="btn-primary" type="submit" disabled={actionLoading === 'create-promo'}>
+              {actionLoading === 'create-promo' ? t('common.processing') : t('common.create')}
+            </button>
           </form>
           <div className="admin-table-wrap">
           <table className="admin-table">

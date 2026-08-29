@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { authMiddleware } from '../middleware/auth.js';
 import { pool } from '../db.js';
-import { sendPushToUser } from '../services/push.js';
+import { sendLocalizedPush } from '../services/push.js';
 
 const router = Router();
 router.use(authMiddleware);
@@ -26,10 +26,11 @@ router.post('/', async (req, res) => {
 
   const admins = await pool.query('SELECT id FROM users WHERE is_admin = TRUE');
   for (const admin of admins.rows) {
-    await sendPushToUser(
+    await sendLocalizedPush(
       admin.id as string,
-      '🚨 SOS activado',
-      `Emergencia en viaje ${parsed.data.rideId}`,
+      'push.sosTitle',
+      'push.sosBody',
+      { rideId: parsed.data.rideId.slice(0, 8) },
       { rideId: parsed.data.rideId, type: 'sos' },
     );
   }

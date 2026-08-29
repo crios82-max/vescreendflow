@@ -14,6 +14,7 @@ import {
   rideStatusLabel,
   vehicleLabel,
   brandTagline,
+  translateApiError,
 } from '@ride-app/shared';
 import { detectLocaleWeb } from './detectLocaleWeb';
 
@@ -24,6 +25,7 @@ interface I18nState {
   rideStatus: (status: Parameters<typeof rideStatusLabel>[1]) => string;
   vehicle: (type: Parameters<typeof vehicleLabel>[1]) => string;
   tagline: string;
+  te: (message: string) => string;
 }
 
 const I18nContext = createContext<I18nState | null>(null);
@@ -84,6 +86,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       rideStatus: (status) => rideStatusLabel(locale, status),
       vehicle: (type) => vehicleLabel(locale, type),
       tagline: brandTagline(locale),
+      te: (message) => translateApiError(locale, message),
     }),
     [locale, setLocale, t],
   );

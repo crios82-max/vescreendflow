@@ -10,6 +10,7 @@ import {
   RatingForm,
   useAuth,
   useI18n,
+  useFlash,
   LanguageSwitcher,
   VehicleTypePicker,
   FareBreakdownView,
@@ -30,7 +31,8 @@ type Tab = 'ride' | 'history';
 
 export default function Home() {
   const { user, logout } = useAuth();
-  const { t, rideStatus, vehicle } = useI18n();
+  const { t, rideStatus, vehicle, te } = useI18n();
+  const { show: showFlash } = useFlash();
   const [tab, setTab] = useState<Tab>('ride');
   const [pickup, setPickup] = useState<Point | null>(null);
   const [dropoff, setDropoff] = useState<Point | null>(null);
@@ -135,7 +137,7 @@ export default function Home() {
       setRide(created);
       setRated(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
       setLoading(false);
     }
@@ -160,7 +162,7 @@ export default function Home() {
       const result = await api.payRide(ride.id, { tipAmount, useWallet });
       setRide(result.ride);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
       setLoading(false);
     }
@@ -289,16 +291,16 @@ export default function Home() {
                       const s = await api.shareRide(ride.id);
                       const url = `${window.location.origin}/share/${s.shareToken}`;
                       navigator.clipboard.writeText(url).catch(() => {});
-                      alert(t('common.linkCopied'));
+                      showFlash(t('common.linkCopiedBanner'));
                     }}>{t('common.share')}</button>
                     <button className="btn-danger" type="button" onClick={() => api.triggerSos(ride.id, pickup?.lat, pickup?.lng)}>{t('common.sos')}</button>
                     {ride.driverId && ['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                       <button className="btn-secondary" type="button" onClick={async () => {
-                        const c = await api.initiateMaskedCall(ride.id);
-                        if (c.initiated) alert(c.message ?? t('common.callConnecting'));
-                        else if (c.dialUrl) window.location.href = c.dialUrl;
-                        else alert(c.hint ?? t('common.callFailed'));
-                      }}>{t('passenger.callDriver')}</button>
+                      const c = await api.initiateMaskedCall(ride.id);
+                      if (c.initiated) showFlash(te(c.message ?? t('common.callConnecting')));
+                      else if (c.dialUrl) window.location.href = c.dialUrl;
+                      else showFlash(te(c.hint ?? t('common.callFailed')), 'error');
+                    }}>{t('passenger.callDriver')}</button>
                     )}
                   </div>
                   {ride.driverId && <ChatPanel rideId={ride.id} />}
@@ -311,6 +313,7 @@ export default function Home() {
                   )}
                   {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
                     <>
+                      <SavedCards />
                       <SplitFareForm rideId={ride.id} />
                       <TipSelector value={tipAmount} onChange={setTipAmount} />
                       <label className="meta-row">

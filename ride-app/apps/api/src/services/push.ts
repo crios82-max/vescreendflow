@@ -1,14 +1,16 @@
 import { Expo, type ExpoPushMessage } from 'expo-server-sdk';
+import { translate } from '@ride-app/shared';
 import { pool } from '../db.js';
+import { getUserLocale } from './locale.js';
 
 const expo = new Expo();
 
-const STATUS_MESSAGES: Record<string, { title: string; body: string }> = {
-  accepted: { title: 'Conductor asignado', body: 'Tu conductor va en camino' },
-  arriving: { title: 'Conductor cerca', body: 'Tu conductor está llegando al punto de recogida' },
-  in_progress: { title: 'Viaje iniciado', body: '¡Buen viaje!' },
-  completed: { title: 'Viaje completado', body: 'Califica tu experiencia' },
-  cancelled: { title: 'Viaje cancelado', body: 'Tu viaje fue cancelado' },
+const RIDE_STATUS_KEYS: Record<string, { title: string; body: string }> = {
+  accepted: { title: 'push.acceptedTitle', body: 'push.acceptedBody' },
+  arriving: { title: 'push.arrivingTitle', body: 'push.arrivingBody' },
+  in_progress: { title: 'push.in_progressTitle', body: 'push.in_progressBody' },
+  completed: { title: 'push.completedTitle', body: 'push.completedBody' },
+  cancelled: { title: 'push.cancelledTitle', body: 'push.cancelledBody' },
 };
 
 export async function sendPushToUser(userId: string, title: string, body: string, data?: Record<string, string>) {
@@ -33,18 +35,45 @@ export async function sendPushToUser(userId: string, title: string, body: string
   }
 }
 
+export async function sendLocalizedPush(
+  userId: string,
+  titleKey: string,
+  bodyKey: string,
+  params?: Record<string, string | number>,
+  data?: Record<string, string>,
+) {
+  const locale = await getUserLocale(userId);
+  const title = translate(locale, titleKey, params);
+  const body = translate(locale, bodyKey, params);
+  await sendPushToUser(userId, title, body, data);
+}
+
 export async function notifyRideEvent(
   ride: { id: string; passengerId: string; driverId: string | null; status: string },
   title?: string,
   body?: string,
 ) {
-  const msg = STATUS_MESSAGES[ride.status];
-  const t = title ?? msg?.title ?? 'Actualización de viaje';
-  const b = body ?? msg?.body ?? `Estado: ${ride.status}`;
   const data = { rideId: ride.id, status: ride.status };
+  const keys = RIDE_STATUS_KEYS[ride.status];
 
-  await sendPushToUser(ride.passengerId, t, b, data);
-  if (ride.driverId) {
-    await sendPushToUser(ride.driverId, t, b, data);
-  }
+  const notifyUser = async (userId: string) => {
+    if (title && body) {
+      await sendPushToUser(userId, title, body, data);
+      return;
+    }
+    if (keys) {
+      await sendLocalizedPush(userId, keys.title, keys.body, undefined, data);
+      return;
+    }
+    const locale = await getUserLocale(userId);
+    await sendPushToUser(
+      userId,
+      translate(locale, 'push.rideUpdate'),
+      translate(locale, 'push.rideStatus', { status: ride.status }),
+      data,
+    );
+  };
+
+  await notifyUser(ride.passengerId);
+  if (ride.driverId) await notifyUser(ride.driverId);
 }

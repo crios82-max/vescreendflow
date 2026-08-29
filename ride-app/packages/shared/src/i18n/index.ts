@@ -14,6 +14,7 @@ import {
   hasManualLocale,
   resolveLocaleFromPlace,
 } from './detect.js';
+import { API_ERROR_MAP } from './apiErrors.js';
 
 export type { Locale, TranslationParams } from './types.js';
 export {
@@ -118,4 +119,11 @@ export function brandTagline(locale: Locale): string {
 export function brandRoleLabel(locale: Locale, role: 'passenger' | 'driver' | 'admin'): string {
   const key = role === 'passenger' ? 'brand.rolePassenger' : role === 'driver' ? 'brand.roleDriver' : 'brand.roleAdmin';
   return translate(locale, key);
+}
+
+export { API_ERROR_MAP } from './apiErrors.js';
+
+export function translateApiError(locale: Locale, message: string): string {
+  const key = API_ERROR_MAP[message];
+  return key ? translate(locale, key) : message;
 }

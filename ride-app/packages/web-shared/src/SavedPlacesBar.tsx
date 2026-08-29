@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from './api';
+import { useI18n } from './I18nProvider';
 
 interface Place {
   id: string;
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export function SavedPlacesBar({ onSelect, currentDropoff }: Props) {
+  const { t } = useI18n();
   const [places, setPlaces] = useState<Place[]>([]);
 
   useEffect(() => {
@@ -45,8 +47,8 @@ export function SavedPlacesBar({ onSelect, currentDropoff }: Props) {
         ))}
         {currentDropoff && (
           <>
-            <button type="button" className="tab-btn" onClick={() => saveCurrent('Casa')}>+ Casa</button>
-            <button type="button" className="tab-btn" onClick={() => saveCurrent('Trabajo')}>+ Trabajo</button>
+            <button type="button" className="tab-btn" onClick={() => saveCurrent(t('places.home'))}>{t('places.addHome')}</button>
+            <button type="button" className="tab-btn" onClick={() => saveCurrent(t('places.work'))}>{t('places.addWork')}</button>
           </>
         )}
       </div>

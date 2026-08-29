@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { z } from 'zod';
+import { isLocale } from '@ride-app/shared';
 import { pool } from '../db.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { mapUser, mapDriverProfile } from '../mappers.js';
@@ -23,6 +25,19 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 
   res.json({ user });
+});
+
+router.patch('/me/locale', authMiddleware, async (req, res) => {
+  const schema = z.object({ locale: z.string() });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  if (!isLocale(parsed.data.locale)) return res.status(400).json({ error: 'Idioma no soportado' });
+
+  await pool.query('UPDATE users SET preferred_locale = $1 WHERE id = $2', [
+    parsed.data.locale,
+    req.auth!.userId,
+  ]);
+  res.json({ ok: true, locale: parsed.data.locale });
 });
 
 export default router;

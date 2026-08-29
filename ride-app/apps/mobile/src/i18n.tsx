@@ -13,8 +13,10 @@ import {
   vehicleLabel,
   brandTagline,
   isLocale,
+  translateApiError,
 } from '@ride-app/shared';
 import { detectLocaleMobile } from './detectLocaleMobile';
+import { mobileApi } from './api';
 
 interface MobileI18nState {
   locale: Locale;
@@ -23,6 +25,7 @@ interface MobileI18nState {
   rideStatus: (status: Parameters<typeof rideStatusLabel>[1]) => string;
   vehicle: (type: Parameters<typeof vehicleLabel>[1]) => string;
   tagline: string;
+  te: (message: string) => string;
   ready: boolean;
 }
 
@@ -61,6 +64,7 @@ export function MobileI18nProvider({ children }: { children: ReactNode }) {
   const setLocale = useCallback(async (next: Locale) => {
     setStoredLocale((key, value) => { void AsyncStorage.setItem(key, value); }, next, true);
     setLocaleState(next);
+    void mobileApi.setPreferredLocale(next).catch(() => {});
   }, []);
 
   const t = useCallback(
@@ -76,6 +80,7 @@ export function MobileI18nProvider({ children }: { children: ReactNode }) {
       rideStatus: (status) => rideStatusLabel(locale, status),
       vehicle: (type) => vehicleLabel(locale, type),
       tagline: brandTagline(locale),
+      te: (message) => translateApiError(locale, message),
       ready,
     }),
     [locale, setLocale, t, ready],

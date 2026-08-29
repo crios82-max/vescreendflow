@@ -312,4 +312,5 @@ export {
   vehicleDescription,
   brandTagline,
   brandRoleLabel,
+  translateApiError,
 } from './i18n/index.js';
