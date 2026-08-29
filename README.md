@@ -1653,6 +1653,20 @@ Continúa bloque HEV **01D1 / 01D4**.
 npm run veplayer:fase49-smoke
 ```
 
+## HvCurr · EmRpm · EmTq (v2.47 · Fase 50)
+
+Continúa bloque HEV/EM **01DA / 01CC / 01CD**.
+
+| PID | Señal | Alertas | HUD |
+|-----|-------|---------|-----|
+| 01DA | Current rate Ah/s | `hv_curr_rate_warn` / `hv_curr_rate_alert` | `HvCurr · XXAh/s` |
+| 01CC | Electric motor A RPM | `em_rpm_warn` / `em_rpm_alert` | `EmRpm · XXXX` |
+| 01CD | Electric motor A torque Nm | `em_tq_warn` / `em_tq_alert` | `EmTq · XXNm` |
+
+```bash
+npm run veplayer:fase50-smoke
+```
+
 ## Validation gate (pre-fase · v1.15)
 
 Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
@@ -1662,7 +1676,7 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 | `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
 | `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
 | `dbc-smoke` | DBC decode (Kotlin mirror) |
-| `fase16–49-smoke` | Alertas `fleetPro.ts` con heartbeats |
+| `fase16–50-smoke` | Alertas `fleetPro.ts` con heartbeats |
 
 ```bash
 # SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)

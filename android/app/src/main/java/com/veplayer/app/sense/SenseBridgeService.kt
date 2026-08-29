@@ -2124,6 +2124,39 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.HvEnerRate.toJsonMap(
                                             com.veplayer.app.vehicle.HvEnerRateMonitor.state.value,
                                         ),
+                                    "hv_curr_rate_warn_ahs" to prefs.hvCurrRateWarnAhs.toDouble(),
+                                    "hv_curr_rate_alert_ahs" to prefs.hvCurrRateAlertAhs.toDouble(),
+                                    "hv_curr_rate_ahs" to
+                                        (if (prefs.hvCurrRateSimAhs != 0f) prefs.hvCurrRateSimAhs
+                                        else com.veplayer.app.vehicle.HvCurrRateMonitor.state.value.ahs
+                                            ?: snap.hvCurrRateAhs
+                                            )?.toDouble(),
+                                    "hv_curr_rate" to
+                                        com.veplayer.app.vehicle.HvCurrRate.toJsonMap(
+                                            com.veplayer.app.vehicle.HvCurrRateMonitor.state.value,
+                                        ),
+                                    "em_rpm_warn" to prefs.emRpmWarn.toDouble(),
+                                    "em_rpm_alert" to prefs.emRpmAlert.toDouble(),
+                                    "em_rpm_a" to
+                                        (if (prefs.emRpmSim > 0f) prefs.emRpmSim
+                                        else com.veplayer.app.vehicle.EmRpmMonitor.state.value.rpm
+                                            ?: snap.emRpmA
+                                            )?.toDouble(),
+                                    "em_rpm" to
+                                        com.veplayer.app.vehicle.EmRpm.toJsonMap(
+                                            com.veplayer.app.vehicle.EmRpmMonitor.state.value,
+                                        ),
+                                    "em_tq_warn_nm" to prefs.emTqWarnNm.toDouble(),
+                                    "em_tq_alert_nm" to prefs.emTqAlertNm.toDouble(),
+                                    "em_tq_a_nm" to
+                                        (if (prefs.emTqSimNm != 0f) prefs.emTqSimNm
+                                        else com.veplayer.app.vehicle.EmTqMonitor.state.value.nm
+                                            ?: snap.emTqANm
+                                            )?.toDouble(),
+                                    "em_tq" to
+                                        com.veplayer.app.vehicle.EmTq.toJsonMap(
+                                            com.veplayer.app.vehicle.EmTqMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -4389,6 +4422,39 @@ class SenseBridgeService : Service() {
                                     "hv_ener_rate" to
                                         com.veplayer.app.vehicle.HvEnerRate.toJsonMap(
                                             com.veplayer.app.vehicle.HvEnerRateMonitor.state.value,
+                                        ),
+                                    "hv_curr_rate_warn_ahs" to prefs.hvCurrRateWarnAhs.toDouble(),
+                                    "hv_curr_rate_alert_ahs" to prefs.hvCurrRateAlertAhs.toDouble(),
+                                    "hv_curr_rate_ahs" to
+                                        (if (prefs.hvCurrRateSimAhs != 0f) prefs.hvCurrRateSimAhs
+                                        else com.veplayer.app.vehicle.HvCurrRateMonitor.state.value.ahs
+                                            ?: snap.hvCurrRateAhs
+                                            )?.toDouble(),
+                                    "hv_curr_rate" to
+                                        com.veplayer.app.vehicle.HvCurrRate.toJsonMap(
+                                            com.veplayer.app.vehicle.HvCurrRateMonitor.state.value,
+                                        ),
+                                    "em_rpm_warn" to prefs.emRpmWarn.toDouble(),
+                                    "em_rpm_alert" to prefs.emRpmAlert.toDouble(),
+                                    "em_rpm_a" to
+                                        (if (prefs.emRpmSim > 0f) prefs.emRpmSim
+                                        else com.veplayer.app.vehicle.EmRpmMonitor.state.value.rpm
+                                            ?: snap.emRpmA
+                                            )?.toDouble(),
+                                    "em_rpm" to
+                                        com.veplayer.app.vehicle.EmRpm.toJsonMap(
+                                            com.veplayer.app.vehicle.EmRpmMonitor.state.value,
+                                        ),
+                                    "em_tq_warn_nm" to prefs.emTqWarnNm.toDouble(),
+                                    "em_tq_alert_nm" to prefs.emTqAlertNm.toDouble(),
+                                    "em_tq_a_nm" to
+                                        (if (prefs.emTqSimNm != 0f) prefs.emTqSimNm
+                                        else com.veplayer.app.vehicle.EmTqMonitor.state.value.nm
+                                            ?: snap.emTqANm
+                                            )?.toDouble(),
+                                    "em_tq" to
+                                        com.veplayer.app.vehicle.EmTq.toJsonMap(
+                                            com.veplayer.app.vehicle.EmTqMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),

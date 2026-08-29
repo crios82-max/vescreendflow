@@ -4418,6 +4418,57 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("hv_ener_rate_sim_whs", 0f)
         set(value) = sp.edit().putFloat("hv_ener_rate_sim_whs", value.coerceIn(-1e5f, 1e5f)).apply()
 
+    /** HVESS current rate Ah/s (OBD 01DA). */
+    var hvCurrRateEnabled: Boolean
+        get() = sp.getBoolean("hv_curr_rate", true)
+        set(value) = sp.edit().putBoolean("hv_curr_rate", value).apply()
+    var hvCurrRateTts: Boolean
+        get() = sp.getBoolean("hv_curr_rate_tts", true)
+        set(value) = sp.edit().putBoolean("hv_curr_rate_tts", value).apply()
+    var hvCurrRateWarnAhs: Float
+        get() = sp.getFloat("hv_curr_rate_warn_ahs", 15f)
+        set(value) = sp.edit().putFloat("hv_curr_rate_warn_ahs", value.coerceIn(2f, 200f)).apply()
+    var hvCurrRateAlertAhs: Float
+        get() = sp.getFloat("hv_curr_rate_alert_ahs", 30f)
+        set(value) = sp.edit().putFloat("hv_curr_rate_alert_ahs", value.coerceIn(5f, 300f)).apply()
+    var hvCurrRateSimAhs: Float
+        get() = sp.getFloat("hv_curr_rate_sim_ahs", 0f)
+        set(value) = sp.edit().putFloat("hv_curr_rate_sim_ahs", value.coerceIn(-1e4f, 1e4f)).apply()
+
+    /** Electric motor A RPM (OBD 01CC). */
+    var emRpmEnabled: Boolean
+        get() = sp.getBoolean("em_rpm", true)
+        set(value) = sp.edit().putBoolean("em_rpm", value).apply()
+    var emRpmTts: Boolean
+        get() = sp.getBoolean("em_rpm_tts", true)
+        set(value) = sp.edit().putBoolean("em_rpm_tts", value).apply()
+    var emRpmWarn: Float
+        get() = sp.getFloat("em_rpm_warn", 12000f)
+        set(value) = sp.edit().putFloat("em_rpm_warn", value.coerceIn(3000f, 50000f)).apply()
+    var emRpmAlert: Float
+        get() = sp.getFloat("em_rpm_alert", 16000f)
+        set(value) = sp.edit().putFloat("em_rpm_alert", value.coerceIn(4000f, 60000f)).apply()
+    var emRpmSim: Float
+        get() = sp.getFloat("em_rpm_sim", 0f)
+        set(value) = sp.edit().putFloat("em_rpm_sim", value.coerceIn(0f, 100000f)).apply()
+
+    /** Electric motor A torque Nm (OBD 01CD). */
+    var emTqEnabled: Boolean
+        get() = sp.getBoolean("em_tq", true)
+        set(value) = sp.edit().putBoolean("em_tq", value).apply()
+    var emTqTts: Boolean
+        get() = sp.getBoolean("em_tq_tts", true)
+        set(value) = sp.edit().putBoolean("em_tq_tts", value).apply()
+    var emTqWarnNm: Float
+        get() = sp.getFloat("em_tq_warn_nm", 250f)
+        set(value) = sp.edit().putFloat("em_tq_warn_nm", value.coerceIn(50f, 2000f)).apply()
+    var emTqAlertNm: Float
+        get() = sp.getFloat("em_tq_alert_nm", 400f)
+        set(value) = sp.edit().putFloat("em_tq_alert_nm", value.coerceIn(80f, 3000f)).apply()
+    var emTqSimNm: Float
+        get() = sp.getFloat("em_tq_sim_nm", 0f)
+        set(value) = sp.edit().putFloat("em_tq_sim_nm", value.coerceIn(-5000f, 5000f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

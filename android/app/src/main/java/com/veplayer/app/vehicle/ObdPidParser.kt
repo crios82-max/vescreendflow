@@ -356,6 +356,12 @@ object ObdPidParser {
         val essChgActKw: Float? = null,
         /** Battery pack energy rate Wh/s (OBD PID 01D4 bytes A/B signed /10). */
         val hvEnerRateWhs: Float? = null,
+        /** Battery pack current rate Ah/s (OBD PID 01DA bytes A/B signed /100). */
+        val hvCurrRateAhs: Float? = null,
+        /** Electric motor A RPM (OBD PID 01CC bytes A/B). */
+        val emRpmA: Float? = null,
+        /** Electric motor A torque Nm (OBD PID 01CD bytes A/B signed /10). */
+        val emTqANm: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -1009,6 +1015,26 @@ object ObdPidParser {
                     PidValues(hvEnerRateWhs = signed / 10f)
                 }
             }
+            0xDA -> {
+                if (data.size < 2) PidValues()
+                else {
+                    val raw = (data[0] shl 8) or data[1]
+                    val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                    PidValues(hvCurrRateAhs = signed / 100f)
+                }
+            }
+            0xCC -> {
+                if (data.size < 2) PidValues()
+                else PidValues(emRpmA = ((data[0] * 256) + data[1]).toFloat())
+            }
+            0xCD -> {
+                if (data.size < 2) PidValues()
+                else {
+                    val raw = (data[0] shl 8) or data[1]
+                    val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                    PidValues(emTqANm = signed / 10f)
+                }
+            }
             0x9D -> {
                 if (data.size < 2) PidValues()
                 else PidValues(engineFuelRateGps = (data[0] * 256 + data[1]) / 200f)
@@ -1246,6 +1272,9 @@ object ObdPidParser {
             essChgLimKw = add.essChgLimKw ?: base.essChgLimKw,
             essChgActKw = add.essChgActKw ?: base.essChgActKw,
             hvEnerRateWhs = add.hvEnerRateWhs ?: base.hvEnerRateWhs,
+            hvCurrRateAhs = add.hvCurrRateAhs ?: base.hvCurrRateAhs,
+            emRpmA = add.emRpmA ?: base.emRpmA,
+            emTqANm = add.emTqANm ?: base.emTqANm,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
