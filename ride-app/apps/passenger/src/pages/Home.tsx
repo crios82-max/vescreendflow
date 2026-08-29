@@ -18,6 +18,7 @@ import {
   TipSelector,
   PromoInput,
   SavedPlacesBar,
+  RestaurantPicker,
   ChatPanel,
   PhoneVerifyBanner,
   usePhoneVerified,
@@ -57,6 +58,7 @@ export default function Home() {
   const [rideForName, setRideForName] = useState('');
   const [rideForPhone, setRideForPhone] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [stripeSecret, setStripeSecret] = useState<string | null>(null);
   const { verified: phoneVerified } = usePhoneVerified();
 
@@ -76,7 +78,11 @@ export default function Home() {
   useEffect(() => {
     const next = vehiclesForMode(serviceMode)[0] ?? 'standard';
     setVehicleType(next);
-    if (serviceMode === 'delivery') setStop(null);
+    if (serviceMode === 'delivery') {
+      setStop(null);
+    } else {
+      setRestaurantId(null);
+    }
   }, [serviceMode]);
 
   useEffect(() => {
@@ -145,6 +151,7 @@ export default function Home() {
         vehicleType: selectedOption.vehicleType,
         serviceMode,
         deliveryNotes: serviceMode === 'delivery' ? (deliveryNotes || undefined) : undefined,
+        restaurantId: serviceMode === 'delivery' ? (restaurantId || undefined) : undefined,
         promoCode: promoCode || undefined,
         scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
         rideForName: rideForName || undefined,
@@ -192,9 +199,12 @@ export default function Home() {
     setDriverPos(null);
     setRated(false);
     setDeliveryNotes('');
+    setRestaurantId(null);
   };
 
-  const readyToBook = Boolean(pickup && dropoff && !ride && selectedOption);
+  const readyToBook = Boolean(
+    pickup && dropoff && !ride && selectedOption && (serviceMode === 'ride' || restaurantId),
+  );
   const routePolyline = ride?.routePolyline ?? estimate?.polyline ?? null;
   const showRating = ride?.status === 'completed' && ride.paymentStatus === 'paid' && !rated;
   const isDelivery = serviceMode === 'delivery' || ride?.serviceMode === 'delivery';
@@ -244,31 +254,25 @@ export default function Home() {
                     {t('service.foodDelivery')}
                   </button>
                 </div>
-                <PlaceAutocomplete
-                  label={serviceMode === 'delivery' ? t('service.restaurant') : t('common.origin')}
-                  placeholder={serviceMode === 'delivery' ? t('service.restaurant') : t('passenger.searchOrigin')}
-                  defaultValue={pickup?.address}
-                  bias={locationBias}
-                  onSelect={onPickupSelect}
-                />
-                <PlaceAutocomplete
-                  label={serviceMode === 'delivery' ? t('service.customer') : t('common.destination')}
-                  placeholder={serviceMode === 'delivery' ? t('service.customer') : t('passenger.whereTo')}
-                  defaultValue={dropoff?.address}
-                  bias={pickup ?? locationBias}
-                  onSelect={onDropoffSelect}
-                />
-                <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
-                {serviceMode === 'ride' && (
-                  <PlaceAutocomplete
-                    label={t('passenger.optionalStop')}
-                    placeholder={t('passenger.addStop')}
-                    bias={pickup ?? locationBias}
-                    onSelect={(p) => setStop(p)}
-                  />
-                )}
                 {serviceMode === 'delivery' ? (
                   <>
+                    <p className="muted-text" style={{ margin: '0 0 4px' }}>{t('service.pickRestaurant')} ({t('service.spainFirst')})</p>
+                    <RestaurantPicker
+                      selectedId={restaurantId}
+                      onSelect={(pick) => {
+                        setRestaurantId(pick.restaurant.id);
+                        setPickup({ lat: pick.lat, lng: pick.lng, address: pick.address });
+                        setEstimate(null);
+                      }}
+                    />
+                    <PlaceAutocomplete
+                      label={t('service.customer')}
+                      placeholder={t('service.customer')}
+                      defaultValue={dropoff?.address}
+                      bias={pickup ?? locationBias}
+                      onSelect={onDropoffSelect}
+                    />
+                    <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
                     <input
                       className="place-input"
                       placeholder={t('service.deliveryNotesPlaceholder')}
@@ -280,6 +284,27 @@ export default function Home() {
                   </>
                 ) : (
                   <>
+                    <PlaceAutocomplete
+                      label={t('common.origin')}
+                      placeholder={t('passenger.searchOrigin')}
+                      defaultValue={pickup?.address}
+                      bias={locationBias}
+                      onSelect={onPickupSelect}
+                    />
+                    <PlaceAutocomplete
+                      label={t('common.destination')}
+                      placeholder={t('passenger.whereTo')}
+                      defaultValue={dropoff?.address}
+                      bias={pickup ?? locationBias}
+                      onSelect={onDropoffSelect}
+                    />
+                    <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
+                    <PlaceAutocomplete
+                      label={t('passenger.optionalStop')}
+                      placeholder={t('passenger.addStop')}
+                      bias={pickup ?? locationBias}
+                      onSelect={(p) => setStop(p)}
+                    />
                     <input className="place-input" placeholder={t('passenger.rideForName')} value={rideForName} onChange={(e) => setRideForName(e.target.value)} />
                     <input className="place-input" placeholder={t('passenger.contactPhone')} value={rideForPhone} onChange={(e) => setRideForPhone(e.target.value)} />
                   </>

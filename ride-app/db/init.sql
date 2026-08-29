@@ -51,6 +51,7 @@ CREATE TABLE rides (
   vehicle_type vehicle_type NOT NULL DEFAULT 'standard',
   service_mode service_mode NOT NULL DEFAULT 'ride',
   delivery_notes TEXT,
+  restaurant_id TEXT,
   estimated_price NUMERIC(10,2) NOT NULL,
   final_price NUMERIC(10,2),
   payment_status payment_status NOT NULL DEFAULT 'pending',

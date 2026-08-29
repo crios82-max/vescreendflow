@@ -199,6 +199,7 @@ export interface Ride {
   vehicleType: VehicleType;
   serviceMode: ServiceMode;
   deliveryNotes: string | null;
+  restaurantId: string | null;
   estimatedPrice: number;
   finalPrice: number | null;
   paymentStatus: PaymentStatus;
@@ -327,6 +328,19 @@ export function buildRideEstimate(
 }
 
 export { BRAND, brandTitle, brandAppLabel } from './brand.js';
+export {
+  DELIVERY_RESTAURANTS,
+  DELIVERY_COUNTRIES,
+  SPAIN_CITIES,
+  listDeliveryRestaurants,
+  getDeliveryRestaurant,
+  deliveryCities,
+  type DeliveryRestaurant,
+  type RestaurantCategory,
+  type DeliveryCountry,
+  type SpainCity,
+  type RestaurantFilter,
+} from './restaurants.js';
 export {
   type Locale,
   type TranslationKey,

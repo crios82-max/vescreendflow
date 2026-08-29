@@ -7,7 +7,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "tsx --test src/pricing.test.ts src/i18n/detect.test.ts"
+    "test": "tsx --test src/pricing.test.ts src/i18n/detect.test.ts src/restaurants.test.ts"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

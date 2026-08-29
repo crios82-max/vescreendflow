@@ -22,6 +22,7 @@ import { mobileApi } from './src/api';
 import { getMobileSocket, reconnectSocket } from './src/socket';
 import { PlaceSearch } from './src/PlaceSearch';
 import { VehicleTypePicker } from './src/VehicleTypePicker';
+import { RestaurantPicker } from './src/RestaurantPicker';
 import { SavedPlacesBar } from './src/SavedPlacesBar';
 import { FareBreakdownView } from './src/FareBreakdownView';
 import { defaultApiUrl, getApiUrl } from './src/storage';
@@ -57,6 +58,7 @@ export default function App() {
   const [vehicleType, setVehicleType] = useState<VehicleType>('standard');
   const [serviceMode, setServiceMode] = useState<ServiceMode>('ride');
   const [deliveryNotes, setDeliveryNotes] = useState('');
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [online, setOnline] = useState(false);
   const [pending, setPending] = useState<Array<{ id: string; pickupAddress: string; estimatedPrice: number; vehicleType: string; serviceMode?: string; deliveryNotes?: string | null }>>([]);
   const [tab, setTab] = useState<Tab>('ride');
@@ -233,6 +235,7 @@ export default function App() {
         vehicleType,
         serviceMode,
         deliveryNotes: serviceMode === 'delivery' ? (deliveryNotes || undefined) : undefined,
+        restaurantId: serviceMode === 'delivery' ? (restaurantId || undefined) : undefined,
         rideForName: rideForName || undefined,
         promoCode: promoCode || undefined,
         scheduledAt: scheduledHours > 0 ? new Date(Date.now() + scheduledHours * 3600_000).toISOString() : undefined,
@@ -476,26 +479,35 @@ export default function App() {
       {user?.role === 'passenger' && !ride && (
         <SafeAreaView style={styles.searchOverlay}>
           <View style={styles.row}>
-            <Pressable style={[styles.chip, serviceMode === 'ride' && styles.chipActive]} onPress={() => { setServiceMode('ride'); setVehicleType('standard'); }}>
+            <Pressable style={[styles.chip, serviceMode === 'ride' && styles.chipActive]} onPress={() => { setServiceMode('ride'); setVehicleType('standard'); setRestaurantId(null); }}>
               <Text style={serviceMode === 'ride' ? styles.chipTextActive : styles.chipText}>{t('service.ride')}</Text>
             </Pressable>
             <Pressable style={[styles.chip, serviceMode === 'delivery' && styles.chipActive]} onPress={() => { setServiceMode('delivery'); setVehicleType('moto'); setStop(null); }}>
               <Text style={serviceMode === 'delivery' ? styles.chipTextActive : styles.chipText}>{t('service.foodDelivery')}</Text>
             </Pressable>
           </View>
-          <PlaceSearch placeholder={serviceMode === 'delivery' ? t('service.restaurant') : t('common.origin')} bias={position} language={locale} onSelect={(p) => setPickup(p)} />
-          <PlaceSearch placeholder={serviceMode === 'delivery' ? t('service.customer') : t('passenger.whereTo')} bias={pickup ?? position} language={locale} onSelect={(p) => setDropoff(p)} />
-          {serviceMode === 'ride' && (
+          {serviceMode === 'delivery' ? (
             <>
+              <RestaurantPicker
+                selectedId={restaurantId}
+                onSelect={(pick) => {
+                  setRestaurantId(pick.restaurant.id);
+                  setPickup({ latitude: pick.latitude, longitude: pick.longitude, address: pick.address });
+                }}
+              />
+              <PlaceSearch placeholder={t('service.customer')} bias={pickup ?? position} language={locale} onSelect={(p) => setDropoff(p)} />
+              <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
+              <TextInput style={styles.input} placeholder={t('service.deliveryNotesPlaceholder')} placeholderTextColor={placeholderColor} value={deliveryNotes} onChangeText={setDeliveryNotes} />
+            </>
+          ) : (
+            <>
+              <PlaceSearch placeholder={t('common.origin')} bias={position} language={locale} onSelect={(p) => setPickup(p)} />
+              <PlaceSearch placeholder={t('passenger.whereTo')} bias={pickup ?? position} language={locale} onSelect={(p) => setDropoff(p)} />
               <TextInput style={styles.input} placeholder={t('passenger.optionalStop')} placeholderTextColor={placeholderColor} value={stop?.address ?? ''} editable={false} />
               <PlaceSearch placeholder={t('passenger.addStop')} bias={pickup ?? position} language={locale} onSelect={(p) => setStop(p)} />
+              <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
+              <TextInput style={styles.input} placeholder={t('passenger.rideForName')} placeholderTextColor={placeholderColor} value={rideForName} onChangeText={setRideForName} />
             </>
-          )}
-          <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
-          {serviceMode === 'delivery' ? (
-            <TextInput style={styles.input} placeholder={t('service.deliveryNotesPlaceholder')} placeholderTextColor={placeholderColor} value={deliveryNotes} onChangeText={setDeliveryNotes} />
-          ) : (
-            <TextInput style={styles.input} placeholder={t('passenger.rideForName')} placeholderTextColor={placeholderColor} value={rideForName} onChangeText={setRideForName} />
           )}
         </SafeAreaView>
       )}

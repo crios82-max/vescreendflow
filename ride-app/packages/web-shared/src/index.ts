@@ -13,6 +13,8 @@ export { FareBreakdownView } from './FareBreakdownView';
 export { TipSelector } from './TipSelector';
 export { PromoInput } from './PromoInput';
 export { SavedPlacesBar } from './SavedPlacesBar';
+export { RestaurantPicker } from './RestaurantPicker';
+export type { RestaurantPick } from './RestaurantPicker';
 export { ChatPanel } from './ChatPanel';
 export { PhoneVerifyBanner } from './PhoneVerifyBanner';
 export { SplitFareForm } from './SplitFareForm';

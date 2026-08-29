@@ -19,6 +19,7 @@ import connectRoutes from './routes/connect.js';
 import verifyRoutes from './routes/verify.js';
 import { createSplitRouter } from './routes/split.js';
 import contactRoutes from './routes/contact.js';
+import restaurantsRoutes from './routes/restaurants.js';
 import stripeWebhookRoutes from './routes/webhooks/stripe.js';
 import twilioWebhookRoutes from './routes/webhooks/twilio.js';
 import paymentsRoutes from './routes/payments.js';
@@ -76,6 +77,7 @@ export function createRideApp(): RideApp {
   app.use('/split', createSplitRouter(io));
   app.use('/payments', paymentsRoutes);
   app.use('/contact', contactRoutes);
+  app.use('/restaurants', restaurantsRoutes);
 
   io.on('connection', (socket) => {
     socket.on('join:ride', (rideId: string) => {

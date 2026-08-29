@@ -1,4 +1,4 @@
-import type { AuthResponse, Ride, RideEstimate, User } from '@ride-app/shared';
+import type { AuthResponse, DeliveryRestaurant, Ride, RideEstimate, User } from '@ride-app/shared';
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4001';
 
@@ -321,6 +321,22 @@ class ApiClient {
       method: 'PATCH',
       body: JSON.stringify({ locale }),
     });
+  }
+
+  listRestaurants(params?: { country?: string; city?: string; category?: string; q?: string }) {
+    const qs = new URLSearchParams();
+    if (params?.country) qs.set('country', params.country);
+    if (params?.city) qs.set('city', params.city);
+    if (params?.category) qs.set('category', params.category);
+    if (params?.q) qs.set('q', params.q);
+    const query = qs.toString();
+    return this.request<{
+      country: string;
+      cities: string[];
+      countries: string[];
+      count: number;
+      restaurants: DeliveryRestaurant[];
+    }>(`/restaurants${query ? `?${query}` : ''}`);
   }
 }
 
