@@ -1,4 +1,4 @@
-# Ride App — App Store / Play Store / TestFlight
+# Movify — App Store / Play Store / TestFlight
 
 Ver también: [GO_LIVE.md](./GO_LIVE.md) (checklist DNS + TestFlight).
 

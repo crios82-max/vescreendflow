@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 import type { RideEstimateOption, VehicleType } from '@ride-app/shared';
 import { colors } from './theme';
+import { useMobileI18n } from './i18n';
 
 interface Props {
   options: RideEstimateOption[];
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function VehicleTypePicker({ options, selected, onSelect }: Props) {
+  const { t, vehicle } = useMobileI18n();
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.row}>
       {options.map((option) => {
@@ -20,8 +22,8 @@ export function VehicleTypePicker({ options, selected, onSelect }: Props) {
             onPress={() => onSelect(option.vehicleType)}
           >
             <Text style={styles.icon}>{option.icon}</Text>
-            <Text style={styles.label}>{option.label}</Text>
-            <Text style={styles.meta}>{option.seats} pax</Text>
+            <Text style={styles.label}>{vehicle(option.vehicleType)}</Text>
+            <Text style={styles.meta}>{option.seats} {t('common.pax')}</Text>
             <Text style={[styles.price, active && styles.priceActive]}>${option.estimatedPrice}</Text>
           </Pressable>
         );

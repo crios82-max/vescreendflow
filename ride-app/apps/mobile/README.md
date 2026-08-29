@@ -1,4 +1,4 @@
-# Ride — App móvil (iPhone)
+# Movify — App móvil (iPhone)
 
 Desarrollo desde iPhone con **Expo Go** mientras estás de viaje. Pruebas completas con API en el Mac mini al regresar.
 

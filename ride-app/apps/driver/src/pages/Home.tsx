@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Ride, VehicleType } from '@ride-app/shared';
-import { api, getSocket, GoogleMapsProvider, HistoryPanel, MapView, RatingForm, ChatPanel, useAuth, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
+import { api, getSocket, GoogleMapsProvider, HistoryPanel, MapView, RatingForm, ChatPanel, useAuth, useI18n, LanguageSwitcher, DriverDocsForm } from '@ride-app/web-shared';
 
 interface PendingRide {
   id: string;
@@ -17,7 +17,7 @@ type Tab = 'rides' | 'history';
 
 export default function Home() {
   const { user, logout } = useAuth();
-  const { t, rideStatus, vehicle } = useI18n();
+  const { t, rideStatus, vehicle, te } = useI18n();
   const [tab, setTab] = useState<Tab>('rides');
   const [online, setOnline] = useState(false);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
@@ -26,6 +26,7 @@ export default function Home() {
   const [rated, setRated] = useState(false);
   const [earnings, setEarnings] = useState<{ totalEarnings: number; today: { total: number } } | null>(null);
   const [connectStatus, setConnectStatus] = useState<{ onboarded: boolean } | null>(null);
+  const [approvalStatus, setApprovalStatus] = useState<string>('approved');
   const [error, setError] = useState('');
   const watchRef = useRef<number | null>(null);
 
@@ -37,6 +38,7 @@ export default function Home() {
     api.getActiveRide().then((r) => r.ride && setRide(r.ride)).catch(() => {});
     api.getDriverEarnings().then(setEarnings).catch(() => {});
     api.getConnectStatus().then(setConnectStatus).catch(() => {});
+    api.getOnboardingStatus().then((r) => setApprovalStatus(r.approvalStatus)).catch(() => {});
     const socket = getSocket();
     socket.emit('join:drivers');
     socket.on('ride:requested', loadPending);
@@ -75,6 +77,10 @@ export default function Home() {
 
   const toggleOnline = async () => {
     setError('');
+    if (approvalStatus !== 'approved') {
+      setError(t('driver.docsRequired'));
+      return;
+    }
     if (online) {
       await api.goOffline();
       setOnline(false);
@@ -97,15 +103,19 @@ export default function Home() {
       setRated(false);
       setPending([]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(te(err instanceof Error ? err.message : t('common.error')));
       loadPending();
     }
   };
 
   const updateStatus = async (status: 'arriving' | 'in_progress' | 'completed') => {
     if (!ride) return;
-    const updated = await api.updateRideStatus(ride.id, status);
-    setRide(updated);
+    try {
+      const updated = await api.updateRideStatus(ride.id, status);
+      setRide(updated);
+    } catch (err) {
+      setError(te(err instanceof Error ? err.message : t('common.error')));
+    }
   };
 
   const showRating = ride?.status === 'completed' && !rated;
@@ -149,6 +159,7 @@ export default function Home() {
           ) : !ride ? (
             <>
               <h2>{online ? t('driver.availableRides') : t('driver.goOnlineHint')}</h2>
+              <DriverDocsForm onUpdated={() => api.getOnboardingStatus().then((r) => setApprovalStatus(r.approvalStatus))} />
               {earnings && (
                 <div className="meta-row"><span>{t('driver.todayEarnings')}</span><span>${earnings.today.total.toFixed(2)}</span></div>
               )}

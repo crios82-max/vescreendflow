@@ -25,7 +25,7 @@ export function VehicleTypePicker({ options, selected, onSelect }: VehicleTypePi
             <span className="vehicle-card__icon">{meta.icon}</span>
             <span className="vehicle-card__body">
               <strong>{vehicle(option.vehicleType)}</strong>
-              <span>{t(`vehicle.${option.vehicleType}.description`)} · {option.seats} pax</span>
+              <span>{t(`vehicle.${option.vehicleType}.description`)} · {option.seats} {t('common.pax')}</span>
             </span>
             <span className="vehicle-card__price">${option.estimatedPrice}</span>
           </button>

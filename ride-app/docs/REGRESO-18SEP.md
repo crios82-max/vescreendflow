@@ -10,6 +10,7 @@ Todo el **código** ya está en `main`. Al volver solo ejecutas esto en orden (~
 - Marca Movify + logo
 - Tema negro + lima
 - Multi-idioma ES · EN · IT · PT (auto-detect por ubicación)
+- Pulido pre-prod: Share/Split i18n, docs conductor, admin, tunnel driver/admin
 - Túnel configurado en `cloudflared/config.yml` (`movify` + `movify-api`)
 - Scripts: `prep-local`, `go-live`, `check-prod`, TestFlight
 - CI + tests API
@@ -85,6 +86,8 @@ Dashboard → **vescreenflow.com** → DNS:
 |------|------|--------|-------|
 | CNAME | `movify-api` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
 | CNAME | `movify` | mismo | Proxied |
+| CNAME | `movify-driver` | mismo | Proxied |
+| CNAME | `movify-admin` | mismo | Proxied |
 
 Reinicia cloudflared en el Mac mini.
 
@@ -96,6 +99,8 @@ npm run go-live
 Debe pasar:
 - `https://movify-api.vescreenflow.com/health`
 - `https://movify.vescreenflow.com`
+- `https://movify-driver.vescreenflow.com`
+- `https://movify-admin.vescreenflow.com`
 
 ### D. Prueba end-to-end web (30 min)
 

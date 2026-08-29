@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { googleMapsKey } from './storage';
 import { colors, placeholderColor } from './theme';
+import type { Locale } from '@ride-app/shared';
 
 export interface PlaceResult {
   latitude: number;
@@ -12,10 +13,11 @@ export interface PlaceResult {
 interface Props {
   placeholder: string;
   bias?: { latitude: number; longitude: number } | null;
+  language?: Locale;
   onSelect: (place: PlaceResult) => void;
 }
 
-export function PlaceSearch({ placeholder, bias, onSelect }: Props) {
+export function PlaceSearch({ placeholder, bias, language = 'es', onSelect }: Props) {
   const API_KEY = googleMapsKey();
 
   if (!API_KEY) {
@@ -40,7 +42,7 @@ export function PlaceSearch({ placeholder, bias, onSelect }: Props) {
         }}
         query={{
           key: API_KEY,
-          language: 'es',
+          language,
           ...(bias
             ? { location: `${bias.latitude},${bias.longitude}`, radius: 20000 }
             : {}),

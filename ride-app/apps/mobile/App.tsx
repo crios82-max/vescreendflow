@@ -8,6 +8,7 @@ import {
   Pressable,
   SafeAreaView,
   ScrollView,
+  Share,
   Text,
   TextInput,
   View,
@@ -32,7 +33,7 @@ type Screen = 'auth' | 'home';
 type Tab = 'ride' | 'history';
 
 export default function App() {
-  const { t, tagline, locale, setLocale, vehicle, rideStatus } = useMobileI18n();
+  const { t, te, tagline, locale, setLocale, vehicle, rideStatus } = useMobileI18n();
   const [ready, setReady] = useState(false);
   const [screen, setScreen] = useState<Screen>('auth');
   const [user, setUser] = useState<User | null>(null);
@@ -182,7 +183,7 @@ export default function App() {
       }
       mobileApi.getPhoneVerifyStatus().then((s) => setPhoneVerified(s.verified)).catch(() => {});
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
       setLoading(false);
     }
@@ -206,7 +207,7 @@ export default function App() {
       });
       setRide(created);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
       setLoading(false);
     }
@@ -216,7 +217,7 @@ export default function App() {
     const origin = pickup ?? position;
     if (!origin || !dropoff || user?.role !== 'passenger') return;
     mobileApi.estimateRide({
-      pickupAddress: pickup?.address ?? 'origen',
+      pickupAddress: pickup?.address ?? t('common.myLocation'),
       pickupLat: origin.latitude,
       pickupLng: origin.longitude,
       dropoffAddress: dropoff.address,
@@ -279,9 +280,7 @@ export default function App() {
               ))}
             </View>
             <Image source={require('./assets/icon.png')} style={styles.authLogo} accessibilityLabel={BRAND.name} />
-            <Text style={styles.brandName}>
-              Movi<Text style={styles.brandNameAccent}>fy</Text>
-            </Text>
+            <Text style={styles.brandName}>{BRAND.name}</Text>
             <Text style={styles.tagline}>{tagline}</Text>
             <Text style={apiConnected ? styles.connectionOk : apiConnected === false ? styles.connectionBad : styles.muted}>
               {connectionBadge}
@@ -365,7 +364,6 @@ export default function App() {
   return (
     <View style={styles.flex}>
       <StatusBar style="light" />
-      <StatusBar style="light" />
       {mapCenter && (
         <MapView
           style={styles.map}
@@ -387,10 +385,10 @@ export default function App() {
       )}
       {user?.role === 'passenger' && !ride && (
         <SafeAreaView style={styles.searchOverlay}>
-          <PlaceSearch placeholder={t('common.origin')} bias={position} onSelect={(p) => setPickup(p)} />
-          <PlaceSearch placeholder={t('passenger.whereTo')} bias={pickup ?? position} onSelect={(p) => setDropoff(p)} />
+          <PlaceSearch placeholder={t('common.origin')} bias={position} language={locale} onSelect={(p) => setPickup(p)} />
+          <PlaceSearch placeholder={t('passenger.whereTo')} bias={pickup ?? position} language={locale} onSelect={(p) => setDropoff(p)} />
           <TextInput style={styles.input} placeholder={t('passenger.optionalStop')} placeholderTextColor={placeholderColor} value={stop?.address ?? ''} editable={false} />
-          <PlaceSearch placeholder={t('passenger.addStop')} bias={pickup ?? position} onSelect={(p) => setStop(p)} />
+          <PlaceSearch placeholder={t('passenger.addStop')} bias={pickup ?? position} language={locale} onSelect={(p) => setStop(p)} />
           <TextInput style={styles.input} placeholder={t('passenger.rideForName')} placeholderTextColor={placeholderColor} value={rideForName} onChangeText={setRideForName} />
         </SafeAreaView>
       )}
@@ -413,6 +411,13 @@ export default function App() {
           </View>
         )}
         <View style={styles.sheetHeader}>
+          <View style={styles.row}>
+            {LOCALES.map((code) => (
+              <Pressable key={code} style={[styles.chip, locale === code && styles.chipActive]} onPress={() => setLocale(code)}>
+                <Text style={locale === code ? styles.chipTextActive : styles.chipText}>{code.toUpperCase()}</Text>
+              </Pressable>
+            ))}
+          </View>
           <Text style={styles.sheetTitle}>{user?.name}</Text>
           <Text style={styles.roleBadge}>{user?.role === 'passenger' ? t('mobile.passenger') : t('mobile.driver')} · {connectionBadge}</Text>
           <View style={styles.row}>
@@ -499,7 +504,15 @@ export default function App() {
                 <View style={styles.row}>
                   <Pressable style={styles.btnSecondary} onPress={async () => {
                     const s = await mobileApi.shareRide(ride.id);
-                    alert(t('common.share') + ': ' + s.shareToken);
+                    let shareBase = 'http://localhost:5174';
+                    try {
+                      const u = new URL(apiUrlInput);
+                      u.port = '5174';
+                      u.pathname = '';
+                      shareBase = u.origin;
+                    } catch { /* keep default */ }
+                    const url = `${shareBase}/share/${s.shareToken}`;
+                    await Share.share({ message: url, url });
                   }}>
                     <Text style={styles.btnSecondaryText}>{t('common.share')}</Text>
                   </Pressable>

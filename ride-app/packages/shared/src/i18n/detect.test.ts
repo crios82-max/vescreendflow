@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { detectLocaleFromLanguageTag, resolveLocaleFromPlace, isLocale } from './index.js';
+import { detectLocaleFromLanguageTag, resolveLocaleFromPlace, isLocale, translateApiError } from './index.js';
 import { localeFromCountry } from './regions.js';
 
 describe('i18n locale detection', () => {
@@ -29,5 +29,11 @@ describe('i18n locale detection', () => {
     assert.equal(isLocale('es'), true);
     assert.equal(isLocale('pt'), true);
     assert.equal(isLocale('fr'), false);
+  });
+
+  it('translates API error messages', () => {
+    assert.equal(translateApiError('en', 'Credenciales inválidas'), 'Invalid credentials');
+    assert.equal(translateApiError('es', 'Credenciales inválidas'), 'Credenciales inválidas');
+    assert.equal(translateApiError('en', 'Unknown error'), 'Unknown error');
   });
 });

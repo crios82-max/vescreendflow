@@ -30,7 +30,7 @@ type Tab = 'ride' | 'history';
 
 export default function Home() {
   const { user, logout } = useAuth();
-  const { t, rideStatus, vehicle } = useI18n();
+  const { t, rideStatus, vehicle, te } = useI18n();
   const [tab, setTab] = useState<Tab>('ride');
   const [pickup, setPickup] = useState<Point | null>(null);
   const [dropoff, setDropoff] = useState<Point | null>(null);
@@ -53,6 +53,7 @@ export default function Home() {
   const [rideForName, setRideForName] = useState('');
   const [rideForPhone, setRideForPhone] = useState('');
   const [stripeSecret, setStripeSecret] = useState<string | null>(null);
+  const [flash, setFlash] = useState('');
   const { verified: phoneVerified } = usePhoneVerified();
 
   useEffect(() => {
@@ -135,7 +136,7 @@ export default function Home() {
       setRide(created);
       setRated(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
       setLoading(false);
     }
@@ -160,7 +161,7 @@ export default function Home() {
       const result = await api.payRide(ride.id, { tipAmount, useWallet });
       setRide(result.ride);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error');
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
       setLoading(false);
     }
@@ -289,7 +290,8 @@ export default function Home() {
                       const s = await api.shareRide(ride.id);
                       const url = `${window.location.origin}/share/${s.shareToken}`;
                       navigator.clipboard.writeText(url).catch(() => {});
-                      alert(t('common.linkCopied'));
+                      setFlash(t('common.linkCopiedBanner'));
+                      setTimeout(() => setFlash(''), 3000);
                     }}>{t('common.share')}</button>
                     <button className="btn-danger" type="button" onClick={() => api.triggerSos(ride.id, pickup?.lat, pickup?.lng)}>{t('common.sos')}</button>
                     {ride.driverId && ['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
@@ -301,6 +303,7 @@ export default function Home() {
                       }}>{t('passenger.callDriver')}</button>
                     )}
                   </div>
+                  {flash && <p className="flash-text">{flash}</p>}
                   {ride.driverId && <ChatPanel rideId={ride.id} />}
                   <div className="meta-row">
                     <span>{t('common.payment')}</span>
@@ -311,6 +314,7 @@ export default function Home() {
                   )}
                   {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (
                     <>
+                      <SavedCards />
                       <SplitFareForm rideId={ride.id} />
                       <TipSelector value={tipAmount} onChange={setTipAmount} />
                       <label className="meta-row">

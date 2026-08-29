@@ -272,6 +272,11 @@ textarea {
   margin: 0;
 }
 
+.flash-text {
+  color: var(--brand-primary);
+  margin: 0;
+}
+
 .search-panel {
   position: absolute;
   top: 72px;

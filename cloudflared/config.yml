@@ -9,4 +9,8 @@ ingress:
     service: http://127.0.0.1:4001
   - hostname: movify.vescreenflow.com
     service: http://127.0.0.1:5174
+  - hostname: movify-driver.vescreenflow.com
+    service: http://127.0.0.1:5175
+  - hostname: movify-admin.vescreenflow.com
+    service: http://127.0.0.1:5176
   - service: http_status:404
