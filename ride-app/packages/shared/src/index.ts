@@ -49,9 +49,19 @@ export interface User {
   walletBalance?: number;
 }
 
-export type VehicleType = 'standard' | 'comfort' | 'xl' | 'vans';
+export const VEHICLE_TYPES = ['standard', 'moto', 'bicicleta', 'comfort', 'xl', 'vans'] as const;
 
-export const VEHICLE_TYPES: VehicleType[] = ['standard', 'comfort', 'xl', 'vans'];
+export type VehicleType = (typeof VEHICLE_TYPES)[number];
+
+export type ServiceMode = 'ride' | 'delivery';
+
+export const SERVICE_MODES = ['ride', 'delivery'] as const;
+
+/** Passenger cars for normal rides */
+export const RIDE_VEHICLE_TYPES: VehicleType[] = ['standard', 'comfort', 'xl', 'vans'];
+
+/** Moto / bike couriers for food delivery — bicicleta first (Spain urban default) */
+export const DELIVERY_VEHICLE_TYPES: VehicleType[] = ['bicicleta', 'moto'];
 
 export interface VehicleOption {
   type: VehicleType;
@@ -60,6 +70,7 @@ export interface VehicleOption {
   seats: number;
   multiplier: number;
   icon: string;
+  category: ServiceMode;
 }
 
 export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
@@ -70,6 +81,25 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
     seats: 4,
     multiplier: 1,
     icon: '🚗',
+    category: 'ride',
+  },
+  moto: {
+    type: 'moto',
+    label: 'Moto',
+    description: 'Entrega de comida rápida',
+    seats: 1,
+    multiplier: 0.7,
+    icon: '🏍️',
+    category: 'delivery',
+  },
+  bicicleta: {
+    type: 'bicicleta',
+    label: 'Bicicleta',
+    description: 'La más usada en ciudad (ES)',
+    seats: 1,
+    multiplier: 0.45,
+    icon: '🚲',
+    category: 'delivery',
   },
   comfort: {
     type: 'comfort',
@@ -78,6 +108,7 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
     seats: 4,
     multiplier: 1.35,
     icon: '✨',
+    category: 'ride',
   },
   xl: {
     type: 'xl',
@@ -86,6 +117,7 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
     seats: 6,
     multiplier: 1.55,
     icon: '🚙',
+    category: 'ride',
   },
   vans: {
     type: 'vans',
@@ -94,8 +126,29 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
     seats: 8,
     multiplier: 1.85,
     icon: '🚐',
+    category: 'ride',
   },
 };
+
+export function isDeliveryVehicle(type: VehicleType): boolean {
+  return VEHICLE_OPTIONS[type].category === 'delivery';
+}
+
+/** Preferred courier by market — Spain leans bike; Venezuela leans moto. */
+export function preferredDeliveryVehicle(country?: string | null): VehicleType {
+  if (country === 'VE') return 'moto';
+  return 'bicicleta';
+}
+
+export function vehiclesForMode(mode: ServiceMode, country?: string | null): VehicleType[] {
+  if (mode !== 'delivery') return RIDE_VEHICLE_TYPES;
+  const preferred = preferredDeliveryVehicle(country);
+  return [preferred, ...DELIVERY_VEHICLE_TYPES.filter((t) => t !== preferred)];
+}
+
+export function serviceModeForVehicle(type: VehicleType): ServiceMode {
+  return VEHICLE_OPTIONS[type].category;
+}
 
 export interface RideEstimateOption {
   vehicleType: VehicleType;
@@ -152,6 +205,9 @@ export interface Ride {
   dropoffLat: number;
   dropoffLng: number;
   vehicleType: VehicleType;
+  serviceMode: ServiceMode;
+  deliveryNotes: string | null;
+  restaurantId: string | null;
   estimatedPrice: number;
   finalPrice: number | null;
   paymentStatus: PaymentStatus;
@@ -280,6 +336,25 @@ export function buildRideEstimate(
 }
 
 export { BRAND, brandTitle, brandAppLabel } from './brand.js';
+export {
+  DELIVERY_RESTAURANTS,
+  DELIVERY_COUNTRIES,
+  DELIVERY_COUNTRY_META,
+  SPAIN_CITIES,
+  VENEZUELA_CITIES,
+  ITALY_CITIES,
+  listDeliveryRestaurants,
+  getDeliveryRestaurant,
+  deliveryCities,
+  isDeliveryCountry,
+  type DeliveryRestaurant,
+  type RestaurantCategory,
+  type DeliveryCountry,
+  type SpainCity,
+  type VenezuelaCity,
+  type ItalyCity,
+  type RestaurantFilter,
+} from './restaurants.js';
 export {
   type Locale,
   type TranslationKey,

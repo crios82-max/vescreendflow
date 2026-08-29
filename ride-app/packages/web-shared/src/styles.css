@@ -500,6 +500,59 @@ textarea {
   font-weight: 700;
 }
 
+.restaurant-picker {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.restaurant-picker__filters {
+  display: grid;
+  gap: 8px;
+}
+
+.restaurant-list {
+  display: grid;
+  gap: 8px;
+  max-height: 220px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.restaurant-card {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--brand-border-strong);
+  background: var(--brand-surface);
+  color: var(--brand-text);
+  cursor: pointer;
+}
+
+.restaurant-card:hover {
+  border-color: rgba(163, 230, 53, 0.45);
+}
+
+.restaurant-card--active {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary-dim);
+}
+
+.restaurant-card__badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--brand-primary);
+  text-transform: uppercase;
+}
+
+.restaurant-card__meta {
+  color: var(--brand-text-muted);
+  font-size: 0.8rem;
+}
+
 /* ——— Admin dashboard ——— */
 .admin-page {
   min-height: 100vh;

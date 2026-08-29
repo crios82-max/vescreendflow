@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 import { Router } from 'express';
 import { z } from 'zod';
-import { buildRideEstimate, VEHICLE_OPTIONS, type VehicleType } from '@ride-app/shared';
+import { buildRideEstimate, VEHICLE_TYPES, getDeliveryRestaurant, serviceModeForVehicle, type VehicleType } from '@ride-app/shared';
 import { pool } from '../db.js';
 import { authMiddleware, requireRole } from '../middleware/auth.js';
 import { mapRide } from '../mappers.js';
@@ -46,8 +46,13 @@ const locationSchema = z.object({
   stops: z.array(stopSchema).max(3).optional(),
 });
 
+const vehicleTypeEnum = z.enum(VEHICLE_TYPES);
+
 const createRideSchema = locationSchema.extend({
-  vehicleType: z.enum(['standard', 'comfort', 'xl', 'vans']),
+  vehicleType: vehicleTypeEnum,
+  serviceMode: z.enum(['ride', 'delivery']).optional(),
+  deliveryNotes: z.string().max(500).optional(),
+  restaurantId: z.string().max(80).optional(),
   scheduledAt: z.string().datetime().optional(),
   rideForName: z.string().optional(),
   rideForPhone: z.string().optional(),
@@ -168,6 +173,26 @@ export function createRidesRouter(io: SocketServer) {
     const isScheduled = data.scheduledAt && new Date(data.scheduledAt) > new Date();
     const status = isScheduled ? 'scheduled' : 'requested';
     const shareToken = randomBytes(16).toString('hex');
+    const impliedMode = serviceModeForVehicle(data.vehicleType);
+    const serviceMode = data.serviceMode ?? impliedMode;
+    if (serviceMode !== impliedMode) {
+      return res.status(400).json({ error: 'El tipo de vehículo no coincide con el modo (viaje/entrega)' });
+    }
+    if (serviceMode === 'delivery' && data.stops?.length) {
+      return res.status(400).json({ error: 'Las entregas no admiten paradas intermedias' });
+    }
+
+    let restaurantId: string | null = null;
+    if (data.restaurantId) {
+      const restaurant = getDeliveryRestaurant(data.restaurantId);
+      if (!restaurant) {
+        return res.status(400).json({ error: 'Restaurante no encontrado' });
+      }
+      if (serviceMode !== 'delivery') {
+        return res.status(400).json({ error: 'Solo entregas pueden usar restaurante' });
+      }
+      restaurantId = restaurant.id;
+    }
 
     const result = await pool.query(
       `INSERT INTO rides (
@@ -175,8 +200,8 @@ export function createRidesRouter(io: SocketServer) {
         dropoff_address, dropoff_lat, dropoff_lng,
         vehicle_type, estimated_price, distance_km, duration_min, route_polyline,
         scheduled_at, status, surge_multiplier, fare_breakdown, promo_code, promo_discount,
-        share_token, ride_for_name, ride_for_phone
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)
+        share_token, ride_for_name, ride_for_phone, service_mode, delivery_notes, restaurant_id
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)
       RETURNING *`,
       [
         req.auth!.userId, data.pickupAddress, data.pickupLat, data.pickupLng,
@@ -184,6 +209,7 @@ export function createRidesRouter(io: SocketServer) {
         data.vehicleType, estimatedPrice, metrics.distanceKm, metrics.durationMin, metrics.polyline,
         isScheduled ? data.scheduledAt : null, status, surge, JSON.stringify(breakdown),
         promoCode, promoDiscount, shareToken, data.rideForName ?? null, data.rideForPhone ?? null,
+        serviceMode, data.deliveryNotes?.trim() || null, restaurantId,
       ],
     );
 

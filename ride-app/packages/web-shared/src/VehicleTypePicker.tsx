@@ -15,6 +15,7 @@ export function VehicleTypePicker({ options, selected, onSelect }: VehicleTypePi
       {options.map((option) => {
         const meta = VEHICLE_OPTIONS[option.vehicleType];
         const active = selected === option.vehicleType;
+        const isDelivery = meta.category === 'delivery';
         return (
           <button
             key={option.vehicleType}
@@ -25,7 +26,12 @@ export function VehicleTypePicker({ options, selected, onSelect }: VehicleTypePi
             <span className="vehicle-card__icon">{meta.icon}</span>
             <span className="vehicle-card__body">
               <strong>{vehicle(option.vehicleType)}</strong>
-              <span>{t(`vehicle.${option.vehicleType}.description`)} · {option.seats} {t('common.pax')}</span>
+              <span>
+                {t(`vehicle.${option.vehicleType}.description`)}
+                {isDelivery
+                  ? ` · ${t('service.courier')}`
+                  : ` · ${option.seats} ${t('common.pax')}`}
+              </span>
             </span>
             <span className="vehicle-card__price">${option.estimatedPrice}</span>
           </button>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { Ride, RideEstimate, VehicleType } from '@ride-app/shared';
+import type { Ride, RideEstimate, ServiceMode, VehicleType } from '@ride-app/shared';
+import { preferredDeliveryVehicle, vehiclesForMode } from '@ride-app/shared';
 import {
   api,
   getSocket,
@@ -17,6 +18,7 @@ import {
   TipSelector,
   PromoInput,
   SavedPlacesBar,
+  RestaurantPicker,
   ChatPanel,
   PhoneVerifyBanner,
   usePhoneVerified,
@@ -34,6 +36,7 @@ export default function Home() {
   const { t, rideStatus, vehicle, te } = useI18n();
   const { show: showFlash } = useFlash();
   const [tab, setTab] = useState<Tab>('ride');
+  const [serviceMode, setServiceMode] = useState<ServiceMode>('ride');
   const [pickup, setPickup] = useState<Point | null>(null);
   const [dropoff, setDropoff] = useState<Point | null>(null);
   const [estimate, setEstimate] = useState<RideEstimate | null>(null);
@@ -54,8 +57,17 @@ export default function Home() {
   const [stop, setStop] = useState<Point | null>(null);
   const [rideForName, setRideForName] = useState('');
   const [rideForPhone, setRideForPhone] = useState('');
+  const [deliveryNotes, setDeliveryNotes] = useState('');
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
+  const [deliveryCountry, setDeliveryCountry] = useState<string>('ES');
   const [stripeSecret, setStripeSecret] = useState<string | null>(null);
   const { verified: phoneVerified } = usePhoneVerified();
+
+  const modeVehicles = vehiclesForMode(serviceMode, serviceMode === 'delivery' ? deliveryCountry : null);
+  const filteredOptions = (estimate?.options.filter((o) => modeVehicles.includes(o.vehicleType)) ?? [])
+    .slice()
+    .sort((a, b) => modeVehicles.indexOf(a.vehicleType) - modeVehicles.indexOf(b.vehicleType));
+  const selectedOption = filteredOptions.find((o) => o.vehicleType === vehicleType) ?? filteredOptions[0];
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition((pos) => {
@@ -65,6 +77,16 @@ export default function Home() {
     });
     api.getActiveRide().then((r) => r.ride && setRide(r.ride)).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (serviceMode === 'delivery') {
+      setVehicleType(preferredDeliveryVehicle(deliveryCountry));
+      setStop(null);
+    } else {
+      setVehicleType(vehiclesForMode('ride')[0] ?? 'standard');
+      setRestaurantId(null);
+    }
+  }, [serviceMode, deliveryCountry]);
 
   useEffect(() => {
     if (!ride) return;
@@ -101,9 +123,13 @@ export default function Home() {
       promoCode: promoCode || undefined,
     }).then((data) => {
       setEstimate(data);
-      setVehicleType(data.options[0]?.vehicleType ?? 'standard');
+      const allowed = vehiclesForMode(serviceMode, serviceMode === 'delivery' ? deliveryCountry : null);
+      const preferred = serviceMode === 'delivery' ? preferredDeliveryVehicle(deliveryCountry) : allowed[0];
+      const first = data.options.find((o) => o.vehicleType === preferred)
+        ?? data.options.find((o) => allowed.includes(o.vehicleType));
+      setVehicleType(first?.vehicleType ?? preferred ?? 'standard');
     }).catch(() => setEstimate(null));
-  }, [pickup, dropoff, ride, promoCode]);
+  }, [pickup, dropoff, ride, promoCode, serviceMode, deliveryCountry]);
 
   const onPickupSelect = (place: PlaceResult) => {
     setPickup(place);
@@ -116,7 +142,7 @@ export default function Home() {
   };
 
   const requestRide = async () => {
-    if (!pickup || !dropoff) return;
+    if (!pickup || !dropoff || !selectedOption) return;
     setLoading(true);
     setError('');
     try {
@@ -127,12 +153,15 @@ export default function Home() {
         dropoffAddress: dropoff.address,
         dropoffLat: dropoff.lat,
         dropoffLng: dropoff.lng,
-        vehicleType,
+        vehicleType: selectedOption.vehicleType,
+        serviceMode,
+        deliveryNotes: serviceMode === 'delivery' ? (deliveryNotes || undefined) : undefined,
+        restaurantId: serviceMode === 'delivery' ? (restaurantId || undefined) : undefined,
         promoCode: promoCode || undefined,
         scheduledAt: scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
         rideForName: rideForName || undefined,
         rideForPhone: rideForPhone || undefined,
-        stops: stop ? [{ address: stop.address, lat: stop.lat, lng: stop.lng }] : undefined,
+        stops: serviceMode === 'ride' && stop ? [{ address: stop.address, lat: stop.lat, lng: stop.lng }] : undefined,
       });
       setRide(created);
       setRated(false);
@@ -174,12 +203,16 @@ export default function Home() {
     setEstimate(null);
     setDriverPos(null);
     setRated(false);
+    setDeliveryNotes('');
+    setRestaurantId(null);
   };
 
-  const selectedOption = estimate?.options.find((o) => o.vehicleType === vehicleType);
-  const readyToBook = pickup && dropoff && !ride && selectedOption;
+  const readyToBook = Boolean(
+    pickup && dropoff && !ride && selectedOption && (serviceMode === 'ride' || restaurantId),
+  );
   const routePolyline = ride?.routePolyline ?? estimate?.polyline ?? null;
   const showRating = ride?.status === 'completed' && ride.paymentStatus === 'paid' && !rated;
+  const isDelivery = serviceMode === 'delivery' || ride?.serviceMode === 'delivery';
 
   return (
     <GoogleMapsProvider>
@@ -210,39 +243,94 @@ export default function Home() {
           <>
             {!ride && (
               <div className="search-panel">
-                <PlaceAutocomplete
-                  label={t('common.origin')}
-                  placeholder={t('passenger.searchOrigin')}
-                  defaultValue={pickup?.address}
-                  bias={locationBias}
-                  onSelect={onPickupSelect}
-                />
-                <PlaceAutocomplete
-                  label={t('common.destination')}
-                  placeholder={t('passenger.whereTo')}
-                  defaultValue={dropoff?.address}
-                  bias={pickup ?? locationBias}
-                  onSelect={onDropoffSelect}
-                />
-                <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
-                <PlaceAutocomplete
-                  label={t('passenger.optionalStop')}
-                  placeholder={t('passenger.addStop')}
-                  bias={pickup ?? locationBias}
-                  onSelect={(p) => setStop(p)}
-                />
-                <input className="place-input" placeholder={t('passenger.rideForName')} value={rideForName} onChange={(e) => setRideForName(e.target.value)} />
-                <input className="place-input" placeholder={t('passenger.contactPhone')} value={rideForPhone} onChange={(e) => setRideForPhone(e.target.value)} />
+                <div className="tab-row" role="tablist" aria-label={t('service.foodDelivery')}>
+                  <button
+                    type="button"
+                    className={`tab-btn${serviceMode === 'ride' ? ' tab-btn--active' : ''}`}
+                    onClick={() => setServiceMode('ride')}
+                  >
+                    {t('service.ride')}
+                  </button>
+                  <button
+                    type="button"
+                    className={`tab-btn${serviceMode === 'delivery' ? ' tab-btn--active' : ''}`}
+                    onClick={() => setServiceMode('delivery')}
+                  >
+                    {t('service.foodDelivery')}
+                  </button>
+                </div>
+                {serviceMode === 'delivery' ? (
+                  <>
+                    <p className="muted-text" style={{ margin: '0 0 4px' }}>{t('service.pickRestaurant')}</p>
+                    <RestaurantPicker
+                      selectedId={restaurantId}
+                      onCountryChange={setDeliveryCountry}
+                      onSelect={(pick) => {
+                        setRestaurantId(pick.restaurant.id);
+                        setDeliveryCountry(pick.restaurant.country);
+                        setVehicleType(preferredDeliveryVehicle(pick.restaurant.country));
+                        setPickup({ lat: pick.lat, lng: pick.lng, address: pick.address });
+                        setEstimate(null);
+                      }}
+                    />
+                    <PlaceAutocomplete
+                      label={t('service.customer')}
+                      placeholder={t('service.customer')}
+                      defaultValue={dropoff?.address}
+                      bias={pickup ?? locationBias}
+                      onSelect={onDropoffSelect}
+                    />
+                    <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
+                    <input
+                      className="place-input"
+                      placeholder={t('service.deliveryNotesPlaceholder')}
+                      value={deliveryNotes}
+                      onChange={(e) => setDeliveryNotes(e.target.value)}
+                      maxLength={500}
+                    />
+                    <input className="place-input" placeholder={t('passenger.contactPhone')} value={rideForPhone} onChange={(e) => setRideForPhone(e.target.value)} />
+                  </>
+                ) : (
+                  <>
+                    <PlaceAutocomplete
+                      label={t('common.origin')}
+                      placeholder={t('passenger.searchOrigin')}
+                      defaultValue={pickup?.address}
+                      bias={locationBias}
+                      onSelect={onPickupSelect}
+                    />
+                    <PlaceAutocomplete
+                      label={t('common.destination')}
+                      placeholder={t('passenger.whereTo')}
+                      defaultValue={dropoff?.address}
+                      bias={pickup ?? locationBias}
+                      onSelect={onDropoffSelect}
+                    />
+                    <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
+                    <PlaceAutocomplete
+                      label={t('passenger.optionalStop')}
+                      placeholder={t('passenger.addStop')}
+                      bias={pickup ?? locationBias}
+                      onSelect={(p) => setStop(p)}
+                    />
+                    <input className="place-input" placeholder={t('passenger.rideForName')} value={rideForName} onChange={(e) => setRideForName(e.target.value)} />
+                    <input className="place-input" placeholder={t('passenger.contactPhone')} value={rideForPhone} onChange={(e) => setRideForPhone(e.target.value)} />
+                  </>
+                )}
               </div>
             )}
             <div className="bottom-sheet">
               <PhoneVerifyBanner />
               {!ride ? (
                 <>
-                  <h2>{readyToBook ? t('passenger.confirmRide') : t('passenger.searchPickupDropoff')}</h2>
-                  {pickup && <div className="meta-row"><span>{t('common.origin')}</span><span>{pickup.address}</span></div>}
-                  {dropoff && <div className="meta-row"><span>{t('common.destination')}</span><span>{dropoff.address}</span></div>}
-                  {estimate && (
+                  <h2>
+                    {readyToBook
+                      ? (serviceMode === 'delivery' ? t('service.confirmDelivery') : t('passenger.confirmRide'))
+                      : (serviceMode === 'delivery' ? t('service.searchDelivery') : t('passenger.searchPickupDropoff'))}
+                  </h2>
+                  {pickup && <div className="meta-row"><span>{serviceMode === 'delivery' ? t('service.restaurant') : t('common.origin')}</span><span>{pickup.address}</span></div>}
+                  {dropoff && <div className="meta-row"><span>{serviceMode === 'delivery' ? t('service.customer') : t('common.destination')}</span><span>{dropoff.address}</span></div>}
+                  {estimate && filteredOptions.length > 0 && (
                     <>
                       {estimate.surgeMultiplier > 1 && (
                         <div className="eta-badge">{t('common.surgeActive', { multiplier: estimate.surgeMultiplier })}</div>
@@ -250,7 +338,7 @@ export default function Home() {
                       <div className="meta-row"><span>{t('common.distance')}</span><span>{estimate.distanceKm} {t('common.km')}</span></div>
                       <div className="meta-row"><span>{t('common.estTime')}</span><span>{estimate.durationMin} {t('common.min')}</span></div>
                       <PromoInput
-                        subtotal={selectedOption?.estimatedPrice ?? estimate.options[0]?.estimatedPrice ?? 0}
+                        subtotal={selectedOption?.estimatedPrice ?? filteredOptions[0]?.estimatedPrice ?? 0}
                         onApplied={(code, discount) => { setPromoCode(code); setPromoDiscount(discount); }}
                       />
                       <input
@@ -261,22 +349,31 @@ export default function Home() {
                         placeholder={t('passenger.scheduleRide')}
                       />
                       <VehicleTypePicker
-                        options={estimate.options}
-                        selected={vehicleType}
+                        options={filteredOptions}
+                        selected={selectedOption?.vehicleType ?? vehicleType}
                         onSelect={setVehicleType}
                       />
                     </>
                   )}
                   {error && <p className="error-text">{error}</p>}
-                  {readyToBook && (
+                  {readyToBook && selectedOption && (
                     <button className="btn-primary" onClick={requestRide} disabled={loading || phoneVerified === false}>
-                      {phoneVerified === false ? t('common.verifyPhone') : loading ? t('common.requesting') : t('common.requestVehicle', { vehicle: vehicle(vehicleType), price: selectedOption?.estimatedPrice ?? 0 })}
+                      {phoneVerified === false
+                        ? t('common.verifyPhone')
+                        : loading
+                          ? t('common.requesting')
+                          : serviceMode === 'delivery'
+                            ? t('service.requestDelivery', { vehicle: vehicle(selectedOption.vehicleType), price: selectedOption.estimatedPrice })
+                            : t('common.requestVehicle', { vehicle: vehicle(selectedOption.vehicleType), price: selectedOption.estimatedPrice })}
                     </button>
                   )}
                 </>
               ) : (
                 <>
                   <div className="status-pill">{rideStatus(ride.status)}</div>
+                  {isDelivery && (
+                    <div className="eta-badge">{t('service.foodDelivery')} · {vehicle(ride.vehicleType)}</div>
+                  )}
                   {(etaPickup != null || ride.etaPickupMin != null) && ['accepted', 'arriving'].includes(ride.status) && (
                     <div className="eta-badge">{t('common.arriveIn', { min: etaPickup ?? ride.etaPickupMin ?? 0 })}</div>
                   )}
@@ -284,6 +381,9 @@ export default function Home() {
                     <div className="eta-badge">{t('common.dropoffIn', { min: etaDropoff ?? ride.etaDropoffMin ?? 0 })}</div>
                   )}
                   <div className="meta-row"><span>{t('common.vehicle')}</span><span>{vehicle(ride.vehicleType)}</span></div>
+                  {ride.deliveryNotes && (
+                    <div className="meta-row"><span>{t('service.foodOrder')}</span><span>{ride.deliveryNotes}</span></div>
+                  )}
                   <FareBreakdownView breakdown={ride.fareBreakdown} surgeMultiplier={ride.surgeMultiplier} />
                   <div className="meta-row"><span>{t('common.price')}</span><span>${ride.finalPrice ?? ride.estimatedPrice}</span></div>
                   <div className="extras-row">

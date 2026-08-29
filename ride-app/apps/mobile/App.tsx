@@ -16,12 +16,13 @@ import {
 import * as Location from 'expo-location';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StatusBar } from 'expo-status-bar';
-import type { Ride, RideEstimate, User, VehicleType } from '@ride-app/shared';
-import { BRAND, VEHICLE_TYPES } from '@ride-app/shared';
+import type { Ride, RideEstimate, ServiceMode, User, VehicleType } from '@ride-app/shared';
+import { BRAND, VEHICLE_TYPES, preferredDeliveryVehicle, vehiclesForMode } from '@ride-app/shared';
 import { mobileApi } from './src/api';
 import { getMobileSocket, reconnectSocket } from './src/socket';
 import { PlaceSearch } from './src/PlaceSearch';
 import { VehicleTypePicker } from './src/VehicleTypePicker';
+import { RestaurantPicker } from './src/RestaurantPicker';
 import { SavedPlacesBar } from './src/SavedPlacesBar';
 import { FareBreakdownView } from './src/FareBreakdownView';
 import { defaultApiUrl, getApiUrl } from './src/storage';
@@ -55,8 +56,12 @@ export default function App() {
   const [driverPos, setDriverPos] = useState<{ latitude: number; longitude: number } | null>(null);
   const [estimate, setEstimate] = useState<RideEstimate | null>(null);
   const [vehicleType, setVehicleType] = useState<VehicleType>('standard');
+  const [serviceMode, setServiceMode] = useState<ServiceMode>('ride');
+  const [deliveryNotes, setDeliveryNotes] = useState('');
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
+  const [deliveryCountry, setDeliveryCountry] = useState('ES');
   const [online, setOnline] = useState(false);
-  const [pending, setPending] = useState<Array<{ id: string; pickupAddress: string; estimatedPrice: number; vehicleType: string }>>([]);
+  const [pending, setPending] = useState<Array<{ id: string; pickupAddress: string; estimatedPrice: number; vehicleType: string; serviceMode?: string; deliveryNotes?: string | null }>>([]);
   const [tab, setTab] = useState<Tab>('ride');
   const [history, setHistory] = useState<Ride[]>([]);
   const [rated, setRated] = useState(false);
@@ -229,10 +234,13 @@ export default function App() {
         dropoffLat: dropoff.latitude,
         dropoffLng: dropoff.longitude,
         vehicleType,
+        serviceMode,
+        deliveryNotes: serviceMode === 'delivery' ? (deliveryNotes || undefined) : undefined,
+        restaurantId: serviceMode === 'delivery' ? (restaurantId || undefined) : undefined,
         rideForName: rideForName || undefined,
         promoCode: promoCode || undefined,
         scheduledAt: scheduledHours > 0 ? new Date(Date.now() + scheduledHours * 3600_000).toISOString() : undefined,
-        stops: stop ? [{ address: stop.address, lat: stop.latitude, lng: stop.longitude }] : undefined,
+        stops: serviceMode === 'ride' && stop ? [{ address: stop.address, lat: stop.latitude, lng: stop.longitude }] : undefined,
       });
       setRide(created);
       setScheduledHours(0);
@@ -285,9 +293,13 @@ export default function App() {
       dropoffLng: dropoff.longitude,
     }).then((data) => {
       setEstimate(data);
-      setVehicleType(data.options[0]?.vehicleType ?? 'standard');
+      const allowed = vehiclesForMode(serviceMode, serviceMode === 'delivery' ? deliveryCountry : null);
+      const preferred = serviceMode === 'delivery' ? preferredDeliveryVehicle(deliveryCountry) : allowed[0];
+      const first = data.options.find((o) => o.vehicleType === preferred)
+        ?? data.options.find((o) => allowed.includes(o.vehicleType));
+      setVehicleType(first?.vehicleType ?? preferred ?? 'standard');
     }).catch(() => setEstimate(null));
-  }, [pickup, position, dropoff, user?.role]);
+  }, [pickup, position, dropoff, user?.role, serviceMode, deliveryCountry]);
 
   const loadHistory = async () => {
     setHistoryLoading(true);
@@ -436,7 +448,13 @@ export default function App() {
   }
 
   const mapCenter = driverPos ?? dropoff ?? pickup ?? position;
-  const selectedOption = estimate?.options.find((o) => o.vehicleType === vehicleType);
+  const filteredOptions = (estimate?.options.filter((o) => vehiclesForMode(serviceMode, serviceMode === 'delivery' ? deliveryCountry : null).includes(o.vehicleType)) ?? [])
+    .slice()
+    .sort((a, b) => {
+      const order = vehiclesForMode(serviceMode, serviceMode === 'delivery' ? deliveryCountry : null);
+      return order.indexOf(a.vehicleType) - order.indexOf(b.vehicleType);
+    });
+  const selectedOption = filteredOptions.find((o) => o.vehicleType === vehicleType) ?? filteredOptions[0];
   const routeCoords = ride?.routePolyline ? decodePolyline(ride.routePolyline) : estimate?.polyline ? decodePolyline(estimate.polyline) : [];
 
   return (
@@ -468,12 +486,40 @@ export default function App() {
       )}
       {user?.role === 'passenger' && !ride && (
         <SafeAreaView style={styles.searchOverlay}>
-          <PlaceSearch placeholder={t('common.origin')} bias={position} language={locale} onSelect={(p) => setPickup(p)} />
-          <PlaceSearch placeholder={t('passenger.whereTo')} bias={pickup ?? position} language={locale} onSelect={(p) => setDropoff(p)} />
-          <TextInput style={styles.input} placeholder={t('passenger.optionalStop')} placeholderTextColor={placeholderColor} value={stop?.address ?? ''} editable={false} />
-          <PlaceSearch placeholder={t('passenger.addStop')} bias={pickup ?? position} language={locale} onSelect={(p) => setStop(p)} />
-          <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
-          <TextInput style={styles.input} placeholder={t('passenger.rideForName')} placeholderTextColor={placeholderColor} value={rideForName} onChangeText={setRideForName} />
+          <View style={styles.row}>
+            <Pressable style={[styles.chip, serviceMode === 'ride' && styles.chipActive]} onPress={() => { setServiceMode('ride'); setVehicleType('standard'); setRestaurantId(null); }}>
+              <Text style={serviceMode === 'ride' ? styles.chipTextActive : styles.chipText}>{t('service.ride')}</Text>
+            </Pressable>
+            <Pressable style={[styles.chip, serviceMode === 'delivery' && styles.chipActive]} onPress={() => { setServiceMode('delivery'); setVehicleType(preferredDeliveryVehicle(deliveryCountry)); setStop(null); }}>
+              <Text style={serviceMode === 'delivery' ? styles.chipTextActive : styles.chipText}>{t('service.foodDelivery')}</Text>
+            </Pressable>
+          </View>
+          {serviceMode === 'delivery' ? (
+            <>
+              <RestaurantPicker
+                selectedId={restaurantId}
+                onCountryChange={setDeliveryCountry}
+                onSelect={(pick) => {
+                  setRestaurantId(pick.restaurant.id);
+                  setDeliveryCountry(pick.restaurant.country);
+                  setVehicleType(preferredDeliveryVehicle(pick.restaurant.country));
+                  setPickup({ latitude: pick.latitude, longitude: pick.longitude, address: pick.address });
+                }}
+              />
+              <PlaceSearch placeholder={t('service.customer')} bias={pickup ?? position} language={locale} onSelect={(p) => setDropoff(p)} />
+              <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
+              <TextInput style={styles.input} placeholder={t('service.deliveryNotesPlaceholder')} placeholderTextColor={placeholderColor} value={deliveryNotes} onChangeText={setDeliveryNotes} />
+            </>
+          ) : (
+            <>
+              <PlaceSearch placeholder={t('common.origin')} bias={position} language={locale} onSelect={(p) => setPickup(p)} />
+              <PlaceSearch placeholder={t('passenger.whereTo')} bias={pickup ?? position} language={locale} onSelect={(p) => setDropoff(p)} />
+              <TextInput style={styles.input} placeholder={t('passenger.optionalStop')} placeholderTextColor={placeholderColor} value={stop?.address ?? ''} editable={false} />
+              <PlaceSearch placeholder={t('passenger.addStop')} bias={pickup ?? position} language={locale} onSelect={(p) => setStop(p)} />
+              <SavedPlacesBar currentDropoff={dropoff} onSelect={(p) => setDropoff(p)} />
+              <TextInput style={styles.input} placeholder={t('passenger.rideForName')} placeholderTextColor={placeholderColor} value={rideForName} onChangeText={setRideForName} />
+            </>
+          )}
         </SafeAreaView>
       )}
       <SafeAreaView style={styles.sheet}>
@@ -538,10 +584,10 @@ export default function App() {
                 {estimate && (
                   <Text style={styles.muted}>{estimate.distanceKm} km · ~{Math.round(estimate.durationMin)} min</Text>
                 )}
-                {estimate && (
+                {filteredOptions.length > 0 && (
                   <VehicleTypePicker
-                    options={estimate.options}
-                    selected={vehicleType}
+                    options={filteredOptions}
+                    selected={selectedOption?.vehicleType ?? vehicleType}
                     onSelect={setVehicleType}
                   />
                 )}
@@ -584,7 +630,8 @@ export default function App() {
                 {etaPickup != null && ['accepted', 'arriving'].includes(ride.status) && (
                   <Text style={styles.etaText}>{t('common.arriveIn', { min: etaPickup })}</Text>
                 )}
-                <Text style={styles.muted}>{vehicle(ride.vehicleType)}</Text>
+                <Text style={styles.muted}>{vehicle(ride.vehicleType)}{ride.serviceMode === 'delivery' ? ` · ${t('service.foodDelivery')}` : ''}</Text>
+                {ride.deliveryNotes ? <Text style={styles.muted}>{t('service.foodOrder')}: {ride.deliveryNotes}</Text> : null}
                 <FareBreakdownView breakdown={ride.fareBreakdown} surgeMultiplier={ride.surgeMultiplier} />
                 <Text style={styles.price}>${ride.finalPrice ?? ride.estimatedPrice}</Text>
                 {ride.status === 'completed' && ride.paymentStatus !== 'paid' && (

@@ -9,7 +9,8 @@ CREATE TYPE ride_status AS ENUM (
   'completed',
   'cancelled'
 );
-CREATE TYPE vehicle_type AS ENUM ('standard', 'comfort', 'xl', 'vans');
+CREATE TYPE vehicle_type AS ENUM ('standard', 'moto', 'bicicleta', 'comfort', 'xl', 'vans');
+CREATE TYPE service_mode AS ENUM ('ride', 'delivery');
 CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed');
 
 CREATE TABLE users (
@@ -48,6 +49,9 @@ CREATE TABLE rides (
   dropoff_lat DOUBLE PRECISION NOT NULL,
   dropoff_lng DOUBLE PRECISION NOT NULL,
   vehicle_type vehicle_type NOT NULL DEFAULT 'standard',
+  service_mode service_mode NOT NULL DEFAULT 'ride',
+  delivery_notes TEXT,
+  restaurant_id TEXT,
   estimated_price NUMERIC(10,2) NOT NULL,
   final_price NUMERIC(10,2),
   payment_status payment_status NOT NULL DEFAULT 'pending',

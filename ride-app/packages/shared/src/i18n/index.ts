@@ -51,7 +51,7 @@ type RideStatus =
   | 'scheduled' | 'requested' | 'accepted' | 'arriving'
   | 'in_progress' | 'completed' | 'cancelled';
 
-type VehicleType = 'standard' | 'comfort' | 'xl' | 'vans';
+type VehicleType = 'standard' | 'moto' | 'bicicleta' | 'comfort' | 'xl' | 'vans';
 
 export type TranslationKey = string;
 

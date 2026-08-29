@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildRideEstimate, estimateFare, haversineKm } from './index.ts';
+import { buildRideEstimate, estimateFare, haversineKm, isDeliveryVehicle, preferredDeliveryVehicle, vehiclesForMode } from './index.ts';
 
 describe('haversineKm', () => {
   it('returns 0 for same point', () => {
@@ -25,7 +25,12 @@ describe('estimateFare', () => {
 describe('buildRideEstimate', () => {
   it('returns all vehicle options', () => {
     const est = buildRideEstimate(5, 15);
-    assert.equal(est.options.length, 4);
+    assert.equal(est.options.length, 6);
+    assert.ok(est.options.some((o) => o.vehicleType === 'moto'));
+    assert.ok(est.options.some((o) => o.vehicleType === 'bicicleta'));
+    const moto = est.options.find((o) => o.vehicleType === 'moto')!;
+    const standard = est.options.find((o) => o.vehicleType === 'standard')!;
+    assert.ok(moto.estimatedPrice < standard.estimatedPrice);
     assert.ok(est.options[0].estimatedPrice > 0);
   });
 
@@ -33,5 +38,16 @@ describe('buildRideEstimate', () => {
     const normal = buildRideEstimate(5, 15, 2.5, 1.2, 0.25, null, 1);
     const surge = buildRideEstimate(5, 15, 2.5, 1.2, 0.25, null, 1.5);
     assert.ok(surge.options[0].estimatedPrice > normal.options[0].estimatedPrice);
+  });
+
+  it('splits ride vs delivery vehicles', () => {
+    assert.deepEqual(vehiclesForMode('delivery'), ['bicicleta', 'moto']);
+    assert.deepEqual(vehiclesForMode('delivery', 'ES'), ['bicicleta', 'moto']);
+    assert.deepEqual(vehiclesForMode('delivery', 'VE'), ['moto', 'bicicleta']);
+    assert.equal(preferredDeliveryVehicle('ES'), 'bicicleta');
+    assert.equal(preferredDeliveryVehicle('VE'), 'moto');
+    assert.ok(isDeliveryVehicle('moto'));
+    assert.ok(isDeliveryVehicle('bicicleta'));
+    assert.equal(isDeliveryVehicle('standard'), false);
   });
 });
