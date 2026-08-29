@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { authMiddleware } from '../middleware/auth.js';
 import { pool } from '../db.js';
 import { mapRide, mapUser } from '../mappers.js';
-import { sendPushToUser } from '../services/push.js';
+import { sendLocalizedPush } from '../services/push.js';
 import { refundStripePayment } from '../services/stripe.js';
 import { creditWallet } from '../services/wallet.js';
 
@@ -84,7 +84,7 @@ router.post('/drivers/:userId/approve', async (req, res) => {
     `UPDATE driver_profiles SET approval_status = 'approved', rejection_reason = NULL WHERE user_id = $1`,
     [req.params.userId],
   );
-  await sendPushToUser(req.params.userId, 'Cuenta aprobada', 'Ya puedes ir online y recibir viajes');
+  await sendLocalizedPush(req.params.userId, 'push.accountApprovedTitle', 'push.accountApprovedBody');
   res.json({ ok: true });
 });
 

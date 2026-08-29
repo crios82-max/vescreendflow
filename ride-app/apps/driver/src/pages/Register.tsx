@@ -6,7 +6,7 @@ import { useAuth, BrandMark, useI18n, LanguageSwitcher } from '@ride-app/web-sha
 
 export default function Register() {
   const { register, user } = useAuth();
-  const { t, vehicle } = useI18n();
+  const { t, te, vehicle } = useI18n();
   const [form, setForm] = useState({
     name: '', email: '', password: '', phone: '',
     vehicleMake: '', vehicleModel: '', vehiclePlate: '',
@@ -24,7 +24,7 @@ export default function Register() {
     try {
       await register({ ...form, role: 'driver' });
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'));
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
       setLoading(false);
     }

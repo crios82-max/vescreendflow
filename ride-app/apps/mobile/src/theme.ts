@@ -129,4 +129,18 @@ export const appStyles = StyleSheet.create({
   cardTitle: { color: colors.text, fontSize: 18, fontWeight: '700' },
   ratingBox: { gap: 6, marginTop: 8 },
   etaText: { color: colors.primary, fontWeight: '600', marginBottom: 4 },
+  banner: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    zIndex: 20,
+  },
+  bannerError: {
+    backgroundColor: colors.danger,
+  },
+  bannerText: {
+    color: colors.primaryOnDark,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
 });

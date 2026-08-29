@@ -4,7 +4,7 @@ import { api, useAuth, BrandMark, useI18n, LanguageSwitcher } from '@ride-app/we
 
 export default function Login() {
   const { login, user } = useAuth();
-  const { t } = useI18n();
+  const { t, te } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,7 +20,7 @@ export default function Login() {
     try {
       await login(email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'));
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
       setLoading(false);
     }
@@ -47,9 +47,7 @@ export default function Login() {
           const r = await api.forgotPassword(email);
           setForgotMsg(r.devResetUrl ? t('common.devReset', { url: r.devResetUrl }) : t('common.checkEmail'));
         }}>{t('auth.forgotPassword')}</button>
-        <button type="button" className="link-btn" onClick={() => {}}>
-          <Link to="/register">{t('auth.createAccount')}</Link>
-        </button>
+        <Link to="/register" className="link-btn">{t('auth.createAccount')}</Link>
         <p className="muted-text"><Link to="/terms">{t('auth.terms')}</Link> · <Link to="/privacy">{t('auth.privacy')}</Link></p>
       </form>
     </div>

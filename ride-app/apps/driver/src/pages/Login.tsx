@@ -4,7 +4,7 @@ import { useAuth, BrandMark, useI18n, LanguageSwitcher } from '@ride-app/web-sha
 
 export default function Login() {
   const { login, user } = useAuth();
-  const { t } = useI18n();
+  const { t, te } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +19,7 @@ export default function Login() {
     try {
       await login(email, password);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'));
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
       setLoading(false);
     }

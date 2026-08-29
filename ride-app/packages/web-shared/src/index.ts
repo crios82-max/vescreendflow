@@ -20,6 +20,8 @@ export { StripeCheckout } from './StripeCheckout';
 export { SavedCards } from './SavedCards';
 export { usePhoneVerified } from './PhoneVerifyBanner';
 export { DriverDocsForm } from './DriverDocsForm';
+export { FlashProvider, useFlash } from './FlashProvider';
+export { LocaleSync } from './LocaleSync';
 export { BrandMark } from './BrandMark';
 export { I18nProvider, useI18n, LanguageSwitcher } from './I18nProvider';
 export { BRAND, brandTitle, brandAppLabel } from '@ride-app/shared';

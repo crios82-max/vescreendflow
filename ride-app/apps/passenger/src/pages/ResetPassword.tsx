@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { api, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
 
 export default function ResetPassword() {
-  const { t } = useI18n();
+  const { t, te } = useI18n();
   const [params] = useSearchParams();
   const token = params.get('token') ?? '';
   const [password, setPassword] = useState('');
@@ -21,7 +21,7 @@ export default function ResetPassword() {
       await api.resetPassword(token, password);
       setDone(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('common.error'));
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     }
   };
 

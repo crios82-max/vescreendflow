@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Ride, VehicleType } from '@ride-app/shared';
-import { api, getSocket, GoogleMapsProvider, HistoryPanel, MapView, RatingForm, ChatPanel, useAuth, useI18n, LanguageSwitcher, DriverDocsForm } from '@ride-app/web-shared';
+import { api, getSocket, GoogleMapsProvider, HistoryPanel, MapView, RatingForm, ChatPanel, useAuth, useI18n, useFlash, LanguageSwitcher, DriverDocsForm } from '@ride-app/web-shared';
 
 interface PendingRide {
   id: string;
@@ -18,6 +18,7 @@ type Tab = 'rides' | 'history';
 export default function Home() {
   const { user, logout } = useAuth();
   const { t, rideStatus, vehicle, te } = useI18n();
+  const { show: showFlash } = useFlash();
   const [tab, setTab] = useState<Tab>('rides');
   const [online, setOnline] = useState(false);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
@@ -167,7 +168,7 @@ export default function Home() {
                 <button className="btn-secondary" onClick={async () => {
                   const r = await api.startConnectOnboarding();
                   if (r.url) window.location.href = r.url;
-                  else alert(r.message ?? t('common.stripeNotConfigured'));
+                  else showFlash(te(r.message ?? t('common.stripeNotConfigured')), 'error');
                 }}>
                   {t('driver.setupStripe')}
                 </button>
@@ -205,9 +206,9 @@ export default function Home() {
                 <>
                   <button className="btn-secondary" type="button" onClick={async () => {
                     const c = await api.initiateMaskedCall(ride.id);
-                    if (c.initiated) alert(c.message ?? t('common.callConnecting'));
+                    if (c.initiated) showFlash(te(c.message ?? t('common.callConnecting')));
                     else if (c.dialUrl) window.location.href = c.dialUrl;
-                    else alert(c.hint ?? t('common.callFailed'));
+                    else showFlash(te(c.hint ?? t('common.callFailed')), 'error');
                   }}>{t('driver.callPassenger')}</button>
                   <ChatPanel rideId={ride.id} />
                 </>

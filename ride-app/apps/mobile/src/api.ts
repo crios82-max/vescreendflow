@@ -203,6 +203,20 @@ class MobileApi {
       { method: 'POST' },
     );
   }
+
+  forgotPassword(email: string) {
+    return this.request<{ ok: boolean; devResetUrl?: string }>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  setPreferredLocale(locale: string) {
+    return this.request<{ ok: boolean }>('/users/me/locale', {
+      method: 'PATCH',
+      body: JSON.stringify({ locale }),
+    });
+  }
 }
 
 export const mobileApi = new MobileApi();

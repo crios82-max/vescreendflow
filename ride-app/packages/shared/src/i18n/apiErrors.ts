@@ -32,5 +32,8 @@ export const API_ERROR_MAP: Record<string, string> = {
   'Código inválido o expirado': 'apiErrors.invalidCode',
   'La contraparte no tiene teléfono': 'apiErrors.noPhone',
   'Error de red': 'apiErrors.networkError',
+  'Te llamaremos en unos segundos para conectar con tu contraparte': 'apiErrors.callConnecting',
+  'Twilio no configurado — llamada directa': 'apiErrors.twilioDirectCall',
+  'Usa el botón Llamar — te conectamos sin mostrar números': 'apiErrors.useCallButton',
   'No se pudo cargar': 'common.loadFailed',
 };

@@ -11,6 +11,7 @@ Todo el **código** ya está en `main`. Al volver solo ejecutas esto en orden (~
 - Tema negro + lima
 - Multi-idioma ES · EN · IT · PT (auto-detect por ubicación)
 - Pulido pre-prod: Share/Split i18n, docs conductor, admin, tunnel driver/admin
+- UX pack: toast global, te() en auth, push/recibos i18n, móvil forgot password
 - Túnel configurado en `cloudflared/config.yml` (`movify` + `movify-api`)
 - Scripts: `prep-local`, `go-live`, `check-prod`, TestFlight
 - CI + tests API

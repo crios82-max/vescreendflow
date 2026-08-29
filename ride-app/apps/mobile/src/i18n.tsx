@@ -16,6 +16,7 @@ import {
   translateApiError,
 } from '@ride-app/shared';
 import { detectLocaleMobile } from './detectLocaleMobile';
+import { mobileApi } from './api';
 
 interface MobileI18nState {
   locale: Locale;
@@ -63,6 +64,7 @@ export function MobileI18nProvider({ children }: { children: ReactNode }) {
   const setLocale = useCallback(async (next: Locale) => {
     setStoredLocale((key, value) => { void AsyncStorage.setItem(key, value); }, next, true);
     setLocaleState(next);
+    void mobileApi.setPreferredLocale(next).catch(() => {});
   }, []);
 
   const t = useCallback(

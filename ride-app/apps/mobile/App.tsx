@@ -69,6 +69,14 @@ export default function App() {
   const [promoDiscount, setPromoDiscount] = useState(0);
   const [chatText, setChatText] = useState('');
   const [chatMessages, setChatMessages] = useState<Array<{ id: string; senderName?: string; message: string }>>([]);
+  const [banner, setBanner] = useState<{ message: string; error?: boolean } | null>(null);
+  const [forgotMsg, setForgotMsg] = useState('');
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const showBanner = (message: string, error = false) => {
+    setBanner({ message, error });
+    setTimeout(() => setBanner(null), 4000);
+  };
 
   useEffect(() => {
     (async () => {
@@ -182,6 +190,7 @@ export default function App() {
         if (active.ride) setRide(active.ride);
       }
       mobileApi.getPhoneVerifyStatus().then((s) => setPhoneVerified(s.verified)).catch(() => {});
+      void mobileApi.setPreferredLocale(locale);
     } catch (err) {
       setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
@@ -230,11 +239,14 @@ export default function App() {
   }, [pickup, position, dropoff, user?.role]);
 
   const loadHistory = async () => {
+    setHistoryLoading(true);
     try {
       const data = await mobileApi.getHistory();
       setHistory(data.rides);
     } catch {
       setHistory([]);
+    } finally {
+      setHistoryLoading(false);
     }
   };
 
@@ -270,6 +282,11 @@ export default function App() {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar style="light" />
+        {banner && (
+          <View style={[styles.banner, banner.error && styles.bannerError]}>
+            <Text style={styles.bannerText}>{banner.message}</Text>
+          </View>
+        )}
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
           <ScrollView contentContainerStyle={styles.authScroll} keyboardShouldPersistTaps="handled">
             <View style={styles.row}>
@@ -348,6 +365,16 @@ export default function App() {
             <Pressable style={[styles.btn, apiConnected === false && styles.btnDisabled]} onPress={submitAuth} disabled={loading || apiConnected === false}>
               {loading ? <ActivityIndicator color={colors.primaryOnDark} /> : <Text style={styles.btnText}>{mode === 'login' ? t('common.login') : t('auth.createAccount')}</Text>}
             </Pressable>
+            {mode === 'login' && (
+              <Pressable onPress={async () => {
+                if (!form.email) { setError(t('common.enterEmail')); return; }
+                const r = await mobileApi.forgotPassword(form.email);
+                setForgotMsg(r.devResetUrl ? t('common.devReset', { url: r.devResetUrl }) : t('common.checkEmail'));
+              }}>
+                <Text style={styles.link}>{t('auth.forgotPassword')}</Text>
+              </Pressable>
+            )}
+            {forgotMsg ? <Text style={styles.muted}>{forgotMsg}</Text> : null}
             {apiConnected === false && (
               <Text style={styles.muted}>{t('mobile.offlineHint')}</Text>
             )}
@@ -364,6 +391,11 @@ export default function App() {
   return (
     <View style={styles.flex}>
       <StatusBar style="light" />
+      {banner && (
+        <SafeAreaView style={[styles.banner, banner.error && styles.bannerError]}>
+          <Text style={styles.bannerText}>{banner.message}</Text>
+        </SafeAreaView>
+      )}
       {mapCenter && (
         <MapView
           style={styles.map}
@@ -401,7 +433,7 @@ export default function App() {
             <View style={styles.row}>
               <Pressable style={styles.btnSmall} onPress={async () => {
                 const r = await mobileApi.sendPhoneOtp(phoneInput);
-                if (r.devHint) alert(t('common.devOtp', { code: r.devHint }));
+                if (r.devHint) showBanner(t('common.devOtp', { code: r.devHint }));
               }}><Text style={styles.btnText}>{t('common.sendCode')}</Text></Pressable>
               <Pressable style={styles.btnSmall} onPress={async () => {
                 await mobileApi.confirmPhoneOtp(phoneInput, otpInput);
@@ -431,7 +463,9 @@ export default function App() {
         </View>
         {tab === 'history' ? (
           <ScrollView>
-            {history.length === 0 ? (
+            {historyLoading ? (
+              <ActivityIndicator color={colors.primary} style={{ marginVertical: 16 }} />
+            ) : history.length === 0 ? (
               <Text style={styles.muted}>{t('common.noPastRides')}</Text>
             ) : history.map((h) => (
               <View key={h.id} style={styles.card}>
@@ -522,9 +556,9 @@ export default function App() {
                   {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                     <Pressable style={styles.btnSecondary} onPress={async () => {
                       const c = await mobileApi.initiateMaskedCall(ride.id);
-                      if (c.initiated) alert(c.message ?? t('common.callConnecting'));
+                      if (c.initiated) showBanner(te(c.message ?? t('common.callConnecting')));
                       else if (c.dialUrl) Linking.openURL(c.dialUrl);
-                      else alert(c.hint ?? t('common.callFailed'));
+                      else showBanner(te(c.hint ?? t('common.callFailed')), true);
                     }}>
                       <Text style={styles.btnSecondaryText}>{t('common.call')}</Text>
                     </Pressable>
