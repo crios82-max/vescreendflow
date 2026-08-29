@@ -243,6 +243,10 @@ import com.veplayer.app.vehicle.HvMaxSoc
 import com.veplayer.app.vehicle.HvMaxSocMonitor
 import com.veplayer.app.vehicle.HvDcap
 import com.veplayer.app.vehicle.HvDcapMonitor
+import com.veplayer.app.vehicle.HvSoce
+import com.veplayer.app.vehicle.HvSoceMonitor
+import com.veplayer.app.vehicle.EssCap
+import com.veplayer.app.vehicle.EssCapMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -468,6 +472,8 @@ fun DriveVizPanel(
     val hvMinSoc by HvMinSocMonitor.state.collectAsState()
     val hvMaxSoc by HvMaxSocMonitor.state.collectAsState()
     val hvDcap by HvDcapMonitor.state.collectAsState()
+    val hvSoce by HvSoceMonitor.state.collectAsState()
+    val essCap by EssCapMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -676,6 +682,8 @@ fun DriveVizPanel(
             HvMinSocMonitor.tick(prefs, snap)
             HvMaxSocMonitor.tick(prefs, snap)
             HvDcapMonitor.tick(prefs, snap)
+            HvSoceMonitor.tick(prefs, snap)
+            EssCapMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1625,6 +1633,12 @@ fun DriveVizPanel(
                 }
                 if (hvDcap.showWarn || (prefs.hvDcapEnabled && hvDcap.band == "ok" && hvDcap.label.isNotBlank())) {
                     Text(hvDcap.label, color = Color(HvDcap.accentArgb(hvDcap.band)), fontSize = 11.sp)
+                }
+                if (hvSoce.showWarn || (prefs.hvSoceEnabled && hvSoce.band == "ok" && hvSoce.label.isNotBlank())) {
+                    Text(hvSoce.label, color = Color(HvSoce.accentArgb(hvSoce.band)), fontSize = 11.sp)
+                }
+                if (essCap.showWarn || (prefs.essCapEnabled && essCap.band == "ok" && essCap.label.isNotBlank())) {
+                    Text(essCap.label, color = Color(EssCap.accentArgb(essCap.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

@@ -2044,6 +2044,28 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.HvDcap.toJsonMap(
                                             com.veplayer.app.vehicle.HvDcapMonitor.state.value,
                                         ),
+                                    "hv_soce_warn_pct" to prefs.hvSoceWarnPct.toDouble(),
+                                    "hv_soce_alert_pct" to prefs.hvSoceAlertPct.toDouble(),
+                                    "hv_soce_pct" to
+                                        (if (prefs.hvSoceSimPct > 0f) prefs.hvSoceSimPct
+                                        else com.veplayer.app.vehicle.HvSoceMonitor.state.value.socePct
+                                            ?: snap.hvSocePct
+                                            )?.toDouble(),
+                                    "hv_soce" to
+                                        com.veplayer.app.vehicle.HvSoce.toJsonMap(
+                                            com.veplayer.app.vehicle.HvSoceMonitor.state.value,
+                                        ),
+                                    "ess_cap_warn_kwh" to prefs.essCapWarnKwh.toDouble(),
+                                    "ess_cap_alert_kwh" to prefs.essCapAlertKwh.toDouble(),
+                                    "ess_cap_kwh" to
+                                        (if (prefs.essCapSimKwh > 0f) prefs.essCapSimKwh
+                                        else com.veplayer.app.vehicle.EssCapMonitor.state.value.kwh
+                                            ?: snap.essCapKwh
+                                            )?.toDouble(),
+                                    "ess_cap" to
+                                        com.veplayer.app.vehicle.EssCap.toJsonMap(
+                                            com.veplayer.app.vehicle.EssCapMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -4229,6 +4251,28 @@ class SenseBridgeService : Service() {
                                     "hv_dcap" to
                                         com.veplayer.app.vehicle.HvDcap.toJsonMap(
                                             com.veplayer.app.vehicle.HvDcapMonitor.state.value,
+                                        ),
+                                    "hv_soce_warn_pct" to prefs.hvSoceWarnPct.toDouble(),
+                                    "hv_soce_alert_pct" to prefs.hvSoceAlertPct.toDouble(),
+                                    "hv_soce_pct" to
+                                        (if (prefs.hvSoceSimPct > 0f) prefs.hvSoceSimPct
+                                        else com.veplayer.app.vehicle.HvSoceMonitor.state.value.socePct
+                                            ?: snap.hvSocePct
+                                            )?.toDouble(),
+                                    "hv_soce" to
+                                        com.veplayer.app.vehicle.HvSoce.toJsonMap(
+                                            com.veplayer.app.vehicle.HvSoceMonitor.state.value,
+                                        ),
+                                    "ess_cap_warn_kwh" to prefs.essCapWarnKwh.toDouble(),
+                                    "ess_cap_alert_kwh" to prefs.essCapAlertKwh.toDouble(),
+                                    "ess_cap_kwh" to
+                                        (if (prefs.essCapSimKwh > 0f) prefs.essCapSimKwh
+                                        else com.veplayer.app.vehicle.EssCapMonitor.state.value.kwh
+                                            ?: snap.essCapKwh
+                                            )?.toDouble(),
+                                    "ess_cap" to
+                                        com.veplayer.app.vehicle.EssCap.toJsonMap(
+                                            com.veplayer.app.vehicle.EssCapMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
