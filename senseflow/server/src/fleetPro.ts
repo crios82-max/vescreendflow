@@ -7328,6 +7328,95 @@ export function evaluateFleetAlerts(
       }
     }
 
+    const essChgLimObj = signals.ess_chg_lim as Record<string, unknown> | undefined
+    const essChgLimKw =
+      typeof essChgLimObj?.kw === 'number'
+        ? (essChgLimObj.kw as number)
+        : typeof signals.ess_chg_lim_kw === 'number'
+          ? (signals.ess_chg_lim_kw as number)
+          : null
+    if (typeof essChgLimKw === 'number') {
+      const warnK = typeof signals.ess_chg_lim_warn_kw === 'number' ? (signals.ess_chg_lim_warn_kw as number) : 20
+      const alertK = typeof signals.ess_chg_lim_alert_kw === 'number' ? (signals.ess_chg_lim_alert_kw as number) : 8
+      if (essChgLimKw <= alertK && !recentlyAlerted(deviceId, 'ess_chg_lim_alert', 120)) {
+        insertAlert(deviceId, 'ess_chg_lim_alert', 'critical', `Límite carga ESS crítico · ${essChgLimKw.toFixed(1)}kW`, {
+          ess_chg_lim_kw: essChgLimKw,
+          ess_chg_lim: essChgLimObj ?? null,
+        })
+        raised.push('ess_chg_lim_alert')
+      } else if (
+        essChgLimKw <= warnK &&
+        essChgLimKw > alertK &&
+        !recentlyAlerted(deviceId, 'ess_chg_lim_warn', 120)
+      ) {
+        insertAlert(deviceId, 'ess_chg_lim_warn', 'warn', `Límite carga ESS bajo · ${essChgLimKw.toFixed(1)}kW`, {
+          ess_chg_lim_kw: essChgLimKw,
+          ess_chg_lim: essChgLimObj ?? null,
+        })
+        raised.push('ess_chg_lim_warn')
+      }
+    }
+
+    const essChgActObj = signals.ess_chg_act as Record<string, unknown> | undefined
+    const essChgActKw =
+      typeof essChgActObj?.kw === 'number'
+        ? (essChgActObj.kw as number)
+        : typeof signals.ess_chg_act_kw === 'number'
+          ? (signals.ess_chg_act_kw as number)
+          : null
+    if (typeof essChgActKw === 'number') {
+      const absK = Math.abs(essChgActKw)
+      const warnK = typeof signals.ess_chg_act_warn_kw === 'number' ? (signals.ess_chg_act_warn_kw as number) : 80
+      const alertK = typeof signals.ess_chg_act_alert_kw === 'number' ? (signals.ess_chg_act_alert_kw as number) : 120
+      if (absK >= alertK && !recentlyAlerted(deviceId, 'ess_chg_act_alert', 120)) {
+        insertAlert(deviceId, 'ess_chg_act_alert', 'critical', `Potencia carga ESS crítica · ${essChgActKw.toFixed(1)}kW`, {
+          ess_chg_act_kw: essChgActKw,
+          ess_chg_act: essChgActObj ?? null,
+        })
+        raised.push('ess_chg_act_alert')
+      } else if (
+        absK >= warnK &&
+        absK < alertK &&
+        !recentlyAlerted(deviceId, 'ess_chg_act_warn', 120)
+      ) {
+        insertAlert(deviceId, 'ess_chg_act_warn', 'warn', `Potencia carga ESS alta · ${essChgActKw.toFixed(1)}kW`, {
+          ess_chg_act_kw: essChgActKw,
+          ess_chg_act: essChgActObj ?? null,
+        })
+        raised.push('ess_chg_act_warn')
+      }
+    }
+
+    const hvEnerRateObj = signals.hv_ener_rate as Record<string, unknown> | undefined
+    const hvEnerRateWhs =
+      typeof hvEnerRateObj?.whs === 'number'
+        ? (hvEnerRateObj.whs as number)
+        : typeof signals.hv_ener_rate_whs === 'number'
+          ? (signals.hv_ener_rate_whs as number)
+          : null
+    if (typeof hvEnerRateWhs === 'number') {
+      const absW = Math.abs(hvEnerRateWhs)
+      const warnW = typeof signals.hv_ener_rate_warn_whs === 'number' ? (signals.hv_ener_rate_warn_whs as number) : 40
+      const alertW = typeof signals.hv_ener_rate_alert_whs === 'number' ? (signals.hv_ener_rate_alert_whs as number) : 70
+      if (absW >= alertW && !recentlyAlerted(deviceId, 'hv_ener_rate_alert', 120)) {
+        insertAlert(deviceId, 'hv_ener_rate_alert', 'critical', `Tasa energía HV crítica · ${hvEnerRateWhs.toFixed(1)}Wh/s`, {
+          hv_ener_rate_whs: hvEnerRateWhs,
+          hv_ener_rate: hvEnerRateObj ?? null,
+        })
+        raised.push('hv_ener_rate_alert')
+      } else if (
+        absW >= warnW &&
+        absW < alertW &&
+        !recentlyAlerted(deviceId, 'hv_ener_rate_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hv_ener_rate_warn', 'warn', `Tasa energía HV alta · ${hvEnerRateWhs.toFixed(1)}Wh/s`, {
+          hv_ener_rate_whs: hvEnerRateWhs,
+          hv_ener_rate: hvEnerRateObj ?? null,
+        })
+        raised.push('hv_ener_rate_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

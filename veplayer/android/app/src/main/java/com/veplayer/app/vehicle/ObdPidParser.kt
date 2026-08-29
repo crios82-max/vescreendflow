@@ -350,6 +350,12 @@ object ObdPidParser {
         val essRsrvInitKwh: Float? = null,
         /** Distance since last SOH update km (OBD PID 01D0 bytes E/F). */
         val essHealthDistKm: Float? = null,
+        /** ESS charging limit kW (OBD PID 01D1 bytes A/B signed /10). */
+        val essChgLimKw: Float? = null,
+        /** ESS actual charging power kW (OBD PID 01D1 bytes C/D signed /10). */
+        val essChgActKw: Float? = null,
+        /** Battery pack energy rate Wh/s (OBD PID 01D4 bytes A/B signed /10). */
+        val hvEnerRateWhs: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -982,6 +988,27 @@ object ObdPidParser {
                     PidValues(essRsrvRemKwh = rem, essRsrvInitKwh = init, essHealthDistKm = dist)
                 }
             }
+            0xD1 -> {
+                if (data.size < 2) PidValues()
+                else {
+                    fun signedAb(hi: Int, lo: Int): Float {
+                        val raw = (hi shl 8) or lo
+                        val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                        return signed / 10f
+                    }
+                    val lim = signedAb(data[0], data[1])
+                    val act = if (data.size >= 4) signedAb(data[2], data[3]) else null
+                    PidValues(essChgLimKw = lim, essChgActKw = act)
+                }
+            }
+            0xD4 -> {
+                if (data.size < 2) PidValues()
+                else {
+                    val raw = (data[0] shl 8) or data[1]
+                    val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                    PidValues(hvEnerRateWhs = signed / 10f)
+                }
+            }
             0x9D -> {
                 if (data.size < 2) PidValues()
                 else PidValues(engineFuelRateGps = (data[0] * 256 + data[1]) / 200f)
@@ -1216,6 +1243,9 @@ object ObdPidParser {
             essRsrvRemKwh = add.essRsrvRemKwh ?: base.essRsrvRemKwh,
             essRsrvInitKwh = add.essRsrvInitKwh ?: base.essRsrvInitKwh,
             essHealthDistKm = add.essHealthDistKm ?: base.essHealthDistKm,
+            essChgLimKw = add.essChgLimKw ?: base.essChgLimKw,
+            essChgActKw = add.essChgActKw ?: base.essChgActKw,
+            hvEnerRateWhs = add.hvEnerRateWhs ?: base.hvEnerRateWhs,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

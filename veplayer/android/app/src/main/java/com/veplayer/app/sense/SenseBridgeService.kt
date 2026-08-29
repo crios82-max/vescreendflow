@@ -2091,6 +2091,39 @@ class SenseBridgeService : Service() {
                                         ),
                                     "ess_rsrv_init_kwh" to snap.essRsrvInitKwh?.toDouble(),
                                     "ess_health_dist_km" to snap.essHealthDistKm?.toDouble(),
+                                    "ess_chg_lim_warn_kw" to prefs.essChgLimWarnKw.toDouble(),
+                                    "ess_chg_lim_alert_kw" to prefs.essChgLimAlertKw.toDouble(),
+                                    "ess_chg_lim_kw" to
+                                        (if (prefs.essChgLimSimKw > 0f) prefs.essChgLimSimKw
+                                        else com.veplayer.app.vehicle.EssChgLimMonitor.state.value.kw
+                                            ?: snap.essChgLimKw
+                                            )?.toDouble(),
+                                    "ess_chg_lim" to
+                                        com.veplayer.app.vehicle.EssChgLim.toJsonMap(
+                                            com.veplayer.app.vehicle.EssChgLimMonitor.state.value,
+                                        ),
+                                    "ess_chg_act_warn_kw" to prefs.essChgActWarnKw.toDouble(),
+                                    "ess_chg_act_alert_kw" to prefs.essChgActAlertKw.toDouble(),
+                                    "ess_chg_act_kw" to
+                                        (if (prefs.essChgActSimKw != 0f) prefs.essChgActSimKw
+                                        else com.veplayer.app.vehicle.EssChgActMonitor.state.value.kw
+                                            ?: snap.essChgActKw
+                                            )?.toDouble(),
+                                    "ess_chg_act" to
+                                        com.veplayer.app.vehicle.EssChgAct.toJsonMap(
+                                            com.veplayer.app.vehicle.EssChgActMonitor.state.value,
+                                        ),
+                                    "hv_ener_rate_warn_whs" to prefs.hvEnerRateWarnWhs.toDouble(),
+                                    "hv_ener_rate_alert_whs" to prefs.hvEnerRateAlertWhs.toDouble(),
+                                    "hv_ener_rate_whs" to
+                                        (if (prefs.hvEnerRateSimWhs != 0f) prefs.hvEnerRateSimWhs
+                                        else com.veplayer.app.vehicle.HvEnerRateMonitor.state.value.whs
+                                            ?: snap.hvEnerRateWhs
+                                            )?.toDouble(),
+                                    "hv_ener_rate" to
+                                        com.veplayer.app.vehicle.HvEnerRate.toJsonMap(
+                                            com.veplayer.app.vehicle.HvEnerRateMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -4324,6 +4357,39 @@ class SenseBridgeService : Service() {
                                         ),
                                     "ess_rsrv_init_kwh" to snap.essRsrvInitKwh?.toDouble(),
                                     "ess_health_dist_km" to snap.essHealthDistKm?.toDouble(),
+                                    "ess_chg_lim_warn_kw" to prefs.essChgLimWarnKw.toDouble(),
+                                    "ess_chg_lim_alert_kw" to prefs.essChgLimAlertKw.toDouble(),
+                                    "ess_chg_lim_kw" to
+                                        (if (prefs.essChgLimSimKw > 0f) prefs.essChgLimSimKw
+                                        else com.veplayer.app.vehicle.EssChgLimMonitor.state.value.kw
+                                            ?: snap.essChgLimKw
+                                            )?.toDouble(),
+                                    "ess_chg_lim" to
+                                        com.veplayer.app.vehicle.EssChgLim.toJsonMap(
+                                            com.veplayer.app.vehicle.EssChgLimMonitor.state.value,
+                                        ),
+                                    "ess_chg_act_warn_kw" to prefs.essChgActWarnKw.toDouble(),
+                                    "ess_chg_act_alert_kw" to prefs.essChgActAlertKw.toDouble(),
+                                    "ess_chg_act_kw" to
+                                        (if (prefs.essChgActSimKw != 0f) prefs.essChgActSimKw
+                                        else com.veplayer.app.vehicle.EssChgActMonitor.state.value.kw
+                                            ?: snap.essChgActKw
+                                            )?.toDouble(),
+                                    "ess_chg_act" to
+                                        com.veplayer.app.vehicle.EssChgAct.toJsonMap(
+                                            com.veplayer.app.vehicle.EssChgActMonitor.state.value,
+                                        ),
+                                    "hv_ener_rate_warn_whs" to prefs.hvEnerRateWarnWhs.toDouble(),
+                                    "hv_ener_rate_alert_whs" to prefs.hvEnerRateAlertWhs.toDouble(),
+                                    "hv_ener_rate_whs" to
+                                        (if (prefs.hvEnerRateSimWhs != 0f) prefs.hvEnerRateSimWhs
+                                        else com.veplayer.app.vehicle.HvEnerRateMonitor.state.value.whs
+                                            ?: snap.hvEnerRateWhs
+                                            )?.toDouble(),
+                                    "hv_ener_rate" to
+                                        com.veplayer.app.vehicle.HvEnerRate.toJsonMap(
+                                            com.veplayer.app.vehicle.HvEnerRateMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
