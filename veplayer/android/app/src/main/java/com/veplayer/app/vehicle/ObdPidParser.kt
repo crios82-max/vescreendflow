@@ -328,6 +328,16 @@ object ObdPidParser {
         val hvEnrgOutKwh: Float? = null,
         /** HVESS total energy throughput Wh (OBD PID 01BD bytes A–D). */
         val hvEnrgTputWh: Float? = null,
+        /** HVESS actual charge rate kW (OBD PID 01B3 bytes A/B signed /10). */
+        val hvAcrKw: Float? = null,
+        /** HVESS SOH % (OBD PID 01BE byte A). */
+        val hvessSohPct: Float? = null,
+        /** Recommended min SOC % (OBD PID 01BF byte A). */
+        val hvMinSocPct: Float? = null,
+        /** Recommended max SOC % (OBD PID 01C1 byte A). */
+        val hvMaxSocPct: Float? = null,
+        /** Discharge energy capacity kWh (OBD PID 01C2 bytes A/B /10). */
+        val hvDcapKwh: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -852,6 +862,14 @@ object ObdPidParser {
                 if (data.isEmpty()) PidValues()
                 else PidValues(hvBattSohPct = data[0] * 100f / 255f)
             }
+            0xB3 -> {
+                if (data.size < 2) PidValues()
+                else {
+                    val raw = (data[0] shl 8) or data[1]
+                    val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                    PidValues(hvAcrKw = signed / 10f)
+                }
+            }
             0xB4 -> {
                 if (data.isEmpty()) PidValues()
                 else PidValues(hvessTempC = data[0] - 40f)
@@ -914,6 +932,22 @@ object ObdPidParser {
             0xBD -> {
                 val wh = u32Scaled(data, 0, 10f)
                 if (wh == null) PidValues() else PidValues(hvEnrgTputWh = wh)
+            }
+            0xBE -> {
+                if (data.isEmpty()) PidValues()
+                else PidValues(hvessSohPct = data[0] * 100f / 255f)
+            }
+            0xBF -> {
+                if (data.isEmpty()) PidValues()
+                else PidValues(hvMinSocPct = data[0] * 100f / 255f)
+            }
+            0xC1 -> {
+                if (data.isEmpty()) PidValues()
+                else PidValues(hvMaxSocPct = data[0] * 100f / 255f)
+            }
+            0xC2 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(hvDcapKwh = ((data[0] * 256) + data[1]) / 10f)
             }
             0x9D -> {
                 if (data.size < 2) PidValues()
@@ -1138,6 +1172,11 @@ object ObdPidParser {
             hvEnrgInKwh = add.hvEnrgInKwh ?: base.hvEnrgInKwh,
             hvEnrgOutKwh = add.hvEnrgOutKwh ?: base.hvEnrgOutKwh,
             hvEnrgTputWh = add.hvEnrgTputWh ?: base.hvEnrgTputWh,
+            hvAcrKw = add.hvAcrKw ?: base.hvAcrKw,
+            hvessSohPct = add.hvessSohPct ?: base.hvessSohPct,
+            hvMinSocPct = add.hvMinSocPct ?: base.hvMinSocPct,
+            hvMaxSocPct = add.hvMaxSocPct ?: base.hvMaxSocPct,
+            hvDcapKwh = add.hvDcapKwh ?: base.hvDcapKwh,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

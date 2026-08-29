@@ -5556,6 +5556,89 @@ private fun SettingsVehicleSignalsObdFase41_45(
                 color = Mute,
                 fontSize = 12.sp,
             )
+
+            Text("Fase 46 OBD (01B3/BE/BF/C1/C2 HVESS):", color = Mist)
+            val hvAcrSt by com.veplayer.app.vehicle.HvAcrMonitor.state.collectAsState()
+            val hvessSohSt by com.veplayer.app.vehicle.HvessSohMonitor.state.collectAsState()
+            val hvMinSocSt by com.veplayer.app.vehicle.HvMinSocMonitor.state.collectAsState()
+            val hvMaxSocSt by com.veplayer.app.vehicle.HvMaxSocMonitor.state.collectAsState()
+            val hvDcapSt by com.veplayer.app.vehicle.HvDcapMonitor.state.collectAsState()
+            var f46Acr by remember {
+                mutableStateOf(if (prefs.hvAcrSimKw != 0f) prefs.hvAcrSimKw.toInt().toString() else "0")
+            }
+            var f46Soh by remember {
+                mutableStateOf(if (prefs.hvessSohSimPct > 0f) prefs.hvessSohSimPct.toInt().toString() else "0")
+            }
+            var f46MinSoc by remember {
+                mutableStateOf(if (prefs.hvMinSocSimPct > 0f) prefs.hvMinSocSimPct.toInt().toString() else "0")
+            }
+            var f46MaxSoc by remember {
+                mutableStateOf(if (prefs.hvMaxSocSimPct > 0f) prefs.hvMaxSocSimPct.toInt().toString() else "0")
+            }
+            var f46Dcap by remember {
+                mutableStateOf(if (prefs.hvDcapSimKwh > 0f) prefs.hvDcapSimKwh.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f46Acr,
+                    onValueChange = { f46Acr = it.filter { c -> c.isDigit() || c == '-' }.take(4) },
+                    label = { Text("HvAcr") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f46Soh,
+                    onValueChange = { f46Soh = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("HvSOH") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f46MinSoc,
+                    onValueChange = { f46MinSoc = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("MinSOC") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f46MaxSoc,
+                    onValueChange = { f46MaxSoc = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("MaxSOC") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f46Dcap,
+                    onValueChange = { f46Dcap = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("HvDcap") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.hvAcrSimKw = f46Acr.toFloatOrNull() ?: 0f
+                    prefs.hvessSohSimPct = f46Soh.toFloatOrNull() ?: 0f
+                    prefs.hvMinSocSimPct = f46MinSoc.toFloatOrNull() ?: 0f
+                    prefs.hvMaxSocSimPct = f46MaxSoc.toFloatOrNull() ?: 0f
+                    prefs.hvDcapSimKwh = f46Dcap.toFloatOrNull() ?: 0f
+                    onStatus("Fase 46 sim aplicado")
+                },
+            ) { Text("Aplicar sim Fase 46") }
+            Text(
+                listOfNotNull(
+                    hvAcrSt.label.takeIf { it.isNotBlank() },
+                    hvessSohSt.label.takeIf { it.isNotBlank() },
+                    hvMinSocSt.label.takeIf { it.isNotBlank() },
+                    hvMaxSocSt.label.takeIf { it.isNotBlank() },
+                    hvDcapSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 46 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

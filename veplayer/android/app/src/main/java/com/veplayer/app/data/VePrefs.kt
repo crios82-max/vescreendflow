@@ -4219,6 +4219,92 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("hv_enrg_tput_sim_wh", 0f)
         set(value) = sp.edit().putFloat("hv_enrg_tput_sim_wh", value.coerceIn(0f, 1e10f)).apply()
 
+
+    /** HVESS actual charge rate kW (OBD 01B3). */
+    var hvAcrEnabled: Boolean
+        get() = sp.getBoolean("hv_acr", true)
+        set(value) = sp.edit().putBoolean("hv_acr", value).apply()
+    var hvAcrTts: Boolean
+        get() = sp.getBoolean("hv_acr_tts", true)
+        set(value) = sp.edit().putBoolean("hv_acr_tts", value).apply()
+    var hvAcrWarnKw: Float
+        get() = sp.getFloat("hv_acr_warn_kw", 80f)
+        set(value) = sp.edit().putFloat("hv_acr_warn_kw", value.coerceIn(10f, 300f)).apply()
+    var hvAcrAlertKw: Float
+        get() = sp.getFloat("hv_acr_alert_kw", 120f)
+        set(value) = sp.edit().putFloat("hv_acr_alert_kw", value.coerceIn(20f, 400f)).apply()
+    var hvAcrSimKw: Float
+        get() = sp.getFloat("hv_acr_sim_kw", 0f)
+        set(value) = sp.edit().putFloat("hv_acr_sim_kw", value.coerceIn(-200f, 500f)).apply()
+
+    /** HVESS SOH % (OBD 01BE). */
+    var hvessSohEnabled: Boolean
+        get() = sp.getBoolean("hvess_soh", true)
+        set(value) = sp.edit().putBoolean("hvess_soh", value).apply()
+    var hvessSohTts: Boolean
+        get() = sp.getBoolean("hvess_soh_tts", true)
+        set(value) = sp.edit().putBoolean("hvess_soh_tts", value).apply()
+    var hvessSohWarnPct: Float
+        get() = sp.getFloat("hvess_soh_warn_pct", 70f)
+        set(value) = sp.edit().putFloat("hvess_soh_warn_pct", value.coerceIn(20f, 90f)).apply()
+    var hvessSohAlertPct: Float
+        get() = sp.getFloat("hvess_soh_alert_pct", 50f)
+        set(value) = sp.edit().putFloat("hvess_soh_alert_pct", value.coerceIn(10f, 85f)).apply()
+    var hvessSohSimPct: Float
+        get() = sp.getFloat("hvess_soh_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("hvess_soh_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    /** Recommended min SOC % (OBD 01BF). */
+    var hvMinSocEnabled: Boolean
+        get() = sp.getBoolean("hv_min_soc", true)
+        set(value) = sp.edit().putBoolean("hv_min_soc", value).apply()
+    var hvMinSocTts: Boolean
+        get() = sp.getBoolean("hv_min_soc_tts", true)
+        set(value) = sp.edit().putBoolean("hv_min_soc_tts", value).apply()
+    var hvMinSocWarnPct: Float
+        get() = sp.getFloat("hv_min_soc_warn_pct", 25f)
+        set(value) = sp.edit().putFloat("hv_min_soc_warn_pct", value.coerceIn(5f, 60f)).apply()
+    var hvMinSocAlertPct: Float
+        get() = sp.getFloat("hv_min_soc_alert_pct", 35f)
+        set(value) = sp.edit().putFloat("hv_min_soc_alert_pct", value.coerceIn(10f, 80f)).apply()
+    var hvMinSocSimPct: Float
+        get() = sp.getFloat("hv_min_soc_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("hv_min_soc_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    /** Recommended max SOC % (OBD 01C1). */
+    var hvMaxSocEnabled: Boolean
+        get() = sp.getBoolean("hv_max_soc", true)
+        set(value) = sp.edit().putBoolean("hv_max_soc", value).apply()
+    var hvMaxSocTts: Boolean
+        get() = sp.getBoolean("hv_max_soc_tts", true)
+        set(value) = sp.edit().putBoolean("hv_max_soc_tts", value).apply()
+    var hvMaxSocWarnPct: Float
+        get() = sp.getFloat("hv_max_soc_warn_pct", 85f)
+        set(value) = sp.edit().putFloat("hv_max_soc_warn_pct", value.coerceIn(50f, 98f)).apply()
+    var hvMaxSocAlertPct: Float
+        get() = sp.getFloat("hv_max_soc_alert_pct", 75f)
+        set(value) = sp.edit().putFloat("hv_max_soc_alert_pct", value.coerceIn(40f, 95f)).apply()
+    var hvMaxSocSimPct: Float
+        get() = sp.getFloat("hv_max_soc_sim_pct", 0f)
+        set(value) = sp.edit().putFloat("hv_max_soc_sim_pct", value.coerceIn(0f, 100f)).apply()
+
+    /** Discharge energy capacity kWh (OBD 01C2). */
+    var hvDcapEnabled: Boolean
+        get() = sp.getBoolean("hv_dcap", true)
+        set(value) = sp.edit().putBoolean("hv_dcap", value).apply()
+    var hvDcapTts: Boolean
+        get() = sp.getBoolean("hv_dcap_tts", true)
+        set(value) = sp.edit().putBoolean("hv_dcap_tts", value).apply()
+    var hvDcapWarnKwh: Float
+        get() = sp.getFloat("hv_dcap_warn_kwh", 40f)
+        set(value) = sp.edit().putFloat("hv_dcap_warn_kwh", value.coerceIn(5f, 500f)).apply()
+    var hvDcapAlertKwh: Float
+        get() = sp.getFloat("hv_dcap_alert_kwh", 25f)
+        set(value) = sp.edit().putFloat("hv_dcap_alert_kwh", value.coerceIn(1f, 400f)).apply()
+    var hvDcapSimKwh: Float
+        get() = sp.getFloat("hv_dcap_sim_kwh", 0f)
+        set(value) = sp.edit().putFloat("hv_dcap_sim_kwh", value.coerceIn(0f, 1e5f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)

@@ -1989,6 +1989,61 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.HvEnrgTput.toJsonMap(
                                             com.veplayer.app.vehicle.HvEnrgTputMonitor.state.value,
                                         ),
+                                    "hv_acr_warn_kw" to prefs.hvAcrWarnKw.toDouble(),
+                                    "hv_acr_alert_kw" to prefs.hvAcrAlertKw.toDouble(),
+                                    "hv_acr_kw" to
+                                        (if (prefs.hvAcrSimKw != 0f) prefs.hvAcrSimKw
+                                        else com.veplayer.app.vehicle.HvAcrMonitor.state.value.kw
+                                            ?: snap.hvAcrKw
+                                            )?.toDouble(),
+                                    "hv_acr" to
+                                        com.veplayer.app.vehicle.HvAcr.toJsonMap(
+                                            com.veplayer.app.vehicle.HvAcrMonitor.state.value,
+                                        ),
+                                    "hvess_soh_warn_pct" to prefs.hvessSohWarnPct.toDouble(),
+                                    "hvess_soh_alert_pct" to prefs.hvessSohAlertPct.toDouble(),
+                                    "hvess_soh_pct" to
+                                        (if (prefs.hvessSohSimPct > 0f) prefs.hvessSohSimPct
+                                        else com.veplayer.app.vehicle.HvessSohMonitor.state.value.sohPct
+                                            ?: snap.hvessSohPct
+                                            )?.toDouble(),
+                                    "hvess_soh" to
+                                        com.veplayer.app.vehicle.HvessSoh.toJsonMap(
+                                            com.veplayer.app.vehicle.HvessSohMonitor.state.value,
+                                        ),
+                                    "hv_min_soc_warn_pct" to prefs.hvMinSocWarnPct.toDouble(),
+                                    "hv_min_soc_alert_pct" to prefs.hvMinSocAlertPct.toDouble(),
+                                    "hv_min_soc_pct" to
+                                        (if (prefs.hvMinSocSimPct > 0f) prefs.hvMinSocSimPct
+                                        else com.veplayer.app.vehicle.HvMinSocMonitor.state.value.socPct
+                                            ?: snap.hvMinSocPct
+                                            )?.toDouble(),
+                                    "hv_min_soc" to
+                                        com.veplayer.app.vehicle.HvMinSoc.toJsonMap(
+                                            com.veplayer.app.vehicle.HvMinSocMonitor.state.value,
+                                        ),
+                                    "hv_max_soc_warn_pct" to prefs.hvMaxSocWarnPct.toDouble(),
+                                    "hv_max_soc_alert_pct" to prefs.hvMaxSocAlertPct.toDouble(),
+                                    "hv_max_soc_pct" to
+                                        (if (prefs.hvMaxSocSimPct > 0f) prefs.hvMaxSocSimPct
+                                        else com.veplayer.app.vehicle.HvMaxSocMonitor.state.value.socPct
+                                            ?: snap.hvMaxSocPct
+                                            )?.toDouble(),
+                                    "hv_max_soc" to
+                                        com.veplayer.app.vehicle.HvMaxSoc.toJsonMap(
+                                            com.veplayer.app.vehicle.HvMaxSocMonitor.state.value,
+                                        ),
+                                    "hv_dcap_warn_kwh" to prefs.hvDcapWarnKwh.toDouble(),
+                                    "hv_dcap_alert_kwh" to prefs.hvDcapAlertKwh.toDouble(),
+                                    "hv_dcap_kwh" to
+                                        (if (prefs.hvDcapSimKwh > 0f) prefs.hvDcapSimKwh
+                                        else com.veplayer.app.vehicle.HvDcapMonitor.state.value.kwh
+                                            ?: snap.hvDcapKwh
+                                            )?.toDouble(),
+                                    "hv_dcap" to
+                                        com.veplayer.app.vehicle.HvDcap.toJsonMap(
+                                            com.veplayer.app.vehicle.HvDcapMonitor.state.value,
+                                        ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -4119,6 +4174,61 @@ class SenseBridgeService : Service() {
                                     "hv_enrg_tput" to
                                         com.veplayer.app.vehicle.HvEnrgTput.toJsonMap(
                                             com.veplayer.app.vehicle.HvEnrgTputMonitor.state.value,
+                                        ),
+                                    "hv_acr_warn_kw" to prefs.hvAcrWarnKw.toDouble(),
+                                    "hv_acr_alert_kw" to prefs.hvAcrAlertKw.toDouble(),
+                                    "hv_acr_kw" to
+                                        (if (prefs.hvAcrSimKw != 0f) prefs.hvAcrSimKw
+                                        else com.veplayer.app.vehicle.HvAcrMonitor.state.value.kw
+                                            ?: snap.hvAcrKw
+                                            )?.toDouble(),
+                                    "hv_acr" to
+                                        com.veplayer.app.vehicle.HvAcr.toJsonMap(
+                                            com.veplayer.app.vehicle.HvAcrMonitor.state.value,
+                                        ),
+                                    "hvess_soh_warn_pct" to prefs.hvessSohWarnPct.toDouble(),
+                                    "hvess_soh_alert_pct" to prefs.hvessSohAlertPct.toDouble(),
+                                    "hvess_soh_pct" to
+                                        (if (prefs.hvessSohSimPct > 0f) prefs.hvessSohSimPct
+                                        else com.veplayer.app.vehicle.HvessSohMonitor.state.value.sohPct
+                                            ?: snap.hvessSohPct
+                                            )?.toDouble(),
+                                    "hvess_soh" to
+                                        com.veplayer.app.vehicle.HvessSoh.toJsonMap(
+                                            com.veplayer.app.vehicle.HvessSohMonitor.state.value,
+                                        ),
+                                    "hv_min_soc_warn_pct" to prefs.hvMinSocWarnPct.toDouble(),
+                                    "hv_min_soc_alert_pct" to prefs.hvMinSocAlertPct.toDouble(),
+                                    "hv_min_soc_pct" to
+                                        (if (prefs.hvMinSocSimPct > 0f) prefs.hvMinSocSimPct
+                                        else com.veplayer.app.vehicle.HvMinSocMonitor.state.value.socPct
+                                            ?: snap.hvMinSocPct
+                                            )?.toDouble(),
+                                    "hv_min_soc" to
+                                        com.veplayer.app.vehicle.HvMinSoc.toJsonMap(
+                                            com.veplayer.app.vehicle.HvMinSocMonitor.state.value,
+                                        ),
+                                    "hv_max_soc_warn_pct" to prefs.hvMaxSocWarnPct.toDouble(),
+                                    "hv_max_soc_alert_pct" to prefs.hvMaxSocAlertPct.toDouble(),
+                                    "hv_max_soc_pct" to
+                                        (if (prefs.hvMaxSocSimPct > 0f) prefs.hvMaxSocSimPct
+                                        else com.veplayer.app.vehicle.HvMaxSocMonitor.state.value.socPct
+                                            ?: snap.hvMaxSocPct
+                                            )?.toDouble(),
+                                    "hv_max_soc" to
+                                        com.veplayer.app.vehicle.HvMaxSoc.toJsonMap(
+                                            com.veplayer.app.vehicle.HvMaxSocMonitor.state.value,
+                                        ),
+                                    "hv_dcap_warn_kwh" to prefs.hvDcapWarnKwh.toDouble(),
+                                    "hv_dcap_alert_kwh" to prefs.hvDcapAlertKwh.toDouble(),
+                                    "hv_dcap_kwh" to
+                                        (if (prefs.hvDcapSimKwh > 0f) prefs.hvDcapSimKwh
+                                        else com.veplayer.app.vehicle.HvDcapMonitor.state.value.kwh
+                                            ?: snap.hvDcapKwh
+                                            )?.toDouble(),
+                                    "hv_dcap" to
+                                        com.veplayer.app.vehicle.HvDcap.toJsonMap(
+                                            com.veplayer.app.vehicle.HvDcapMonitor.state.value,
                                         ),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
