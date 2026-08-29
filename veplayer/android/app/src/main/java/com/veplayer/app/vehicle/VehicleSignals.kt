@@ -381,6 +381,10 @@ data class VehicleSignals(
         val hvMaxSocPct: Float? = null,
         /** Discharge energy capacity kWh (OBD PID 01C2). */
         val hvDcapKwh: Float? = null,
+        /** State of Certified Energy % (OBD PID 01D2 byte B). */
+        val hvSocePct: Float? = null,
+        /** Calculated ESS energy capacity kWh (OBD PID 01D9). */
+        val essCapKwh: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -625,6 +629,8 @@ data class VehicleSignals(
             "hv_min_soc_pct" to hvMinSocPct?.toDouble(),
             "hv_max_soc_pct" to hvMaxSocPct?.toDouble(),
             "hv_dcap_kwh" to hvDcapKwh?.toDouble(),
+            "hv_soce_pct" to hvSocePct?.toDouble(),
+            "ess_cap_kwh" to essCapKwh?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),

@@ -338,6 +338,10 @@ object ObdPidParser {
         val hvMaxSocPct: Float? = null,
         /** Discharge energy capacity kWh (OBD PID 01C2 bytes A/B /10). */
         val hvDcapKwh: Float? = null,
+        /** State of Certified Energy % (OBD PID 01D2 byte B ×100/255). */
+        val hvSocePct: Float? = null,
+        /** Calculated ESS energy capacity kWh (OBD PID 01D9 bytes A/B /10). */
+        val essCapKwh: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -949,6 +953,14 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(hvDcapKwh = ((data[0] * 256) + data[1]) / 10f)
             }
+            0xD2 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(hvSocePct = data[1] * 100f / 255f)
+            }
+            0xD9 -> {
+                if (data.size < 2) PidValues()
+                else PidValues(essCapKwh = ((data[0] * 256) + data[1]) / 10f)
+            }
             0x9D -> {
                 if (data.size < 2) PidValues()
                 else PidValues(engineFuelRateGps = (data[0] * 256 + data[1]) / 200f)
@@ -1177,6 +1189,8 @@ object ObdPidParser {
             hvMinSocPct = add.hvMinSocPct ?: base.hvMinSocPct,
             hvMaxSocPct = add.hvMaxSocPct ?: base.hvMaxSocPct,
             hvDcapKwh = add.hvDcapKwh ?: base.hvDcapKwh,
+            hvSocePct = add.hvSocePct ?: base.hvSocePct,
+            essCapKwh = add.essCapKwh ?: base.essCapKwh,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,

@@ -7226,6 +7226,64 @@ export function evaluateFleetAlerts(
       }
     }
 
+    const hvSoceObj = signals.hv_soce as Record<string, unknown> | undefined
+    const hvSocePct =
+      typeof hvSoceObj?.soce_pct === 'number'
+        ? (hvSoceObj.soce_pct as number)
+        : typeof signals.hv_soce_pct === 'number'
+          ? (signals.hv_soce_pct as number)
+          : null
+    if (typeof hvSocePct === 'number') {
+      const warnP = typeof signals.hv_soce_warn_pct === 'number' ? (signals.hv_soce_warn_pct as number) : 70
+      const alertP = typeof signals.hv_soce_alert_pct === 'number' ? (signals.hv_soce_alert_pct as number) : 50
+      if (hvSocePct <= alertP && !recentlyAlerted(deviceId, 'hv_soce_alert', 120)) {
+        insertAlert(deviceId, 'hv_soce_alert', 'critical', `SOCE HV crítico · ${Math.round(hvSocePct)}%`, {
+          hv_soce_pct: hvSocePct,
+          hv_soce: hvSoceObj ?? null,
+        })
+        raised.push('hv_soce_alert')
+      } else if (
+        hvSocePct <= warnP &&
+        hvSocePct > alertP &&
+        !recentlyAlerted(deviceId, 'hv_soce_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hv_soce_warn', 'warn', `SOCE HV bajo · ${Math.round(hvSocePct)}%`, {
+          hv_soce_pct: hvSocePct,
+          hv_soce: hvSoceObj ?? null,
+        })
+        raised.push('hv_soce_warn')
+      }
+    }
+
+    const essCapObj = signals.ess_cap as Record<string, unknown> | undefined
+    const essCapKwh =
+      typeof essCapObj?.kwh === 'number'
+        ? (essCapObj.kwh as number)
+        : typeof signals.ess_cap_kwh === 'number'
+          ? (signals.ess_cap_kwh as number)
+          : null
+    if (typeof essCapKwh === 'number') {
+      const warnK = typeof signals.ess_cap_warn_kwh === 'number' ? (signals.ess_cap_warn_kwh as number) : 40
+      const alertK = typeof signals.ess_cap_alert_kwh === 'number' ? (signals.ess_cap_alert_kwh as number) : 25
+      if (essCapKwh <= alertK && !recentlyAlerted(deviceId, 'ess_cap_alert', 120)) {
+        insertAlert(deviceId, 'ess_cap_alert', 'critical', `Capacidad ESS calculada crítica · ${essCapKwh.toFixed(1)}kWh`, {
+          ess_cap_kwh: essCapKwh,
+          ess_cap: essCapObj ?? null,
+        })
+        raised.push('ess_cap_alert')
+      } else if (
+        essCapKwh <= warnK &&
+        essCapKwh > alertK &&
+        !recentlyAlerted(deviceId, 'ess_cap_warn', 120)
+      ) {
+        insertAlert(deviceId, 'ess_cap_warn', 'warn', `Capacidad ESS calculada baja · ${essCapKwh.toFixed(1)}kWh`, {
+          ess_cap_kwh: essCapKwh,
+          ess_cap: essCapObj ?? null,
+        })
+        raised.push('ess_cap_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

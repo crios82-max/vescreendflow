@@ -346,6 +346,8 @@ class ObdBluetoothClient(private val context: Context) {
                 "01BF", // recommended min SOC
                 "01C1", // recommended max SOC
                 "01C2", // discharge energy capacity
+                "01D2", // state of certified energy SOCE
+                "01D9", // calculated ESS energy capacity
                 "0194", // NOx reagent quality
                 "019B", // DEF fluid level
                 "01A1", // NOx corrected B1S1

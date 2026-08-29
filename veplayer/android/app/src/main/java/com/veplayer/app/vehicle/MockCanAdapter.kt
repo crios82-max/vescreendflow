@@ -275,6 +275,8 @@ class MockCanAdapter(
             hvMinSocPct = (11f + sin(t / 91.0).toFloat() * 4f).coerceIn(5f, 30f),
             hvMaxSocPct = (91f + sin(t / 92.0).toFloat() * 4f).coerceIn(70f, 100f),
             hvDcapKwh = (54f + sin(t / 93.0).toFloat() * 8f).coerceIn(20f, 90f),
+            hvSocePct = (85f + sin(t / 94.0).toFloat() * 7f).coerceIn(55f, 100f),
+            essCapKwh = (57f + sin(t / 95.0).toFloat() * 7f).coerceIn(20f, 95f),
             defFluidPct = (47f + sin(t / 41.0).toFloat() * 17f).coerceIn(11f, 87f),
             dpfTriggerPct = (42f + kmh / 90f * 40f).coerceIn(5f, 95f),
             throttleGPct = (kmh / 90f * 72f).coerceIn(0f, 100f),

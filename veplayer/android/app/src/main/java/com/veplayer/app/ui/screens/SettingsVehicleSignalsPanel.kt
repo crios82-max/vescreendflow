@@ -5639,6 +5639,47 @@ private fun SettingsVehicleSignalsObdFase41_45(
                 fontSize = 12.sp,
             )
 
+            Text("Fase 47 OBD (01D2/01D9 SOCE/EssCap):", color = Mist)
+            val hvSoceSt by com.veplayer.app.vehicle.HvSoceMonitor.state.collectAsState()
+            val essCapSt by com.veplayer.app.vehicle.EssCapMonitor.state.collectAsState()
+            var f47Soce by remember {
+                mutableStateOf(if (prefs.hvSoceSimPct > 0f) prefs.hvSoceSimPct.toInt().toString() else "0")
+            }
+            var f47EssCap by remember {
+                mutableStateOf(if (prefs.essCapSimKwh > 0f) prefs.essCapSimKwh.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f47Soce,
+                    onValueChange = { f47Soce = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("SOCE") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f47EssCap,
+                    onValueChange = { f47EssCap = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("EssCap") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.hvSoceSimPct = f47Soce.toFloatOrNull() ?: 0f
+                    prefs.essCapSimKwh = f47EssCap.toFloatOrNull() ?: 0f
+                    onStatus("Fase 47 sim aplicado")
+                },
+            ) { Text("Aplicar sim Fase 47") }
+            Text(
+                listOfNotNull(
+                    hvSoceSt.label.takeIf { it.isNotBlank() },
+                    essCapSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 47 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {
