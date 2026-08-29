@@ -2066,6 +2066,31 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.EssCap.toJsonMap(
                                             com.veplayer.app.vehicle.EssCapMonitor.state.value,
                                         ),
+                                    "bcap_ready" to
+                                        (when {
+                                            prefs.bcapReadySim > 0 -> if (prefs.bcapReadySim == 1) 1 else 0
+                                            else ->
+                                                com.veplayer.app.vehicle.BcapReadyMonitor.state.value.ready?.let {
+                                                    if (it) 1 else 0
+                                                } ?: snap.bcapReady
+                                        }),
+                                    "bcap_ready_state" to
+                                        com.veplayer.app.vehicle.BcapReady.toJsonMap(
+                                            com.veplayer.app.vehicle.BcapReadyMonitor.state.value,
+                                        ),
+                                    "ess_rsrv_warn_kwh" to prefs.essRsrvWarnKwh.toDouble(),
+                                    "ess_rsrv_alert_kwh" to prefs.essRsrvAlertKwh.toDouble(),
+                                    "ess_rsrv_rem_kwh" to
+                                        (if (prefs.essRsrvSimKwh > 0f) prefs.essRsrvSimKwh
+                                        else com.veplayer.app.vehicle.EssRsrvMonitor.state.value.kwh
+                                            ?: snap.essRsrvRemKwh
+                                            )?.toDouble(),
+                                    "ess_rsrv" to
+                                        com.veplayer.app.vehicle.EssRsrv.toJsonMap(
+                                            com.veplayer.app.vehicle.EssRsrvMonitor.state.value,
+                                        ),
+                                    "ess_rsrv_init_kwh" to snap.essRsrvInitKwh?.toDouble(),
+                                    "ess_health_dist_km" to snap.essHealthDistKm?.toDouble(),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -4274,6 +4299,31 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.EssCap.toJsonMap(
                                             com.veplayer.app.vehicle.EssCapMonitor.state.value,
                                         ),
+                                    "bcap_ready" to
+                                        (when {
+                                            prefs.bcapReadySim > 0 -> if (prefs.bcapReadySim == 1) 1 else 0
+                                            else ->
+                                                com.veplayer.app.vehicle.BcapReadyMonitor.state.value.ready?.let {
+                                                    if (it) 1 else 0
+                                                } ?: snap.bcapReady
+                                        }),
+                                    "bcap_ready_state" to
+                                        com.veplayer.app.vehicle.BcapReady.toJsonMap(
+                                            com.veplayer.app.vehicle.BcapReadyMonitor.state.value,
+                                        ),
+                                    "ess_rsrv_warn_kwh" to prefs.essRsrvWarnKwh.toDouble(),
+                                    "ess_rsrv_alert_kwh" to prefs.essRsrvAlertKwh.toDouble(),
+                                    "ess_rsrv_rem_kwh" to
+                                        (if (prefs.essRsrvSimKwh > 0f) prefs.essRsrvSimKwh
+                                        else com.veplayer.app.vehicle.EssRsrvMonitor.state.value.kwh
+                                            ?: snap.essRsrvRemKwh
+                                            )?.toDouble(),
+                                    "ess_rsrv" to
+                                        com.veplayer.app.vehicle.EssRsrv.toJsonMap(
+                                            com.veplayer.app.vehicle.EssRsrvMonitor.state.value,
+                                        ),
+                                    "ess_rsrv_init_kwh" to snap.essRsrvInitKwh?.toDouble(),
+                                    "ess_health_dist_km" to snap.essHealthDistKm?.toDouble(),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to

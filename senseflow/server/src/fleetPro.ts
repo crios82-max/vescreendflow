@@ -7284,6 +7284,50 @@ export function evaluateFleetAlerts(
       }
     }
 
+    const bcapReadyObj = signals.bcap_ready_state as Record<string, unknown> | undefined
+    const bcapReadyVal =
+      typeof bcapReadyObj?.ready === 'boolean'
+        ? (bcapReadyObj.ready as boolean)
+        : typeof signals.bcap_ready === 'number'
+          ? (signals.bcap_ready as number) === 1
+          : null
+    if (bcapReadyVal === false && !recentlyAlerted(deviceId, 'bcap_ready_warn', 120)) {
+      insertAlert(deviceId, 'bcap_ready_warn', 'warn', 'Cálculo capacidad batería no listo', {
+        bcap_ready: 0,
+        bcap_ready_state: bcapReadyObj ?? null,
+      })
+      raised.push('bcap_ready_warn')
+    }
+
+    const essRsrvObj = signals.ess_rsrv as Record<string, unknown> | undefined
+    const essRsrvKwh =
+      typeof essRsrvObj?.kwh === 'number'
+        ? (essRsrvObj.kwh as number)
+        : typeof signals.ess_rsrv_rem_kwh === 'number'
+          ? (signals.ess_rsrv_rem_kwh as number)
+          : null
+    if (typeof essRsrvKwh === 'number') {
+      const warnK = typeof signals.ess_rsrv_warn_kwh === 'number' ? (signals.ess_rsrv_warn_kwh as number) : 8
+      const alertK = typeof signals.ess_rsrv_alert_kwh === 'number' ? (signals.ess_rsrv_alert_kwh as number) : 3
+      if (essRsrvKwh <= alertK && !recentlyAlerted(deviceId, 'ess_rsrv_alert', 120)) {
+        insertAlert(deviceId, 'ess_rsrv_alert', 'critical', `Reserva ESS crítica · ${essRsrvKwh.toFixed(1)}kWh`, {
+          ess_rsrv_rem_kwh: essRsrvKwh,
+          ess_rsrv: essRsrvObj ?? null,
+        })
+        raised.push('ess_rsrv_alert')
+      } else if (
+        essRsrvKwh <= warnK &&
+        essRsrvKwh > alertK &&
+        !recentlyAlerted(deviceId, 'ess_rsrv_warn', 120)
+      ) {
+        insertAlert(deviceId, 'ess_rsrv_warn', 'warn', `Reserva ESS baja · ${essRsrvKwh.toFixed(1)}kWh`, {
+          ess_rsrv_rem_kwh: essRsrvKwh,
+          ess_rsrv: essRsrvObj ?? null,
+        })
+        raised.push('ess_rsrv_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null

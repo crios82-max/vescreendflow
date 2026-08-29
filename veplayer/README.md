@@ -1624,6 +1624,21 @@ Continúa bloque HEV **01D2 / 01D9**.
 npm run veplayer:fase47-smoke
 ```
 
+## Bcap · EssRsrv (v2.43 · Fase 48)
+
+Continúa bloque HEV **01D8 / 01D0**.
+
+| PID | Señal | Alertas | HUD |
+|-----|-------|---------|-----|
+| 01D8 A bit0 | Battery capacity calc ready | `bcap_ready_warn` | `Bcap · Ready/NotReady` |
+| 01D0 A/B | Remaining ESS reserve kWh | `ess_rsrv_warn` / `ess_rsrv_alert` | `EssRsrv · XXkWh` |
+
+También decodifica init reserve (C/D) y health dist (E/F) en señales.
+
+```bash
+npm run veplayer:fase48-smoke
+```
+
 ## Validation gate (pre-fase · v1.15)
 
 Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
@@ -1633,7 +1648,7 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 | `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
 | `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
 | `dbc-smoke` | DBC decode (Kotlin mirror) |
-| `fase16–47-smoke` | Alertas `fleetPro.ts` con heartbeats |
+| `fase16–48-smoke` | Alertas `fleetPro.ts` con heartbeats |
 
 ```bash
 # SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)

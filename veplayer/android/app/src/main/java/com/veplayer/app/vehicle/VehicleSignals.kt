@@ -385,6 +385,14 @@ data class VehicleSignals(
         val hvSocePct: Float? = null,
         /** Calculated ESS energy capacity kWh (OBD PID 01D9). */
         val essCapKwh: Float? = null,
+        /** Battery capacity calculation ready 0/1 (OBD PID 01D8). */
+        val bcapReady: Int? = null,
+        /** Remaining ESS reserve energy kWh (OBD PID 01D0 A/B). */
+        val essRsrvRemKwh: Float? = null,
+        /** Initial ESS reserve energy kWh (OBD PID 01D0 C/D). */
+        val essRsrvInitKwh: Float? = null,
+        /** Distance since last SOH update km (OBD PID 01D0 E/F). */
+        val essHealthDistKm: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B). */
         val defFluidPct: Float? = null,
         /** Run time since engine start (OBD PID 011F), seconds. */
@@ -631,6 +639,10 @@ data class VehicleSignals(
             "hv_dcap_kwh" to hvDcapKwh?.toDouble(),
             "hv_soce_pct" to hvSocePct?.toDouble(),
             "ess_cap_kwh" to essCapKwh?.toDouble(),
+            "bcap_ready" to bcapReady,
+            "ess_rsrv_rem_kwh" to essRsrvRemKwh?.toDouble(),
+            "ess_rsrv_init_kwh" to essRsrvInitKwh?.toDouble(),
+            "ess_health_dist_km" to essHealthDistKm?.toDouble(),
             "def_fluid_pct" to defFluidPct?.toDouble(),
             "runtime_sec" to runtimeSec,
             "mil_distance_km" to milDistanceKm?.toDouble(),

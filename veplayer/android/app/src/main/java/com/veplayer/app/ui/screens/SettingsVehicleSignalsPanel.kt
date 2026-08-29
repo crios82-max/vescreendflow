@@ -5680,6 +5680,53 @@ private fun SettingsVehicleSignalsObdFase41_45(
                 fontSize = 12.sp,
             )
 
+            Text("Fase 48 OBD (01D8/01D0 Bcap/EssRsrv):", color = Mist)
+            val bcapReadySt by com.veplayer.app.vehicle.BcapReadyMonitor.state.collectAsState()
+            val essRsrvSt by com.veplayer.app.vehicle.EssRsrvMonitor.state.collectAsState()
+            var f48Bcap by remember {
+                mutableStateOf(
+                    when (prefs.bcapReadySim) {
+                        1 -> "1"
+                        2 -> "2"
+                        else -> "0"
+                    },
+                )
+            }
+            var f48Rsrv by remember {
+                mutableStateOf(if (prefs.essRsrvSimKwh > 0f) prefs.essRsrvSimKwh.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f48Bcap,
+                    onValueChange = { f48Bcap = it.filter { c -> c.isDigit() }.take(1) },
+                    label = { Text("Bcap 0/1/2") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f48Rsrv,
+                    onValueChange = { f48Rsrv = it.filter { c -> c.isDigit() }.take(5) },
+                    label = { Text("EssRsrv") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.bcapReadySim = f48Bcap.toIntOrNull()?.coerceIn(0, 2) ?: 0
+                    prefs.essRsrvSimKwh = f48Rsrv.toFloatOrNull() ?: 0f
+                    onStatus("Fase 48 sim aplicado")
+                },
+            ) { Text("Aplicar sim Fase 48") }
+            Text(
+                listOfNotNull(
+                    bcapReadySt.label.takeIf { it.isNotBlank() },
+                    essRsrvSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 48 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

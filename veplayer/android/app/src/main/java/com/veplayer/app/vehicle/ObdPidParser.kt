@@ -342,6 +342,14 @@ object ObdPidParser {
         val hvSocePct: Float? = null,
         /** Calculated ESS energy capacity kWh (OBD PID 01D9 bytes A/B /10). */
         val essCapKwh: Float? = null,
+        /** Battery capacity calculation ready 0/1 (OBD PID 01D8 byte A bit0). */
+        val bcapReady: Int? = null,
+        /** Remaining ESS reserve energy kWh (OBD PID 01D0 bytes A/B /10). */
+        val essRsrvRemKwh: Float? = null,
+        /** Initial ESS reserve energy kWh (OBD PID 01D0 bytes C/D /10). */
+        val essRsrvInitKwh: Float? = null,
+        /** Distance since last SOH update km (OBD PID 01D0 bytes E/F). */
+        val essHealthDistKm: Float? = null,
         /** Diesel exhaust fluid % (OBD PID 019B byte D). */
         val defFluidPct: Float? = null,
         val runtimeSec: Int? = null,
@@ -961,6 +969,19 @@ object ObdPidParser {
                 if (data.size < 2) PidValues()
                 else PidValues(essCapKwh = ((data[0] * 256) + data[1]) / 10f)
             }
+            0xD8 -> {
+                if (data.isEmpty()) PidValues()
+                else PidValues(bcapReady = if ((data[0] and 0x01) != 0) 1 else 0)
+            }
+            0xD0 -> {
+                if (data.size < 2) PidValues()
+                else {
+                    val rem = ((data[0] * 256) + data[1]) / 10f
+                    val init = if (data.size >= 4) ((data[2] * 256) + data[3]) / 10f else null
+                    val dist = if (data.size >= 6) ((data[4] * 256) + data[5]).toFloat() else null
+                    PidValues(essRsrvRemKwh = rem, essRsrvInitKwh = init, essHealthDistKm = dist)
+                }
+            }
             0x9D -> {
                 if (data.size < 2) PidValues()
                 else PidValues(engineFuelRateGps = (data[0] * 256 + data[1]) / 200f)
@@ -1191,6 +1212,10 @@ object ObdPidParser {
             hvDcapKwh = add.hvDcapKwh ?: base.hvDcapKwh,
             hvSocePct = add.hvSocePct ?: base.hvSocePct,
             essCapKwh = add.essCapKwh ?: base.essCapKwh,
+            bcapReady = add.bcapReady ?: base.bcapReady,
+            essRsrvRemKwh = add.essRsrvRemKwh ?: base.essRsrvRemKwh,
+            essRsrvInitKwh = add.essRsrvInitKwh ?: base.essRsrvInitKwh,
+            essHealthDistKm = add.essHealthDistKm ?: base.essHealthDistKm,
             defFluidPct = add.defFluidPct ?: base.defFluidPct,
             runtimeSec = add.runtimeSec ?: base.runtimeSec,
             milDistanceKm = add.milDistanceKm ?: base.milDistanceKm,
