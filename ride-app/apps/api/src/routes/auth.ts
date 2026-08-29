@@ -6,6 +6,7 @@ import { pool } from '../db.js';
 import { signToken } from '../middleware/auth.js';
 import { mapUser } from '../mappers.js';
 import { sendEmail } from '../services/email.js';
+import { sendError } from '../httpError.js';
 import { BRAND } from '@ride-app/shared';
 
 const router = Router();
@@ -56,7 +57,7 @@ router.post('/register', async (req, res) => {
   } catch (err: unknown) {
     await client.query('ROLLBACK');
     if (err && typeof err === 'object' && 'code' in err && err.code === '23505') {
-      return res.status(409).json({ error: 'Email ya registrado' });
+      return sendError(res, 409, 'Email ya registrado', 'EMAIL_TAKEN');
     }
     throw err;
   } finally {
@@ -78,16 +79,16 @@ router.post('/login', async (req, res) => {
   const { email, password } = parsed.data;
   const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
   if (result.rows.length === 0) {
-    return res.status(401).json({ error: 'Credenciales inválidas' });
+    return sendError(res, 401, 'Credenciales inválidas', 'INVALID_CREDENTIALS');
   }
 
   const row = result.rows[0];
   if (row.banned) {
-    return res.status(403).json({ error: 'Cuenta suspendida' });
+    return sendError(res, 403, 'Cuenta suspendida', 'ACCOUNT_SUSPENDED');
   }
   const valid = await bcrypt.compare(password, row.password_hash);
   if (!valid) {
-    return res.status(401).json({ error: 'Credenciales inválidas' });
+    return sendError(res, 401, 'Credenciales inválidas', 'INVALID_CREDENTIALS');
   }
 
   const user = mapUser(row);
@@ -100,7 +101,7 @@ router.post('/forgot-password', async (req, res) => {
   const parsed = schema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-  const result = await pool.query('SELECT id FROM users WHERE email = $1', [parsed.data.email]);
+  const result = await pool.query('SELECT id, role, preferred_locale FROM users WHERE email = $1', [parsed.data.email]);
   if (result.rows.length === 0) {
     return res.json({ ok: true, message: 'Si el email existe, recibirás instrucciones' });
   }
@@ -112,13 +113,30 @@ router.post('/forgot-password', async (req, res) => {
     [result.rows[0].id, token, expires],
   );
 
-  const baseUrl = process.env.PASSENGER_WEB_URL ?? 'http://localhost:5174';
+  const role = result.rows[0].role as string;
+  const locale = (result.rows[0].preferred_locale as string) || 'es';
+  const baseUrl =
+    role === 'driver'
+      ? (process.env.DRIVER_WEB_URL ?? 'http://localhost:5175')
+      : (process.env.PASSENGER_WEB_URL ?? 'http://localhost:5174');
   const resetUrl = `${baseUrl}/reset-password?token=${token}`;
-  await sendEmail(
-    parsed.data.email,
-    `Restablecer contraseña — ${BRAND.name}`,
-    `<p>Usa este enlace para restablecer tu contraseña (válido 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
-  );
+  const subject =
+    locale === 'en'
+      ? `Reset password — ${BRAND.name}`
+      : locale === 'it'
+        ? `Reimposta password — ${BRAND.name}`
+        : locale === 'pt'
+          ? `Redefinir senha — ${BRAND.name}`
+          : `Restablecer contraseña — ${BRAND.name}`;
+  const body =
+    locale === 'en'
+      ? `<p>Use this link to reset your password (valid 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`
+      : locale === 'it'
+        ? `<p>Usa questo link per reimpostare la password (valido 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`
+        : locale === 'pt'
+          ? `<p>Use este link para redefinir sua senha (válido 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`
+          : `<p>Usa este enlace para restablecer tu contraseña (válido 1h):</p><p><a href="${resetUrl}">${resetUrl}</a></p>`;
+  await sendEmail(parsed.data.email, subject, body);
 
   res.json({ ok: true, message: 'Si el email existe, recibirás instrucciones', devResetUrl: process.env.NODE_ENV !== 'production' ? resetUrl : undefined });
 });
@@ -136,7 +154,7 @@ router.post('/reset-password', async (req, res) => {
     [parsed.data.token],
   );
   if (tokenResult.rows.length === 0) {
-    return res.status(400).json({ error: 'Token inválido o expirado' });
+    return sendError(res, 400, 'Token inválido o expirado', 'INVALID_TOKEN');
   }
 
   const hash = await bcrypt.hash(parsed.data.password, 10);

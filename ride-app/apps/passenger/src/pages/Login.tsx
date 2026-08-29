@@ -9,6 +9,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotMsg, setForgotMsg] = useState('');
 
   if (user) return <Navigate to="/" replace />;
@@ -42,11 +43,19 @@ export default function Login() {
         {error && <p className="error-text">{error}</p>}
         {forgotMsg && <p className="muted-text">{forgotMsg}</p>}
         <button className="btn-primary" disabled={loading}>{loading ? t('common.loggingIn') : t('common.login')}</button>
-        <button type="button" className="link-btn" onClick={async () => {
+        <button type="button" className="link-btn" disabled={forgotLoading} onClick={async () => {
           if (!email) { setError(t('common.enterEmail')); return; }
-          const r = await api.forgotPassword(email);
-          setForgotMsg(r.devResetUrl ? t('common.devReset', { url: r.devResetUrl }) : t('common.checkEmail'));
-        }}>{t('auth.forgotPassword')}</button>
+          setForgotLoading(true);
+          setError('');
+          try {
+            const r = await api.forgotPassword(email);
+            setForgotMsg(r.devResetUrl ? t('common.devReset', { url: r.devResetUrl }) : t('common.checkEmail'));
+          } catch (err) {
+            setError(te(err instanceof Error ? err.message : t('common.error')));
+          } finally {
+            setForgotLoading(false);
+          }
+        }}>{forgotLoading ? t('common.processing') : t('auth.forgotPassword')}</button>
         <Link to="/register" className="link-btn">{t('auth.createAccount')}</Link>
         <p className="muted-text"><Link to="/terms">{t('auth.terms')}</Link> · <Link to="/privacy">{t('auth.privacy')}</Link></p>
       </form>

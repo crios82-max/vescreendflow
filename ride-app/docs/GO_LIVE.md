@@ -12,6 +12,8 @@ Dashboard → **vescreenflow.com** → **DNS** → **Add record**:
 |------|------|--------|-------|
 | CNAME | `movify-api` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
 | CNAME | `movify` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
+| CNAME | `movify-driver` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
+| CNAME | `movify-admin` | `55818726-7a1f-459c-a904-00f5487e6aad.cfargotunnel.com` | Proxied |
 
 El túnel ya tiene ingress en `cloudflared/config.yml` del repo.
 

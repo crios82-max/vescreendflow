@@ -1,0 +1,2 @@
+ALTER TABLE sos_events ADD COLUMN IF NOT EXISTS acknowledged_at TIMESTAMPTZ;
+ALTER TABLE sos_events ADD COLUMN IF NOT EXISTS acknowledged_by UUID REFERENCES users(id);

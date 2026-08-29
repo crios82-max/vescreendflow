@@ -1,6 +1,6 @@
 import { FormEvent, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { useAuth, BrandMark, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
+import { api, useAuth, BrandMark, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
 
 export default function Login() {
   const { login, user } = useAuth();
@@ -9,6 +9,8 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState('');
 
   if (user) return <Navigate to="/" replace />;
 
@@ -34,11 +36,23 @@ export default function Login() {
         <label>{t('common.email')}<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
         <label>{t('common.password')}<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
         {error && <p className="error-text">{error}</p>}
+        {forgotMsg && <p className="muted-text">{forgotMsg}</p>}
         <button className="btn-primary" disabled={loading}>{loading ? t('common.loggingIn') : t('common.login')}</button>
-        <Link to="/reset-password" className="link-btn">{t('auth.forgotPassword')}</Link>
+        <button type="button" className="link-btn" disabled={forgotLoading} onClick={async () => {
+          if (!email) { setError(t('common.enterEmail')); return; }
+          setForgotLoading(true);
+          setError('');
+          try {
+            const r = await api.forgotPassword(email);
+            setForgotMsg(r.devResetUrl ? t('common.devReset', { url: r.devResetUrl }) : t('common.checkEmail'));
+          } catch (err) {
+            setError(te(err instanceof Error ? err.message : t('common.error')));
+          } finally {
+            setForgotLoading(false);
+          }
+        }}>{forgotLoading ? t('common.processing') : t('auth.forgotPassword')}</button>
         <Link to="/register" className="link-btn">{t('auth.driverCreateAccount')}</Link>
-        <Link to="/terms" className="link-btn">{t('auth.terms')}</Link>
-        <Link to="/privacy" className="link-btn">{t('auth.privacy')}</Link>
+        <p className="muted-text"><Link to="/terms">{t('auth.terms')}</Link> · <Link to="/privacy">{t('auth.privacy')}</Link></p>
       </form>
     </div>
   );

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { authMiddleware } from '../middleware/auth.js';
 import { pool } from '../db.js';
 import { sendLocalizedPush } from '../services/push.js';
+import { sendError } from '../httpError.js';
 
 const router = Router();
 router.use(authMiddleware);
@@ -17,7 +18,7 @@ router.post('/', async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const ride = await pool.query('SELECT passenger_id, driver_id FROM rides WHERE id = $1', [parsed.data.rideId]);
-  if (ride.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+  if (ride.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
 
   const result = await pool.query(
     `INSERT INTO sos_events (ride_id, user_id, lat, lng) VALUES ($1, $2, $3, $4) RETURNING *`,

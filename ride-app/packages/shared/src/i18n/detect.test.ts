@@ -34,6 +34,8 @@ describe('i18n locale detection', () => {
   it('translates API error messages', () => {
     assert.equal(translateApiError('en', 'Credenciales inválidas'), 'Invalid credentials');
     assert.equal(translateApiError('es', 'Credenciales inválidas'), 'Credenciales inválidas');
+    assert.equal(translateApiError('en', 'INVALID_CREDENTIALS'), 'Invalid credentials');
+    assert.equal(translateApiError('es', 'EMAIL_TAKEN'), 'Email ya registrado');
     assert.equal(translateApiError('en', 'Unknown error'), 'Unknown error');
   });
 });

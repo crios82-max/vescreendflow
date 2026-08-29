@@ -4,6 +4,7 @@ import { pool } from '../db.js';
 import { authMiddleware, requireRole } from '../middleware/auth.js';
 import { mapDriverProfile } from '../mappers.js';
 import type { Server as SocketServer } from 'socket.io';
+import { sendError } from '../httpError.js';
 
 const router = Router();
 
@@ -20,7 +21,7 @@ export function createDriversRouter(io: SocketServer) {
       req.auth!.userId,
     ]);
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Perfil no encontrado' });
+      return sendError(res, 404, 'Perfil no encontrado', 'PROFILE_NOT_FOUND');
     }
     res.json(mapDriverProfile(result.rows[0]));
   });
@@ -36,7 +37,7 @@ export function createDriversRouter(io: SocketServer) {
       [req.auth!.userId],
     );
     if (profile.rows[0]?.approval_status !== 'approved') {
-      return res.status(403).json({ error: 'Tu cuenta de conductor está pendiente de aprobación' });
+      return sendError(res, 403, 'Tu cuenta de conductor está pendiente de aprobación', 'DRIVER_PENDING');
     }
 
     const { lat, lng } = parsed.data;

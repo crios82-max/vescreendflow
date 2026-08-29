@@ -4,10 +4,19 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, logout } = useAuth();
   const { t } = useI18n();
   if (loading) return <div className="auth-page">{t('common.loading')}</div>;
   if (!user) return <Navigate to="/login" replace />;
+  if (!user.isAdmin) {
+    return (
+      <div className="admin-page">
+        <h1>{t('common.accessDenied')}</h1>
+        <p className="error-text">{t('common.noAdminAccess')}</p>
+        <button className="btn-secondary" type="button" onClick={logout}>{t('common.logout')}</button>
+      </div>
+    );
+  }
   return <>{children}</>;
 }
 

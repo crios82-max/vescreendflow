@@ -40,7 +40,7 @@ router.post('/topup', async (req, res) => {
     [parsed.data.amount, req.auth!.userId],
   );
   await pool.query(
-    `INSERT INTO wallet_transactions (user_id, amount, type, description) VALUES ($1, $2, 'credit', 'Recarga mock')`,
+    `INSERT INTO wallet_transactions (user_id, amount, type, description) VALUES ($1, $2, 'credit', 'Wallet top-up')`,
     [req.auth!.userId, parsed.data.amount],
   );
   const balance = await getWalletBalance(req.auth!.userId);

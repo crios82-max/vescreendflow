@@ -60,8 +60,7 @@ export default function Register() {
         {error && <p className="error-text">{error}</p>}
         <button className="btn-primary" disabled={loading}>{loading ? t('common.registering') : t('common.register')}</button>
         <Link to="/login" className="link-btn">{t('auth.haveAccount')}</Link>
-        <Link to="/terms" className="link-btn">{t('auth.terms')}</Link>
-        <Link to="/privacy" className="link-btn">{t('auth.privacy')}</Link>
+        <p className="muted-text"><Link to="/terms">{t('auth.terms')}</Link> · <Link to="/privacy">{t('auth.privacy')}</Link></p>
       </form>
     </div>
   );

@@ -35,7 +35,7 @@ class MobileApi {
 
     const res = await fetch(`${this.baseUrl}${path}`, { ...options, headers });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error ?? `Error ${res.status}`);
+    if (!res.ok) throw new Error(data.errorCode ?? data.error ?? `Error ${res.status}`);
     return data as T;
   }
 
@@ -198,7 +198,7 @@ class MobileApi {
   }
 
   startConnectOnboarding() {
-    return this.request<{ url?: string; message?: string }>('/connect/onboard', { method: 'POST' });
+    return this.request<{ url?: string; message?: string; errorCode?: string }>('/connect/onboard', { method: 'POST' });
   }
 
   sendPhoneOtp(phone: string) {
@@ -236,6 +236,13 @@ class MobileApi {
 
   getWalletBalance() {
     return this.request<{ balance: number }>('/wallet/balance');
+  }
+
+  topupWallet(amount: number) {
+    return this.request<{ balance: number }>('/wallet/topup', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    });
   }
 
   getRideContact(rideId: string) {

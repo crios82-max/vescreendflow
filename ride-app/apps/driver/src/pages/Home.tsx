@@ -32,11 +32,15 @@ export default function Home() {
   const watchRef = useRef<number | null>(null);
 
   const loadPending = () => {
-    api.getPendingRides().then((r) => setPending(r.rides)).catch(() => {});
+    api.getPendingRides().then((r) => setPending(r.rides)).catch((err) => {
+      setError(te(err instanceof Error ? err.message : t('common.error')));
+    });
   };
 
   useEffect(() => {
-    api.getActiveRide().then((r) => r.ride && setRide(r.ride)).catch(() => {});
+    api.getActiveRide().then((r) => r.ride && setRide(r.ride)).catch((err) => {
+      setError(te(err instanceof Error ? err.message : t('common.error')));
+    });
     api.getDriverEarnings().then(setEarnings).catch(() => {});
     api.getConnectStatus().then(setConnectStatus).catch(() => {});
     api.getOnboardingStatus().then((r) => setApprovalStatus(r.approvalStatus)).catch(() => {});
@@ -82,19 +86,27 @@ export default function Home() {
       setError(t('driver.docsRequired'));
       return;
     }
-    if (online) {
-      await api.goOffline();
-      setOnline(false);
-      setPending([]);
-      return;
+    try {
+      if (online) {
+        await api.goOffline();
+        setOnline(false);
+        setPending([]);
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setPosition(next);
+          await api.goOnline(next.lat, next.lng);
+          setOnline(true);
+          loadPending();
+        } catch (err) {
+          setError(te(err instanceof Error ? err.message : t('common.error')));
+        }
+      }, () => setError(t('common.enableLocation')));
+    } catch (err) {
+      setError(te(err instanceof Error ? err.message : t('common.error')));
     }
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const next = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      setPosition(next);
-      await api.goOnline(next.lat, next.lng);
-      setOnline(true);
-      loadPending();
-    }, () => setError(t('common.enableLocation')));
   };
 
   const acceptRide = async (id: string) => {
@@ -166,24 +178,31 @@ export default function Home() {
               )}
               {connectStatus && !connectStatus.onboarded && (
                 <button className="btn-secondary" onClick={async () => {
-                  const r = await api.startConnectOnboarding();
-                  if (r.url) window.location.href = r.url;
-                  else showFlash(te(r.message ?? t('common.stripeNotConfigured')), 'error');
+                  try {
+                    const r = await api.startConnectOnboarding();
+                    if (r.url) window.location.href = r.url;
+                    else showFlash(te(r.errorCode ?? r.message ?? t('common.stripeNotConfigured')), 'error');
+                  } catch (err) {
+                    showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                  }
                 }}>
                   {t('driver.setupStripe')}
                 </button>
               )}
-              <button className="btn-primary" onClick={toggleOnline}>
+              <button className="btn-primary" onClick={toggleOnline} aria-label={online ? t('driver.goOffline') : t('driver.goOnline')}>
                 {online ? t('driver.goOffline') : t('driver.goOnline')}
               </button>
               {error && <p className="error-text">{error}</p>}
               <div className="ride-list">
+                {online && pending.length === 0 && (
+                  <p className="muted-text">{t('common.noAvailableRides')}</p>
+                )}
                 {pending.map((p) => (
                   <div className="ride-card" key={p.id}>
                     <strong>${p.estimatedPrice} — {p.distanceKm} {t('common.km')} · {vehicle(p.vehicleType as VehicleType)}</strong>
                     <div className="meta-row"><span>{t('common.origin')}</span><span>{p.pickupAddress}</span></div>
                     <div className="meta-row"><span>{t('common.destination')}</span><span>{p.dropoffAddress}</span></div>
-                    <button className="btn-primary" onClick={() => acceptRide(p.id)}>{t('common.accept')}</button>
+                    <button className="btn-primary" onClick={() => acceptRide(p.id)} aria-label={t('common.accept')}>{t('common.accept')}</button>
                   </div>
                 ))}
               </div>
@@ -205,11 +224,23 @@ export default function Home() {
               {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                 <>
                   <button className="btn-secondary" type="button" onClick={async () => {
-                    const c = await api.initiateMaskedCall(ride.id);
-                    if (c.initiated) showFlash(te(c.message ?? t('common.callConnecting')));
-                    else if (c.dialUrl) window.location.href = c.dialUrl;
-                    else showFlash(te(c.hint ?? t('common.callFailed')), 'error');
+                    try {
+                      const c = await api.initiateMaskedCall(ride.id);
+                      if (c.initiated) showFlash(te(c.message ?? t('common.callConnecting')));
+                      else if (c.dialUrl) window.location.href = c.dialUrl;
+                      else showFlash(te(c.hint ?? t('common.callFailed')), 'error');
+                    } catch (err) {
+                      showFlash(te(err instanceof Error ? err.message : t('common.callFailed')), 'error');
+                    }
                   }}>{t('driver.callPassenger')}</button>
+                  <button className="btn-danger" type="button" aria-label={t('common.sos')} onClick={async () => {
+                    try {
+                      await api.triggerSos(ride.id, ride.pickupLat, ride.pickupLng);
+                      showFlash(t('common.sosSent'));
+                    } catch (err) {
+                      showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                    }
+                  }}>{t('common.sos')}</button>
                   <ChatPanel rideId={ride.id} />
                 </>
               )}

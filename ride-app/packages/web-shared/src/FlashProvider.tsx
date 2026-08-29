@@ -21,7 +21,7 @@ export function FlashProvider({ children }: { children: ReactNode }) {
   return (
     <FlashContext.Provider value={value}>
       {flash && (
-        <div className={`flash-banner flash-banner--${flash.variant}`} role="status">
+        <div className={`flash-banner flash-banner--${flash.variant}`} role={flash.variant === 'error' ? 'alert' : 'status'}>
           {flash.message}
         </div>
       )}

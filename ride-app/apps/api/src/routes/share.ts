@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { pool } from '../db.js';
 import { mapRide } from '../mappers.js';
+import { sendError } from '../httpError.js';
 
 const router = Router();
 
 router.get('/:token', async (req, res) => {
   const result = await pool.query('SELECT * FROM rides WHERE share_token = $1', [req.params.token]);
-  if (result.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+  if (result.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
 
   const ride = mapRide(result.rows[0]);
   const driver = ride.driverId

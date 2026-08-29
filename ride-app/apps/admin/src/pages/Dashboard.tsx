@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Ride } from '@ride-app/shared';
-import { api, useAuth, BrandMark, useI18n, LanguageSwitcher } from '@ride-app/web-shared';
+import { api, useAuth, BrandMark, useI18n, useFlash, LanguageSwitcher } from '@ride-app/web-shared';
 
 type AdminRide = Ride & { passengerName?: string; driverName?: string };
 
@@ -9,44 +9,76 @@ type Tab = 'overview' | 'drivers' | 'users' | 'sos' | 'promos';
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const { t, rideStatus, te } = useI18n();
+  const { show: showFlash } = useFlash();
   const [tab, setTab] = useState<Tab>('overview');
   const [stats, setStats] = useState<{ users: number; drivers: number; rides: number; revenue: number; pendingDrivers: number; sosLast24h: number } | null>(null);
   const [rides, setRides] = useState<AdminRide[]>([]);
   const [pendingDrivers, setPendingDrivers] = useState<Array<{ userId: string; name: string; email: string; licenseUrl?: string; idUrl?: string; vehiclePhotoUrl?: string }>>([]);
   const [users, setUsers] = useState<Array<{ id: string; name: string; email: string; banned?: boolean }>>([]);
-  const [sosEvents, setSosEvents] = useState<Array<{ id: string; name: string; pickup_address: string; created_at: string }>>([]);
-  const [promos, setPromos] = useState<Array<{ code: string; discount_type: string; discount_value: number }>>([]);
+  const [sosEvents, setSosEvents] = useState<Array<{ id: string; name: string; pickup_address: string; created_at: string; acknowledged_at: string | null }>>([]);
+  const [promos, setPromos] = useState<Array<{ code: string; discount_type: string; discount_value: number; active?: boolean }>>([]);
   const [promoForm, setPromoForm] = useState({ code: '', discountType: 'percent' as 'percent' | 'fixed', discountValue: 10 });
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [ridesQuery, setRidesQuery] = useState('');
+  const [usersQuery, setUsersQuery] = useState('');
+  const [debouncedRidesQuery, setDebouncedRidesQuery] = useState('');
+  const [debouncedUsersQuery, setDebouncedUsersQuery] = useState('');
+  const [ridesPage, setRidesPage] = useState(0);
+  const [usersPage, setUsersPage] = useState(0);
+  const [ridesTotal, setRidesTotal] = useState(0);
+  const [usersTotal, setUsersTotal] = useState(0);
+  const pageSize = 20;
 
-  const reload = () => {
+  const reload = (ridesQ = debouncedRidesQuery, usersQ = debouncedUsersQuery, rPage = ridesPage, uPage = usersPage) => {
     Promise.all([
       api.getAdminStats(),
-      api.getAdminRides(),
+      api.getAdminRides({ q: ridesQ || undefined, limit: pageSize, offset: rPage * pageSize }),
       api.getPendingDrivers(),
-      api.getAdminUsers(),
+      api.getAdminUsers({ q: usersQ || undefined, limit: pageSize, offset: uPage * pageSize }),
       api.getAdminSos(),
       api.getAdminPromos(),
     ])
       .then(([s, r, d, u, sos, p]) => {
         setStats(s);
         setRides(r.rides);
+        setRidesTotal(r.total);
         setPendingDrivers(d.drivers);
         setUsers(u.users);
+        setUsersTotal(u.total);
         setSosEvents(sos.events);
         setPromos(p.promos);
       })
       .catch((err) => setError(te(err instanceof Error ? err.message : t('common.noAdminAccess'))));
   };
 
-  useEffect(() => { reload(); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedRidesQuery(ridesQuery.trim());
+      setRidesPage(0);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [ridesQuery]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedUsersQuery(usersQuery.trim());
+      setUsersPage(0);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [usersQuery]);
+
+  useEffect(() => {
+    reload();
+  }, [ridesPage, usersPage, debouncedRidesQuery, debouncedUsersQuery]);
 
   const runAction = async (key: string, fn: () => Promise<unknown>) => {
     setActionLoading(key);
     try {
       await fn();
       reload();
+    } catch (err) {
+      showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
     } finally {
       setActionLoading(null);
     }
@@ -104,11 +136,21 @@ export default function Dashboard() {
             <div className="stat-card"><span>{t('admin.sos24h')}</span><strong>{stats.sosLast24h}</strong></div>
           </div>
           <h2 className="admin-section-title">{t('admin.recentRides')}</h2>
+          <input
+            className="place-input"
+            placeholder={t('common.searchPlaceholder')}
+            value={ridesQuery}
+            onChange={(e) => setRidesQuery(e.target.value)}
+            aria-label={t('common.searchPlaceholder')}
+            style={{ marginBottom: 12, maxWidth: 320 }}
+          />
           <div className="admin-table-wrap">
           <table className="admin-table">
             <thead><tr><th>{t('common.date')}</th><th>{t('admin.passenger')}</th><th>{t('common.driverColumn')}</th><th>{t('common.status')}</th><th>{t('common.payment')}</th><th>{t('common.price')}</th><th></th></tr></thead>
             <tbody>
-              {rides.slice(0, 20).map((ride) => (
+              {rides.length === 0 ? (
+                <tr><td colSpan={7} className="muted-text">{t('admin.noRides')}</td></tr>
+              ) : rides.map((ride) => (
                 <tr key={ride.id}>
                   <td>{new Date(ride.createdAt).toLocaleString()}</td>
                   <td>{ride.passengerName}</td>
@@ -131,6 +173,11 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12 }}>
+            <button className="btn-secondary" type="button" disabled={ridesPage === 0} onClick={() => setRidesPage((p) => p - 1)} aria-label={t('common.prevPage')}>{t('common.prevPage')}</button>
+            <span className="muted-text">{t('common.pageOf', { page: ridesPage + 1 })} · {ridesTotal}</span>
+            <button className="btn-secondary" type="button" disabled={(ridesPage + 1) * pageSize >= ridesTotal} onClick={() => setRidesPage((p) => p + 1)} aria-label={t('common.nextPage')}>{t('common.nextPage')}</button>
           </div>
         </>
       )}
@@ -166,11 +213,22 @@ export default function Dashboard() {
       )}
 
       {tab === 'users' && (
+        <>
+        <input
+          className="place-input"
+          placeholder={t('common.searchPlaceholder')}
+          value={usersQuery}
+          onChange={(e) => setUsersQuery(e.target.value)}
+          aria-label={t('common.searchPlaceholder')}
+          style={{ marginBottom: 12, maxWidth: 320 }}
+        />
         <div className="admin-table-wrap">
         <table className="admin-table">
           <thead><tr><th>{t('common.name')}</th><th>{t('common.email')}</th><th>{t('common.status')}</th><th></th></tr></thead>
           <tbody>
-            {users.map((u) => (
+            {users.length === 0 ? (
+              <tr><td colSpan={4} className="muted-text">{t('admin.noUsers')}</td></tr>
+            ) : users.map((u) => (
               <tr key={u.id}>
                 <td>{u.name}</td>
                 <td>{u.email}</td>
@@ -199,6 +257,12 @@ export default function Dashboard() {
           </tbody>
         </table>
         </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12 }}>
+          <button className="btn-secondary" type="button" disabled={usersPage === 0} onClick={() => setUsersPage((p) => p - 1)} aria-label={t('common.prevPage')}>{t('common.prevPage')}</button>
+          <span className="muted-text">{t('common.pageOf', { page: usersPage + 1 })} · {usersTotal}</span>
+          <button className="btn-secondary" type="button" disabled={(usersPage + 1) * pageSize >= usersTotal} onClick={() => setUsersPage((p) => p + 1)} aria-label={t('common.nextPage')}>{t('common.nextPage')}</button>
+        </div>
+        </>
       )}
 
       {tab === 'sos' && (
@@ -208,6 +272,17 @@ export default function Dashboard() {
               <strong>{e.name}</strong>
               <span>{new Date(e.created_at).toLocaleString()}</span>
               <span>{e.pickup_address}</span>
+              {e.acknowledged_at ? (
+                <span className="muted-text">{t('admin.sosAcked')} · {new Date(e.acknowledged_at).toLocaleString()}</span>
+              ) : (
+                <button
+                  className="btn-primary"
+                  disabled={actionLoading === `ack-${e.id}`}
+                  onClick={() => runAction(`ack-${e.id}`, () => api.acknowledgeSos(e.id))}
+                >
+                  {actionLoading === `ack-${e.id}` ? t('common.processing') : t('admin.ackSos')}
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -232,10 +307,28 @@ export default function Dashboard() {
           </form>
           <div className="admin-table-wrap">
           <table className="admin-table">
-            <thead><tr><th>{t('common.code')}</th><th>{t('common.type')}</th><th>{t('common.price')}</th></tr></thead>
+            <thead><tr><th>{t('common.code')}</th><th>{t('common.type')}</th><th>{t('common.price')}</th><th>{t('common.status')}</th><th></th></tr></thead>
             <tbody>
-              {promos.map((p) => (
-                <tr key={p.code}><td>{p.code}</td><td>{p.discount_type}</td><td>{p.discount_value}</td></tr>
+              {promos.length === 0 ? (
+                <tr><td colSpan={5} className="muted-text">{t('admin.noPromos')}</td></tr>
+              ) : promos.map((p) => (
+                <tr key={p.code}>
+                  <td>{p.code}</td>
+                  <td>{p.discount_type}</td>
+                  <td>{p.discount_value}</td>
+                  <td>{p.active === false ? t('admin.promoInactive') : t('admin.promoActive')}</td>
+                  <td>
+                    {p.active !== false && (
+                      <button
+                        className="btn-secondary"
+                        disabled={actionLoading === `promo-${p.code}`}
+                        onClick={() => runAction(`promo-${p.code}`, () => api.deactivatePromo(p.code))}
+                      >
+                        {actionLoading === `promo-${p.code}` ? t('common.processing') : t('admin.deactivatePromo')}
+                      </button>
+                    )}
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>

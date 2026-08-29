@@ -34,3 +34,11 @@ export async function setToken(token: string | null): Promise<void> {
 export function googleMapsKey(): string {
   return Constants.expoConfig?.extra?.googleMapsApiKey ?? process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
 }
+
+export function passengerWebUrl(): string {
+  return (
+    Constants.expoConfig?.extra?.passengerWebUrl ??
+    process.env.EXPO_PUBLIC_PASSENGER_WEB_URL ??
+    'http://localhost:5174'
+  );
+}

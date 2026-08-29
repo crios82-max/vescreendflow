@@ -47,6 +47,7 @@ export interface User {
   phone: string | null;
   role: UserRole;
   walletBalance?: number;
+  isAdmin?: boolean;
 }
 
 export type VehicleType = 'standard' | 'comfort' | 'xl' | 'vans';

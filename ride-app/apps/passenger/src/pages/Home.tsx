@@ -37,6 +37,7 @@ export default function Home() {
   const [pickup, setPickup] = useState<Point | null>(null);
   const [dropoff, setDropoff] = useState<Point | null>(null);
   const [estimate, setEstimate] = useState<RideEstimate | null>(null);
+  const [estimating, setEstimating] = useState(false);
   const [vehicleType, setVehicleType] = useState<VehicleType>('standard');
   const [ride, setRide] = useState<Ride | null>(null);
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
@@ -51,6 +52,7 @@ export default function Home() {
   const [etaPickup, setEtaPickup] = useState<number | null>(null);
   const [etaDropoff, setEtaDropoff] = useState<number | null>(null);
   const [useWallet, setUseWallet] = useState(false);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [stop, setStop] = useState<Point | null>(null);
   const [rideForName, setRideForName] = useState('');
   const [rideForPhone, setRideForPhone] = useState('');
@@ -64,6 +66,7 @@ export default function Home() {
       setPickup({ ...coords, address: t('common.myLocation') });
     });
     api.getActiveRide().then((r) => r.ride && setRide(r.ride)).catch(() => {});
+    api.getWalletBalance().then((w) => setWalletBalance(w.balance)).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -91,6 +94,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!pickup || !dropoff || ride) return;
+    setEstimating(true);
     api.estimateRide({
       pickupAddress: pickup.address,
       pickupLat: pickup.lat,
@@ -102,7 +106,11 @@ export default function Home() {
     }).then((data) => {
       setEstimate(data);
       setVehicleType(data.options[0]?.vehicleType ?? 'standard');
-    }).catch(() => setEstimate(null));
+    }).catch(() => {
+      setEstimate(null);
+      setError(t('common.estimateFailed'));
+    })
+      .finally(() => setEstimating(false));
   }, [pickup, dropoff, ride, promoCode]);
 
   const onPickupSelect = (place: PlaceResult) => {
@@ -117,6 +125,13 @@ export default function Home() {
 
   const requestRide = async () => {
     if (!pickup || !dropoff) return;
+    if (scheduledAt) {
+      const when = new Date(scheduledAt);
+      if (!(when.getTime() > Date.now() + 60_000)) {
+        setError(t('common.scheduleInFuture'));
+        return;
+      }
+    }
     setLoading(true);
     setError('');
     try {
@@ -136,6 +151,9 @@ export default function Home() {
       });
       setRide(created);
       setRated(false);
+      if (created.status === 'scheduled') {
+        showFlash(t('common.rideScheduled'));
+      }
     } catch (err) {
       setError(te(err instanceof Error ? err.message : t('common.error')));
     } finally {
@@ -145,9 +163,14 @@ export default function Home() {
 
   const cancelRide = async () => {
     if (!ride) return;
-    await api.updateRideStatus(ride.id, 'cancelled');
-    setRide(null);
-    setDriverPos(null);
+    try {
+      await api.updateRideStatus(ride.id, 'cancelled');
+      setRide(null);
+      setDriverPos(null);
+    } catch (err) {
+      setError(te(err instanceof Error ? err.message : t('common.cancelFailed')));
+      showFlash(te(err instanceof Error ? err.message : t('common.cancelFailed')), 'error');
+    }
   };
 
   const payRide = async () => {
@@ -237,9 +260,10 @@ export default function Home() {
             )}
             <div className="bottom-sheet">
               <PhoneVerifyBanner />
-              {!ride ? (
+                  {!ride ? (
                 <>
                   <h2>{readyToBook ? t('passenger.confirmRide') : t('passenger.searchPickupDropoff')}</h2>
+                  {estimating && <p className="muted-text">{t('common.estimating')}</p>}
                   {pickup && <div className="meta-row"><span>{t('common.origin')}</span><span>{pickup.address}</span></div>}
                   {dropoff && <div className="meta-row"><span>{t('common.destination')}</span><span>{dropoff.address}</span></div>}
                   {estimate && (
@@ -253,13 +277,22 @@ export default function Home() {
                         subtotal={selectedOption?.estimatedPrice ?? estimate.options[0]?.estimatedPrice ?? 0}
                         onApplied={(code, discount) => { setPromoCode(code); setPromoDiscount(discount); }}
                       />
-                      <input
-                        className="place-input"
-                        type="datetime-local"
-                        value={scheduledAt}
-                        onChange={(e) => setScheduledAt(e.target.value)}
-                        placeholder={t('passenger.scheduleRide')}
-                      />
+                      <label className="meta-row">
+                        <span>{t('passenger.scheduleRide')}</span>
+                        <input
+                          className="place-input"
+                          type="datetime-local"
+                          value={scheduledAt}
+                          min={new Date(Date.now() + 5 * 60_000).toISOString().slice(0, 16)}
+                          onChange={(e) => setScheduledAt(e.target.value)}
+                          aria-label={t('passenger.scheduleRide')}
+                        />
+                      </label>
+                      {scheduledAt && (
+                        <button type="button" className="link-btn" onClick={() => setScheduledAt('')}>
+                          {t('common.clearSchedule')}
+                        </button>
+                      )}
                       <VehicleTypePicker
                         options={estimate.options}
                         selected={vehicleType}
@@ -269,7 +302,7 @@ export default function Home() {
                   )}
                   {error && <p className="error-text">{error}</p>}
                   {readyToBook && (
-                    <button className="btn-primary" onClick={requestRide} disabled={loading || phoneVerified === false}>
+                    <button className="btn-primary" onClick={requestRide} disabled={loading || phoneVerified === false} aria-label={t('common.requestVehicle', { vehicle: vehicle(vehicleType), price: selectedOption?.estimatedPrice ?? 0 })}>
                       {phoneVerified === false ? t('common.verifyPhone') : loading ? t('common.requesting') : t('common.requestVehicle', { vehicle: vehicle(vehicleType), price: selectedOption?.estimatedPrice ?? 0 })}
                     </button>
                   )}
@@ -288,18 +321,37 @@ export default function Home() {
                   <div className="meta-row"><span>{t('common.price')}</span><span>${ride.finalPrice ?? ride.estimatedPrice}</span></div>
                   <div className="extras-row">
                     <button className="btn-secondary" type="button" onClick={async () => {
-                      const s = await api.shareRide(ride.id);
-                      const url = `${window.location.origin}/share/${s.shareToken}`;
-                      navigator.clipboard.writeText(url).catch(() => {});
-                      showFlash(t('common.linkCopiedBanner'));
+                      try {
+                        const s = await api.shareRide(ride.id);
+                        const url = `${window.location.origin}/share/${s.shareToken}`;
+                        try {
+                          await navigator.clipboard.writeText(url);
+                          showFlash(t('common.linkCopiedBanner'));
+                        } catch {
+                          showFlash(url);
+                        }
+                      } catch (err) {
+                        showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                      }
                     }}>{t('common.share')}</button>
-                    <button className="btn-danger" type="button" onClick={() => api.triggerSos(ride.id, pickup?.lat, pickup?.lng)}>{t('common.sos')}</button>
+                    <button className="btn-danger" type="button" onClick={async () => {
+                      try {
+                        await api.triggerSos(ride.id, ride.pickupLat ?? pickup?.lat, ride.pickupLng ?? pickup?.lng);
+                        showFlash(t('common.sosSent'));
+                      } catch (err) {
+                        showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                      }
+                    }}>{t('common.sos')}</button>
                     {ride.driverId && ['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
                       <button className="btn-secondary" type="button" onClick={async () => {
-                      const c = await api.initiateMaskedCall(ride.id);
-                      if (c.initiated) showFlash(te(c.message ?? t('common.callConnecting')));
-                      else if (c.dialUrl) window.location.href = c.dialUrl;
-                      else showFlash(te(c.hint ?? t('common.callFailed')), 'error');
+                      try {
+                        const c = await api.initiateMaskedCall(ride.id);
+                        if (c.initiated) showFlash(te(c.message ?? t('common.callConnecting')));
+                        else if (c.dialUrl) window.location.href = c.dialUrl;
+                        else showFlash(te(c.hint ?? t('common.callFailed')), 'error');
+                      } catch (err) {
+                        showFlash(te(err instanceof Error ? err.message : t('common.callFailed')), 'error');
+                      }
                     }}>{t('passenger.callDriver')}</button>
                     )}
                   </div>
@@ -317,20 +369,45 @@ export default function Home() {
                       <SplitFareForm rideId={ride.id} />
                       <TipSelector value={tipAmount} onChange={setTipAmount} />
                       <label className="meta-row">
-                        <span>{t('common.payWithWallet')}</span>
+                        <span>{t('common.payWithWallet')}{walletBalance != null ? ` ($${walletBalance.toFixed(2)})` : ''}</span>
                         <input type="checkbox" checked={useWallet} onChange={(e) => setUseWallet(e.target.checked)} />
                       </label>
+                      <div className="extras-row" style={{ flexWrap: 'wrap' }}>
+                        {[5, 10, 20, 50].map((amount) => (
+                          <button
+                            key={amount}
+                            type="button"
+                            className="btn-secondary"
+                            aria-label={`${t('common.topUp')} $${amount}`}
+                            onClick={async () => {
+                              try {
+                                const r = await api.topupWallet(amount);
+                                setWalletBalance(r.balance);
+                                showFlash(t('common.topUpOk'));
+                              } catch (err) {
+                                showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                              }
+                            }}
+                          >
+                            {t('common.topUp')} ${amount}
+                          </button>
+                        ))}
+                      </div>
                       {stripeSecret ? (
                         <StripeCheckout
                           clientSecret={stripeSecret}
                           onSuccess={async (paymentIntentId) => {
-                            const result = await api.payRide(ride.id, { tipAmount, paymentIntentId });
-                            setRide(result.ride);
-                            setStripeSecret(null);
+                            try {
+                              const result = await api.payRide(ride.id, { tipAmount, paymentIntentId });
+                              setRide(result.ride);
+                              setStripeSecret(null);
+                            } catch (err) {
+                              showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                            }
                           }}
                         />
                       ) : (
-                        <button className="btn-primary" onClick={payRide} disabled={loading}>
+                        <button className="btn-primary" onClick={payRide} disabled={loading} aria-label={t('common.payAmount', { amount: (ride.finalPrice ?? ride.estimatedPrice) + tipAmount })}>
                           {loading ? t('common.processing') : t('common.payAmount', { amount: (ride.finalPrice ?? ride.estimatedPrice) + tipAmount })}
                         </button>
                       )}

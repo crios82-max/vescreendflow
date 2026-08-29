@@ -10,6 +10,7 @@ export default function ResetPassword() {
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -17,11 +18,15 @@ export default function ResetPassword() {
       setError(t('auth.passwordMismatch'));
       return;
     }
+    setLoading(true);
+    setError('');
     try {
       await api.resetPassword(token, password);
       setDone(true);
     } catch (err) {
       setError(te(err instanceof Error ? err.message : t('common.error')));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,7 +66,7 @@ export default function ResetPassword() {
           <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={6} />
         </label>
         {error && <p className="error-text">{error}</p>}
-        <button className="btn-primary" type="submit">{t('common.save')}</button>
+        <button className="btn-primary" type="submit" disabled={loading}>{loading ? t('common.saving') : t('common.save')}</button>
       </form>
     </div>
   );

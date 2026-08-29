@@ -12,9 +12,15 @@ export function TipSelector({ value, onChange }: Props) {
   return (
     <div className="tip-selector">
       <span className="muted-text">{t('common.tip')}</span>
-      <div className="tab-row">
+      <div className="tab-row" role="group" aria-label={t('common.tip')}>
         {TIPS.map((tip) => (
-          <button key={tip} type="button" className={`tab-btn${value === tip ? ' tab-btn--active' : ''}`} onClick={() => onChange(tip)}>
+          <button
+            key={tip}
+            type="button"
+            className={`tab-btn${value === tip ? ' tab-btn--active' : ''}`}
+            onClick={() => onChange(tip)}
+            aria-pressed={value === tip}
+          >
             {tip === 0 ? t('common.noTip') : `$${tip}`}
           </button>
         ))}

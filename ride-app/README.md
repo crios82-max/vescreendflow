@@ -91,7 +91,7 @@ docker compose up -d
 ./scripts/migrate.sh
 ```
 
-Incluye migraciones hasta `008_phase3.sql` (Twilio Voice, call sessions).
+Incluye migraciones `002`–`010` (vehicle types, features, locale, SOS ack, etc.).
 
 ### Producción (Stripe Connect, SMTP, OTP)
 

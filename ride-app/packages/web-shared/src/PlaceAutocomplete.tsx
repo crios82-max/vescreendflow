@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMapsLibrary } from '@vis.gl/react-google-maps';
+import { hasMapsApiKey } from './mapsConfig.js';
 
 export interface PlaceResult {
   lat: number;
@@ -15,13 +16,51 @@ interface PlaceAutocompleteProps {
   onSelect: (place: PlaceResult) => void;
 }
 
-export function PlaceAutocomplete({
+function PlainPlaceInput({
   label,
   placeholder,
   defaultValue,
   bias,
   onSelect,
 }: PlaceAutocompleteProps) {
+  const [value, setValue] = useState(defaultValue ?? '');
+  return (
+    <label className="place-field">
+      <span>{label}</span>
+      <input
+        className="place-input"
+        type="text"
+        placeholder={placeholder}
+        value={value}
+        autoComplete="off"
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={() => {
+          const address = value.trim();
+          if (!address) return;
+          onSelect({
+            lat: bias?.lat ?? 10.4806,
+            lng: bias?.lng ?? -66.9036,
+            address,
+          });
+        }}
+        onKeyDown={(e) => {
+          if (e.key !== 'Enter') return;
+          e.preventDefault();
+          const address = value.trim();
+          if (!address) return;
+          onSelect({
+            lat: bias?.lat ?? 10.4806,
+            lng: bias?.lng ?? -66.9036,
+            address,
+          });
+        }}
+      />
+    </label>
+  );
+}
+
+function GooglePlaceInput(props: PlaceAutocompleteProps) {
+  const { label, placeholder, defaultValue, bias, onSelect } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const places = useMapsLibrary('places');
 
@@ -73,4 +112,11 @@ export function PlaceAutocomplete({
       />
     </label>
   );
+}
+
+export function PlaceAutocomplete(props: PlaceAutocompleteProps) {
+  if (!hasMapsApiKey()) {
+    return <PlainPlaceInput {...props} />;
+  }
+  return <GooglePlaceInput {...props} />;
 }

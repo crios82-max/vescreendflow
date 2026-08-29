@@ -61,6 +61,7 @@ export default ({ config }) => ({
     extra: {
       apiUrl: process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4001',
       googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY ?? '',
+      passengerWebUrl: process.env.EXPO_PUBLIC_PASSENGER_WEB_URL ?? 'http://localhost:5174',
       eas: {
         projectId: process.env.EAS_PROJECT_ID ?? 'your-eas-project-id',
       },
