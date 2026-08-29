@@ -243,6 +243,10 @@ import com.veplayer.app.vehicle.HvMaxSoc
 import com.veplayer.app.vehicle.HvMaxSocMonitor
 import com.veplayer.app.vehicle.HvDcap
 import com.veplayer.app.vehicle.HvDcapMonitor
+import com.veplayer.app.vehicle.HvSoce
+import com.veplayer.app.vehicle.HvSoceMonitor
+import com.veplayer.app.vehicle.EssCap
+import com.veplayer.app.vehicle.EssCapMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
