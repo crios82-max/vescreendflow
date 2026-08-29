@@ -225,6 +225,14 @@ export default function Home() {
                     else if (c.dialUrl) window.location.href = c.dialUrl;
                     else showFlash(te(c.hint ?? t('common.callFailed')), 'error');
                   }}>{t('driver.callPassenger')}</button>
+                  <button className="btn-danger" type="button" aria-label={t('common.sos')} onClick={async () => {
+                    try {
+                      await api.triggerSos(ride.id, ride.pickupLat, ride.pickupLng);
+                      showFlash(t('common.sosSent'));
+                    } catch (err) {
+                      showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                    }
+                  }}>{t('common.sos')}</button>
                   <ChatPanel rideId={ride.id} />
                 </>
               )}

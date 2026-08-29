@@ -7,9 +7,11 @@ interface Props {
 }
 
 export function SplitFareForm({ rideId }: Props) {
-  const { t } = useI18n();
+  const { t, te } = useI18n();
   const [emails, setEmails] = useState('');
   const [result, setResult] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [invites, setInvites] = useState<Array<{ email: string; payUrl: string }>>([]);
 
   return (
@@ -20,19 +22,32 @@ export function SplitFareForm({ rideId }: Props) {
         placeholder={t('common.emailsComma')}
         value={emails}
         onChange={(e) => setEmails(e.target.value)}
+        aria-label={t('common.emailsComma')}
       />
       <button
         type="button"
         className="btn-secondary"
+        disabled={loading}
+        aria-label={t('common.splitAndInvite')}
         onClick={async () => {
-          const list = emails.split(',').map((e) => e.trim()).filter(Boolean);
-          const r = await api.splitFare(rideId, list);
-          setResult(t('common.splitShare', { amount: r.yourShare }));
-          setInvites(r.invites ?? []);
+          setError('');
+          setResult('');
+          setLoading(true);
+          try {
+            const list = emails.split(',').map((e) => e.trim()).filter(Boolean);
+            const r = await api.splitFare(rideId, list);
+            setResult(t('common.splitShare', { amount: r.yourShare }));
+            setInvites(r.invites ?? []);
+          } catch (err) {
+            setError(te(err instanceof Error ? err.message : t('common.error')));
+          } finally {
+            setLoading(false);
+          }
         }}
       >
-        {t('common.splitAndInvite')}
+        {loading ? t('common.processing') : t('common.splitAndInvite')}
       </button>
+      {error && <p className="error-text">{error}</p>}
       {result && <p className="muted-text">{result}</p>}
       {invites.map((i) => (
         <div key={i.email} className="meta-row">

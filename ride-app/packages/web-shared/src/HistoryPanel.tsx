@@ -7,15 +7,33 @@ export function HistoryPanel() {
   const { t, rideStatus, vehicle } = useI18n();
   const [rides, setRides] = useState<Ride[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
 
-  useEffect(() => {
+  const load = () => {
+    setLoading(true);
+    setLoadFailed(false);
     api.getHistory()
       .then((data) => setRides(data.rides))
-      .catch(() => setRides([]))
+      .catch(() => {
+        setRides([]);
+        setLoadFailed(true);
+      })
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    load();
   }, []);
 
   if (loading) return <p className="muted-text">{t('common.loadingHistory')}</p>;
+  if (loadFailed) {
+    return (
+      <p className="error-text">
+        {t('common.loadFailed')}{' '}
+        <button type="button" className="link-btn" onClick={load}>{t('common.retry')}</button>
+      </p>
+    );
+  }
   if (rides.length === 0) return <p className="muted-text">{t('common.noPastRides')}</p>;
 
   return (

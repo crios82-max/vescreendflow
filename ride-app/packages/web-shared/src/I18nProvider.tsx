@@ -101,9 +101,9 @@ export function useI18n() {
 }
 
 export function LanguageSwitcher({ className = '' }: { className?: string }) {
-  const { locale, setLocale } = useI18n();
+  const { locale, setLocale, t } = useI18n();
   return (
-    <div className={`lang-switcher ${className}`.trim()} role="group" aria-label="Language">
+    <div className={`lang-switcher ${className}`.trim()} role="group" aria-label={t('common.language')}>
       {LOCALES.map((code) => (
         <button
           key={code}

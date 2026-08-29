@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { authMiddleware } from '../middleware/auth.js';
 import { validatePromo } from '../services/promo.js';
+import { sendError } from '../httpError.js';
 
 const router = Router();
 router.use(authMiddleware);
@@ -12,7 +13,7 @@ router.post('/validate', async (req, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
   const promo = await validatePromo(parsed.data.code, parsed.data.subtotal);
-  if (!promo) return res.status(404).json({ error: 'Código inválido o expirado' });
+  if (!promo) return sendError(res, 404, 'Código inválido o expirado', 'INVALID_CODE');
   res.json(promo);
 });
 

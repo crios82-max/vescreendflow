@@ -74,6 +74,7 @@ export default function App() {
   const [banner, setBanner] = useState<{ message: string; error?: boolean } | null>(null);
   const [forgotMsg, setForgotMsg] = useState('');
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyFailed, setHistoryFailed] = useState(false);
   const [useWallet, setUseWallet] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [splitEmails, setSplitEmails] = useState('');
@@ -295,11 +296,13 @@ export default function App() {
 
   const loadHistory = async () => {
     setHistoryLoading(true);
+    setHistoryFailed(false);
     try {
       const data = await mobileApi.getHistory();
       setHistory(data.rides);
     } catch {
       setHistory([]);
+      setHistoryFailed(true);
     } finally {
       setHistoryLoading(false);
     }
@@ -311,16 +314,20 @@ export default function App() {
 
   const toggleOnline = async () => {
     if (!position) return;
-    if (online) {
-      await mobileApi.goOffline();
-      setOnline(false);
-      setPending([]);
-      return;
+    try {
+      if (online) {
+        await mobileApi.goOffline();
+        setOnline(false);
+        setPending([]);
+        return;
+      }
+      await mobileApi.goOnline(position.latitude, position.longitude);
+      setOnline(true);
+      const list = await mobileApi.getPendingRides();
+      setPending(list.rides);
+    } catch (err) {
+      showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
     }
-    await mobileApi.goOnline(position.latitude, position.longitude);
-    setOnline(true);
-    const list = await mobileApi.getPendingRides();
-    setPending(list.rides);
   };
 
   if (!ready) {
@@ -487,13 +494,21 @@ export default function App() {
             <TextInput style={styles.input} placeholder="+58..." value={phoneInput} onChangeText={setPhoneInput} placeholderTextColor={placeholderColor} />
             <TextInput style={styles.input} placeholder={t('common.otpPlaceholder')} value={otpInput} onChangeText={setOtpInput} placeholderTextColor={placeholderColor} keyboardType="number-pad" />
             <View style={styles.row}>
-              <Pressable style={styles.btnSmall} onPress={async () => {
-                const r = await mobileApi.sendPhoneOtp(phoneInput);
-                if (r.devHint) showBanner(t('common.devOtp', { code: r.devHint }));
+              <Pressable style={styles.btnSmall} accessibilityLabel={t('common.sendCode')} onPress={async () => {
+                try {
+                  const r = await mobileApi.sendPhoneOtp(phoneInput);
+                  if (r.devHint) showBanner(t('common.devOtp', { code: r.devHint }));
+                } catch (err) {
+                  showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                }
               }}><Text style={styles.btnText}>{t('common.sendCode')}</Text></Pressable>
-              <Pressable style={styles.btnSmall} onPress={async () => {
-                await mobileApi.confirmPhoneOtp(phoneInput, otpInput);
-                setPhoneVerified(true);
+              <Pressable style={styles.btnSmall} accessibilityLabel={t('common.verify')} onPress={async () => {
+                try {
+                  await mobileApi.confirmPhoneOtp(phoneInput, otpInput);
+                  setPhoneVerified(true);
+                } catch (err) {
+                  showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                }
               }}><Text style={styles.btnText}>{t('common.verify')}</Text></Pressable>
             </View>
           </View>
@@ -521,6 +536,13 @@ export default function App() {
           <ScrollView>
             {historyLoading ? (
               <ActivityIndicator color={colors.primary} style={{ marginVertical: 16 }} />
+            ) : historyFailed ? (
+              <View>
+                <Text style={styles.error}>{t('common.loadFailed')}</Text>
+                <Pressable style={styles.btnSecondary} onPress={loadHistory} accessibilityLabel={t('common.retry')}>
+                  <Text style={styles.btnSecondaryText}>{t('common.retry')}</Text>
+                </Pressable>
+              </View>
             ) : history.length === 0 ? (
               <Text style={styles.muted}>{t('common.noPastRides')}</Text>
             ) : history.map((h) => (
@@ -566,9 +588,15 @@ export default function App() {
                 <TextInput style={styles.input} placeholder={t('common.promoPlaceholder')} placeholderTextColor={placeholderColor} value={promoCode} onChangeText={setPromoCode} autoCapitalize="characters" />
                 {promoCode ? (
                   <Pressable style={styles.btnSmall} onPress={async () => {
-                    const sub = selectedOption?.estimatedPrice ?? 0;
-                    const r = await mobileApi.validatePromo(promoCode, sub);
-                    setPromoDiscount(r.valid ? r.discount : 0);
+                    try {
+                      const sub = selectedOption?.estimatedPrice ?? 0;
+                      const r = await mobileApi.validatePromo(promoCode, sub);
+                      setPromoDiscount(r.valid ? r.discount : 0);
+                      if (!r.valid) showBanner(t('common.invalidPromo'), true);
+                    } catch (err) {
+                      setPromoDiscount(0);
+                      showBanner(te(err instanceof Error ? err.message : t('common.invalidPromo')), true);
+                    }
                   }}>
                     <Text style={styles.btnText}>{promoDiscount > 0 ? `-$${promoDiscount}` : t('common.apply')}</Text>
                   </Pressable>
@@ -605,6 +633,26 @@ export default function App() {
                         {t('common.payWithWallet')}{walletBalance != null ? ` ($${walletBalance.toFixed(2)})` : ''}
                       </Text>
                     </Pressable>
+                    <View style={styles.row}>
+                      {[5, 10, 20, 50].map((amount) => (
+                        <Pressable
+                          key={amount}
+                          style={styles.chip}
+                          accessibilityLabel={`${t('common.topUp')} $${amount}`}
+                          onPress={async () => {
+                            try {
+                              const r = await mobileApi.topupWallet(amount);
+                              setWalletBalance(r.balance);
+                              showBanner(t('common.topUpOk'));
+                            } catch (err) {
+                              showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                            }
+                          }}
+                        >
+                          <Text style={styles.chipText}>+${amount}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
                     <TextInput
                       style={styles.input}
                       placeholder={t('common.emailsComma')}
@@ -637,25 +685,29 @@ export default function App() {
                 )}
                 <View style={styles.row}>
                   <Pressable style={styles.btnSecondary} onPress={async () => {
-                    const s = await mobileApi.shareRide(ride.id);
-                    let shareBase = passengerWebUrl();
                     try {
-                      const u = new URL(apiUrlInput);
-                      if (u.hostname.includes('movify-api')) {
-                        u.hostname = u.hostname.replace('movify-api', 'movify');
-                        u.port = '';
-                        shareBase = u.origin;
-                      } else if (u.port === '4001') {
-                        u.port = '5174';
-                        shareBase = u.origin;
-                      }
-                    } catch { /* keep default */ }
-                    const url = `${shareBase}/share/${s.shareToken}`;
-                    await Share.share({ message: url, url });
+                      const s = await mobileApi.shareRide(ride.id);
+                      let shareBase = passengerWebUrl();
+                      try {
+                        const u = new URL(apiUrlInput);
+                        if (u.hostname.includes('movify-api')) {
+                          u.hostname = u.hostname.replace('movify-api', 'movify');
+                          u.port = '';
+                          shareBase = u.origin;
+                        } else if (u.port === '4001') {
+                          u.port = '5174';
+                          shareBase = u.origin;
+                        }
+                      } catch { /* keep default */ }
+                      const url = `${shareBase}/share/${s.shareToken}`;
+                      await Share.share({ message: url, url });
+                    } catch (err) {
+                      showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                    }
                   }} accessibilityLabel={t('common.share')}>
                     <Text style={styles.btnSecondaryText}>{t('common.share')}</Text>
                   </Pressable>
-                  <Pressable style={styles.btnSecondary} onPress={async () => {
+                  <Pressable style={styles.btnSecondary} accessibilityLabel={t('common.sos')} onPress={async () => {
                     try {
                       await mobileApi.triggerSos(ride.id, ride.pickupLat ?? position?.latitude, ride.pickupLng ?? position?.longitude);
                       showBanner(t('common.sosSent'));
@@ -676,22 +728,28 @@ export default function App() {
                     </Pressable>
                   )}
                 </View>
-                {chatMessages.length > 0 && (
-                  <View style={styles.settingsBox}>
-                    {chatMessages.slice(-4).map((m) => (
-                      <Text key={m.id} style={styles.muted}>{m.senderName}: {m.message}</Text>
-                    ))}
-                  </View>
-                )}
                 {ride.driverId && ['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
-                  <View style={styles.row}>
-                    <TextInput style={[styles.input, { flex: 1 }]} placeholder={t('common.message')} value={chatText} onChangeText={setChatText} placeholderTextColor={placeholderColor} />
-                    <Pressable style={styles.btnSmall} onPress={async () => {
-                      if (!chatText.trim()) return;
-                      await mobileApi.sendChatMessage(ride.id, chatText.trim());
-                      setChatText('');
-                    }}><Text style={styles.btnText}>→</Text></Pressable>
-                  </View>
+                  <>
+                    <View style={styles.settingsBox}>
+                      {chatMessages.length === 0 ? (
+                        <Text style={styles.muted}>{t('common.emptyChat')}</Text>
+                      ) : chatMessages.slice(-4).map((m) => (
+                        <Text key={m.id} style={styles.muted}>{m.senderName}: {m.message}</Text>
+                      ))}
+                    </View>
+                    <View style={styles.row}>
+                      <TextInput style={[styles.input, { flex: 1 }]} placeholder={t('common.message')} value={chatText} onChangeText={setChatText} placeholderTextColor={placeholderColor} />
+                      <Pressable style={styles.btnSmall} accessibilityLabel={t('common.send')} onPress={async () => {
+                        if (!chatText.trim()) return;
+                        try {
+                          await mobileApi.sendChatMessage(ride.id, chatText.trim());
+                          setChatText('');
+                        } catch (err) {
+                          showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                        }
+                      }}><Text style={styles.btnText}>{t('common.send')}</Text></Pressable>
+                    </View>
+                  </>
                 )}
                 {ride.status === 'completed' && ride.paymentStatus === 'paid' && !rated && (
                   <View style={styles.ratingBox}>
@@ -700,10 +758,15 @@ export default function App() {
                       <Pressable
                         key={stars}
                         style={styles.btnSecondary}
+                        accessibilityLabel={t('common.starRating', { n: stars })}
                         onPress={async () => {
-                          await mobileApi.rateRide(ride.id, stars, rateComment || undefined);
-                          setRated(true);
-                          setRateComment('');
+                          try {
+                            await mobileApi.rateRide(ride.id, stars, rateComment || undefined);
+                            setRated(true);
+                            setRateComment('');
+                          } catch (err) {
+                            showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                          }
                         }}
                       >
                         <Text style={styles.btnSecondaryText}>{'★'.repeat(stars)}</Text>
@@ -724,9 +787,13 @@ export default function App() {
                   </Pressable>
                 )}
                 {ride.status === 'requested' && (
-                  <Pressable style={styles.btnSecondary} onPress={async () => {
-                    await mobileApi.updateRideStatus(ride.id, 'cancelled');
-                    setRide(null);
+                  <Pressable style={styles.btnSecondary} accessibilityLabel={t('common.cancel')} onPress={async () => {
+                    try {
+                      await mobileApi.updateRideStatus(ride.id, 'cancelled');
+                      setRide(null);
+                    } catch (err) {
+                      showBanner(te(err instanceof Error ? err.message : t('common.cancelFailed')), true);
+                    }
                   }}>
                     <Text style={styles.btnSecondaryText}>{t('common.cancel')}</Text>
                   </Pressable>
@@ -748,14 +815,18 @@ export default function App() {
                     <TextInput style={styles.input} placeholder={t('driver.idUrl')} placeholderTextColor={placeholderColor} value={docs.idUrl} onChangeText={(idUrl) => setDocs({ ...docs, idUrl })} autoCapitalize="none" />
                     <TextInput style={styles.input} placeholder={t('driver.vehiclePhotoUrl')} placeholderTextColor={placeholderColor} value={docs.vehiclePhotoUrl} onChangeText={(vehiclePhotoUrl) => setDocs({ ...docs, vehiclePhotoUrl })} autoCapitalize="none" />
                     <Pressable style={styles.btnSecondary} onPress={async () => {
-                      await mobileApi.submitDriverDocs({
-                        licenseUrl: docs.licenseUrl || undefined,
-                        idUrl: docs.idUrl || undefined,
-                        vehiclePhotoUrl: docs.vehiclePhotoUrl || undefined,
-                      });
-                      const s = await mobileApi.getOnboardingStatus();
-                      setApprovalStatus(s.approvalStatus);
-                      showBanner(t('driver.docsSubmitted'));
+                      try {
+                        await mobileApi.submitDriverDocs({
+                          licenseUrl: docs.licenseUrl || undefined,
+                          idUrl: docs.idUrl || undefined,
+                          vehiclePhotoUrl: docs.vehiclePhotoUrl || undefined,
+                        });
+                        const s = await mobileApi.getOnboardingStatus();
+                        setApprovalStatus(s.approvalStatus);
+                        showBanner(t('driver.docsSubmitted'));
+                      } catch (err) {
+                        showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                      }
                     }}>
                       <Text style={styles.btnSecondaryText}>{t('common.save')}</Text>
                     </Pressable>
@@ -763,9 +834,13 @@ export default function App() {
                 )}
                 {connectStatus && !connectStatus.onboarded && (
                   <Pressable style={styles.btnSecondary} onPress={async () => {
-                    const r = await mobileApi.startConnectOnboarding();
-                    if (r.url) Linking.openURL(r.url);
-                    else showBanner(te(r.message ?? t('common.stripeNotConfigured')), true);
+                    try {
+                      const r = await mobileApi.startConnectOnboarding();
+                      if (r.url) Linking.openURL(r.url);
+                      else showBanner(te(r.message ?? t('common.stripeNotConfigured')), true);
+                    } catch (err) {
+                      showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                    }
                   }}>
                     <Text style={styles.btnSecondaryText}>{t('driver.setupStripe')}</Text>
                   </Pressable>
@@ -786,7 +861,13 @@ export default function App() {
                   <View key={p.id} style={styles.card}>
                     <Text style={styles.cardTitle}>${p.estimatedPrice} · {vehicle(p.vehicleType as VehicleType)}</Text>
                     <Text style={styles.muted} numberOfLines={2}>{p.pickupAddress}</Text>
-                    <Pressable style={styles.btn} onPress={async () => setRide(await mobileApi.acceptRide(p.id))}>
+                    <Pressable style={styles.btn} accessibilityLabel={t('common.accept')} onPress={async () => {
+                      try {
+                        setRide(await mobileApi.acceptRide(p.id));
+                      } catch (err) {
+                        showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                      }
+                    }}>
                       <Text style={styles.btnText}>{t('common.accept')}</Text>
                     </Pressable>
                   </View>
@@ -799,14 +880,24 @@ export default function App() {
                 </View>
                 {ride.status === 'accepted' && (
                   <Pressable style={styles.btn} onPress={async () => {
-                    openTurnByTurnNavigation(ride.pickupLat, ride.pickupLng, ride.pickupAddress, false);
-                    setRide(await mobileApi.updateRideStatus(ride.id, 'arriving'));
+                    try {
+                      openTurnByTurnNavigation(ride.pickupLat, ride.pickupLng, ride.pickupAddress, false);
+                      setRide(await mobileApi.updateRideStatus(ride.id, 'arriving'));
+                    } catch (err) {
+                      showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                    }
                   }}>
                     <Text style={styles.btnText}>{t('driver.onTheWay')}</Text>
                   </Pressable>
                 )}
                 {ride.status === 'arriving' && (
-                  <Pressable style={styles.btn} onPress={async () => setRide(await mobileApi.updateRideStatus(ride.id, 'in_progress'))}>
+                  <Pressable style={styles.btn} onPress={async () => {
+                    try {
+                      setRide(await mobileApi.updateRideStatus(ride.id, 'in_progress'));
+                    } catch (err) {
+                      showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                    }
+                  }}>
                     <Text style={styles.btnText}>{t('driver.startRide')}</Text>
                   </Pressable>
                 )}
@@ -816,23 +907,50 @@ export default function App() {
                       <Text style={styles.btnSecondaryText}>{t('common.navigate')}</Text>
                     </Pressable>
                     <Pressable style={styles.btn} onPress={async () => {
-                      const updated = await mobileApi.updateRideStatus(ride.id, 'completed');
-                      setRide(updated);
-                      setRated(false);
+                      try {
+                        const updated = await mobileApi.updateRideStatus(ride.id, 'completed');
+                        setRide(updated);
+                        setRated(false);
+                      } catch (err) {
+                        showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                      }
                     }}>
                       <Text style={styles.btnText}>{t('driver.completeRide')}</Text>
                     </Pressable>
                   </>
                 )}
                 {['accepted', 'arriving', 'in_progress'].includes(ride.status) && (
-                  <View style={styles.row}>
-                    <TextInput style={[styles.input, { flex: 1 }]} placeholder={t('common.message')} value={chatText} onChangeText={setChatText} placeholderTextColor={placeholderColor} />
-                    <Pressable style={styles.btnSmall} onPress={async () => {
-                      if (!chatText.trim()) return;
-                      await mobileApi.sendChatMessage(ride.id, chatText.trim());
-                      setChatText('');
-                    }}><Text style={styles.btnText}>→</Text></Pressable>
-                  </View>
+                  <>
+                    <Pressable style={styles.btnSecondary} accessibilityLabel={t('common.sos')} onPress={async () => {
+                      try {
+                        await mobileApi.triggerSos(ride.id, ride.pickupLat ?? position?.latitude, ride.pickupLng ?? position?.longitude);
+                        showBanner(t('common.sosSent'));
+                      } catch (err) {
+                        showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                      }
+                    }}>
+                      <Text style={styles.btnSecondaryText}>{t('common.sos')}</Text>
+                    </Pressable>
+                    <View style={styles.settingsBox}>
+                      {chatMessages.length === 0 ? (
+                        <Text style={styles.muted}>{t('common.emptyChat')}</Text>
+                      ) : chatMessages.slice(-4).map((m) => (
+                        <Text key={m.id} style={styles.muted}>{m.senderName}: {m.message}</Text>
+                      ))}
+                    </View>
+                    <View style={styles.row}>
+                      <TextInput style={[styles.input, { flex: 1 }]} placeholder={t('common.message')} value={chatText} onChangeText={setChatText} placeholderTextColor={placeholderColor} />
+                      <Pressable style={styles.btnSmall} accessibilityLabel={t('common.send')} onPress={async () => {
+                        if (!chatText.trim()) return;
+                        try {
+                          await mobileApi.sendChatMessage(ride.id, chatText.trim());
+                          setChatText('');
+                        } catch (err) {
+                          showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                        }
+                      }}><Text style={styles.btnText}>{t('common.send')}</Text></Pressable>
+                    </View>
+                  </>
                 )}
                 {ride.status === 'completed' && !rated && (
                   <View style={styles.ratingBox}>
@@ -841,10 +959,15 @@ export default function App() {
                       <Pressable
                         key={stars}
                         style={styles.btnSecondary}
+                        accessibilityLabel={t('common.starRating', { n: stars })}
                         onPress={async () => {
-                          await mobileApi.rateRide(ride.id, stars, rateComment || undefined);
-                          setRated(true);
-                          setRateComment('');
+                          try {
+                            await mobileApi.rateRide(ride.id, stars, rateComment || undefined);
+                            setRated(true);
+                            setRateComment('');
+                          } catch (err) {
+                            showBanner(te(err instanceof Error ? err.message : t('common.error')), true);
+                          }
                         }}
                       >
                         <Text style={styles.btnSecondaryText}>{'★'.repeat(stars)}</Text>

@@ -145,6 +145,11 @@ export const pt = {
     prevPage: 'Anterior',
     nextPage: 'Próxima',
     pageOf: 'Página {page}',
+    retry: 'Tentar de novo',
+    language: 'Idioma',
+    topUp: 'Recarregar wallet',
+    topUpOk: 'Wallet recarregada',
+    starRating: '{n} estrelas',
   },
   share: {
     loading: 'Carregando corrida compartilhada...',
@@ -334,6 +339,7 @@ export const pt = {
     unsupportedLocale: 'Idioma não suportado',
     sosNotFound: 'Alerta SOS não encontrada',
     invalidUrl: 'URL inválida (use https://...)',
+    callFailed: 'Não foi possível iniciar a chamada',
   },
   push: {
     rideUpdate: 'Atualização da corrida',

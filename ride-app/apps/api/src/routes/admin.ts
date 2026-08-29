@@ -6,13 +6,14 @@ import { mapRide, mapUser } from '../mappers.js';
 import { sendLocalizedPush } from '../services/push.js';
 import { refundStripePayment } from '../services/stripe.js';
 import { creditWallet } from '../services/wallet.js';
+import { sendError } from '../httpError.js';
 
 const router = Router();
 
 async function requireAdmin(req: import('express').Request, res: import('express').Response, next: import('express').NextFunction) {
-  if (!req.auth) return res.status(401).json({ error: 'No autorizado' });
+  if (!req.auth) return sendError(res, 401, 'No autorizado', 'UNAUTHORIZED');
   const result = await pool.query('SELECT is_admin FROM users WHERE id = $1', [req.auth.userId]);
-  if (!result.rows[0]?.is_admin) return res.status(403).json({ error: 'Solo administradores' });
+  if (!result.rows[0]?.is_admin) return sendError(res, 403, 'Solo administradores', 'ADMIN_ONLY');
   next();
 }
 
@@ -182,13 +183,13 @@ router.post('/promos/:code/deactivate', async (req, res) => {
     `UPDATE promo_codes SET active = FALSE WHERE code = $1 RETURNING code`,
     [req.params.code.toUpperCase()],
   );
-  if (result.rows.length === 0) return res.status(404).json({ error: 'Código inválido o expirado' });
+  if (result.rows.length === 0) return sendError(res, 404, 'Código inválido o expirado', 'INVALID_CODE');
   res.json({ ok: true });
 });
 
 router.post('/rides/:id/refund', async (req, res) => {
   const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
-  if (rideResult.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+  if (rideResult.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
 
   const ride = mapRide(rideResult.rows[0]);
   const amount = ride.finalPrice ?? ride.estimatedPrice;
@@ -241,7 +242,7 @@ router.post('/sos/:id/ack', async (req, res) => {
      WHERE id = $2 RETURNING id`,
     [req.auth!.userId, req.params.id],
   );
-  if (result.rows.length === 0) return res.status(404).json({ error: 'Alerta SOS no encontrada' });
+  if (result.rows.length === 0) return sendError(res, 404, 'Alerta SOS no encontrada', 'SOS_NOT_FOUND');
   res.json({ ok: true });
 });
 

@@ -238,6 +238,13 @@ class MobileApi {
     return this.request<{ balance: number }>('/wallet/balance');
   }
 
+  topupWallet(amount: number) {
+    return this.request<{ balance: number }>('/wallet/topup', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    });
+  }
+
   getRideContact(rideId: string) {
     return this.request<{ name: string; mode: string; dialUrl?: string; hint?: string }>(`/contact/rides/${rideId}`);
   }

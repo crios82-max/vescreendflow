@@ -145,6 +145,11 @@ export const es = {
     prevPage: 'Anterior',
     nextPage: 'Siguiente',
     pageOf: 'Página {page}',
+    retry: 'Reintentar',
+    language: 'Idioma',
+    topUp: 'Recargar wallet',
+    topUpOk: 'Wallet recargada',
+    starRating: '{n} estrellas',
   },
   share: {
     loading: 'Cargando viaje compartido...',
@@ -334,6 +339,7 @@ export const es = {
     unsupportedLocale: 'Idioma no soportado',
     sosNotFound: 'Alerta SOS no encontrada',
     invalidUrl: 'URL inválida (usa https://...)',
+    callFailed: 'No se pudo iniciar la llamada',
   },
   push: {
     rideUpdate: 'Actualización de viaje',

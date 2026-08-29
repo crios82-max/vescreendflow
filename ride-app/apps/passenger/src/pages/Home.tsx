@@ -341,6 +341,27 @@ export default function Home() {
                         <span>{t('common.payWithWallet')}{walletBalance != null ? ` ($${walletBalance.toFixed(2)})` : ''}</span>
                         <input type="checkbox" checked={useWallet} onChange={(e) => setUseWallet(e.target.checked)} />
                       </label>
+                      <div className="extras-row" style={{ flexWrap: 'wrap' }}>
+                        {[5, 10, 20, 50].map((amount) => (
+                          <button
+                            key={amount}
+                            type="button"
+                            className="btn-secondary"
+                            aria-label={`${t('common.topUp')} $${amount}`}
+                            onClick={async () => {
+                              try {
+                                const r = await api.topupWallet(amount);
+                                setWalletBalance(r.balance);
+                                showFlash(t('common.topUpOk'));
+                              } catch (err) {
+                                showFlash(te(err instanceof Error ? err.message : t('common.error')), 'error');
+                              }
+                            }}
+                          >
+                            {t('common.topUp')} ${amount}
+                          </button>
+                        ))}
+                      </div>
                       {stripeSecret ? (
                         <StripeCheckout
                           clientSecret={stripeSecret}

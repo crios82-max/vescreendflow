@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { authMiddleware, requireRole } from '../middleware/auth.js';
 import { pool } from '../db.js';
 import { mapDriverProfile } from '../mappers.js';
+import { sendError } from '../httpError.js';
 
 const router = Router();
 router.use(authMiddleware, requireRole('driver'));
@@ -15,7 +16,7 @@ const docsSchema = z.object({
 
 router.get('/status', async (req, res) => {
   const result = await pool.query('SELECT * FROM driver_profiles WHERE user_id = $1', [req.auth!.userId]);
-  if (result.rows.length === 0) return res.status(404).json({ error: 'Perfil no encontrado' });
+  if (result.rows.length === 0) return sendError(res, 404, 'Perfil no encontrado', 'PROFILE_NOT_FOUND');
   const profile = mapDriverProfile(result.rows[0]);
   res.json({
     approvalStatus: profile.approvalStatus,

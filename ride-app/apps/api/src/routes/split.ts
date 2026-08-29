@@ -12,6 +12,7 @@ import {
   newInviteToken,
   sendSplitInviteEmail,
 } from '../services/splitFare.js';
+import { sendError } from '../httpError.js';
 
 export function createSplitRouter(io: SocketServer) {
   const router = Router();
@@ -23,7 +24,7 @@ export function createSplitRouter(io: SocketServer) {
        WHERE p.invite_token = $1`,
       [req.params.token],
     );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Invitación no encontrada' });
+    if (result.rows.length === 0) return sendError(res, 404, 'Invitación no encontrada', 'INVITE_NOT_FOUND');
 
     const row = result.rows[0];
     res.json({
@@ -37,7 +38,7 @@ export function createSplitRouter(io: SocketServer) {
 
   router.post('/invite/:token/payment-intent', async (req, res) => {
     const result = await createSplitPaymentIntent(req.params.token);
-    if (!result) return res.status(404).json({ error: 'Invitación no encontrada' });
+    if (!result) return sendError(res, 404, 'Invitación no encontrada', 'INVITE_NOT_FOUND');
     if ('alreadyPaid' in result && result.alreadyPaid) {
       return res.json({ alreadyPaid: true });
     }
@@ -58,9 +59,9 @@ export function createSplitRouter(io: SocketServer) {
 
   router.get('/ride/:rideId/participants', async (req, res) => {
     const ride = await pool.query('SELECT passenger_id FROM rides WHERE id = $1', [req.params.rideId]);
-    if (ride.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (ride.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
     if (ride.rows[0].passenger_id !== req.auth!.userId) {
-      return res.status(403).json({ error: 'Solo el pasajero principal' });
+      return sendError(res, 403, 'Solo el pasajero principal', 'PRIMARY_PASSENGER_ONLY');
     }
 
     const result = await pool.query(
@@ -85,12 +86,12 @@ export function createSplitRouter(io: SocketServer) {
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
     const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.rideId]);
-    if (rideResult.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (rideResult.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
 
     const ride = mapRide(rideResult.rows[0]);
-    if (ride.passengerId !== req.auth!.userId) return res.status(403).json({ error: 'Solo el pasajero principal' });
+    if (ride.passengerId !== req.auth!.userId) return sendError(res, 403, 'Solo el pasajero principal', 'PRIMARY_PASSENGER_ONLY');
     if (ride.status !== 'completed' || ride.paymentStatus === 'paid') {
-      return res.status(400).json({ error: 'Solo viajes completados sin pagar' });
+      return sendError(res, 400, 'Solo viajes completados sin pagar', 'UNPAID_COMPLETED_ONLY');
     }
 
     const total = ride.finalPrice ?? ride.estimatedPrice;

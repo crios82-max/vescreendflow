@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { authMiddleware } from '../middleware/auth.js';
 import { pool } from '../db.js';
 import type { Server as SocketServer } from 'socket.io';
+import { sendError } from '../httpError.js';
 
 export function createChatRouter(io: SocketServer) {
   const router = Router();
@@ -10,11 +11,11 @@ export function createChatRouter(io: SocketServer) {
 
   router.get('/:rideId', async (req, res) => {
     const ride = await pool.query('SELECT passenger_id, driver_id FROM rides WHERE id = $1', [req.params.rideId]);
-    if (ride.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (ride.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
     const { passenger_id, driver_id } = ride.rows[0];
     const userId = req.auth!.userId;
     if (userId !== passenger_id && userId !== driver_id) {
-      return res.status(403).json({ error: 'Acceso denegado' });
+      return sendError(res, 403, 'Acceso denegado', 'ACCESS_DENIED');
     }
 
     const result = await pool.query(
@@ -41,11 +42,11 @@ export function createChatRouter(io: SocketServer) {
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
     const ride = await pool.query('SELECT passenger_id, driver_id FROM rides WHERE id = $1', [req.params.rideId]);
-    if (ride.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (ride.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
     const { passenger_id, driver_id } = ride.rows[0];
     const userId = req.auth!.userId;
     if (userId !== passenger_id && userId !== driver_id) {
-      return res.status(403).json({ error: 'Acceso denegado' });
+      return sendError(res, 403, 'Acceso denegado', 'ACCESS_DENIED');
     }
 
     const sender = await pool.query('SELECT name FROM users WHERE id = $1', [userId]);

@@ -41,6 +41,7 @@ export const API_ERROR_MAP: Record<string, string> = {
   'Sin contraparte asignada': 'apiErrors.noCounterpart',
   'Idioma no soportado': 'apiErrors.unsupportedLocale',
   'Alerta SOS no encontrada': 'apiErrors.sosNotFound',
+  'Error al iniciar llamada': 'apiErrors.callFailed',
 };
 
 /** Stable machine codes → i18n keys (preferred over Spanish strings). */
@@ -78,4 +79,5 @@ export const API_ERROR_CODES: Record<string, string> = {
   UNSUPPORTED_LOCALE: 'apiErrors.unsupportedLocale',
   SOS_NOT_FOUND: 'apiErrors.sosNotFound',
   INVALID_URL: 'apiErrors.invalidUrl',
+  CALL_FAILED: 'apiErrors.callFailed',
 };

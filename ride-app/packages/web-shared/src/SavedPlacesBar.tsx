@@ -17,28 +17,42 @@ interface Props {
 }
 
 export function SavedPlacesBar({ onSelect, currentDropoff }: Props) {
-  const { t } = useI18n();
+  const { t, te } = useI18n();
   const [places, setPlaces] = useState<Place[]>([]);
+  const [error, setError] = useState('');
+
+  const load = () =>
+    api.getSavedPlaces()
+      .then((r) => {
+        setPlaces(r.places);
+        setError('');
+      })
+      .catch((err) => setError(te(err instanceof Error ? err.message : t('common.loadFailed'))));
 
   useEffect(() => {
-    api.getSavedPlaces().then((r) => setPlaces(r.places)).catch(() => {});
+    load();
   }, []);
 
   const saveCurrent = async (label: string) => {
     if (!currentDropoff) return;
-    await api.savePlace({
-      label,
-      name: label,
-      address: currentDropoff.address,
-      lat: currentDropoff.lat,
-      lng: currentDropoff.lng,
-    });
-    const updated = await api.getSavedPlaces();
-    setPlaces(updated.places);
+    setError('');
+    try {
+      await api.savePlace({
+        label,
+        name: label,
+        address: currentDropoff.address,
+        lat: currentDropoff.lat,
+        lng: currentDropoff.lng,
+      });
+      await load();
+    } catch (err) {
+      setError(te(err instanceof Error ? err.message : t('common.error')));
+    }
   };
 
   return (
     <div className="saved-places">
+      {error && <p className="error-text">{error}</p>}
       <div className="tab-row">
         {places.map((p) => (
           <button key={p.id} type="button" className="tab-btn" onClick={() => onSelect({ lat: p.lat, lng: p.lng, address: p.address })}>

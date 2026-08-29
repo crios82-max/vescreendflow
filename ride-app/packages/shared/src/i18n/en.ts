@@ -145,6 +145,11 @@ export const en = {
     prevPage: 'Previous',
     nextPage: 'Next',
     pageOf: 'Page {page}',
+    retry: 'Retry',
+    language: 'Language',
+    topUp: 'Top up wallet',
+    topUpOk: 'Wallet topped up',
+    starRating: '{n} stars',
   },
   share: {
     loading: 'Loading shared ride...',
@@ -334,6 +339,7 @@ export const en = {
     unsupportedLocale: 'Unsupported language',
     sosNotFound: 'SOS alert not found',
     invalidUrl: 'Invalid URL (use https://...)',
+    callFailed: 'Could not start the call',
   },
   push: {
     rideUpdate: 'Ride update',
