@@ -15,6 +15,7 @@ import { validatePromo, redeemPromo } from '../services/promo.js';
 import { computeRideEta } from '../services/eta.js';
 import { debitWallet } from '../services/wallet.js';
 import { sendReceiptEmail } from '../services/receipts.js';
+import { sendError } from '../httpError.js';
 import { finalizeSplitRideIfComplete } from '../services/splitFare.js';
 import { getOrCreateStripeCustomer } from '../services/stripeCustomer.js';
 import type { Server as SocketServer } from 'socket.io';
@@ -138,7 +139,7 @@ export function createRidesRouter(io: SocketServer) {
     if (process.env.REQUIRE_PHONE_VERIFY !== 'false') {
       const phoneCheck = await pool.query('SELECT phone_verified FROM users WHERE id = $1', [req.auth!.userId]);
       if (!phoneCheck.rows[0]?.phone_verified) {
-        return res.status(403).json({ error: 'Verifica tu teléfono antes de pedir un viaje' });
+        return sendError(res, 403, 'Verifica tu teléfono antes de pedir un viaje', 'VERIFY_PHONE_RIDE');
       }
     }
 
@@ -230,11 +231,11 @@ export function createRidesRouter(io: SocketServer) {
 
   router.get('/:id/eta', async (req, res) => {
     const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
-    if (rideResult.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (rideResult.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
     const ride = mapRide(rideResult.rows[0]);
     const { userId } = req.auth!;
     if (ride.passengerId !== userId && ride.driverId !== userId) {
-      return res.status(403).json({ error: 'Acceso denegado' });
+      return sendError(res, 403, 'Acceso denegado', 'ACCESS_DENIED');
     }
     const eta = await computeRideEta(ride.id);
     res.json(eta);
@@ -242,10 +243,10 @@ export function createRidesRouter(io: SocketServer) {
 
   router.get('/:id/receipt', async (req, res) => {
     const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
-    if (rideResult.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (rideResult.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
     const ride = mapRide(rideResult.rows[0]);
-    if (ride.passengerId !== req.auth!.userId) return res.status(403).json({ error: 'Acceso denegado' });
-    if (ride.paymentStatus !== 'paid') return res.status(400).json({ error: 'Viaje no pagado' });
+    if (ride.passengerId !== req.auth!.userId) return sendError(res, 403, 'Acceso denegado', 'ACCESS_DENIED');
+    if (ride.paymentStatus !== 'paid') return sendError(res, 400, 'Viaje no pagado', 'RIDE_NOT_PAID');
 
     const user = await pool.query('SELECT email FROM users WHERE id = $1', [ride.passengerId]);
     await sendReceiptEmail(ride, user.rows[0].email as string, ride.passengerId);
@@ -254,9 +255,9 @@ export function createRidesRouter(io: SocketServer) {
 
   router.post('/:id/share', async (req, res) => {
     const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
-    if (rideResult.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (rideResult.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
     const ride = mapRide(rideResult.rows[0]);
-    if (ride.passengerId !== req.auth!.userId) return res.status(403).json({ error: 'Acceso denegado' });
+    if (ride.passengerId !== req.auth!.userId) return sendError(res, 403, 'Acceso denegado', 'ACCESS_DENIED');
 
     let token = ride.shareToken;
     if (!token) {
@@ -268,11 +269,11 @@ export function createRidesRouter(io: SocketServer) {
 
   router.get('/:id', async (req, res) => {
     const result = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (result.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
     const ride = mapRide(result.rows[0]);
     const { userId } = req.auth!;
     if (ride.passengerId !== userId && ride.driverId !== userId) {
-      return res.status(403).json({ error: 'Acceso denegado' });
+      return sendError(res, 403, 'Acceso denegado', 'ACCESS_DENIED');
     }
     res.json(ride);
   });
@@ -282,9 +283,9 @@ export function createRidesRouter(io: SocketServer) {
       'SELECT vehicle_type, approval_status FROM driver_profiles WHERE user_id = $1',
       [req.auth!.userId],
     );
-    if (driverProfile.rows.length === 0) return res.status(404).json({ error: 'Perfil no encontrado' });
+    if (driverProfile.rows.length === 0) return sendError(res, 404, 'Perfil no encontrado', 'PROFILE_NOT_FOUND');
     if (driverProfile.rows[0].approval_status !== 'approved') {
-      return res.status(403).json({ error: 'Cuenta de conductor pendiente de aprobación' });
+      return sendError(res, 403, 'Cuenta de conductor pendiente de aprobación', 'DRIVER_PENDING');
     }
 
     const result = await pool.query(
@@ -293,7 +294,7 @@ export function createRidesRouter(io: SocketServer) {
          AND vehicle_type = $3 RETURNING *`,
       [req.auth!.userId, req.params.id, driverProfile.rows[0].vehicle_type],
     );
-    if (result.rows.length === 0) return res.status(409).json({ error: 'Viaje no disponible' });
+    if (result.rows.length === 0) return sendError(res, 409, 'Viaje no disponible', 'RIDE_UNAVAILABLE');
 
     const ride = mapRide(result.rows[0]);
     io.to(`ride:${ride.id}`).emit('ride:updated', ride);
@@ -304,10 +305,10 @@ export function createRidesRouter(io: SocketServer) {
 
   router.post('/:id/payment-intent', requireRole('passenger'), async (req, res) => {
     const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
-    if (rideResult.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (rideResult.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
     const ride = mapRide(rideResult.rows[0]);
-    if (ride.passengerId !== req.auth!.userId) return res.status(403).json({ error: 'Acceso denegado' });
-    if (ride.status !== 'completed') return res.status(400).json({ error: 'Viaje no completado' });
+    if (ride.passengerId !== req.auth!.userId) return sendError(res, 403, 'Acceso denegado', 'ACCESS_DENIED');
+    if (ride.status !== 'completed') return sendError(res, 400, 'Viaje no completado', 'RIDE_NOT_COMPLETED');
 
     const tipAmount = Number((req.body as { tipAmount?: number }).tipAmount ?? 0);
     const row = rideResult.rows[0];
@@ -334,12 +335,12 @@ export function createRidesRouter(io: SocketServer) {
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
     const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
-    if (rideResult.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (rideResult.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
 
     const ride = mapRide(rideResult.rows[0]);
-    if (ride.passengerId !== req.auth!.userId) return res.status(403).json({ error: 'Acceso denegado' });
-    if (ride.status !== 'completed') return res.status(400).json({ error: 'Viaje debe estar completado' });
-    if (ride.paymentStatus === 'paid') return res.status(400).json({ error: 'Ya pagado' });
+    if (ride.passengerId !== req.auth!.userId) return sendError(res, 403, 'Acceso denegado', 'ACCESS_DENIED');
+    if (ride.status !== 'completed') return sendError(res, 400, 'Viaje debe estar completado', 'RIDE_MUST_BE_COMPLETED');
+    if (ride.paymentStatus === 'paid') return sendError(res, 400, 'Ya pagado', 'ALREADY_PAID');
 
     const row = rideResult.rows[0];
     const splitMode = Boolean(row.split_mode);
@@ -352,12 +353,12 @@ export function createRidesRouter(io: SocketServer) {
 
     if (parsed.data.useWallet) {
       const ok = await debitWallet(req.auth!.userId, amount + tipAmount, splitMode ? 'Tu parte (split)' : 'Pago de viaje', ride.id);
-      if (!ok) return res.status(400).json({ error: 'Saldo insuficiente en wallet' });
+      if (!ok) return sendError(res, 400, 'Saldo insuficiente en wallet', 'INSUFFICIENT_WALLET');
       paymentInfo = { method: 'wallet', cardLast4: '0000', stripePaymentIntentId: null, total: amount + tipAmount };
     } else if (parsed.data.paymentIntentId) {
       const intent = await confirmPaymentIntent(parsed.data.paymentIntentId);
       if (!intent || intent.status !== 'succeeded') {
-        return res.status(400).json({ error: 'Pago no confirmado en Stripe' });
+        return sendError(res, 400, 'Pago no confirmado en Stripe', 'STRIPE_NOT_CONFIRMED');
       }
       paymentInfo = {
         method: 'stripe',
@@ -448,21 +449,21 @@ export function createRidesRouter(io: SocketServer) {
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
     const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
-    if (rideResult.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (rideResult.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
 
     const current = mapRide(rideResult.rows[0]);
     const { userId } = req.auth!;
     const isPassenger = current.passengerId === userId;
     const isDriver = current.driverId === userId;
-    if (!isPassenger && !isDriver) return res.status(403).json({ error: 'Acceso denegado' });
+    if (!isPassenger && !isDriver) return sendError(res, 403, 'Acceso denegado', 'ACCESS_DENIED');
 
     const next = parsed.data.status;
     if (next === 'cancelled') {
       const canCancel = isPassenger || (isDriver && ['accepted', 'arriving'].includes(current.status));
-      if (!canCancel) return res.status(403).json({ error: 'No puedes cancelar en este estado' });
+      if (!canCancel) return sendError(res, 403, 'No puedes cancelar en este estado', 'CANNOT_CANCEL');
     }
     if (['arriving', 'in_progress', 'completed'].includes(next) && !isDriver) {
-      return res.status(403).json({ error: 'Solo el conductor puede actualizar' });
+      return sendError(res, 403, 'Solo el conductor puede actualizar', 'DRIVER_ONLY_UPDATE');
     }
 
     let cancellationFee: number | null = null;
@@ -527,16 +528,16 @@ export function createRidesRouter(io: SocketServer) {
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
     const rideResult = await pool.query('SELECT * FROM rides WHERE id = $1', [req.params.id]);
-    if (rideResult.rows.length === 0) return res.status(404).json({ error: 'Viaje no encontrado' });
+    if (rideResult.rows.length === 0) return sendError(res, 404, 'Viaje no encontrado', 'RIDE_NOT_FOUND');
 
     const ride = mapRide(rideResult.rows[0]);
-    if (ride.status !== 'completed') return res.status(400).json({ error: 'Solo viajes completados' });
+    if (ride.status !== 'completed') return sendError(res, 400, 'Solo viajes completados', 'COMPLETED_ONLY');
 
     const { userId } = req.auth!;
     let rateeId: string | null = null;
     if (userId === ride.passengerId && ride.driverId) rateeId = ride.driverId;
     if (userId === ride.driverId) rateeId = ride.passengerId;
-    if (!rateeId) return res.status(403).json({ error: 'No puedes calificar' });
+    if (!rateeId) return sendError(res, 403, 'No puedes calificar', 'CANNOT_RATE');
 
     const ratingResult = await pool.query(
       `INSERT INTO ratings (ride_id, rater_id, ratee_id, stars, comment)

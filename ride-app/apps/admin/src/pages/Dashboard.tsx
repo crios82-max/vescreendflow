@@ -20,28 +20,57 @@ export default function Dashboard() {
   const [promoForm, setPromoForm] = useState({ code: '', discountType: 'percent' as 'percent' | 'fixed', discountValue: 10 });
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [ridesQuery, setRidesQuery] = useState('');
+  const [usersQuery, setUsersQuery] = useState('');
+  const [debouncedRidesQuery, setDebouncedRidesQuery] = useState('');
+  const [debouncedUsersQuery, setDebouncedUsersQuery] = useState('');
+  const [ridesPage, setRidesPage] = useState(0);
+  const [usersPage, setUsersPage] = useState(0);
+  const [ridesTotal, setRidesTotal] = useState(0);
+  const [usersTotal, setUsersTotal] = useState(0);
+  const pageSize = 20;
 
-  const reload = () => {
+  const reload = (ridesQ = debouncedRidesQuery, usersQ = debouncedUsersQuery, rPage = ridesPage, uPage = usersPage) => {
     Promise.all([
       api.getAdminStats(),
-      api.getAdminRides(),
+      api.getAdminRides({ q: ridesQ || undefined, limit: pageSize, offset: rPage * pageSize }),
       api.getPendingDrivers(),
-      api.getAdminUsers(),
+      api.getAdminUsers({ q: usersQ || undefined, limit: pageSize, offset: uPage * pageSize }),
       api.getAdminSos(),
       api.getAdminPromos(),
     ])
       .then(([s, r, d, u, sos, p]) => {
         setStats(s);
         setRides(r.rides);
+        setRidesTotal(r.total);
         setPendingDrivers(d.drivers);
         setUsers(u.users);
+        setUsersTotal(u.total);
         setSosEvents(sos.events);
         setPromos(p.promos);
       })
       .catch((err) => setError(te(err instanceof Error ? err.message : t('common.noAdminAccess'))));
   };
 
-  useEffect(() => { reload(); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedRidesQuery(ridesQuery.trim());
+      setRidesPage(0);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [ridesQuery]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedUsersQuery(usersQuery.trim());
+      setUsersPage(0);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [usersQuery]);
+
+  useEffect(() => {
+    reload();
+  }, [ridesPage, usersPage, debouncedRidesQuery, debouncedUsersQuery]);
 
   const runAction = async (key: string, fn: () => Promise<unknown>) => {
     setActionLoading(key);
@@ -107,13 +136,21 @@ export default function Dashboard() {
             <div className="stat-card"><span>{t('admin.sos24h')}</span><strong>{stats.sosLast24h}</strong></div>
           </div>
           <h2 className="admin-section-title">{t('admin.recentRides')}</h2>
+          <input
+            className="place-input"
+            placeholder={t('common.searchPlaceholder')}
+            value={ridesQuery}
+            onChange={(e) => setRidesQuery(e.target.value)}
+            aria-label={t('common.searchPlaceholder')}
+            style={{ marginBottom: 12, maxWidth: 320 }}
+          />
           <div className="admin-table-wrap">
           <table className="admin-table">
             <thead><tr><th>{t('common.date')}</th><th>{t('admin.passenger')}</th><th>{t('common.driverColumn')}</th><th>{t('common.status')}</th><th>{t('common.payment')}</th><th>{t('common.price')}</th><th></th></tr></thead>
             <tbody>
               {rides.length === 0 ? (
                 <tr><td colSpan={7} className="muted-text">{t('admin.noRides')}</td></tr>
-              ) : rides.slice(0, 20).map((ride) => (
+              ) : rides.map((ride) => (
                 <tr key={ride.id}>
                   <td>{new Date(ride.createdAt).toLocaleString()}</td>
                   <td>{ride.passengerName}</td>
@@ -136,6 +173,11 @@ export default function Dashboard() {
               ))}
             </tbody>
           </table>
+          </div>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12 }}>
+            <button className="btn-secondary" type="button" disabled={ridesPage === 0} onClick={() => setRidesPage((p) => p - 1)} aria-label={t('common.prevPage')}>{t('common.prevPage')}</button>
+            <span className="muted-text">{t('common.pageOf', { page: ridesPage + 1 })} · {ridesTotal}</span>
+            <button className="btn-secondary" type="button" disabled={(ridesPage + 1) * pageSize >= ridesTotal} onClick={() => setRidesPage((p) => p + 1)} aria-label={t('common.nextPage')}>{t('common.nextPage')}</button>
           </div>
         </>
       )}
@@ -171,6 +213,15 @@ export default function Dashboard() {
       )}
 
       {tab === 'users' && (
+        <>
+        <input
+          className="place-input"
+          placeholder={t('common.searchPlaceholder')}
+          value={usersQuery}
+          onChange={(e) => setUsersQuery(e.target.value)}
+          aria-label={t('common.searchPlaceholder')}
+          style={{ marginBottom: 12, maxWidth: 320 }}
+        />
         <div className="admin-table-wrap">
         <table className="admin-table">
           <thead><tr><th>{t('common.name')}</th><th>{t('common.email')}</th><th>{t('common.status')}</th><th></th></tr></thead>
@@ -206,6 +257,12 @@ export default function Dashboard() {
           </tbody>
         </table>
         </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 12 }}>
+          <button className="btn-secondary" type="button" disabled={usersPage === 0} onClick={() => setUsersPage((p) => p - 1)} aria-label={t('common.prevPage')}>{t('common.prevPage')}</button>
+          <span className="muted-text">{t('common.pageOf', { page: usersPage + 1 })} · {usersTotal}</span>
+          <button className="btn-secondary" type="button" disabled={(usersPage + 1) * pageSize >= usersTotal} onClick={() => setUsersPage((p) => p + 1)} aria-label={t('common.nextPage')}>{t('common.nextPage')}</button>
+        </div>
+        </>
       )}
 
       {tab === 'sos' && (

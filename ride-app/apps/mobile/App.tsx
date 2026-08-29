@@ -24,7 +24,7 @@ import { PlaceSearch } from './src/PlaceSearch';
 import { VehicleTypePicker } from './src/VehicleTypePicker';
 import { SavedPlacesBar } from './src/SavedPlacesBar';
 import { FareBreakdownView } from './src/FareBreakdownView';
-import { defaultApiUrl, getApiUrl } from './src/storage';
+import { defaultApiUrl, getApiUrl, passengerWebUrl } from './src/storage';
 import { registerForPushNotifications } from './src/push';
 import { decodePolyline } from './src/polyline';
 import { openTurnByTurnNavigation } from './src/navigation';
@@ -276,6 +276,7 @@ export default function App() {
   useEffect(() => {
     const origin = pickup ?? position;
     if (!origin || !dropoff || user?.role !== 'passenger') return;
+    setError('');
     mobileApi.estimateRide({
       pickupAddress: pickup?.address ?? t('common.myLocation'),
       pickupLat: origin.latitude,
@@ -286,7 +287,10 @@ export default function App() {
     }).then((data) => {
       setEstimate(data);
       setVehicleType(data.options[0]?.vehicleType ?? 'standard');
-    }).catch(() => setEstimate(null));
+    }).catch(() => {
+      setEstimate(null);
+      setError(t('common.estimateFailed'));
+    });
   }, [pickup, position, dropoff, user?.role]);
 
   const loadHistory = async () => {
@@ -634,9 +638,7 @@ export default function App() {
                 <View style={styles.row}>
                   <Pressable style={styles.btnSecondary} onPress={async () => {
                     const s = await mobileApi.shareRide(ride.id);
-                    let shareBase =
-                      (typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_PASSENGER_WEB_URL) ||
-                      'http://localhost:5174';
+                    let shareBase = passengerWebUrl();
                     try {
                       const u = new URL(apiUrlInput);
                       if (u.hostname.includes('movify-api')) {
@@ -650,7 +652,7 @@ export default function App() {
                     } catch { /* keep default */ }
                     const url = `${shareBase}/share/${s.shareToken}`;
                     await Share.share({ message: url, url });
-                  }}>
+                  }} accessibilityLabel={t('common.share')}>
                     <Text style={styles.btnSecondaryText}>{t('common.share')}</Text>
                   </Pressable>
                   <Pressable style={styles.btnSecondary} onPress={async () => {

@@ -140,6 +140,11 @@ export const it = {
     emptyChat: 'Nessun messaggio ancora',
     noAvailableRides: 'Nessuna corsa disponibile',
     estimating: 'Calcolo tariffa...',
+    estimateFailed: 'Impossibile calcolare la tariffa',
+    searchPlaceholder: 'Cerca...',
+    prevPage: 'Precedente',
+    nextPage: 'Successiva',
+    pageOf: 'Pagina {page}',
   },
   share: {
     loading: 'Caricamento corsa condivisa...',
@@ -328,6 +333,7 @@ export const it = {
     noCounterpart: 'Nessuna controparte assegnata',
     unsupportedLocale: 'Lingua non supportata',
     sosNotFound: 'Allerta SOS non trovata',
+    invalidUrl: 'URL non valida (usa https://...)',
   },
   push: {
     rideUpdate: 'Aggiornamento corsa',

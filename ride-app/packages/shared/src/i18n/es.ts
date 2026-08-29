@@ -140,6 +140,11 @@ export const es = {
     emptyChat: 'Sin mensajes aún',
     noAvailableRides: 'Sin viajes disponibles',
     estimating: 'Calculando tarifa...',
+    estimateFailed: 'No se pudo calcular la tarifa',
+    searchPlaceholder: 'Buscar...',
+    prevPage: 'Anterior',
+    nextPage: 'Siguiente',
+    pageOf: 'Página {page}',
   },
   share: {
     loading: 'Cargando viaje compartido...',
@@ -328,6 +333,7 @@ export const es = {
     noCounterpart: 'Sin contraparte asignada',
     unsupportedLocale: 'Idioma no soportado',
     sosNotFound: 'Alerta SOS no encontrada',
+    invalidUrl: 'URL inválida (usa https://...)',
   },
   push: {
     rideUpdate: 'Actualización de viaje',

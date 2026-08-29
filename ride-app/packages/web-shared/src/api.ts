@@ -18,7 +18,7 @@ class ApiClient {
 
     const res = await fetch(`${API_URL}${path}`, { ...options, headers });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error ?? 'Error de red');
+    if (!res.ok) throw new Error(data.errorCode ?? data.error ?? 'Error de red');
     return data as T;
   }
 
@@ -226,8 +226,13 @@ class ApiClient {
     return this.request<{ users: number; drivers: number; rides: number; revenue: number; pendingDrivers: number; sosLast24h: number }>('/admin/stats');
   }
 
-  getAdminRides() {
-    return this.request<{ rides: Array<Ride & { passengerName?: string; driverName?: string }> }>('/admin/rides');
+  getAdminRides(params?: { q?: string; limit?: number; offset?: number }) {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set('q', params.q);
+    if (params?.limit != null) qs.set('limit', String(params.limit));
+    if (params?.offset != null) qs.set('offset', String(params.offset));
+    const suffix = qs.toString() ? `?${qs}` : '';
+    return this.request<{ rides: Array<Ride & { passengerName?: string; driverName?: string }>; total: number; limit: number; offset: number }>(`/admin/rides${suffix}`);
   }
 
   approveDriver(userId: string) {
@@ -249,8 +254,13 @@ class ApiClient {
     });
   }
 
-  getAdminUsers() {
-    return this.request<{ users: Array<User & { isAdmin: boolean; banned?: boolean; createdAt: string }> }>('/admin/users');
+  getAdminUsers(params?: { q?: string; limit?: number; offset?: number }) {
+    const qs = new URLSearchParams();
+    if (params?.q) qs.set('q', params.q);
+    if (params?.limit != null) qs.set('limit', String(params.limit));
+    if (params?.offset != null) qs.set('offset', String(params.offset));
+    const suffix = qs.toString() ? `?${qs}` : '';
+    return this.request<{ users: Array<User & { isAdmin: boolean; banned?: boolean; createdAt: string }>; total: number; limit: number; offset: number }>(`/admin/users${suffix}`);
   }
 
   rejectDriver(userId: string, reason?: string) {

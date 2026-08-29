@@ -35,7 +35,7 @@ class MobileApi {
 
     const res = await fetch(`${this.baseUrl}${path}`, { ...options, headers });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error ?? `Error ${res.status}`);
+    if (!res.ok) throw new Error(data.errorCode ?? data.error ?? `Error ${res.status}`);
     return data as T;
   }
 

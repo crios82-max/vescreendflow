@@ -140,6 +140,11 @@ export const en = {
     emptyChat: 'No messages yet',
     noAvailableRides: 'No rides available',
     estimating: 'Estimating fare...',
+    estimateFailed: 'Could not estimate fare',
+    searchPlaceholder: 'Search...',
+    prevPage: 'Previous',
+    nextPage: 'Next',
+    pageOf: 'Page {page}',
   },
   share: {
     loading: 'Loading shared ride...',
@@ -328,6 +333,7 @@ export const en = {
     noCounterpart: 'No counterpart assigned',
     unsupportedLocale: 'Unsupported language',
     sosNotFound: 'SOS alert not found',
+    invalidUrl: 'Invalid URL (use https://...)',
   },
   push: {
     rideUpdate: 'Ride update',

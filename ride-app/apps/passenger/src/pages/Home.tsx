@@ -106,7 +106,10 @@ export default function Home() {
     }).then((data) => {
       setEstimate(data);
       setVehicleType(data.options[0]?.vehicleType ?? 'standard');
-    }).catch(() => setEstimate(null))
+    }).catch(() => {
+      setEstimate(null);
+      setError(t('common.estimateFailed'));
+    })
       .finally(() => setEstimating(false));
   }, [pickup, dropoff, ride, promoCode]);
 
@@ -280,7 +283,7 @@ export default function Home() {
                   )}
                   {error && <p className="error-text">{error}</p>}
                   {readyToBook && (
-                    <button className="btn-primary" onClick={requestRide} disabled={loading || phoneVerified === false}>
+                    <button className="btn-primary" onClick={requestRide} disabled={loading || phoneVerified === false} aria-label={t('common.requestVehicle', { vehicle: vehicle(vehicleType), price: selectedOption?.estimatedPrice ?? 0 })}>
                       {phoneVerified === false ? t('common.verifyPhone') : loading ? t('common.requesting') : t('common.requestVehicle', { vehicle: vehicle(vehicleType), price: selectedOption?.estimatedPrice ?? 0 })}
                     </button>
                   )}
@@ -348,7 +351,7 @@ export default function Home() {
                           }}
                         />
                       ) : (
-                        <button className="btn-primary" onClick={payRide} disabled={loading}>
+                        <button className="btn-primary" onClick={payRide} disabled={loading} aria-label={t('common.payAmount', { amount: (ride.finalPrice ?? ride.estimatedPrice) + tipAmount })}>
                           {loading ? t('common.processing') : t('common.payAmount', { amount: (ride.finalPrice ?? ride.estimatedPrice) + tipAmount })}
                         </button>
                       )}

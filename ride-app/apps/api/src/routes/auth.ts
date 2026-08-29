@@ -6,6 +6,7 @@ import { pool } from '../db.js';
 import { signToken } from '../middleware/auth.js';
 import { mapUser } from '../mappers.js';
 import { sendEmail } from '../services/email.js';
+import { sendError } from '../httpError.js';
 import { BRAND } from '@ride-app/shared';
 
 const router = Router();
@@ -56,7 +57,7 @@ router.post('/register', async (req, res) => {
   } catch (err: unknown) {
     await client.query('ROLLBACK');
     if (err && typeof err === 'object' && 'code' in err && err.code === '23505') {
-      return res.status(409).json({ error: 'Email ya registrado' });
+      return sendError(res, 409, 'Email ya registrado', 'EMAIL_TAKEN');
     }
     throw err;
   } finally {
@@ -78,16 +79,16 @@ router.post('/login', async (req, res) => {
   const { email, password } = parsed.data;
   const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
   if (result.rows.length === 0) {
-    return res.status(401).json({ error: 'Credenciales inválidas' });
+    return sendError(res, 401, 'Credenciales inválidas', 'INVALID_CREDENTIALS');
   }
 
   const row = result.rows[0];
   if (row.banned) {
-    return res.status(403).json({ error: 'Cuenta suspendida' });
+    return sendError(res, 403, 'Cuenta suspendida', 'ACCOUNT_SUSPENDED');
   }
   const valid = await bcrypt.compare(password, row.password_hash);
   if (!valid) {
-    return res.status(401).json({ error: 'Credenciales inválidas' });
+    return sendError(res, 401, 'Credenciales inválidas', 'INVALID_CREDENTIALS');
   }
 
   const user = mapUser(row);
@@ -136,7 +137,7 @@ router.post('/reset-password', async (req, res) => {
     [parsed.data.token],
   );
   if (tokenResult.rows.length === 0) {
-    return res.status(400).json({ error: 'Token inválido o expirado' });
+    return sendError(res, 400, 'Token inválido o expirado', 'INVALID_TOKEN');
   }
 
   const hash = await bcrypt.hash(parsed.data.password, 10);

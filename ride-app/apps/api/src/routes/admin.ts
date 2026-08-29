@@ -37,19 +37,62 @@ router.get('/stats', async (_req, res) => {
   });
 });
 
-router.get('/rides', async (_req, res) => {
+router.get('/rides', async (req, res) => {
+  const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100);
+  const offset = Math.max(Number(req.query.offset) || 0, 0);
+  const q = String(req.query.q ?? '').trim();
+  const params: unknown[] = [];
+  let where = '';
+  if (q) {
+    params.push(`%${q}%`);
+    where = `WHERE p.name ILIKE $1 OR d.name ILIKE $1 OR r.pickup_address ILIKE $1 OR r.dropoff_address ILIKE $1 OR r.status ILIKE $1`;
+  }
+  const countResult = await pool.query(
+    `SELECT COUNT(*)::int AS c FROM rides r
+     JOIN users p ON p.id = r.passenger_id
+     LEFT JOIN users d ON d.id = r.driver_id ${where}`,
+    params,
+  );
+  params.push(limit);
+  const limIdx = params.length;
+  params.push(offset);
+  const offIdx = params.length;
   const result = await pool.query(
     `SELECT r.*, p.name AS passenger_name, d.name AS driver_name
      FROM rides r JOIN users p ON p.id = r.passenger_id
      LEFT JOIN users d ON d.id = r.driver_id
-     ORDER BY r.created_at DESC LIMIT 100`,
+     ${where}
+     ORDER BY r.created_at DESC LIMIT $${limIdx} OFFSET $${offIdx}`,
+    params,
   );
-  res.json({ rides: result.rows.map((row) => ({ ...mapRide(row), passengerName: row.passenger_name, driverName: row.driver_name })) });
+  res.json({
+    rides: result.rows.map((row) => ({ ...mapRide(row), passengerName: row.passenger_name, driverName: row.driver_name })),
+    total: countResult.rows[0].c,
+    limit,
+    offset,
+  });
 });
 
-router.get('/users', async (_req, res) => {
+router.get('/users', async (req, res) => {
+  const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100);
+  const offset = Math.max(Number(req.query.offset) || 0, 0);
+  const q = String(req.query.q ?? '').trim();
+  const params: unknown[] = [];
+  let where = '';
+  if (q) {
+    params.push(`%${q}%`);
+    where = 'WHERE name ILIKE $1 OR email ILIKE $1';
+  }
+  const countResult = await pool.query(`SELECT COUNT(*)::int AS c FROM users ${where}`, params);
+  params.push(limit);
+  const limIdx = params.length;
+  params.push(offset);
+  const offIdx = params.length;
   const result = await pool.query(
-    'SELECT id, email, name, role, is_admin, banned, wallet_balance, created_at FROM users ORDER BY created_at DESC LIMIT 100',
+    `SELECT id, email, name, role, is_admin, banned, wallet_balance, created_at FROM users
+     ${where}
+     ORDER BY created_at DESC LIMIT $${limIdx} OFFSET $${offIdx}`,
+    params,
   );
   res.json({
     users: result.rows.map((row) => ({
@@ -58,6 +101,9 @@ router.get('/users', async (_req, res) => {
       banned: row.banned as boolean,
       createdAt: (row.created_at as Date).toISOString(),
     })),
+    total: countResult.rows[0].c,
+    limit,
+    offset,
   });
 });
 
