@@ -252,6 +252,8 @@ export const es = {
   },
   vehicle: {
     standard: { label: 'Standard', description: 'Viajes económicos' },
+    moto: { label: 'Moto', description: 'Rápido y económico' },
+    bicicleta: { label: 'Bicicleta', description: 'Eco y barato' },
     comfort: { label: 'Confort', description: 'Autos más amplios' },
     xl: { label: 'XL', description: 'Hasta 6 pasajeros' },
     vans: { label: 'Vans', description: 'Grupos y equipaje' },

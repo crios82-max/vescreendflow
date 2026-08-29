@@ -9,7 +9,7 @@ CREATE TYPE ride_status AS ENUM (
   'completed',
   'cancelled'
 );
-CREATE TYPE vehicle_type AS ENUM ('standard', 'comfort', 'xl', 'vans');
+CREATE TYPE vehicle_type AS ENUM ('standard', 'moto', 'bicicleta', 'comfort', 'xl', 'vans');
 CREATE TYPE payment_status AS ENUM ('pending', 'paid', 'failed');
 
 CREATE TABLE users (

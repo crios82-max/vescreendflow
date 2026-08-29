@@ -1,7 +1,7 @@
 import { randomBytes } from 'crypto';
 import { Router } from 'express';
 import { z } from 'zod';
-import { buildRideEstimate, VEHICLE_OPTIONS, type VehicleType } from '@ride-app/shared';
+import { buildRideEstimate, VEHICLE_OPTIONS, VEHICLE_TYPES, type VehicleType } from '@ride-app/shared';
 import { pool } from '../db.js';
 import { authMiddleware, requireRole } from '../middleware/auth.js';
 import { mapRide } from '../mappers.js';
@@ -46,8 +46,10 @@ const locationSchema = z.object({
   stops: z.array(stopSchema).max(3).optional(),
 });
 
+const vehicleTypeEnum = z.enum(VEHICLE_TYPES);
+
 const createRideSchema = locationSchema.extend({
-  vehicleType: z.enum(['standard', 'comfort', 'xl', 'vans']),
+  vehicleType: vehicleTypeEnum,
   scheduledAt: z.string().datetime().optional(),
   rideForName: z.string().optional(),
   rideForPhone: z.string().optional(),

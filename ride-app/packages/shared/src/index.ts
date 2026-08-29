@@ -49,9 +49,9 @@ export interface User {
   walletBalance?: number;
 }
 
-export type VehicleType = 'standard' | 'comfort' | 'xl' | 'vans';
+export const VEHICLE_TYPES = ['standard', 'moto', 'bicicleta', 'comfort', 'xl', 'vans'] as const;
 
-export const VEHICLE_TYPES: VehicleType[] = ['standard', 'comfort', 'xl', 'vans'];
+export type VehicleType = (typeof VEHICLE_TYPES)[number];
 
 export interface VehicleOption {
   type: VehicleType;
@@ -70,6 +70,22 @@ export const VEHICLE_OPTIONS: Record<VehicleType, VehicleOption> = {
     seats: 4,
     multiplier: 1,
     icon: '🚗',
+  },
+  moto: {
+    type: 'moto',
+    label: 'Moto',
+    description: 'Rápido y económico',
+    seats: 1,
+    multiplier: 0.7,
+    icon: '🏍️',
+  },
+  bicicleta: {
+    type: 'bicicleta',
+    label: 'Bicicleta',
+    description: 'Eco y barato',
+    seats: 1,
+    multiplier: 0.45,
+    icon: '🚲',
   },
   comfort: {
     type: 'comfort',

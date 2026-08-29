@@ -6,9 +6,11 @@ import { pool } from '../db.js';
 import { signToken } from '../middleware/auth.js';
 import { mapUser } from '../mappers.js';
 import { sendEmail } from '../services/email.js';
-import { BRAND } from '@ride-app/shared';
+import { BRAND, VEHICLE_TYPES } from '@ride-app/shared';
 
 const router = Router();
+
+const vehicleTypeEnum = z.enum(VEHICLE_TYPES);
 
 const registerSchema = z.object({
   email: z.string().email(),
@@ -19,7 +21,7 @@ const registerSchema = z.object({
   vehicleMake: z.string().optional(),
   vehicleModel: z.string().optional(),
   vehiclePlate: z.string().optional(),
-  vehicleType: z.enum(['standard', 'comfort', 'xl', 'vans']).optional(),
+  vehicleType: vehicleTypeEnum.optional(),
 });
 
 router.post('/register', async (req, res) => {

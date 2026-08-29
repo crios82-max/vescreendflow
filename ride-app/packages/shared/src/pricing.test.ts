@@ -25,7 +25,12 @@ describe('estimateFare', () => {
 describe('buildRideEstimate', () => {
   it('returns all vehicle options', () => {
     const est = buildRideEstimate(5, 15);
-    assert.equal(est.options.length, 4);
+    assert.equal(est.options.length, 6);
+    assert.ok(est.options.some((o) => o.vehicleType === 'moto'));
+    assert.ok(est.options.some((o) => o.vehicleType === 'bicicleta'));
+    const moto = est.options.find((o) => o.vehicleType === 'moto')!;
+    const standard = est.options.find((o) => o.vehicleType === 'standard')!;
+    assert.ok(moto.estimatedPrice < standard.estimatedPrice);
     assert.ok(est.options[0].estimatedPrice > 0);
   });
 

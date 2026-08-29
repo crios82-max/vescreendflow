@@ -64,6 +64,30 @@ post_register "$(jq -n --arg p "$PASS" '{
 }')"
 
 post_register "$(jq -n --arg p "$PASS" '{
+  email: "moto@movify.demo",
+  password: $p,
+  name: "Moto Demo",
+  role: "driver",
+  phone: "+584121000004",
+  vehicleMake: "Yamaha",
+  vehicleModel: "FZ25",
+  vehiclePlate: "MOTO01",
+  vehicleType: "moto"
+}')"
+
+post_register "$(jq -n --arg p "$PASS" '{
+  email: "bici@movify.demo",
+  password: $p,
+  name: "Bici Demo",
+  role: "driver",
+  phone: "+584121000005",
+  vehicleMake: "Trek",
+  vehicleModel: "FX 2",
+  vehiclePlate: "BICI01",
+  vehicleType: "bicicleta"
+}')"
+
+post_register "$(jq -n --arg p "$PASS" '{
   email: "admin@movify.demo",
   password: $p,
   name: "Admin Demo",
@@ -76,13 +100,25 @@ echo "Aplicando flags en DB (admin / verify / approve)..."
 
 SQL=$(cat <<'SQL'
 UPDATE users SET phone_verified = TRUE
- WHERE email IN ('pasajero@movify.demo', 'conductor@movify.demo', 'admin@movify.demo');
+ WHERE email IN (
+   'pasajero@movify.demo',
+   'conductor@movify.demo',
+   'moto@movify.demo',
+   'bici@movify.demo',
+   'admin@movify.demo'
+ );
 
 UPDATE users SET is_admin = TRUE
  WHERE email = 'admin@movify.demo';
 
 UPDATE driver_profiles SET approval_status = 'approved', rejection_reason = NULL
- WHERE user_id = (SELECT id FROM users WHERE email = 'conductor@movify.demo');
+ WHERE user_id IN (
+   SELECT id FROM users WHERE email IN (
+     'conductor@movify.demo',
+     'moto@movify.demo',
+     'bici@movify.demo'
+   )
+ );
 SQL
 )
 
@@ -101,10 +137,12 @@ echo " Credenciales demo (password: $PASS)"
 echo "=============================================="
 echo "  Pasajero   pasajero@movify.demo   :5174"
 echo "  Conductor  conductor@movify.demo  :5175"
+echo "  Moto       moto@movify.demo       :5175"
+echo "  Bici       bici@movify.demo       :5175"
 echo "  Admin      admin@movify.demo      :5176"
 echo ""
 echo " Flujo rápido:"
 echo "  1) Conductor → login → Ir online"
-echo "  2) Pasajero → login → pedir viaje (tipo Standard)"
+echo "  2) Pasajero → login → pedir viaje (Standard / Moto / Bicicleta)"
 echo "  3) Admin → ver stats"
 echo "=============================================="
