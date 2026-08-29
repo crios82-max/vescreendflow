@@ -578,7 +578,7 @@ class ObdElm327Adapter(
                 bcapReady = if ((t.toInt() / 40) % 8 == 0) 0 else 1,
                 essRsrvRemKwh = (12f + sin(t / 96.0).toFloat() * 4f).coerceIn(1f, 30f),
                 essRsrvInitKwh = (18f + sin(t / 97.0).toFloat() * 2f).coerceIn(5f, 40f),
-                essHealthDistKm = (1200f + t / 10f).coerceIn(0f, 50000f),
+                essHealthDistKm = (1200f + t.toFloat() / 10f).coerceIn(0f, 50000f),
                 defFluidPct = (48f + sin(t / 42.0).toFloat() * 18f).coerceIn(12f, 88f),
                 dpfTriggerPct = (45f + kmh / 90f * 38f).coerceIn(8f, 92f),
                 throttleGPct = (kmh / 90f * 74f).coerceIn(0f, 100f),
