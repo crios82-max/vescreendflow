@@ -9,7 +9,7 @@ Guía para pasar de test keys a **producción** en el Mac mini.
    - Secret key → `sk_live_...`
    - Publishable key → `pk_live_...`
 
-## 2. `.env` en el Mac mini (`ride-app/.env`)
+## 2. `.env` en el Mac mini (`movify/.env`)
 
 ```bash
 STRIPE_SECRET_KEY=sk_live_...
@@ -23,7 +23,7 @@ STRIPE_CONNECT_RETURN_URL=http://localhost:5175
 Tras cambiar keys de Stripe **rebuild** las webs (publishable key va en el bundle):
 
 ```bash
-cd ride-app
+cd movify
 npm run build
 pm2 restart ride-api ride-passenger ride-driver ride-admin --update-env
 ```
@@ -65,7 +65,7 @@ Dominio web (Apple Pay en browser):
 ## 6. Checklist rápido
 
 ```bash
-cd ride-app
+cd movify
 ./scripts/check-prod.sh
 ```
 

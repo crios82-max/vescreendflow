@@ -13,7 +13,7 @@ Colores en `src/theme.ts` (negro + lima `#A3E635`), alineado con la web.
 ## Setup rápido
 
 ```bash
-cd ride-app
+cd movify
 cp .env.example .env
 # EXPO_PUBLIC_API_URL=http://IP_DE_TU_MAC:4001
 # EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=tu_key
@@ -87,7 +87,7 @@ Ver guía completa: `docs/APP_STORE.md`
 ## Comandos
 
 ```bash
-npm run dev:mobile          # desde ride-app/
+npm run dev:mobile          # desde movify/
 npx expo start --tunnel     # QR funciona fuera de la misma WiFi
 npx expo start --ios        # simulador (solo Mac)
 ```

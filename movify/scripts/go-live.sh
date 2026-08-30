@@ -71,7 +71,7 @@ echo "5) .env producción"
 if [[ -f .env ]]; then
   ./scripts/setup-prod-env.sh .env | sed -n '/Estado actual/,$p'
 else
-  fail "falta ride-app/.env — cp .env.example .env && npm run setup:prod"
+  fail "falta movify/.env — cp .env.example .env && npm run setup:prod"
 fi
 echo ""
 

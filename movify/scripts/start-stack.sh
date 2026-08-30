@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-log() { echo "[ride-app] $*"; }
+log() { echo "[movify] $*"; }
 
 if [[ ! -f .env ]]; then
   log "SKIP: no .env (cp .env.example .env y configura)"

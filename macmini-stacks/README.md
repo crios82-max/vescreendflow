@@ -13,7 +13,7 @@ chmod +x macmini-stacks/bootstrap-ride-app.sh
 
 Hace: `git pull` → `.env` → `npm install` → migraciones → `build` → autostart → docker + PM2.
 
-Solo edita `ride-app/.env` con tu Google Maps key y un `JWT_SECRET` fuerte si aún no lo hiciste.
+Solo edita `movify/.env` con tu Google Maps key y un `JWT_SECRET` fuerte si aún no lo hiciste.
 
 ## Solo autostart (si ya tienes build)
 
@@ -24,7 +24,7 @@ Solo edita `ride-app/.env` con tu Google Maps key y un `JWT_SECRET` fuerte si a�
 ## Requisito previo
 
 ```bash
-cd ride-app
+cd movify
 cp .env.example .env   # JWT + Google Maps key
 npm install --legacy-peer-deps
 npm run build

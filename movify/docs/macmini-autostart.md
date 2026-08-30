@@ -15,7 +15,7 @@ Integración con el LaunchAgent maestro `com.macmini.stacks.autostart`.
 ## Primera vez (manual)
 
 ```bash
-cd /Users/server/Documents/vescreendflow/ride-app   # ajusta ruta
+cd /Users/server/Documents/vescreendflow/movify   # ajusta ruta
 cp .env.example .env
 # JWT_SECRET, VITE_GOOGLE_MAPS_API_KEY, CORS_ORIGINS si usas LAN
 
@@ -42,14 +42,14 @@ npm run build
 **Recomendado:** desde la raíz del repo:
 
 ```bash
-./macmini-stacks/install-ride-app.sh [/ruta/al/ride-app]
+./macmini-stacks/install-ride-app.sh [/ruta/al/movify]
 ```
 
 **Manual:** agrega esto en `~/Library/Application Support/macmini-stacks/autostart.sh`, **después** de que Docker Desktop esté arriba:
 
 ```bash
 # --- Ride App (:4001 / :5174 / :5175 / :5176 / db :5436) ---
-RIDE_APP_DIR="${RIDE_APP_DIR:-/Users/server/Documents/vescreendflow/ride-app}"
+RIDE_APP_DIR="${RIDE_APP_DIR:-/Users/server/Documents/vescreendflow/movify}"
 if [[ -x "$RIDE_APP_DIR/scripts/start-stack.sh" ]]; then
   log "Ride App"
   "$RIDE_APP_DIR/scripts/start-stack.sh" >>"$LOG" 2>&1 || log "Ride App FAIL"
@@ -61,7 +61,7 @@ fi
 Si el repo vive en otra ruta, exporta antes del bloque:
 
 ```bash
-export RIDE_APP_DIR="/Users/server/ruta/ride-app"
+export RIDE_APP_DIR="/Users/server/ruta/movify"
 ```
 
 ## Comandos útiles

@@ -38,13 +38,13 @@ Reinicia cloudflared en el Mac mini (`npm run tunnel` o LaunchAgent del túnel m
 ## Opción B — LaunchAgent dedicado Ride
 
 ```bash
-cd ride-app
+cd movify
 export RIDE_TUNNEL_ID=55818726-7a1f-459c-a904-00f5487e6aad
 chmod +x macmini-stacks/install-ride-tunnel.sh
 ./macmini-stacks/install-ride-tunnel.sh
 ```
 
-## `.env` producción (`ride-app/.env`)
+## `.env` producción (`movify/.env`)
 
 ```bash
 API_PUBLIC_URL=https://movify-api.vescreenflow.com

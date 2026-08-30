@@ -28,7 +28,7 @@ cd /Users/server/Documents/vescreendflow   # ajusta ruta
 git pull origin main
 ./macmini-stacks/bootstrap-ride-app.sh
 
-cd ride-app
+cd movify
 npm run prep:local
 ```
 
@@ -54,7 +54,7 @@ npm run seed:demo
 ### B. `.env` producción (20 min)
 
 ```bash
-cd ride-app
+cd movify
 npm run setup:prod
 nano .env   # o tu editor
 ```
@@ -94,7 +94,7 @@ Dashboard → **vescreenflow.com** → DNS:
 Reinicia cloudflared en el Mac mini.
 
 ```bash
-cd ride-app
+cd movify
 npm run go-live
 ```
 
@@ -115,7 +115,7 @@ Debe pasar:
 ### E. TestFlight (1 h + espera Apple)
 
 1. App Store Connect → app **Movify** bundle `com.movify.app`
-2. Edita `ride-app/apps/mobile/eas.json` → Apple IDs
+2. Edita `movify/apps/mobile/eas.json` → Apple IDs
 3. `./scripts/setup-eas-secrets.sh`
 4. `eas login && ./scripts/eas-testflight.sh`
 5. Instala en iPhone desde TestFlight → pedir ride contra API público
@@ -133,7 +133,7 @@ Debe pasar:
 Si quieres probar en LAN antes de viajar o al regresar sin DNS aún:
 
 ```bash
-cd ride-app
+cd movify
 npm run dev:mobile
 ```
 

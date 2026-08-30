@@ -46,7 +46,7 @@ Marca y dominios: [docs/BRAND.md](docs/BRAND.md) · Go live: [docs/REGRESO-18SEP
 ## Setup rápido
 
 ```bash
-cd ride-app
+cd movify
 cp .env.example .env
 # Edita .env: JWT_SECRET, VITE_GOOGLE_MAPS_API_KEY, GOOGLE_MAPS_API_KEY
 
@@ -116,7 +116,7 @@ chmod +x macmini-stacks/bootstrap-ride-app.sh
 ./macmini-stacks/bootstrap-ride-app.sh
 ```
 
-O manual desde `ride-app/`:
+O manual desde `movify/`:
 
 ```bash
 npm install --legacy-peer-deps
@@ -165,7 +165,7 @@ npm run seed:demo   # o viene incluido en prep:local
 ## Estructura
 
 ```
-ride-app/
+movify/
 ├── apps/
 │   ├── api/          # Backend REST + WebSockets
 │   ├── passenger/    # Web pasajero

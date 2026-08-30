@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-log() { echo "[ride-app:migrate] $*"; }
+log() { echo "[movify:migrate] $*"; }
 
 if ! docker compose exec -T db pg_isready -U ride -d ride_app >/dev/null 2>&1; then
   log "ERROR: Postgres no disponible (docker compose up -d primero)"

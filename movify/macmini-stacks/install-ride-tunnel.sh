@@ -3,7 +3,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-RIDE_APP_DIR="${1:-${RIDE_APP_DIR:-$REPO_ROOT/ride-app}}"
+RIDE_APP_DIR="${1:-${RIDE_APP_DIR:-$REPO_ROOT/movify}}"
 CONFIG_SRC="${RIDE_APP_DIR}/cloudflared/config.example.yml"
 CONFIG_DST="${HOME}/.cloudflared/ride-app-config.yml"
 PLIST_DST="${HOME}/Library/LaunchAgents/com.rideapp.cloudflared.plist"
@@ -72,7 +72,7 @@ log "DNS en Cloudflare (zona vescreenflow.com):"
 log "  CNAME movify-api -> ${TUNNEL_ID}.cfargotunnel.com (Proxied)"
 log "  CNAME movify     -> ${TUNNEL_ID}.cfargotunnel.com (Proxied)"
 log ""
-log "En ride-app/.env:"
+log "En movify/.env:"
 log "  API_PUBLIC_URL=https://movify-api.vescreenflow.com"
 log "  VITE_API_URL=https://movify-api.vescreenflow.com"
 log "  EXPO_PUBLIC_API_URL=https://movify-api.vescreenflow.com"

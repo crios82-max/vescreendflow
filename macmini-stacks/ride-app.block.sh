@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Bloque Ride App — incluido por install-ride-app.sh o autostart.sh maestro
 
-: "${RIDE_APP_DIR:=/Users/server/Documents/vescreendflow/ride-app}"
+: "${RIDE_APP_DIR:=/Users/server/Documents/vescreendflow/movify}"
 
 if [[ -x "$RIDE_APP_DIR/scripts/start-stack.sh" ]]; then
   log "Ride App ($RIDE_APP_DIR)"
