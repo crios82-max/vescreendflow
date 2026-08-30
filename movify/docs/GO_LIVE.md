@@ -23,10 +23,10 @@ git pull origin main
 ./macmini-stacks/bootstrap-ride-app.sh
 ```
 
-Edita `ride-app/.env` (bloque de ayuda):
+Edita `movify/.env` (bloque de ayuda):
 
 ```bash
-cd ride-app
+cd movify
 npm run setup:prod
 # pega vars, genera JWT: openssl rand -hex 32
 npm run build
@@ -38,7 +38,7 @@ Reinicia **cloudflared** (túnel maestro o `npm run tunnel`).
 ## Paso 3 — Verificar
 
 ```bash
-cd ride-app
+cd movify
 npm run go-live
 # o manual:
 curl -sf https://movify-api.vescreenflow.com/health && echo OK
@@ -68,7 +68,7 @@ Edita `apps/mobile/eas.json`:
 ### 4c. EAS secrets
 
 ```bash
-cd ride-app
+cd movify
 # Con EXPO_PUBLIC_* en .env:
 ./scripts/setup-eas-secrets.sh
 ```
@@ -83,7 +83,7 @@ O manual en [expo.dev](https://expo.dev):
 ### 4d. Build + submit
 
 ```bash
-cd ride-app
+cd movify
 npm install -g eas-cli
 eas login
 ./scripts/eas-testflight.sh

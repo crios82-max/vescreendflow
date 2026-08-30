@@ -7,13 +7,13 @@ Nombre comercial: **Movify** · Tagline: *Muévete fácil.*
 Un solo archivo controla nombre, dominios y colores:
 
 ```
-ride-app/packages/shared/src/brand.ts
+movify/packages/shared/src/brand.ts
 ```
 
 Tras editar:
 
 ```bash
-cd ride-app
+cd movify
 npm run build
 pm2 restart ride-api ride-passenger ride-driver ride-admin --update-env
 ```

@@ -4,10 +4,10 @@ set -euo pipefail
 # Setup / update Ride App en Mac mini: pull, deps, migrate, build, autostart, PM2.
 # Uso desde la raíz del repo:
 #   ./macmini-stacks/bootstrap-ride-app.sh
-#   ./macmini-stacks/bootstrap-ride-app.sh /ruta/custom/ride-app
+#   ./macmini-stacks/bootstrap-ride-app.sh /ruta/custom/movify
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-RIDE_APP_DIR="${1:-${RIDE_APP_DIR:-$REPO_ROOT/ride-app}}"
+RIDE_APP_DIR="${1:-${RIDE_APP_DIR:-$REPO_ROOT/movify}}"
 
 echo "========================================"
 echo " Ride App — bootstrap Mac mini"

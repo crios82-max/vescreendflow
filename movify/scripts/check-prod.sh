@@ -80,7 +80,7 @@ if [[ -f .env ]]; then
     echo "  WARN VITE_API_URL apunta a localhost — rebuild antes de prod pública"
   fi
 else
-  fail "falta ride-app/.env"
+  fail "falta movify/.env"
 fi
 
 echo ""

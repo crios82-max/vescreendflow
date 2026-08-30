@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Sube secrets EAS desde ride-app/.env (requiere eas-cli + eas login)
+# Sube secrets EAS desde movify/.env (requiere eas-cli + eas login)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

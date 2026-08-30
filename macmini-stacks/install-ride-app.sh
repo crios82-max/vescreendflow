@@ -2,13 +2,13 @@
 set -euo pipefail
 
 # Instala Ride App en el autostart maestro del Mac mini.
-# Uso: ./macmini-stacks/install-ride-app.sh [/ruta/al/ride-app]
+# Uso: ./macmini-stacks/install-ride-app.sh [/ruta/al/movify]
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 AUTOSTART_DIR="${HOME}/Library/Application Support/macmini-stacks"
 AUTOSTART="${AUTOSTART_DIR}/autostart.sh"
 MARKER="# --- Ride App"
-RIDE_APP_DIR="${1:-${RIDE_APP_DIR:-/Users/server/Documents/vescreendflow/ride-app}}"
+RIDE_APP_DIR="${1:-${RIDE_APP_DIR:-/Users/server/Documents/vescreendflow/movify}}"
 
 echo "== Ride App autostart install =="
 echo "Repo:       $REPO_ROOT"
@@ -17,7 +17,7 @@ echo "Autostart:  $AUTOSTART"
 
 if [[ ! -d "$RIDE_APP_DIR" ]]; then
   echo "ERROR: no existe $RIDE_APP_DIR"
-  echo "Pásale la ruta: $0 /Users/server/tu/ruta/ride-app"
+  echo "Pásale la ruta: $0 /Users/server/tu/ruta/movify"
   exit 1
 fi
 

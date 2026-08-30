@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ENV_FILE="${1:-$ROOT/.env}"
 
 cat <<'EOF'
-# === Movify — bloque producción (copia a ride-app/.env) ===
+# === Movify — bloque producción (copia a movify/.env) ===
 
 API_PUBLIC_URL=https://movify-api.vescreenflow.com
 VITE_API_URL=https://movify-api.vescreenflow.com

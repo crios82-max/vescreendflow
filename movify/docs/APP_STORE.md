@@ -16,7 +16,7 @@ Ver también: [GO_LIVE.md](./GO_LIVE.md) (checklist DNS + TestFlight).
 curl -sf https://movify-api.vescreenflow.com/health && echo OK
 ```
 
-En `ride-app/.env`:
+En `movify/.env`:
 
 ```
 API_PUBLIC_URL=https://movify-api.vescreenflow.com
@@ -45,7 +45,7 @@ En [expo.dev](https://expo.dev) → proyecto `ride-app` → **Secrets**:
 ## 3. TestFlight (un comando)
 
 ```bash
-cd ride-app
+cd movify
 chmod +x scripts/eas-testflight.sh
 ./scripts/eas-testflight.sh testflight ios
 ```
@@ -53,7 +53,7 @@ chmod +x scripts/eas-testflight.sh
 O manual:
 
 ```bash
-cd ride-app/apps/mobile
+cd movify/apps/mobile
 eas login
 npm run testflight
 ```
@@ -61,7 +61,7 @@ npm run testflight
 ## 4. Build producción
 
 ```bash
-cd ride-app/apps/mobile
+cd movify/apps/mobile
 eas build --profile production --platform ios
 eas build --profile production --platform android
 ```
