@@ -296,8 +296,16 @@ object ObdPidParser {
         val fuelSysCtlClosedCount: Float? = null,
         /** WWH-OBD cumulative MI counter hours (OBD PID 0193 bytes B/C). */
         val wwhObdCumulativeMiHours: Float? = null,
-        /** Hybrid/EV pack voltage V (OBD PID 019A bytes A/B). */
+        /** Hybrid/EV pack voltage V (OBD PID 019A bytes C/D /64 SAE; legacy A/B /10 if short). */
         val hybridEvBattVoltageV: Float? = null,
+        /** Hybrid/EV battery current A (OBD PID 019A bytes E/F signed /10). */
+        val hevBattCurrentA: Float? = null,
+        /** Hybrid/EV charging mode code 0=CSM 1=CDM 2=CIM (OBD PID 019A byte A). */
+        val hevModeCode: Float? = null,
+        /** Maximum vehicle speed limit km/h (OBD PID 01AA byte A). */
+        val vSetKmh: Float? = null,
+        /** Engine odometer km (OBD PID 01D3 u32 /10). */
+        val engOdoKm: Float? = null,
         /** Traction battery SOH % (OBD PID 01B2 byte A). */
         val hvBattSohPct: Float? = null,
         /** HVESS temperature °C (OBD PID 01B4 byte A). */
@@ -889,8 +897,35 @@ object ObdPidParser {
                 else PidValues(wwhObdCumulativeMiHours = (data[1] * 256 + data[2]).toFloat())
             }
             0x9A -> {
-                if (data.size < 2) PidValues()
-                else PidValues(hybridEvBattVoltageV = (data[0] * 256 + data[1]) / 10f)
+                if (data.isEmpty()) PidValues()
+                else if (data.size >= 6) {
+                    val ehev = (data[0] shr 1) and 0x03
+                    val mode = if (ehev in 0..2) ehev else (data[0] and 0x01)
+                    val volt = ((data[2] * 256) + data[3]) / 64f
+                    val raw = (data[4] shl 8) or data[5]
+                    val signed = if (raw and 0x8000 != 0) raw - 0x10000 else raw
+                    PidValues(
+                        hevModeCode = mode.toFloat(),
+                        hybridEvBattVoltageV = volt,
+                        hevBattCurrentA = signed / 10f,
+                    )
+                } else if (data.size >= 2) {
+                    // short frame legacy: A/B voltage /10
+                    PidValues(hybridEvBattVoltageV = (data[0] * 256 + data[1]) / 10f)
+                } else PidValues()
+            }
+            0xAA -> {
+                if (data.isEmpty()) PidValues()
+                else PidValues(vSetKmh = data[0].toFloat())
+            }
+            0xD3 -> {
+                if (data.size < 4) PidValues()
+                else {
+                    val raw =
+                        (data[0].toLong() shl 24) or (data[1].toLong() shl 16) or
+                            (data[2].toLong() shl 8) or data[3].toLong()
+                    PidValues(engOdoKm = raw / 10f)
+                }
             }
             0xB2 -> {
                 if (data.isEmpty()) PidValues()
@@ -1272,6 +1307,10 @@ object ObdPidParser {
             fuelSysCtlClosedCount = add.fuelSysCtlClosedCount ?: base.fuelSysCtlClosedCount,
             wwhObdCumulativeMiHours = add.wwhObdCumulativeMiHours ?: base.wwhObdCumulativeMiHours,
             hybridEvBattVoltageV = add.hybridEvBattVoltageV ?: base.hybridEvBattVoltageV,
+            hevBattCurrentA = add.hevBattCurrentA ?: base.hevBattCurrentA,
+            hevModeCode = add.hevModeCode ?: base.hevModeCode,
+            vSetKmh = add.vSetKmh ?: base.vSetKmh,
+            engOdoKm = add.engOdoKm ?: base.engOdoKm,
             hvBattSohPct = add.hvBattSohPct ?: base.hvBattSohPct,
             hvessTempC = add.hvessTempC ?: base.hvessTempC,
             hvessCurrentA = add.hvessCurrentA ?: base.hvessCurrentA,

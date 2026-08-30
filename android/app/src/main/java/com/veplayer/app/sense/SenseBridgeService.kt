@@ -2192,6 +2192,38 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.PsTrips.toJsonMap(
                                             com.veplayer.app.vehicle.PsTripsMonitor.state.value,
                                         ),
+                                    "hev_mode_code" to
+                                        (if (prefs.hevModeSim >= 0) prefs.hevModeSim.toFloat()
+                                        else com.veplayer.app.vehicle.HevModeMonitor.state.value.code
+                                            ?: snap.hevModeCode
+                                            )?.toDouble(),
+                                    "hev_mode" to
+                                        com.veplayer.app.vehicle.HevMode.toJsonMap(
+                                            com.veplayer.app.vehicle.HevModeMonitor.state.value,
+                                        ),
+                                    "hev_batt_curr_warn_a" to prefs.hevBattCurrWarnA.toDouble(),
+                                    "hev_batt_curr_alert_a" to prefs.hevBattCurrAlertA.toDouble(),
+                                    "hev_batt_current_a" to
+                                        (if (prefs.hevBattCurrSimA != 0f) prefs.hevBattCurrSimA
+                                        else com.veplayer.app.vehicle.HevBattCurrMonitor.state.value.amps
+                                            ?: snap.hevBattCurrentA
+                                            )?.toDouble(),
+                                    "hev_batt_curr" to
+                                        com.veplayer.app.vehicle.HevBattCurr.toJsonMap(
+                                            com.veplayer.app.vehicle.HevBattCurrMonitor.state.value,
+                                        ),
+                                    "v_set_warn_kmh" to prefs.vSetWarnKmh.toDouble(),
+                                    "v_set_alert_kmh" to prefs.vSetAlertKmh.toDouble(),
+                                    "v_set_kmh" to
+                                        (if (prefs.vSetSimKmh > 0f) prefs.vSetSimKmh
+                                        else com.veplayer.app.vehicle.VSetMonitor.state.value.kmh
+                                            ?: snap.vSetKmh
+                                            )?.toDouble(),
+                                    "v_set" to
+                                        com.veplayer.app.vehicle.VSet.toJsonMap(
+                                            com.veplayer.app.vehicle.VSetMonitor.state.value,
+                                        ),
+                                    "eng_odo_km" to snap.engOdoKm?.toDouble(),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to
@@ -4526,6 +4558,38 @@ class SenseBridgeService : Service() {
                                         com.veplayer.app.vehicle.PsTrips.toJsonMap(
                                             com.veplayer.app.vehicle.PsTripsMonitor.state.value,
                                         ),
+                                    "hev_mode_code" to
+                                        (if (prefs.hevModeSim >= 0) prefs.hevModeSim.toFloat()
+                                        else com.veplayer.app.vehicle.HevModeMonitor.state.value.code
+                                            ?: snap.hevModeCode
+                                            )?.toDouble(),
+                                    "hev_mode" to
+                                        com.veplayer.app.vehicle.HevMode.toJsonMap(
+                                            com.veplayer.app.vehicle.HevModeMonitor.state.value,
+                                        ),
+                                    "hev_batt_curr_warn_a" to prefs.hevBattCurrWarnA.toDouble(),
+                                    "hev_batt_curr_alert_a" to prefs.hevBattCurrAlertA.toDouble(),
+                                    "hev_batt_current_a" to
+                                        (if (prefs.hevBattCurrSimA != 0f) prefs.hevBattCurrSimA
+                                        else com.veplayer.app.vehicle.HevBattCurrMonitor.state.value.amps
+                                            ?: snap.hevBattCurrentA
+                                            )?.toDouble(),
+                                    "hev_batt_curr" to
+                                        com.veplayer.app.vehicle.HevBattCurr.toJsonMap(
+                                            com.veplayer.app.vehicle.HevBattCurrMonitor.state.value,
+                                        ),
+                                    "v_set_warn_kmh" to prefs.vSetWarnKmh.toDouble(),
+                                    "v_set_alert_kmh" to prefs.vSetAlertKmh.toDouble(),
+                                    "v_set_kmh" to
+                                        (if (prefs.vSetSimKmh > 0f) prefs.vSetSimKmh
+                                        else com.veplayer.app.vehicle.VSetMonitor.state.value.kmh
+                                            ?: snap.vSetKmh
+                                            )?.toDouble(),
+                                    "v_set" to
+                                        com.veplayer.app.vehicle.VSet.toJsonMap(
+                                            com.veplayer.app.vehicle.VSetMonitor.state.value,
+                                        ),
+                                    "eng_odo_km" to snap.engOdoKm?.toDouble(),
                                     "mil_dist_warn_km" to prefs.milDistWarnKm.toDouble(),
                                     "mil_dist_alert_km" to prefs.milDistAlertKm.toDouble(),
                                     "mil_distance_km" to

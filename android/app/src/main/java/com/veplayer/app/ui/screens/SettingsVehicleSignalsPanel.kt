@@ -5889,6 +5889,60 @@ private fun SettingsVehicleSignalsObdFase41_45(
                 fontSize = 12.sp,
             )
 
+            Text("Fase 52 OBD (019A/01AA HevMode/HevA/VSet):", color = Mist)
+            val hevModeSt by com.veplayer.app.vehicle.HevModeMonitor.state.collectAsState()
+            val hevBattCurrSt by com.veplayer.app.vehicle.HevBattCurrMonitor.state.collectAsState()
+            val vSetSt by com.veplayer.app.vehicle.VSetMonitor.state.collectAsState()
+            var f52Mode by remember {
+                mutableStateOf(if (prefs.hevModeSim >= 0) prefs.hevModeSim.toString() else "-1")
+            }
+            var f52Curr by remember {
+                mutableStateOf(if (prefs.hevBattCurrSimA != 0f) prefs.hevBattCurrSimA.toInt().toString() else "0")
+            }
+            var f52VSet by remember {
+                mutableStateOf(if (prefs.vSetSimKmh > 0f) prefs.vSetSimKmh.toInt().toString() else "0")
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                OutlinedTextField(
+                    value = f52Mode,
+                    onValueChange = { f52Mode = it.filter { c -> c == '-' || c.isDigit() }.take(2) },
+                    label = { Text("Mode") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f52Curr,
+                    onValueChange = { f52Curr = it.filter { c -> c == '-' || c.isDigit() }.take(5) },
+                    label = { Text("HevA") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                OutlinedTextField(
+                    value = f52VSet,
+                    onValueChange = { f52VSet = it.filter { c -> c.isDigit() }.take(3) },
+                    label = { Text("VSet") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    prefs.hevModeSim = f52Mode.toIntOrNull() ?: -1
+                    prefs.hevBattCurrSimA = f52Curr.toFloatOrNull() ?: 0f
+                    prefs.vSetSimKmh = f52VSet.toFloatOrNull() ?: 0f
+                    onStatus("Fase 52 sim aplicado")
+                },
+            ) { Text("Aplicar sim Fase 52") }
+            Text(
+                listOfNotNull(
+                    hevModeSt.label.takeIf { it.isNotBlank() },
+                    hevBattCurrSt.label.takeIf { it.isNotBlank() },
+                    vSetSt.label.takeIf { it.isNotBlank() },
+                ).joinToString(" · ").ifBlank { "Fase 52 idle" },
+                color = Mute,
+                fontSize = 12.sp,
+            )
+
             var rpmOn by remember { mutableStateOf(prefs.rpmEnabled) }
             var rpmTts by remember { mutableStateOf(prefs.rpmTts) }
             var rpmSim by remember {

@@ -356,8 +356,25 @@ export function parseMode01(raw) {
           }
     case 0x93:
       return data.length < 3 ? {} : { wwhObdCumulativeMiHours: data[1] * 256 + data[2] }
-    case 0x9a:
-      return data.length < 2 ? {} : { hybridEvBattVoltageV: (data[0] * 256 + data[1]) / 10 }
+    case 0x9a: {
+      if (!data.length) return {}
+      if (data.length >= 6) {
+        const ehev = (data[0] >> 1) & 0x03
+        const mode = ehev >= 0 && ehev <= 2 ? ehev : data[0] & 0x01
+        const volt = ((data[2] << 8) | data[3]) / 64
+        const raw = (data[4] << 8) | data[5]
+        const signed = raw & 0x8000 ? raw - 0x10000 : raw
+        return { hevModeCode: mode, hybridEvBattVoltageV: volt, hevBattCurrentA: signed / 10 }
+      }
+      if (data.length >= 2) return { hybridEvBattVoltageV: (data[0] * 256 + data[1]) / 10 }
+      return {}
+    }
+    case 0xaa:
+      return data.length < 1 ? {} : { vSetKmh: data[0] }
+    case 0xd3:
+      return data.length < 4
+        ? {}
+        : { engOdoKm: (data[0] * 16777216 + data[1] * 65536 + data[2] * 256 + data[3]) / 10 }
     case 0xb2:
       return data.length < 1 ? {} : { hvBattSohPct: (data[0] * 100) / 255 }
     case 0xb4:
@@ -501,7 +518,7 @@ export const POLL_PID_HEX = [
   '010D', '010C', '0110', '010A', '0133', '010E', '014A', '0143', '0145', '0149', '014B', '014D',
   '0144', '014E', '0152', '0153', '0159', '014C', '015A', '0161', '0162', '0170', '0171', '0172',
   '0173', '0174', '0175', '0176', '0155', '0156', '0157', '0158', '0177', '0178', '015D', '015B',
-  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0190', '0191', '0192', '0193', '0198', '0199', '019C', '019A', '01B2', '01B3', '01B4', '01B5', '01B6', '01B7', '01B8', '01B9', '01BA', '01BB', '01BC', '01BD', '01BE', '01BF', '01C1', '01C2', '01D2', '01D8', '01D9', '01D0', '01D1', '01D4', '01DA', '01CC', '01CD', '01D5', '01D6', '0194', '019D', '019E', '019F', '019B', '01A1', '01A5', '01A7', '01A8', '01A2', '01A3', '01A4', '01A6', '01A9', '01C5', '01C7', '01C3', '01C4', '01C8', '01C6', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
+  '0163', '0179', '017A', '0147', '0148', '0154', '017B', '017C', '0151', '014F', '0150', '017D', '017E', '0164', '0166', '0165', '017F', '0180', '0167', '0168', '016F', '0181', '0182', '016B', '016A', '016C', '0183', '0184', '0169', '016E', '016D', '0185', '0186', '0108', '0109', '0187', '0188', '0189', '018A', '018C', '018F', '0190', '0191', '0192', '0193', '0198', '0199', '019C', '019A', '01B2', '01B3', '01B4', '01B5', '01B6', '01B7', '01B8', '01B9', '01BA', '01BB', '01BC', '01BD', '01BE', '01BF', '01C1', '01C2', '01D2', '01D8', '01D9', '01D0', '01D1', '01D4', '01DA', '01CC', '01CD', '01D5', '01D6', '01AA', '01D3', '0194', '019D', '019E', '019F', '019B', '01A1', '01A5', '01A7', '01A8', '01A2', '01A3', '01A4', '01A6', '01A9', '01C5', '01C7', '01C3', '01C4', '01C8', '01C6', '018B', '018D', '018E', '0104', '0106', '0107', '010B', '0105', '010F', '015C', '012F', '015E', '0146', '0111',
   '011F', '0121', '0131', '0134', '0142',
 ]
 
@@ -657,6 +674,9 @@ export const OBD_SMOKE_CASES = [
   { raw: '41 92 00 FF', expect: { fuelSysCtlClosedCount: 8 } },
   { raw: '41 93 00 01 2C', expect: { wwhObdCumulativeMiHours: 300 } },
   { raw: '41 9A 0E 10', expect: { hybridEvBattVoltageV: 360 } },
+  { raw: '41 9A 02 00 5A 00 00 C8', expect: { hevModeCode: 1, hybridEvBattVoltageV: 360, hevBattCurrentA: 20 } },
+  { raw: '41 AA 78', expect: { vSetKmh: 120 } },
+  { raw: '41 D3 00 14 4B 50', expect: { engOdoKm: 133000 } },
   { raw: '41 9D 06 40', expect: { engineFuelRateGps: (0x0640) / 200 } },
   { raw: '41 9E 03 E8', expect: { engineExhaustFlowKgh: (0x03e8) / 20 } },
   { raw: '41 9F 00 E0 D8 C8 00 00 00 00', expect: { fuelSysUsePct1: (0xe0 * 100) / 255, fuelSysUsePct2: (0xd8 * 100) / 255, fuelSysUsePct3: (0xc8 * 100) / 255 } },
@@ -956,6 +976,14 @@ export function runFaseFormulaChecks(fase, assert) {
       assert(((0x01 << 8) | 0xf4) / 10 === 50, 'pid 01D5 FC volt')
       assert(((0x01 << 8) | 0xf4) / 100 === 5, 'pid 01D5 FC fuel rate')
       assert(0x00 * 256 + 0x2a === 42, 'pid 01D6 PS trips')
+      break
+    }
+    case 52: {
+      assert(((0x5a << 8) | 0x00) / 64 === 360, 'pid 019A HEV volt SAE')
+      assert(((0x00 << 8) | 0xc8) / 10 === 20, 'pid 019A HEV curr')
+      assert(((0x02 >> 1) & 0x03) === 1, 'pid 019A HEV mode CDM')
+      assert(0x78 === 120, 'pid 01AA VSet')
+      assert((0x00 * 16777216 + 0x14 * 65536 + 0x4b * 256 + 0x50) / 10 === 133000, 'pid 01D3 eng odo')
       break
     }
     default:

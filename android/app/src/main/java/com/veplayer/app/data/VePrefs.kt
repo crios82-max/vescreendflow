@@ -4520,6 +4520,52 @@ class VePrefs(context: Context) {
         get() = sp.getFloat("ps_trips_sim", 0f)
         set(value) = sp.edit().putFloat("ps_trips_sim", value.coerceIn(0f, 65535f)).apply()
 
+
+    /** Hybrid/EV charging mode (OBD 019A). sim: -1=off, 0/1/2=CSM/CDM/CIM */
+    var hevModeEnabled: Boolean
+        get() = sp.getBoolean("hev_mode", true)
+        set(value) = sp.edit().putBoolean("hev_mode", value).apply()
+    var hevModeTts: Boolean
+        get() = sp.getBoolean("hev_mode_tts", true)
+        set(value) = sp.edit().putBoolean("hev_mode_tts", value).apply()
+    var hevModeSim: Int
+        get() = sp.getInt("hev_mode_sim", -1)
+        set(value) = sp.edit().putInt("hev_mode_sim", value.coerceIn(-1, 2)).apply()
+
+    /** Hybrid/EV battery current A (OBD 019A). */
+    var hevBattCurrEnabled: Boolean
+        get() = sp.getBoolean("hev_batt_curr", true)
+        set(value) = sp.edit().putBoolean("hev_batt_curr", value).apply()
+    var hevBattCurrTts: Boolean
+        get() = sp.getBoolean("hev_batt_curr_tts", true)
+        set(value) = sp.edit().putBoolean("hev_batt_curr_tts", value).apply()
+    var hevBattCurrWarnA: Float
+        get() = sp.getFloat("hev_batt_curr_warn_a", 150f)
+        set(value) = sp.edit().putFloat("hev_batt_curr_warn_a", value.coerceIn(20f, 1000f)).apply()
+    var hevBattCurrAlertA: Float
+        get() = sp.getFloat("hev_batt_curr_alert_a", 250f)
+        set(value) = sp.edit().putFloat("hev_batt_curr_alert_a", value.coerceIn(30f, 2000f)).apply()
+    var hevBattCurrSimA: Float
+        get() = sp.getFloat("hev_batt_curr_sim_a", 0f)
+        set(value) = sp.edit().putFloat("hev_batt_curr_sim_a", value.coerceIn(-4000f, 4000f)).apply()
+
+    /** Max vehicle speed limit km/h (OBD 01AA). */
+    var vSetEnabled: Boolean
+        get() = sp.getBoolean("v_set", true)
+        set(value) = sp.edit().putBoolean("v_set", value).apply()
+    var vSetTts: Boolean
+        get() = sp.getBoolean("v_set_tts", true)
+        set(value) = sp.edit().putBoolean("v_set_tts", value).apply()
+    var vSetWarnKmh: Float
+        get() = sp.getFloat("v_set_warn_kmh", 100f)
+        set(value) = sp.edit().putFloat("v_set_warn_kmh", value.coerceIn(30f, 200f)).apply()
+    var vSetAlertKmh: Float
+        get() = sp.getFloat("v_set_alert_kmh", 60f)
+        set(value) = sp.edit().putFloat("v_set_alert_kmh", value.coerceIn(10f, 150f)).apply()
+    var vSetSimKmh: Float
+        get() = sp.getFloat("v_set_sim_kmh", 0f)
+        set(value) = sp.edit().putFloat("v_set_sim_kmh", value.coerceIn(0f, 255f)).apply()
+
     /** Engine RPM over-rev (OBD 010C). */
     var rpmEnabled: Boolean
         get() = sp.getBoolean("rpm_over", true)
