@@ -1,6 +1,6 @@
 package com.veplayer.app.vehicle
 
-/** Hybrid/EV pack voltage V (OBD PID 019A bytes A/B). */
+/** Hybrid/EV pack voltage V (OBD PID 019A SAE C/D /64; legacy short A/B /10). */
 object HybridEvBattVoltage {
     data class State(val volts: Float? = null, val band: String = "idle", val showWarn: Boolean = false, val label: String = "")
 
