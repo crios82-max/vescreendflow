@@ -269,6 +269,12 @@ import com.veplayer.app.vehicle.FcFuelRate
 import com.veplayer.app.vehicle.FcFuelRateMonitor
 import com.veplayer.app.vehicle.PsTrips
 import com.veplayer.app.vehicle.PsTripsMonitor
+import com.veplayer.app.vehicle.HevMode
+import com.veplayer.app.vehicle.HevModeMonitor
+import com.veplayer.app.vehicle.HevBattCurr
+import com.veplayer.app.vehicle.HevBattCurrMonitor
+import com.veplayer.app.vehicle.VSet
+import com.veplayer.app.vehicle.VSetMonitor
 import com.veplayer.app.vehicle.DpfAftertreatmentMonitor
 import com.veplayer.app.vehicle.ThrottleGMonitor
 import com.veplayer.app.vehicle.EngineFrictionTorqueMonitor
@@ -507,6 +513,9 @@ fun DriveVizPanel(
     val fcVolt by FcVoltMonitor.state.collectAsState()
     val fcFuelRate by FcFuelRateMonitor.state.collectAsState()
     val psTrips by PsTripsMonitor.state.collectAsState()
+    val hevMode by HevModeMonitor.state.collectAsState()
+    val hevBattCurr by HevBattCurrMonitor.state.collectAsState()
+    val vSet by VSetMonitor.state.collectAsState()
     val idle by IdleMonitor.state.collectAsState()
     val dtc by DtcMonitor.state.collectAsState()
     val milDist by MilDistanceMonitor.state.collectAsState()
@@ -728,6 +737,9 @@ fun DriveVizPanel(
             FcVoltMonitor.tick(prefs, snap)
             FcFuelRateMonitor.tick(prefs, snap)
             PsTripsMonitor.tick(prefs, snap)
+            HevModeMonitor.tick(prefs, snap)
+            HevBattCurrMonitor.tick(prefs, snap)
+            VSetMonitor.tick(prefs, snap)
             IdleMonitor.tick(prefs, snap.speedKmh, snap.ignition)
             DtcMonitor.tick(prefs, snap)
             MilDistanceMonitor.tick(prefs, snap)
@@ -1716,6 +1728,15 @@ fun DriveVizPanel(
                 }
                 if (psTrips.showWarn || (prefs.psTripsEnabled && psTrips.band == "ok" && psTrips.label.isNotBlank())) {
                     Text(psTrips.label, color = Color(PsTrips.accentArgb(psTrips.band)), fontSize = 11.sp)
+                }
+                if (hevMode.showWarn || (prefs.hevModeEnabled && hevMode.band == "ok" && hevMode.label.isNotBlank())) {
+                    Text(hevMode.label, color = Color(HevMode.accentArgb(hevMode.band)), fontSize = 11.sp)
+                }
+                if (hevBattCurr.showWarn || (prefs.hevBattCurrEnabled && hevBattCurr.band == "ok" && hevBattCurr.label.isNotBlank())) {
+                    Text(hevBattCurr.label, color = Color(HevBattCurr.accentArgb(hevBattCurr.band)), fontSize = 11.sp)
+                }
+                if (vSet.showWarn || (prefs.vSetEnabled && vSet.band == "ok" && vSet.label.isNotBlank())) {
+                    Text(vSet.label, color = Color(VSet.accentArgb(vSet.band)), fontSize = 11.sp)
                 }
                 if (milDist.showWarn || (prefs.milDistEnabled && milDist.milOn && milDist.label.isNotBlank())) {
                     Text(

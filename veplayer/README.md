@@ -1683,6 +1683,22 @@ También parseados (sin monitor): cumul current mAh/s (E/F), cumul energy Wh/s (
 npm run veplayer:fase51-smoke
 ```
 
+## HevMode · HevA · VSet (v2.51 · Fase 52)
+
+Pulido HEV **019A** (mode + current SAE) + **01AA** speed limit. También parsea **01D3** engine odometer.
+
+| PID | Señal | Alertas | HUD |
+|-----|-------|---------|-----|
+| 019A | HEV mode CSM/CDM/CIM | `hev_mode_warn` / `hev_mode_alert` | `HevMode · XXX` |
+| 019A E/F | HEV battery current A | `hev_batt_curr_warn` / `hev_batt_curr_alert` | `HevA · XXA` |
+| 01AA | Max speed limit km/h | `v_set_warn` / `v_set_alert` | `VSet · XXkm/h` |
+
+Voltaje 019A: layout SAE C/D ÷64 (6 bytes); short frame legacy A/B ÷10.
+
+```bash
+npm run veplayer:fase52-smoke
+```
+
 ## Validation gate (pre-fase · v1.15)
 
 Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo y la API flota no divergen:
@@ -1692,7 +1708,7 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 | `obd-pid-smoke` | `ObdPidParser.kt` ↔ `obd-pid-registry.mjs` (Mode 01) |
 | `poll-parity` | `ObdBluetoothClient.POLL_PIDS` ↔ parser |
 | `dbc-smoke` | DBC decode (Kotlin mirror) |
-| `fase16–51-smoke` | Alertas `fleetPro.ts` con heartbeats |
+| `fase16–52-smoke` | Alertas `fleetPro.ts` con heartbeats |
 
 ```bash
 # SenseFlow corriendo (reiniciar tras cambios fleetPro.ts)

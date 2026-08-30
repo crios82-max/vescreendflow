@@ -7593,6 +7593,90 @@ export function evaluateFleetAlerts(
       }
     }
 
+
+    const hevModeObj = signals.hev_mode as Record<string, unknown> | undefined
+    const hevModeCode =
+      typeof hevModeObj?.code === 'number'
+        ? (hevModeObj.code as number)
+        : typeof signals.hev_mode_code === 'number'
+          ? (signals.hev_mode_code as number)
+          : null
+    if (typeof hevModeCode === 'number') {
+      // 2 = CIM warn; >2 alert
+      if (hevModeCode > 2 && !recentlyAlerted(deviceId, 'hev_mode_alert', 120)) {
+        insertAlert(deviceId, 'hev_mode_alert', 'critical', `Modo híbrido desconocido · ${hevModeCode}`, {
+          hev_mode_code: hevModeCode,
+          hev_mode: hevModeObj ?? null,
+        })
+        raised.push('hev_mode_alert')
+      } else if (hevModeCode === 2 && !recentlyAlerted(deviceId, 'hev_mode_warn', 120)) {
+        insertAlert(deviceId, 'hev_mode_warn', 'warn', 'Modo híbrido CIM · carga en aumento', {
+          hev_mode_code: hevModeCode,
+          hev_mode: hevModeObj ?? null,
+        })
+        raised.push('hev_mode_warn')
+      }
+    }
+
+    const hevBattCurrObj = signals.hev_batt_curr as Record<string, unknown> | undefined
+    const hevBattCurrA =
+      typeof hevBattCurrObj?.amps === 'number'
+        ? (hevBattCurrObj.amps as number)
+        : typeof signals.hev_batt_current_a === 'number'
+          ? (signals.hev_batt_current_a as number)
+          : null
+    if (typeof hevBattCurrA === 'number') {
+      const warnA = typeof signals.hev_batt_curr_warn_a === 'number' ? (signals.hev_batt_curr_warn_a as number) : 150
+      const alertA = typeof signals.hev_batt_curr_alert_a === 'number' ? (signals.hev_batt_curr_alert_a as number) : 250
+      const absA = Math.abs(hevBattCurrA)
+      if (absA >= alertA && !recentlyAlerted(deviceId, 'hev_batt_curr_alert', 120)) {
+        insertAlert(deviceId, 'hev_batt_curr_alert', 'critical', `Corriente HEV crítica · ${hevBattCurrA.toFixed(0)}A`, {
+          hev_batt_current_a: hevBattCurrA,
+          hev_batt_curr: hevBattCurrObj ?? null,
+        })
+        raised.push('hev_batt_curr_alert')
+      } else if (
+        absA >= warnA &&
+        absA < alertA &&
+        !recentlyAlerted(deviceId, 'hev_batt_curr_warn', 120)
+      ) {
+        insertAlert(deviceId, 'hev_batt_curr_warn', 'warn', `Corriente HEV alta · ${hevBattCurrA.toFixed(0)}A`, {
+          hev_batt_current_a: hevBattCurrA,
+          hev_batt_curr: hevBattCurrObj ?? null,
+        })
+        raised.push('hev_batt_curr_warn')
+      }
+    }
+
+    const vSetObj = signals.v_set as Record<string, unknown> | undefined
+    const vSetKmh =
+      typeof vSetObj?.kmh === 'number'
+        ? (vSetObj.kmh as number)
+        : typeof signals.v_set_kmh === 'number'
+          ? (signals.v_set_kmh as number)
+          : null
+    if (typeof vSetKmh === 'number' && vSetKmh > 0) {
+      const warnV = typeof signals.v_set_warn_kmh === 'number' ? (signals.v_set_warn_kmh as number) : 100
+      const alertV = typeof signals.v_set_alert_kmh === 'number' ? (signals.v_set_alert_kmh as number) : 60
+      if (vSetKmh <= alertV && !recentlyAlerted(deviceId, 'v_set_alert', 120)) {
+        insertAlert(deviceId, 'v_set_alert', 'critical', `Límite velocidad crítico · ${Math.round(vSetKmh)}km/h`, {
+          v_set_kmh: vSetKmh,
+          v_set: vSetObj ?? null,
+        })
+        raised.push('v_set_alert')
+      } else if (
+        vSetKmh <= warnV &&
+        vSetKmh > alertV &&
+        !recentlyAlerted(deviceId, 'v_set_warn', 120)
+      ) {
+        insertAlert(deviceId, 'v_set_warn', 'warn', `Limitador activo · ${Math.round(vSetKmh)}km/h`, {
+          v_set_kmh: vSetKmh,
+          v_set: vSetObj ?? null,
+        })
+        raised.push('v_set_warn')
+      }
+    }
+
     // RPM over-rev
     const rpm =
       typeof signals.rpm === 'number' ? (signals.rpm as number) : null
