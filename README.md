@@ -1,5 +1,8 @@
 # VePlayer — OS de reproductor para vehículos
 
+> Repo independiente (extraído de [`crios82-max/vescreendflow`](https://github.com/crios82-max/vescreendflow)).
+> SenseFlow (flota / OTA / map) sigue en ese monorepo: apuntá `SENSEFLOW_URL` o cloná como hermano `../vescreendflow`.
+
 Launcher kiosk Android para head-units / tablets de flota.
 
 | Módulo | Qué hace |
@@ -16,10 +19,21 @@ Launcher kiosk Android para head-units / tablets de flota.
 ## Build
 
 ```bash
-cd veplayer/android
+cd android
 ./gradlew assembleDebug
 # APK: app/build/outputs/apk/debug/app-debug.apk
 ```
+
+
+## Scripts npm
+
+```bash
+npm run validate-gate          # parser + poll + dbc (VALIDATE_SKIP_FLEET=1 saltea flota)
+npm run fase52-smoke           # requiere SenseFlow en :4100
+SENSEFLOW_URL=http://127.0.0.1:4100 npm run validate-gate
+```
+
+Los alias `veplayer:*` también funcionan (compat con el monorepo viejo).
 
 ## Campo real (v0.13)
 
@@ -27,10 +41,10 @@ Comisionar head-unit / tablet de flota con APK **release firmado**:
 
 ```bash
 # 1) Keystore de campo (local, no se sube a git)
-veplayer/scripts/gen-field-keystore.sh
+scripts/gen-field-keystore.sh
 
 # 2) Build (en máquina con Android SDK)
-cd veplayer/android
+cd android
 # opcional: SenseFlow de flota
 echo 'SENSEFLOW_URL=https://sense.tu-dominio.com' >> local.properties
 ./gradlew :app:assembleRelease
@@ -46,7 +60,7 @@ En la unidad: **Ajustes (PIN) → Campo → Diagnóstico** (cámaras, USB, BT, C
 Remoto: cmd `run_diag` desde `/fleet.html` o:
 
 ```bash
-npm run veplayer:field-smoke
+npm run field-smoke
 curl -X POST http://127.0.0.1:4100/api/fleet/command \
   -H 'content-type: application/json' \
   -d '{"device_id":"…","command":"run_diag"}'
@@ -66,19 +80,19 @@ SenseFlow sirve APKs desde `senseflow/ota/` en `/ota/…`:
 
 ```bash
 # tras assembleRelease
-veplayer/scripts/publish-ota.sh \
+scripts/publish-ota.sh \
   veplayer/android/app/build/outputs/apk/release/app-release.apk \
   0.13.0 15 "campo release"
 
 # opcional: encolar OTA silenciosa a unidades desactualizadas
-ROLLOUT=1 veplayer/scripts/publish-ota.sh … 0.13.0 15
+ROLLOUT=1 scripts/publish-ota.sh … 0.13.0 15
 
 # o:
 curl -X POST http://127.0.0.1:4100/api/fleet/ota/rollout \
   -H 'content-type: application/json' \
   -d '{"version_code":15,"silent":true}'
 
-npm run veplayer:ota-smoke
+npm run ota-smoke
 ```
 
 `PUBLIC_BASE` = URL que ven las unidades (túnel Cloudflare / LAN). Default = `SENSEFLOW_URL`.
@@ -93,7 +107,7 @@ Decoder CAN carga un **DBC** (BO_/SG_) en vez del mapa hardcode:
 - Flota: cmd `set_dbc` `{ "url": "https://…/oem.dbc" }`
 
 ```bash
-npm run veplayer:dbc-smoke
+npm run dbc-smoke
 curl http://127.0.0.1:4100/dbc/veplayer_demo.dbc | head
 ```
 
@@ -110,7 +124,7 @@ Capa FM aparte del stream IP:
 - Flota: `fm_tune` `{ "mhz": 95.5 }` o `{ "preset": "fm-955" }`
 
 ```bash
-npm run veplayer:fm-smoke
+npm run fm-smoke
 ```
 
 En HU con chip FM real, `listModules()` no vacío → HAL; si no, sim con RDS fake.
@@ -126,8 +140,8 @@ Cockpit **Compose** (sin WebView por defecto):
 - Fallback WebView: Ajustes → Mapa → WebView (`map_mode=web`)
 
 ```bash
-npm run veplayer:nav-map-smoke
-npm run veplayer:osm-tiles-smoke
+npm run nav-map-smoke
+npm run osm-tiles-smoke
 ```
 
 ## Flota ops (v0.17)
@@ -147,7 +161,7 @@ curl -H 'x-fleet-token: fleet-admin-demo' http://127.0.0.1:4100/api/fleet/ops/re
 curl http://127.0.0.1:4100/api/fleet/ops/commands/history?limit=20
 curl http://127.0.0.1:4100/api/fleet/ops/ota/history
 
-npm run veplayer:fleet-ops-smoke
+npm run fleet-ops-smoke
 ```
 
 Dashboard: selector de rol · cards reporte 24h · historial cmds/OTA · wipe oculto si no admin.
@@ -173,7 +187,7 @@ curl -X POST http://127.0.0.1:4100/api/fleet/ops/login \
 # Prod estricto (sin anon):
 FLEET_OPEN_MODE=0 npm run start --prefix senseflow/server
 
-npm run veplayer:fleet-auth-smoke
+npm run fleet-auth-smoke
 ```
 
 `/fleet.html` pide login (usuario/clave o token).
@@ -187,7 +201,7 @@ Mapa Compose con rasters OSM alineados (Web Mercator):
 - Prefs: `map_tiles` (default ON), `map_tile_url` con `{z}/{x}/{y}`
 
 ```bash
-npm run veplayer:osm-tiles-smoke
+npm run osm-tiles-smoke
 ```
 
 ## Guía por voz Nav TTS (v0.20)
@@ -199,7 +213,7 @@ TextToSpeech (es-VE/ES) con duck de audio:
 - Chrome muestra última frase TTS
 
 ```bash
-npm run veplayer:nav-tts-smoke
+npm run nav-tts-smoke
 ```
 
 ## Guías reverse (v0.21)
@@ -211,7 +225,7 @@ Overlay de parking en preview trasera:
 - Prefs `reverse_guides` / `reverse_guide_track`
 
 ```bash
-npm run veplayer:reverse-guides-smoke
+npm run reverse-guides-smoke
 ```
 
 ## Export reportes CSV (v0.22)
@@ -225,7 +239,7 @@ GET /api/fleet/ops/reports/export?kind=devices|commands|alerts|telemetry|summary
 UTF-8 BOM · `Content-Disposition` attachment · auth session/token (prod estricto).
 
 ```bash
-npm run veplayer:fleet-csv-smoke
+npm run fleet-csv-smoke
 ```
 
 ## Perfil conductor (v0.23)
@@ -244,7 +258,7 @@ Conductores de flota con PIN + destino preferido:
 - CSV `kind=drivers`
 
 ```bash
-npm run veplayer:driver-smoke
+npm run driver-smoke
 ```
 
 ## Fase 4 — Alertas voz + inbox (v0.24)
@@ -257,7 +271,7 @@ Primer hito fase 4: flota hablada.
 - Prefs `fleet_tts_alerts`, `fleet_tts_messages`, `fleet_alerts`
 
 ```bash
-npm run veplayer:fleet-inbox-smoke
+npm run fleet-inbox-smoke
 ```
 
 ## Trip / shift log (v0.25)
@@ -270,7 +284,7 @@ Turnos de conductor con distancia (odómetro o integración):
 - Ajustes: Abrir/Cerrar turno · DriveViz km del turno · CSV `kind=shifts`
 
 ```bash
-npm run veplayer:shift-smoke
+npm run shift-smoke
 ```
 
 ## Speed HUD (v0.26)
@@ -282,7 +296,7 @@ Badge de límite + color por banda (ok / cerca / exceso):
 - Cmd flota `set_speed_limit` `{ "kmh": 60 }`
 
 ```bash
-npm run veplayer:speed-hud-smoke
+npm run speed-hud-smoke
 ```
 
 ## Crowd en mapa nativo (v0.27)
@@ -293,7 +307,7 @@ Actores SenseFlow/visión sobre el canvas OSM:
 - Chip **Crowd** en mapa · Ajustes toggle · pref `map_crowd`
 
 ```bash
-npm run veplayer:crowd-map-smoke
+npm run crowd-map-smoke
 ```
 
 ## Mantenimiento odómetro (v0.28)
@@ -305,7 +319,7 @@ Intervalos de servicio por km (aceite, neumáticos, revisión…):
 - Cmds `service_done` · `set_maintenance` · CSV `kind=maintenance`
 
 ```bash
-npm run veplayer:maintenance-smoke
+npm run maintenance-smoke
 ```
 
 ## Fuel / Range HUD (v0.29 · Fase 5)
@@ -318,7 +332,7 @@ Energía del vehículo (fuel o SOC) + autonomía:
 - Cmd flota `set_fuel_warn` `{ "pct": 15, "range_km": 40 }`
 
 ```bash
-npm run veplayer:fuel-hud-smoke
+npm run fuel-hud-smoke
 ```
 
 **Fase 5 (siguiente):** idle alert · panic/SOS · mapa live flota · waypoints.
@@ -332,7 +346,7 @@ Detenido + ignición ON → aviso por tiempo:
 - Prefs `idle_warn_sec` (120) · `idle_alert_sec` (300) · cmd `set_idle_warn`
 
 ```bash
-npm run veplayer:idle-alert-smoke
+npm run idle-alert-smoke
 ```
 
 **Fase 5 (siguiente):** panic/SOS · mapa live flota · waypoints.
@@ -347,7 +361,7 @@ Botón de emergencia conductor → alerta crítica flota:
 - Fleet UI: alerta rosa + Ack SOS
 
 ```bash
-npm run veplayer:panic-sos-smoke
+npm run panic-sos-smoke
 ```
 
 **Fase 5 (siguiente):** mapa live flota · waypoints.
@@ -361,7 +375,7 @@ Leaflet en `/fleet.html` con unidades, trails y geofences:
 - Ajustes VePlayer → **Mapa flota** abre el dashboard
 
 ```bash
-npm run veplayer:fleet-map-smoke
+npm run fleet-map-smoke
 ```
 
 **Fase 5 (siguiente):** waypoints nav.
@@ -375,7 +389,7 @@ Ruta multi-parada (vías + destino final):
 - Cmd `nav_dest` acepta `via: [{name,lat,lng}]` · demo flota vía Chacao → Aeropuerto
 
 ```bash
-npm run veplayer:nav-map-smoke
+npm run nav-map-smoke
 ```
 
 **Fase 5 completa** (fuel · idle · panic · mapa live · waypoints).
@@ -389,7 +403,7 @@ Límite de velocidad por zona:
 - VePlayer: HUD usa límite de zona · TTS entrada/exceso · toggle Ajustes
 
 ```bash
-npm run veplayer:geofence-speed-smoke
+npm run geofence-speed-smoke
 ```
 
 **Fase 6 (siguiente):** DTC/OBD · scorecards · OSM prefetch · parking HUD.
@@ -404,7 +418,7 @@ Fallos OBD-II (MIL + códigos):
 - DriveViz muestra `MIL · P0420` · TTS inbox
 
 ```bash
-npm run veplayer:obd-dtc-smoke
+npm run obd-dtc-smoke
 ```
 
 **Fase 6 (siguiente):** scorecards eco · OSM prefetch · parking HUD.
@@ -415,7 +429,7 @@ npm run veplayer:obd-dtc-smoke
 Acumuladores en turno (`idle_sec` · `overspeed_sec` · `abs_events` · throttle) → `eco_score` 0–100 / band good|fair|poor.
 
 ```bash
-npm run veplayer:eco-score-smoke
+npm run eco-score-smoke
 ```
 
 ### Phone Link · Android Auto / CarPlay
@@ -425,7 +439,7 @@ npm run veplayer:eco-score-smoke
 - **Host completo AA/CarPlay = OEM / MFi** (no se finge proyección certificada)
 
 ```bash
-npm run veplayer:phone-link-smoke
+npm run phone-link-smoke
 ```
 
 **Fase 6 (siguiente):** OSM prefetch · parking HUD.
@@ -439,7 +453,7 @@ Prefetch de tiles OSM al disco (`cacheDir/osm_tiles`):
 - Cmd flota `prefetch_tiles` `{ mode: around|route, radius_km }`
 
 ```bash
-npm run veplayer:osm-prefetch-smoke
+npm run osm-prefetch-smoke
 ```
 
 **Fase 6 (siguiente):** parking distance HUD.
@@ -453,7 +467,7 @@ PDC / ultrasonidos atrás en reverse:
 - Sim USS sin sensores · TTS + inbox · alertas flota `parking_near` / `parking_crit`
 
 ```bash
-npm run veplayer:parking-hud-smoke
+npm run parking-hud-smoke
 ```
 
 **Fase 6 completa** (geofence speed · DTC · eco · Phone Link · OSM prefetch · parking HUD).
@@ -468,7 +482,7 @@ Puerta / baúl / capó abiertos:
 - Sim puerta FL en mock (`doorAjarSim`)
 
 ```bash
-npm run veplayer:door-ajar-smoke
+npm run door-ajar-smoke
 ```
 
 **Fase 7 (en curso):** door ajar · shift fatigue · HVAC · cabin overtemp · SOS dashcam.
@@ -483,7 +497,7 @@ Duración de turno abierto → aviso de fatiga:
 - Sim horas en Ajustes (demo sin esperar)
 
 ```bash
-npm run veplayer:shift-fatigue-smoke
+npm run shift-fatigue-smoke
 ```
 
 **Fase 7 (siguiente):** HVAC climate · cabin overtemp · SOS dashcam.
@@ -498,7 +512,7 @@ Panel clima cabina / objetivo / AC / ventilador:
 - Cabina en sim deriva hacia el objetivo
 
 ```bash
-npm run veplayer:hvac-climate-smoke
+npm run hvac-climate-smoke
 ```
 
 **Fase 7 (siguiente):** cabin overtemp · SOS dashcam.
@@ -513,7 +527,7 @@ Aviso de cabina caliente / crítica:
 - Sim °C en Ajustes (junto a panel HVAC)
 
 ```bash
-npm run veplayer:cabin-overtemp-smoke
+npm run cabin-overtemp-smoke
 ```
 
 **Fase 7 (siguiente):** SOS dashcam clip.
@@ -528,7 +542,7 @@ Al disparar SOS se adjunta un frame JPEG de dashcam:
 - Fleet UI: link «Ver clip SOS»
 
 ```bash
-npm run veplayer:sos-dashcam-smoke
+npm run sos-dashcam-smoke
 ```
 
 **Fase 7 completa** (door ajar · shift fatigue · HVAC · cabin overtemp · SOS dashcam).
@@ -542,7 +556,7 @@ Cinturón conductor desabrochado:
 - Sim en mock (`seatbeltSim`)
 
 ```bash
-npm run veplayer:seatbelt-smoke
+npm run seatbelt-smoke
 ```
 
 **Fase 8 (en curso):** seatbelt · harsh brake · geofence exit · coolant · incident report.
@@ -557,7 +571,7 @@ Frenada / aceleración brusca por Δvelocidad (km/h/s):
 - Ajustes: «Sim frenada brusca» (one-shot)
 
 ```bash
-npm run veplayer:harsh-driving-smoke
+npm run harsh-driving-smoke
 ```
 
 **Fase 8 (siguiente):** geofence exit · coolant · incident report.
@@ -571,7 +585,7 @@ Salida de geofence con presencia persistente:
 - Enter ya no se re-dispara mientras sigues dentro
 
 ```bash
-npm run veplayer:geofence-exit-smoke
+npm run geofence-exit-smoke
 ```
 
 **Fase 8 (siguiente):** coolant · incident report.
@@ -585,7 +599,7 @@ Refrigerante del motor caliente / crítico:
 - Flota `coolant_warn` / `coolant_overheat` · sim °C en Ajustes
 
 ```bash
-npm run veplayer:coolant-overheat-smoke
+npm run coolant-overheat-smoke
 ```
 
 **Fase 8 (siguiente):** incident report.
@@ -600,7 +614,7 @@ Reporte manual de incidente (no SOS):
 - Ajustes: categoría · nota · enviar · clip on/off
 
 ```bash
-npm run veplayer:incident-report-smoke
+npm run incident-report-smoke
 ```
 
 **Fase 8 completa** (seatbelt · harsh · geofence exit · coolant · incident).
@@ -614,7 +628,7 @@ Movimiento con vehículo «asegurado» (ign off o freno de mano):
 - Flota `tow_warn` / `tow_alert` · sim en Ajustes
 
 ```bash
-npm run veplayer:tow-detect-smoke
+npm run tow-detect-smoke
 ```
 
 ## Sudden fuel drop (v0.50 · Fase 9)
@@ -626,7 +640,7 @@ Caída brusca de `fuel_pct` en ventana corta (robo / fuga):
 - Flota `fuel_drop_warn` / `fuel_drop_alert` · sim drop % en Ajustes
 
 ```bash
-npm run veplayer:fuel-drop-smoke
+npm run fuel-drop-smoke
 ```
 
 ## TPMS por rueda (v0.51 · Fase 9)
@@ -638,7 +652,7 @@ Presión FL/FR/RL/RR con umbrales:
 - Flota `tpms_warn` / `tpms_alert` (legacy `tpms_low` si solo flag) · sim FL en Ajustes
 
 ```bash
-npm run veplayer:tpms-hud-smoke
+npm run tpms-hud-smoke
 ```
 
 ## End-of-shift summary (v0.52 · Fase 9)
@@ -650,7 +664,7 @@ Al cerrar turno: digest duración · km · eco · ralentí:
 - DriveViz chip `Resumen · …` · TTS + inbox · toggles en Ajustes
 
 ```bash
-npm run veplayer:shift-summary-smoke
+npm run shift-summary-smoke
 ```
 
 ## Message reply / ack (v0.53 · Fase 9)
@@ -663,7 +677,7 @@ Conductor confirma o responde mensajes de despacho:
 - DriveViz chip pendiente · Ajustes Ack + respuestas rápidas · TTS
 
 ```bash
-npm run veplayer:message-reply-smoke
+npm run message-reply-smoke
 ```
 
 **Fase 9 completa** (tow · fuel drop · TPMS · shift summary · message reply).
@@ -677,7 +691,7 @@ Voltaje del módulo / batería 12V (OBD **0142** / CAN):
 - Flota `battery_warn` / `battery_crit` · sim V en Ajustes
 
 ```bash
-npm run veplayer:battery-voltage-smoke
+npm run battery-voltage-smoke
 ```
 
 **Fase 10 (en curso):** battery 12V · impact detect · rest break · route deviation · driver scorecard.
@@ -691,7 +705,7 @@ Candidato a colisión: decel extrema o yaw spike (sobre umbrales harsh):
 - Flota `impact_warn` / `impact_alert` · sim en Ajustes
 
 ```bash
-npm run veplayer:impact-detect-smoke
+npm run impact-detect-smoke
 ```
 
 ## Rest break (v0.56 · Fase 10)
@@ -703,7 +717,7 @@ Pausa tras conducción continua (no turno total):
 - Flota `rest_warn` / `rest_break` · sim min en Ajustes
 
 ```bash
-npm run veplayer:rest-break-smoke
+npm run rest-break-smoke
 ```
 
 ## Route deviation (v0.57 · Fase 10)
@@ -715,7 +729,7 @@ Desvío respecto a la polyline de nav activa:
 - Flota `route_warn` / `route_deviate` · sim m en Ajustes (Navegación)
 
 ```bash
-npm run veplayer:route-deviation-smoke
+npm run route-deviation-smoke
 ```
 
 ## Driver scorecard (v0.58 · Fase 10)
@@ -728,7 +742,7 @@ Score de **seguridad** del turno (aparte del eco):
 - Sim score en Ajustes → Conductor
 
 ```bash
-npm run veplayer:driver-scorecard-smoke
+npm run driver-scorecard-smoke
 ```
 
 **Fase 10 completa** (battery 12V · impact · rest break · route deviation · driver scorecard).
@@ -742,7 +756,7 @@ Régimen motor alto (OBD **010C**):
 - Flota `rpm_warn` / `rpm_alert` · sim en Ajustes (Clima HVAC)
 
 ```bash
-npm run veplayer:rpm-overrev-smoke
+npm run rpm-overrev-smoke
 ```
 
 **Fase 11 (en curso):** RPM over-rev · ice/frost outdoor · parking-brake moving · turn stuck · ABS HUD.
@@ -756,7 +770,7 @@ Riesgo de hielo / escarcha (OBD ambient **0146** / `outdoor_temp_c`):
 - Flota `ice_warn` / `ice_alert` · sim °C en Ajustes (Clima HVAC)
 
 ```bash
-npm run veplayer:ice-frost-smoke
+npm run ice-frost-smoke
 ```
 
 **Fase 11 (en curso):** RPM over-rev · ice/frost outdoor · parking-brake moving · turn stuck · ABS HUD.
@@ -770,7 +784,7 @@ EPB / freno de estacionamiento activado en marcha (error de conductor, ≠ remol
 - Flota `pbrake_warn` / `pbrake_alert` · sim en Ajustes (Remolque)
 
 ```bash
-npm run veplayer:pbrake-moving-smoke
+npm run pbrake-moving-smoke
 ```
 
 **Fase 11 (en curso):** RPM over-rev · ice/frost · parking-brake moving · turn stuck · ABS HUD.
@@ -784,7 +798,7 @@ Intermitente LEFT/RIGHT olvidado en marcha (no hazards):
 - Flota `turn_stuck_warn` / `turn_stuck_alert` · sim s en Ajustes (Remolque)
 
 ```bash
-npm run veplayer:turn-stuck-smoke
+npm run turn-stuck-smoke
 ```
 
 **Fase 11 (en curso):** RPM · ice · p-brake · turn stuck · ABS HUD.
@@ -798,7 +812,7 @@ Intervención ABS / ESC con hold + ráfaga de eventos:
 - Flota `abs_warn` / `abs_alert` (alias legacy `abs`) · sim en Ajustes (Mock)
 
 ```bash
-npm run veplayer:abs-hud-smoke
+npm run abs-hud-smoke
 ```
 
 **Fase 11 completa** (RPM · ice/frost · parking-brake · turn stuck · ABS HUD).
@@ -812,7 +826,7 @@ Acelerador abierto / WOT (OBD **0111**):
 - Flota `throttle_warn` / `throttle_alert` · sim % en Ajustes (Clima HVAC)
 
 ```bash
-npm run veplayer:high-throttle-smoke
+npm run high-throttle-smoke
 ```
 
 **Fase 12 (completa):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
@@ -826,7 +840,7 @@ Luces de emergencia olvidadas en marcha:
 - Flota `hazard_stuck_warn` / `hazard_stuck_alert` · sim s en Ajustes (Remolque)
 
 ```bash
-npm run veplayer:hazard-stuck-smoke
+npm run hazard-stuck-smoke
 ```
 
 **Fase 12 (completa):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
@@ -840,7 +854,7 @@ Rodando en **P** o **N** (sin marcha engarzada):
 - Flota `gear_roll_warn` / `gear_roll_alert` · sim en Ajustes (Remolque)
 
 ```bash
-npm run veplayer:gear-roll-smoke
+npm run gear-roll-smoke
 ```
 
 **Fase 12 (completa):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
@@ -854,7 +868,7 @@ Avisos en vivo del **eco_score** del turno (aparte del score de seguridad):
 - Flota `eco_warn` / `eco_alert` · sim en Ajustes (Conductor)
 
 ```bash
-npm run veplayer:eco-live-smoke
+npm run eco-live-smoke
 ```
 
 ## Engine runtime (v0.68 · Fase 12)
@@ -866,7 +880,7 @@ Tiempo de motor desde arranque (**OBD PID 011F**):
 - Sim horas en Ajustes (Conductor)
 
 ```bash
-npm run veplayer:engine-runtime-smoke
+npm run engine-runtime-smoke
 ```
 
 **Fase 12 (completa):** high throttle · hazard stuck · gear roll · eco live · engine runtime.
@@ -880,7 +894,7 @@ Carga calculada del motor (**OBD PID 0104**):
 - Flota `load_warn` / `load_alert` · sim % en Ajustes (Clima HVAC)
 
 ```bash
-npm run veplayer:engine-load-smoke
+npm run engine-load-smoke
 ```
 
 **Fase 13 (completa):** engine load · oil temp · intake air · fuel rate · MIL distance.
@@ -894,7 +908,7 @@ Temperatura del aceite (**OBD PID 015C**):
 - Flota `oil_warn` / `oil_alert` · sim °C en Ajustes (Clima HVAC)
 
 ```bash
-npm run veplayer:oil-temp-smoke
+npm run oil-temp-smoke
 ```
 
 **Fase 13 (completa):** engine load · oil temp · intake air · fuel rate · MIL distance.
@@ -908,7 +922,7 @@ Temperatura de admisión (**OBD PID 010F**) — heat soak:
 - Flota `intake_warn` / `intake_alert` · sim °C en Ajustes (Clima HVAC)
 
 ```bash
-npm run veplayer:intake-air-smoke
+npm run intake-air-smoke
 ```
 
 **Fase 13 (completa):** engine load · oil temp · intake air · fuel rate · MIL distance.
@@ -922,7 +936,7 @@ Tasa de combustible (**OBD PID 015E**, g/s → L/h):
 - Flota `fuel_rate_warn` / `fuel_rate_alert` · sim L/h en Ajustes (Clima HVAC)
 
 ```bash
-npm run veplayer:fuel-rate-smoke
+npm run fuel-rate-smoke
 ```
 
 **Fase 13 (completa):** engine load · oil temp · intake air · fuel rate · MIL distance.
@@ -936,7 +950,7 @@ Distancia con MIL encendida (**OBD PID 0121**):
 - Flota `mil_dist_warn` / `mil_dist_alert` · sim km en Ajustes (DTC)
 
 ```bash
-npm run veplayer:mil-distance-smoke
+npm run mil-distance-smoke
 ```
 
 **Fase 13 (completa):** engine load · oil temp · intake air · fuel rate · MIL distance.
@@ -950,7 +964,7 @@ Km desde limpiar códigos (**OBD PID 0131**) con falla activa:
 - Flota `dist_clear_warn` / `dist_clear_alert` · sim km en Ajustes (DTC)
 
 ```bash
-npm run veplayer:dist-since-clear-smoke
+npm run dist-since-clear-smoke
 ```
 
 ## Fuel trim STFT (v0.75 · Fase 14)
@@ -962,7 +976,7 @@ Corrección corto plazo (**OBD PID 0106**), signed %:
 - Flota `stft_warn` / `stft_alert` · sim % en Ajustes (motor)
 
 ```bash
-npm run veplayer:fuel-trim-stft-smoke
+npm run fuel-trim-stft-smoke
 ```
 
 ## Fuel trim LTFT (v0.76 · Fase 14)
@@ -974,7 +988,7 @@ Corrección largo plazo (**OBD PID 0107**), signed %:
 - Flota `ltft_warn` / `ltft_alert` · sim % en Ajustes (motor)
 
 ```bash
-npm run veplayer:fuel-trim-ltft-smoke
+npm run fuel-trim-ltft-smoke
 ```
 
 ## MAP pressure (v0.77 · Fase 14)
@@ -986,7 +1000,7 @@ Presión absoluta del colector (**OBD PID 010B**), kPa:
 - Flota `map_warn` / `map_alert` · sim kPa en Ajustes (motor)
 
 ```bash
-npm run veplayer:map-pressure-smoke
+npm run map-pressure-smoke
 ```
 
 ## Catalyst temp (v0.78 · Fase 14)
@@ -998,7 +1012,7 @@ Temperatura del catalizador (**OBD PID 0134**), °C:
 - Flota `catalyst_warn` / `catalyst_alert` · sim °C en Ajustes (clima)
 
 ```bash
-npm run veplayer:catalyst-temp-smoke
+npm run catalyst-temp-smoke
 ```
 
 **Fase 14 (completa):** dist since clear · fuel trim STFT · fuel trim LTFT · MAP · catalyst temp.
@@ -1012,7 +1026,7 @@ Flujo de aire (**OBD PID 0110**), g/s:
 - Flota `maf_warn` / `maf_alert` · sim g/s en Ajustes (motor)
 
 ```bash
-npm run veplayer:maf-airflow-smoke
+npm run maf-airflow-smoke
 ```
 
 ## Fuel pressure (v0.80 · Fase 15)
@@ -1024,7 +1038,7 @@ Presión de combustible (**OBD PID 010A**), kPa — alerta por presión **baja**
 - Flota `fuel_press_warn` / `fuel_press_alert` · sim kPa en Ajustes (motor)
 
 ```bash
-npm run veplayer:fuel-pressure-smoke
+npm run fuel-pressure-smoke
 ```
 
 ## OEM white-label (v0.81 · set_brand)
@@ -1037,7 +1051,7 @@ Un APK para todas las marcas — branding remoto por dispositivo (como `set_dbc`
 - Flota: `set_brand` · clear con `{ "clear": true }`
 
 ```bash
-npm run veplayer:brand-smoke
+npm run brand-smoke
 curl -I http://127.0.0.1:4100/brands/demo/logo.png
 ```
 
@@ -1065,7 +1079,7 @@ Presión barométrica (**OBD PID 0133**), kPa — alerta fuera de rango:
 - Flota `baro_warn` / `baro_alert` · sim kPa en Ajustes (motor)
 
 ```bash
-npm run veplayer:barometric-smoke
+npm run barometric-smoke
 ```
 
 ## Timing advance (v0.83 · Fase 15)
@@ -1077,7 +1091,7 @@ Adelanto de encendido (**OBD PID 010E**), °:
 - Flota `timing_warn` / `timing_alert` · sim ° en Ajustes (motor)
 
 ```bash
-npm run veplayer:timing-advance-smoke
+npm run timing-advance-smoke
 ```
 
 ## O2 voltage B1S1 (v0.84 · Fase 15)
@@ -1089,7 +1103,7 @@ Voltaje sensor O2 (**OBD PID 014A**), V — stuck lean/rich:
 - Flota `o2_warn` / `o2_alert` · sim V en Ajustes (motor)
 
 ```bash
-npm run veplayer:o2-voltage-smoke
+npm run o2-voltage-smoke
 ```
 
 **Fase 16 (completa):** absolute load · relative throttle · accel pedal · O2 B1S2 · EGR error.
@@ -1102,7 +1116,7 @@ Carga absoluta (**OBD PID 0143**), %:
 - DriveViz `AbsL · XX%` · flota `abs_load_warn` / `abs_load_alert`
 
 ```bash
-npm run veplayer:fase16-smoke
+npm run fase16-smoke
 ```
 
 ## Relative throttle (v0.86 · Fase 16)
@@ -1144,7 +1158,7 @@ Presión vapor (**OBD PID 0153**), Pa · `evap_vapor_warn` / `evap_vapor_alert` 
 Rail absoluto (**OBD PID 0159**), kPa · `rail_abs_warn` / `rail_abs_alert` · HUD `Rail · XX`
 
 ```bash
-npm run veplayer:fase17-smoke
+npm run fase17-smoke
 ```
 
 **Fase 18 (completa):** EGR comandado · pedal relativo · torque demanda/real · catalizador B2.
@@ -1170,7 +1184,7 @@ Torque real (**OBD PID 0162**), % (A−125) · `act_torque_warn` / `act_torque_a
 Catalizador banco 2 (**OBD PID 0170**), °C · `cat_b2_warn` / `cat_b2_alert` · HUD `CatB2 · XXX°C`
 
 ```bash
-npm run veplayer:fase18-smoke
+npm run fase18-smoke
 ```
 
 **Fase 19 (completa):** catalizador B1S2 · B2S2 · B1S3 · B2S3 · B1S4.
@@ -1196,7 +1210,7 @@ Catalizador banco 2 sensor 3 (**OBD PID 0174**), °C · `cat_b2s3_warn` / `cat_b
 Catalizador banco 1 sensor 4 (**OBD PID 0175**), °C · `cat_b1s4_warn` / `cat_b1s4_alert` · HUD `CatB1S4 · XXX°C`
 
 ```bash
-npm run veplayer:fase19-smoke
+npm run fase19-smoke
 ```
 
 **Fase 20 (completa):** catalizador B2S4 · trims O2 secundarios ST/LT B1/B2.
@@ -1222,7 +1236,7 @@ Trim corto O2 secundario B2 (**OBD PID 0157**), % · `stft2_b2_warn` / `stft2_b2
 Trim largo O2 secundario B2 (**OBD PID 0158**), % · `ltft2_b2_warn` / `ltft2_b2_alert` · HUD `LT2B2 · ±XX%`
 
 ```bash
-npm run veplayer:fase20-smoke
+npm run fase20-smoke
 ```
 
 **Fase 21 (completa):** catalizador B1S5/B2S5 · inyección · batería híbrida · torque ref.
@@ -1248,7 +1262,7 @@ Vida batería híbrida (**OBD PID 015B**), % · `hybrid_batt_warn` / `hybrid_bat
 Torque referencia (**OBD PID 0163**), Nm · `ref_torque_warn` / `ref_torque_alert` · HUD `RefT · XXXNm`
 
 ```bash
-npm run veplayer:fase21-smoke
+npm run fase21-smoke
 ```
 
 ## Cat B1S6 / B2S6 · throttle B/C · MIL time (v1.19 · Fase 22)
@@ -1262,8 +1276,8 @@ npm run veplayer:fase21-smoke
 | 0154 | MIL time on | `mil_time_warn` / `mil_time_alert` | `MILt · XXm` |
 
 ```bash
-npm run veplayer:fase22-smoke
-npm run veplayer:validate-gate
+npm run fase22-smoke
+npm run validate-gate
 ```
 
 ## Cat B1S7/B2S7 · fuel type · max λ/MAF (v1.24 · Fase 23)
@@ -1277,7 +1291,7 @@ npm run veplayer:validate-gate
 | 0150 | Max MAF | `max_maf_warn` / `max_maf_alert` | `MaxMAF · XXg/s` |
 
 ```bash
-npm run veplayer:fase23-smoke
+npm run fase23-smoke
 ```
 
 ## Cat B1S8/B2S8 · max torque · MAF IAT · aux (v1.29 · Fase 24)
@@ -1291,7 +1305,7 @@ npm run veplayer:fase23-smoke
 | 0165 | Aux input | `aux_input_alert` | `Aux · 0xNN` |
 
 ```bash
-npm run veplayer:fase24-smoke
+npm run fase24-smoke
 ```
 
 ## Cat B1S9/B2S9 · ECT2 · IAT2 · turbo inlet (v1.34 · Fase 25)
@@ -1305,7 +1319,7 @@ npm run veplayer:fase24-smoke
 | 016F | Turbo inlet | `turbo_inlet_warn` / `turbo_inlet_alert` | `TurboIn · XXkPa` |
 
 ```bash
-npm run veplayer:fase25-smoke
+npm run fase25-smoke
 ```
 
 ## Cat B1S10/B2S10 · EGR temp · diesel IAF · thr act (v1.39 · Fase 26)
@@ -1319,7 +1333,7 @@ npm run veplayer:fase25-smoke
 | 016C | Throttle actuator | `thr_act_warn` / `thr_act_alert` | `ThrAct · XX%` |
 
 ```bash
-npm run veplayer:fase26-smoke
+npm run fase26-smoke
 ```
 
 ## Cat B1S11/B2S11 · EGR actual · inject/fuel ctrl (v1.44 · Fase 27)
@@ -1333,7 +1347,7 @@ npm run veplayer:fase26-smoke
 | 016D | Fuel pressure control | `fuel_ctrl_warn` / `fuel_ctrl_alert` | `FuelCtrl · XXkPa` |
 
 ```bash
-npm run veplayer:fase27-smoke
+npm run fase27-smoke
 ```
 
 ## Cat B1S12/B2S12 · STFT/LTFT B2 (v1.49 · Fase 28)
@@ -1346,7 +1360,7 @@ npm run veplayer:fase27-smoke
 | 0109 | LTFT bank 2 | `ltft_b2_warn` / `ltft_b2_alert` | `LTB2 · ±XX%` |
 
 ```bash
-npm run veplayer:fase28-smoke
+npm run fase28-smoke
 ```
 
 ## Cat B1S13/B2S13 · DPF · Thr G · friction (v1.54 · Fase 29)
@@ -1360,7 +1374,7 @@ npm run veplayer:fase28-smoke
 | 018E | Engine friction | `eng_friction_warn` / `eng_friction_alert` | `Frict · XX%` |
 
 ```bash
-npm run veplayer:fase29-smoke
+npm run fase29-smoke
 ```
 
 ## Cat B1S14/B2S14 · O2λ · PM B1/B2 (v1.59 · Fase 30)
@@ -1374,7 +1388,7 @@ npm run veplayer:fase29-smoke
 | 018F | PM sensor B2 | `pm_b2_warn` / `pm_b2_alert` | `PMB2 · XX%` |
 
 ```bash
-npm run veplayer:fase30-smoke
+npm run fase30-smoke
 ```
 
 ## EGT B1S5/B2S5 · O2λ3 · NOx reagent (v1.64 · Fase 31)
@@ -1388,7 +1402,7 @@ npm run veplayer:fase30-smoke
 | 0194 | NOx reagent qual | `nox_req_warn` / `nox_req_alert` | `NOxReq · XXh` |
 
 ```bash
-npm run veplayer:fase31-smoke
+npm run fase31-smoke
 ```
 
 ## EGT B1S6/B2S6 · O2λ4 · DEF (v1.69 · Fase 32)
@@ -1402,7 +1416,7 @@ npm run veplayer:fase31-smoke
 | 019B | DEF fluid % | `def_warn` / `def_alert` | `DEF · XX%` |
 
 ```bash
-npm run veplayer:fase32-smoke
+npm run fase32-smoke
 ```
 
 ## EGT B1S7/B2S7/B1S8/B2S8 · O2C3 (v1.74 · Fase 33)
@@ -1416,7 +1430,7 @@ npm run veplayer:fase32-smoke
 | 019C | O2 conc B1S3 | `o2_conc_b1s3_warn` / `o2_conc_b1s3_alert` | `O2C3 · XX%` |
 
 ```bash
-npm run veplayer:fase33-smoke
+npm run fase33-smoke
 ```
 
 ## O2C4/O2C23/O2C24 · DEFDose · NOxC1 (v1.79 · Fase 34)
@@ -1430,7 +1444,7 @@ npm run veplayer:fase33-smoke
 | 01A1 | NOx corrected B1S1 ppm | `nox_corr_b1s1_warn` / `nox_corr_b1s1_alert` | `NOxC1 · XXX` |
 
 ```bash
-npm run veplayer:fase34-smoke
+npm run fase34-smoke
 ```
 
 ## NOxC2/C21/C22 · NOx3/4 (v1.84 · Fase 35)
@@ -1444,7 +1458,7 @@ npm run veplayer:fase34-smoke
 | 01A7 | NOx conc S4 | `nox_conc_s4_warn` / `nox_conc_s4_alert` | `NOx4 · XXX` |
 
 ```bash
-npm run veplayer:fase35-smoke
+npm run fase35-smoke
 ```
 
 ## NOxC3/C4 · CylFuel · EvapVP · Gear (v1.89 · Fase 36)
@@ -1458,7 +1472,7 @@ npm run veplayer:fase35-smoke
 | 01A4 | Trans gear ratio | `trans_gear_warn` / `trans_gear_alert` | `Gear · X.XX` |
 
 ```bash
-npm run veplayer:fase36-smoke
+npm run fase36-smoke
 ```
 
 ## Odo · ABSoff · FPa/b · Reflash (v1.94 · Fase 37)
@@ -1472,7 +1486,7 @@ npm run veplayer:fase36-smoke
 | 01C7 | Reflash distance | `reflash_dist_warn` / `reflash_dist_alert` | `Reflash · XXX` |
 
 ```bash
-npm run veplayer:fase37-smoke
+npm run fase37-smoke
 ```
 
 ## FuelA/B · EPCS · NCD/PCD (v1.99 · Fase 38)
@@ -1486,7 +1500,7 @@ npm run veplayer:fase37-smoke
 | 01C8 | NOx/PCD lamp | `nox_pcd_lamp_alert` | `NCD/PCD` |
 
 ```bash
-npm run veplayer:fase38-smoke
+npm run fase38-smoke
 ```
 
 ## IndW · Induce · DpfRem · ReagFail · PCMmal (v2.04 · Fase 39)
@@ -1500,7 +1514,7 @@ npm run veplayer:fase38-smoke
 | 01C6 | PCM malfunction | `particulate_malf_warn` / `particulate_malf_alert` | `PCMmal · XXX` |
 
 ```bash
-npm run veplayer:fase39-smoke
+npm run fase39-smoke
 ```
 
 ## FuelGPS · ExhFlow · FSu1–3 (v2.09 · Fase 40)
@@ -1514,7 +1528,7 @@ npm run veplayer:fase39-smoke
 | 019F | Fuel sys use 3 | `fuel_sys_use3_warn` / `fuel_sys_use3_alert` | `FSu3 · XX%` |
 
 ```bash
-npm run veplayer:fase40-smoke
+npm run fase40-smoke
 ```
 
 ## WwhCMI · WwhB1 · FSCctl · WwhCum · HevV (v2.14 · Fase 41)
@@ -1528,7 +1542,7 @@ npm run veplayer:fase40-smoke
 | 019A | Hybrid/EV pack voltage | `hybrid_ev_batt_warn` / `hybrid_ev_batt_alert` | `HevV · XXXV` |
 
 ```bash
-npm run veplayer:fase41-smoke
+npm run fase41-smoke
 ```
 
 ## NOxWarn · IndL1/L2 · EGRcnt · NOxMal (v2.19 · Fase 42)
@@ -1544,7 +1558,7 @@ Extiende **PID 0194** (bytes adicionales del bloque inducement NOx).
 | 0194 K/L | Monitor malf | `nox_monitor_malf_warn` / `nox_monitor_malf_alert` | `NOxMal · XXh` |
 
 ```bash
-npm run veplayer:fase42-smoke
+npm run fase42-smoke
 ```
 
 ## HySOH · HvTemp · HvCur · HvV6 · HvMax (v2.24 · Fase 43)
@@ -1560,7 +1574,7 @@ Bloque HEV **01B2–B7** (HVESS / tracción).
 | 01B7 | Max cell temp °C | `hv_cell_max_warn` / `hv_cell_max_alert` | `HvMax · XX°` |
 
 ```bash
-npm run veplayer:fase43-smoke
+npm run fase43-smoke
 ```
 
 ## HvBal · HvMinV/MaxV · HvPwr · HvChg (v2.29 · Fase 44)
@@ -1576,7 +1590,7 @@ Extiende bloque HEV **01B8–BA** (balanceo, celdas V, potencia, límite carga).
 | 01BA B/C | Charge limit A | `hv_chg_limit_warn` / `hv_chg_limit_alert` | `HvChg · XXA` |
 
 ```bash
-npm run veplayer:fase44-smoke
+npm run fase44-smoke
 ```
 
 ## HvMin · HvDis · HvIn/Out · HvTput (v2.34 · Fase 45)
@@ -1592,7 +1606,7 @@ Cierra bloque HEV **01B7/BA/BB–BD** (min temp, descarga, energía acumulada, t
 | 01BD | Total throughput Wh | `hv_enrg_tput_warn` / `hv_enrg_tput_alert` | `HvTput · XXkWh` |
 
 ```bash
-npm run veplayer:fase45-smoke
+npm run fase45-smoke
 ```
 
 ## HvAcr · HvSOH · Min/MaxSOC · HvDcap (v2.39 · Fase 46)
@@ -1608,7 +1622,7 @@ Continúa bloque HEV **01B3 / 01BE / 01BF / 01C1 / 01C2**.
 | 01C2 | Discharge energy capacity kWh | `hv_dcap_warn` / `hv_dcap_alert` | `HvDcap · XXkWh` |
 
 ```bash
-npm run veplayer:fase46-smoke
+npm run fase46-smoke
 ```
 
 ## SOCE · EssCap (v2.41 · Fase 47)
@@ -1621,7 +1635,7 @@ Continúa bloque HEV **01D2 / 01D9**.
 | 01D9 | Calculated ESS energy kWh | `ess_cap_warn` / `ess_cap_alert` | `EssCap · XXkWh` |
 
 ```bash
-npm run veplayer:fase47-smoke
+npm run fase47-smoke
 ```
 
 ## Bcap · EssRsrv (v2.43 · Fase 48)
@@ -1636,7 +1650,7 @@ Continúa bloque HEV **01D8 / 01D0**.
 También decodifica init reserve (C/D) y health dist (E/F) en señales.
 
 ```bash
-npm run veplayer:fase48-smoke
+npm run fase48-smoke
 ```
 
 ## EssLim · EssAct · HvEner (v2.45 · Fase 49)
@@ -1650,7 +1664,7 @@ Continúa bloque HEV **01D1 / 01D4**.
 | 01D4 | Energy rate Wh/s | `hv_ener_rate_warn` / `hv_ener_rate_alert` | `HvEner · XXWh/s` |
 
 ```bash
-npm run veplayer:fase49-smoke
+npm run fase49-smoke
 ```
 
 ## HvCurr · EmRpm · EmTq (v2.47 · Fase 50)
@@ -1664,7 +1678,7 @@ Continúa bloque HEV/EM **01DA / 01CC / 01CD**.
 | 01CD | Electric motor A torque Nm | `em_tq_warn` / `em_tq_alert` | `EmTq · XXNm` |
 
 ```bash
-npm run veplayer:fase50-smoke
+npm run fase50-smoke
 ```
 
 ## FcV · FcFuel · PsTrips (v2.49 · Fase 51)
@@ -1680,7 +1694,7 @@ Fuel cell + ciclos de propulsión **01D5 / 01D6**.
 También parseados (sin monitor): cumul current mAh/s (E/F), cumul energy Wh/s (G/H).
 
 ```bash
-npm run veplayer:fase51-smoke
+npm run fase51-smoke
 ```
 
 ## HevMode · HevA · VSet (v2.51 · Fase 52)
@@ -1696,7 +1710,7 @@ Pulido HEV **019A** (mode + current SAE) + **01AA** speed limit. También parsea
 Voltaje 019A: layout SAE C/D ÷64 (6 bytes); short frame legacy A/B ÷10.
 
 ```bash
-npm run veplayer:fase52-smoke
+npm run fase52-smoke
 ```
 
 ## Validation gate (pre-fase · v1.15)
@@ -1715,10 +1729,10 @@ Antes de abrir una **nueva fase OBD**, el gate comprueba que el software nativo 
 npm run senseflow:dev
 
 # Gate completo
-npm run veplayer:validate-gate
+npm run validate-gate
 
 # Solo parser/poll/dbc (sin API)
-VALIDATE_SKIP_FLEET=1 npm run veplayer:validate-gate
+VALIDATE_SKIP_FLEET=1 npm run validate-gate
 ```
 
 CI: workflow `.github/workflows/veplayer-gate.yml` — **build APK** + gate.
@@ -1730,7 +1744,7 @@ CI: workflow `.github/workflows/veplayer-gate.yml` — **build APK** + gate.
 Playbook en tablet / head-unit **sin cuentas Google** (factory reset si hace falta):
 
 ```bash
-cd veplayer/android && ./gradlew assembleDebug
+cd android && ./gradlew assembleDebug
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 # package debug suele ser com.veplayer.app (mismo applicationId)
 ../scripts/enable-device-owner.sh com.veplayer.app
@@ -1748,7 +1762,7 @@ Qué aplica el owner:
 En Ajustes (PIN): checklist kiosk · Aplicar políticas · Lock Task · toggle OTA auto.
 
 ```bash
-npm run veplayer:kiosk-smoke   # SenseFlow cmds lock_task / apply_kiosk / ota silent
+npm run kiosk-smoke   # SenseFlow cmds lock_task / apply_kiosk / ota silent
 ```
 
 Whitelistea VePlayer + Spotify + YouTube en Lock Task.
@@ -1839,7 +1853,7 @@ Backends (`Ajustes` → CAN backend):
 DBC-lite (`CanSignalDecoder`): speed · gear · turn · doors · SOC/fuel · steer/RPM · ABS/flags · TPMS · HVAC.
 
 ```bash
-npm run veplayer:can-smoke
+npm run can-smoke
 ```
 
 ### OBD ELM327

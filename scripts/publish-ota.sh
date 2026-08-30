@@ -16,10 +16,8 @@ VER_CODE="${3:?version_code required e.g. 15}"
 NOTES="${4:-VePlayer $VER_NAME field release}"
 BASE="${SENSEFLOW_URL:-http://127.0.0.1:4100}"
 PUBLIC="${PUBLIC_BASE:-$BASE}"
-OTA_DIR="$ROOT/../senseflow/ota"
-# scripts live in veplayer/ → repo root is parent of veplayer
-REPO="$(cd "$ROOT/.." && pwd)"
-OTA_DIR="$REPO/senseflow/ota"
+# SenseFlow OTA dir: sibling vescreendflow or OTA_DIR env
+OTA_DIR="${OTA_DIR:-$ROOT/../vescreendflow/senseflow/ota}"
 
 mkdir -p "$OTA_DIR"
 FILE="veplayer-${VER_NAME}.apk"

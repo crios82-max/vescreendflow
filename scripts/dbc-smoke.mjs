@@ -6,8 +6,8 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-const dbcPath = path.join(root, 'veplayer/android/app/src/main/assets/dbc/veplayer_demo.dbc')
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const dbcPath = path.join(root, 'android/app/src/main/assets/dbc/veplayer_demo.dbc')
 
 const bo = /^BO_\s+(\d+)\s+(\w+)\s*:\s*(\d+)\s+(\w+)/
 const sg =

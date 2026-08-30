@@ -7,8 +7,10 @@ const fs = await import('fs')
 const path = await import('path')
 const { fileURLToPath } = await import('url')
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-const otaDir = path.join(root, 'senseflow/ota')
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const otaDir = process.env.OTA_DIR
+  ? process.env.OTA_DIR
+  : path.join(root, '../vescreendflow/senseflow/ota')
 fs.mkdirSync(otaDir, { recursive: true })
 
 async function j(p, init) {
